@@ -1,11 +1,11 @@
 !&SYSTEM_GENERALITIES
 !ND = 1        !Number of dimensions = number of cavity modes coupled with the molecule
-!lambda = 1    !strength parameter of the coupling
 !/
 !
-&PARAMETERS_OHL_1
-D = 1         !Label of the basis/OHL/mode/dimension
-Nb_D = 60     !Number of basis vectors associated with the OHL D
-w_D = 1       !Eigenpulsation associated with the OHL D
-m_D = 1       !Mass associated with the OHL D
+&HO_1
+D = 1         !Label of the basis/HO/mode/dimension
+Nb = 6        !Number of basis vectors associated with the HO D
+w = 1         !Eigenpulsation associated with the HO D
+m = 1         !Mass associated with the HO D
+lambda = 1    !Strength parameter of the coupling between the mode D and the molecule
 /
