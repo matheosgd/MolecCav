@@ -21,6 +21,14 @@ else
   echo "Running $test_name.f90 ..."
 fi
 
+if [ ! -d "OBJ/" ]
+then
+  mkdir OBJ/
+  echo "OBJ/ directory was not here yet : created"
+else
+  echo "OBJ/ directory already created : ok"
+fi
+
 cd ~/MolecCav/OBJ/                                         #/!\This path may have to be changed /!\
 
 if [ -n "$2" ]
