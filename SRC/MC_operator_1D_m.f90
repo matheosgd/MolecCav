@@ -1,21 +1,11 @@
-PROGRAM test1
+MODULE MC_operator_1D_m
   USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
   IMPLICIT NONE
-
-
-  TYPE :: MC_cavity_mode_t                                                     ! MC = MolecCav
-    integer           :: D      = 1                                            ! label of the HO/mode/dimension/associated basis set
-    integer           :: Nb     = 1                                            ! number of basis vectors associated with the HO D
-    real(kind=real64) :: w      = 1.0_real64                                   ! eigenpulsation associated with the HO D
-    real(kind=real64) :: m      = 1.0_real64                                   ! mass associated with the HO D
-    real(kind=real64) :: lambda = 1.0_real64                                   ! Strength parameter of the coupling between the mode D and the molecule
-  END TYPE
 
 
   TYPE :: MC_operator_1D_t
     character(len=:),     allocatable :: operator_type                         ! ex : "Hamiltonian", "Position", "Nb_photons", etc
     character(len=:),     allocatable :: scalar_space                          ! ex : "Real" or "Complex"
-    !### NB : The following types concern mainly the two-dimension matrices ###
     character(len=:),     allocatable :: matrix_shape_type                     ! ex : "Dense", "Diagonal", "Band", etc
     integer                           :: Upper_bandwidth = 0                   ! if type = "Band". Gives the number of additional bands to consider above the diagonal.
     integer                           :: Lower_bandwidth = 0                   ! if type = "Band". Gives the number of additional bands to consider below the diagonal. Ex : Upper_bandwidth=Lower_bandwidth=1 would give a tridiagonal matrix
@@ -28,233 +18,8 @@ PROGRAM test1
   END TYPE
 
 
-!--------------------------------First cavity mode-----------------------------
-  TYPE(MC_cavity_mode_t)  :: Cavity_mode_1
-  TYPE(MC_operator_1D_t)  :: H_ho_cavity_mode_1                                ! matrix of the one-dimensional harmonic Hamiltonian associated with HO D
-  TYPE(MC_operator_1D_t)  :: x_ho_cavity_mode_1
-  TYPE(MC_operator_1D_t)  :: N_ho_cavity_mode_1
-
-  !--------------------------------Just for test purposes----------------------
-  integer                        :: j
-  TYPE(MC_operator_1D_t)         :: H_ho_cavity_mode_1_dense
-  TYPE(MC_operator_1D_t)         :: x_ho_cavity_mode_1_dense
-  TYPE(MC_operator_1D_t)         :: N_ho_cavity_mode_1_dense
-  real(kind=real64), allocatable :: Psi_Cavity_mode_1_R(:)                       ! a one dimension vector describing the photon state of the first mode. Vector on the HO_1 Eigenbasis. It's a superposition of the Eigenvector states
-  real(kind=real64), allocatable :: Psi1_result_R(:), Psi2_result_R(:), Psi3_result_R(:)
-  real(kind=real64), allocatable :: Psi4_result_R(:)
-  !----------------------------------------------------------------------------
-
-
-  CALL MolecCav_Read_cavity_mode(Mode=Cavity_mode_1, nio=INPUT_UNIT)
-
-  CALL MolecCav_Construct_Operator(Operator=H_ho_cavity_mode_1, &
-                                 & operator_type="Hamiltonian", &
-                                 & scalar_space="Real", &
-                                 & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
-                                 & Nb=Cavity_mode_1%Nb, &
-                                 & w=Cavity_mode_1%w, &
-                                 & m=Cavity_mode_1%m)
-
-  !--------------------------------Just for test purposes----------------------
-  WRITE(OUTPUT_UNIT,*) "H_{cavity mode 1 Optimized}"
-  DO j = 1, Cavity_mode_1%Nb
-    WRITE(OUTPUT_UNIT,*) H_ho_cavity_mode_1%Diag_val_R(j)
-  END DO
-
-  CALL MolecCav_Construct_Operator(Operator=H_ho_cavity_mode_1_dense, &
-                                 & operator_type="Hamiltonian", &
-                                 & scalar_space="Real", &
-                                 & matrix_shape_type="Non_opt", &              ! opt => get analytical shape. non_opt => get dense shape
-                                 & Nb=Cavity_mode_1%Nb, &
-                                 & w=Cavity_mode_1%w, &
-                                 & m=Cavity_mode_1%m)
-
-  WRITE(OUTPUT_UNIT,*) "H_{cavity mode 1 Non Optimized}"
-  DO j = 1, Cavity_mode_1%Nb
-    WRITE(OUTPUT_UNIT,*) H_ho_cavity_mode_1_dense%Dense_val_R(j,:)
-  END DO
-  !----------------------------------------------------------------------------
-
-  CALL MolecCav_Construct_Operator(Operator=x_ho_cavity_mode_1, &
-                                 & operator_type="Position", &
-                                 & scalar_space="Real", &
-                                 & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
-                                 & Nb=Cavity_mode_1%Nb, &
-                                 & w=Cavity_mode_1%w, &
-                                 & m=Cavity_mode_1%m)
-
-  !--------------------------------Just for test purposes----------------------
-  WRITE(OUTPUT_UNIT,*) "x_{cavity mode 1 Optimized}"
-  DO j = 1, Cavity_mode_1%Nb
-    WRITE(OUTPUT_UNIT,*) x_ho_cavity_mode_1%Band_val_R(j,:)
-  END DO 
-
-  CALL MolecCav_Construct_Operator(Operator=x_ho_cavity_mode_1_dense, &
-                                 & operator_type="Position", &
-                                 & scalar_space="Real", &
-                                 & matrix_shape_type="Non_opt", &              ! to compare with Opt before
-                                 & Nb=Cavity_mode_1%Nb, &
-                                 & w=Cavity_mode_1%w, &
-                                 & m=Cavity_mode_1%m)
-
-  WRITE(OUTPUT_UNIT,*) "x_{cavity mode 1 Non Optimized}"
-  DO j = 1, Cavity_mode_1%Nb
-    WRITE(OUTPUT_UNIT,*) x_ho_cavity_mode_1_dense%Dense_val_R(j,:)
-  END DO 
-  !----------------------------------------------------------------------------
-
-  CALL MolecCav_Construct_Operator(Operator=N_ho_cavity_mode_1, &
-                                 & operator_type="Nb_photons", &
-                                 & scalar_space="Real", &
-                                 & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
-                                 & Nb=Cavity_mode_1%Nb, &
-                                 & w=Cavity_mode_1%w, &
-                                 & m=Cavity_mode_1%m)
-
-  !--------------------------------Just for test purposes----------------------
-  WRITE(OUTPUT_UNIT,*) "N_{cavity mode 1 Optimized}"
-  DO j = 1, Cavity_mode_1%Nb
-    WRITE(OUTPUT_UNIT,*) N_ho_cavity_mode_1%Diag_val_R(j)
-  END DO 
-
-  CALL MolecCav_Construct_Operator(Operator=N_ho_cavity_mode_1_dense, &
-                                 & operator_type="Nb_photons", &
-                                 & scalar_space="Real", &
-                                 & matrix_shape_type="Non_opt", &              ! To compare with Opt before
-                                 & Nb=Cavity_mode_1%Nb, &
-                                 & w=Cavity_mode_1%w, &
-                                 & m=Cavity_mode_1%m)
-
-  WRITE(OUTPUT_UNIT,*) "N_{cavity_mode_1 Non Optimized}"
-  DO j = 1, Cavity_mode_1%Nb
-    WRITE(OUTPUT_UNIT,*) N_ho_cavity_mode_1_dense%Dense_val_R(j,:)
-  END DO 
-
-  ALLOCATE(Psi_Cavity_mode_1_R(Cavity_mode_1%Nb))
-  DO j = Cavity_mode_1%Nb, 1, -1
-    Psi_Cavity_mode_1_R(Cavity_mode_1%Nb - j + 1) = j
-  END DO
-
-  WRITE(OUTPUT_UNIT,*) ""
-  WRITE(OUTPUT_UNIT,*) "Psi_{cavity mode 1}"
-  DO j = 1, Cavity_mode_1%Nb
-    WRITE(OUTPUT_UNIT,*) Psi_Cavity_mode_1_R(j)
-  END DO
-
-  ALLOCATE(Psi1_result_R(Cavity_mode_1%Nb))
-  CALL MolecCav_Action_Operator_1D(Psi_result=Psi1_result_R, &
-                                 & Operator=H_ho_cavity_mode_1_dense, &
-                                 & Psi_argument=Psi_Cavity_mode_1_R)
-  WRITE(OUTPUT_UNIT,*) ""
-  WRITE(OUTPUT_UNIT,*) "Psi_1_{result} = H_ho_dense |Psi_1>"
-  DO j = 1, Cavity_mode_1%Nb
-    WRITE(OUTPUT_UNIT,*) Psi1_result_R(j)
-  END DO 
-
-  ALLOCATE(Psi2_result_R(Cavity_mode_1%Nb))
-  CALL MolecCav_Action_Operator_1D(Psi_result=Psi2_result_R, &
-                                 & Operator=H_ho_cavity_mode_1, &
-                                 & Psi_argument=Psi_Cavity_mode_1_R)
-  WRITE(OUTPUT_UNIT,*) ""
-  WRITE(OUTPUT_UNIT,*) "Psi_2_{result} = H_ho_diag |Psi_1>"
-  DO j = 1, Cavity_mode_1%Nb
-    WRITE(OUTPUT_UNIT,*) Psi2_result_R(j)
-  END DO 
-
-  ALLOCATE(Psi3_result_R(Cavity_mode_1%Nb))
-  CALL MolecCav_Action_Operator_1D(Psi_result=Psi3_result_R, &
-                                 & Operator=x_ho_cavity_mode_1_dense, &
-                                 & Psi_argument=Psi_Cavity_mode_1_R)
-  WRITE(OUTPUT_UNIT,*) ""
-  WRITE(OUTPUT_UNIT,*) "Psi_3_{result} = x_ho_dense |Psi_1>"
-  DO j = 1, Cavity_mode_1%Nb
-    WRITE(OUTPUT_UNIT,*) Psi3_result_R(j)
-  END DO 
-
-  ALLOCATE(Psi4_result_R(Cavity_mode_1%Nb))
-  CALL MolecCav_Action_Operator_1D(Psi_result=Psi4_result_R, &
-                                 & Operator=x_ho_cavity_mode_1, &
-                                 & Psi_argument=Psi_Cavity_mode_1_R)
-  WRITE(OUTPUT_UNIT,*) ""
-  WRITE(OUTPUT_UNIT,*) "Psi_4_{result} = x_ho_band |Psi_1>"
-  DO j = 1, Cavity_mode_1%Nb
-    WRITE(OUTPUT_UNIT,*) Psi4_result_R(j)
-  END DO 
-  !----------------------------------------------------------------------------
-
-  WRITE(OUTPUT_UNIT,*) ''
-  WRITE(OUTPUT_UNIT,*) 'Test 1 checked !'
-
-
-
-  
   CONTAINS
 
-
-
-
-  SUBROUTINE MolecCav_Read_cavity_mode(Mode, nio)                              ! nio is the label of the file from which the values have to be drawn.
-    USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
-    IMPLICIT NONE
-    
-    TYPE(MC_cavity_mode_t), intent(inout) :: Mode   
-    integer,                intent(in)    :: nio
-
-    integer                               :: D, Nb, err_io                     ! label of the basis/HO/mode/dimension, its number of basis vectors, and an error control variable
-    real(kind=real64)                     :: w, m, lambda                      ! eigenpulsation, mass, and molecule-coupling strength associated with this HO
-
-    NAMELIST /HO_1/ D, Nb, w, m, lambda                                        ! declare the nml HO_1 and specify the parameter's list to be found within
-
-    !----------------------Initialization to default values---------------------
-    D      = 1
-    Nb     = 1
-    w      = 1.0
-    m      = 1.0
-    lambda = 1.0
- 
-    !------------------------------Reading of the nml---------------------------
-    WRITE(OUTPUT_UNIT,*) ''
-    WRITE(OUTPUT_UNIT,*) '*******************************************************'
-    WRITE(OUTPUT_UNIT,*) '************* READING BASIS OF THE HO *****************'
-    WRITE(OUTPUT_UNIT,*) '*******************************************************'
-    
-    READ(nio, nml = HO_1, iostat = err_io)                                     ! assign the values read in the nml to the declared list of parameters
-
-    WRITE(OUTPUT_UNIT, nml = HO_1)                                             ! just to have it in the output file
-    
-    !------------------------------Check reading error-------------------------
-    IF(err_io < 0) then
-      WRITE(OUTPUT_UNIT,*) ''
-      WRITE(OUTPUT_UNIT,*) '#######################################################'
-      WRITE(OUTPUT_UNIT,*) '######## Error in Read_cavity_mode (err_io<0) #########'
-      WRITE(OUTPUT_UNIT,*) '#######################################################'
-      WRITE(OUTPUT_UNIT,*) '################ err_io = ', err_io, '################'
-      STOP '################# Check basis data ################'
-
-    ELSE IF( err_io > 0) then
-      WRITE(OUTPUT_UNIT,*) ''
-      WRITE(OUTPUT_UNIT,*) '#######################################################'
-      WRITE(OUTPUT_UNIT,*) '######## Error in Read_cavity_mode (err_io>0) #########'
-      WRITE(OUTPUT_UNIT,*) '#######################################################'
-      WRITE(OUTPUT_UNIT,*) '################ err_io = ', err_io, '################'
-      STOP '################# Check basis data ################'
-
-    END IF
-
-    !---------------Construction of the MC_cavity_mode_t type object-----------
-    Mode%D      = D
-    Mode%Nb     = Nb
-    Mode%w      = w
-    Mode%m      = m
-    Mode%lambda = lambda
-
-    WRITE(OUTPUT_UNIT,*) ''
-    WRITE(OUTPUT_UNIT,*) '*******************************************************'
-    WRITE(OUTPUT_UNIT,*) '*********** BASIS OF THE HO CONSTRUCTED ***************'
-    WRITE(OUTPUT_UNIT,*) '*******************************************************'
-
-  END SUBROUTINE
- 
 
   SUBROUTINE MolecCav_Construct_Operator(Operator, operator_type, scalar_space, matrix_shape_type, Nb, w, m)
     USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
@@ -492,14 +257,15 @@ PROGRAM test1
 
     Psi_result     = 0.0_real64
     Psi_result     = Operator%Band_val_R(:,2) * Psi_argument
-    Psi_result(1)  = Psi_result(1)  + Operator%Band_val_R(2,3)   *Psi_argument(2)
-    Psi_result(Nb) = Psi_result(Nb) + Operator%Band_val_R(Nb-1,1)*Psi_argument(Nb-1)
+    Psi_result(1)  = Psi_result(1)  + Operator%Band_val_R(2,3)    * Psi_argument(2)
+    Psi_result(Nb) = Psi_result(Nb) + Operator%Band_val_R(Nb-1,1) * Psi_argument(Nb-1)
     DO i = 2, Nb-1
-      Psi_result(i) = Psi_result(i) + Operator%Band_val_R(i-1,1) * Psi_argument(i-1) &
-      & + Operator%Band_val_R(i+1,3) * Psi_argument(i+1)
+      Psi_result(i) = Psi_result(i) + &
+                    & Operator%Band_val_R(i-1,1) * Psi_argument(i-1) + &
+                    & Operator%Band_val_R(i+1,3) * Psi_argument(i+1)
     END DO
 
   END SUBROUTINE
 
 
-END PROGRAM
+END MODULE
