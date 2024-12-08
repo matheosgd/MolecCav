@@ -191,7 +191,7 @@ $(QDLIBA):
 clean:
 	rm -f $(OBJ_DIR)/*.o
 	rm -f test*.exe
-	rm -f test.log
+	rm -f test_cavity_mode.log
 	@echo "Done cleaning objects, executables, and tests outputs"
 # removes all the object files from the OBJ/ directory, all the executable files, and the output files from the tests
 
