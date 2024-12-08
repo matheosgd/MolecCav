@@ -43,6 +43,12 @@ PROGRAM test_cavity_mode
   IF (error == 0) THEN
     WRITE(OUTPUT_UNIT,*) ''
     WRITE(OUTPUT_UNIT,*) 'Test 1 checked ! The Cavity mode initializes successfully !'
+  ELSE IF (error == 1) THEN
+    WRITE(OUTPUT_UNIT,*) ''
+    WRITE(OUTPUT_UNIT,*) 'Test 1 failed ! The Cavity mode did not initialize successfully...'
+  ELSE
+    WRITE(OUTPUT_UNIT,*) ''
+    WRITE(OUTPUT_UNIT,*) 'Test 1 stopped ! The file did not execute as it should have !'
   END IF
   
   
