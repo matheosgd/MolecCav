@@ -1,4 +1,5 @@
 MODULE MC_operator_1D_m
+  USE QDUtil_m
   USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
   IMPLICIT NONE
 

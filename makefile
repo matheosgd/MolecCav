@@ -120,11 +120,15 @@ $(info ***********************************************************************)
 .PHONY: ut UT
 # the ".PHONY <string1> <string2> <...>" make command indicates to make that the provided string are neither files nor directories and allows to use them...
 # ... as key-words, ex: as command-line commands
-UT ut: test_cavity_mode.exe
+UT ut: test_cavity_mode.exe test_construct_op.exe
 	./test_cavity_mode.exe < data_tests.nml > test_cavity_mode.log
-	grep "Test" test.log
+	grep "Test" test_cavity_mode.log
+	./test_construct_op.exe < data_tests.nml > test_construct_op.log
+	grep "Test" test_construct_op.log
 	@echo "Done Tests"
 # here is the actual definition of the command. It is declared as "UT" OR "ut" to make it cass-insensitive (both can be used to call it). NB: UT = Utility Test
+# the first line instruction is understood by Make as "see these files". It will search the make file for where they are defined i.e. for their...
+# ... dependancies, and create them as they are defined if they are too old. 
 # the command will execute the executable files of the tests (and compile them first if they do not exist or if they are too old because that is the point...
 # ... of using Make cf. definition of the files), using the default data_tests.nml data namelist (for now) and write the output in the .log file
 # then it will display the output message of the test as written in the output file using the "grep" shell command. (So be careful programing your tests to...
@@ -220,25 +224,30 @@ cleanall : clean
 #==================Definition of the files to be created by Make==================
 #========================2. the tests (the TESTS/ programs)=======================
 #=================================================================================
-test_cavity_mode.exe: $(OBJ_DIR)/test_cavity_mode.o $(LIBA)
+test_cavity_mode.exe          : $(OBJ_DIR)/test_cavity_mode.o $(LIBA)
 	$(FFC) -o test_cavity_mode.exe  $(FFLAGS) $(OBJ_DIR)/test_cavity_mode.o $(LIBA) $(EXTLib)
 # Recall: "FFLAGS also provides the path towards the .mod files : "-J$(MOD_DIR) $(EXTMod)"
 
-$(OBJ_DIR)/test_cavity_mode.o:$(TESTS_DIR)/test_cavity_mode.f90
+$(OBJ_DIR)/test_cavity_mode.o : $(TESTS_DIR)/test_cavity_mode.f90
 	$(FFC) -c -o $(OBJ_DIR)/test_cavity_mode.o $(FFLAGS) $(TESTS_DIR)/test_cavity_mode.f90
 # "-c" is the compilation and can take also as an argument "-o" which here does not mean "link into executable" but allows to choose the name of the thereby...
 #... created object files. Here the path where they have to be stored (OBJ/obj) is added as a prefix to the name 
 
+test_construct_op.exe         : $(OBJ_DIR)/test_construct_op.o $(LIBA)
+	$(FFC) -o test_construct_op.exe  $(FFLAGS) $(OBJ_DIR)/test_construct_op.o $(LIBA) $(EXTLib)
+
+$(OBJ_DIR)/test_construct_op.o : $(TESTS_DIR)/test_construct_op.f90
+	$(FFC) -c -o $(OBJ_DIR)/test_construct_op.o $(FFLAGS) $(TESTS_DIR)/test_construct_op.f90
 
 #=================================================================================
 #==================Definition of the files to be created by Make==================
 #=========================3. the library (the SRC modules)========================
 #==============================3.1. The object files==============================
 #=================================================================================
-$(OBJ_DIR)/MC_cavity_mode_m.o:$(SRC_DIR)/MC_cavity_mode_m.f90
+$(OBJ_DIR)/MC_cavity_mode_m.o : $(SRC_DIR)/MC_cavity_mode_m.f90
 	$(FFC) -c -o $(OBJ_DIR)/MC_cavity_mode_m.o $(FFLAGS) $(SRC_DIR)/MC_cavity_mode_m.f90
 
-$(OBJ_DIR)/MC_operator_1D_m.o:$(SRC_DIR)/MC_operator_1D_m.f90
+$(OBJ_DIR)/MC_operator_1D_m.o : $(SRC_DIR)/MC_operator_1D_m.f90
 	$(FFC) -c -o $(OBJ_DIR)/MC_operator_1D_m.o $(FFLAGS) $(SRC_DIR)/MC_operator_1D_m.f90
 
 #=================================================================================
@@ -257,13 +266,14 @@ $(OBJ_DIR)/MC_operator_1D_m.o:$(SRC_DIR)/MC_operator_1D_m.f90
 
 
 #=================================================================================
-#======================Definition of the modules dependancies=====================
+#=======================Definition of the files dependancies======================
 #=================================================================================
 # here are added the other dependancies between modules, that arre mandatory for a good compilation, but which do not lead to creation instructions. Just to...
 # ... specify that one module needs another one
-$(OBJ_DIR)/test_cavity_mode.o : $(LIBA)
+$(OBJ_DIR)/test_cavity_mode.o  : $(LIBA)
+$(OBJ_DIR)/test_construct_op.o : $(LIBA)
 
-$(OBJ)                        : | $(QDLIBA)
+$(OBJ)                         : | $(QDLIBA)
 # the pipe means that only the EXISTENCE is tested and not the dates of the files. The logical test is True if $(QDLIBA) exists, EVEN if its creation date...
 #... is more recent than the tested file
 
