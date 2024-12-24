@@ -1,7 +1,14 @@
+##################################################################################
+##################################################################################
+##################################################################################
 # execute this file by command line using the following syntaxes :
 # "make" to execute the first command defined in this file below
 # "make <command>" to execute a particular command defined below
-# "make -f <name of this file> <command (optional)>" if another file in Make is present in this directory
+# "make -f <name of this file> <command (optional)>" if another file in Make is... 
+# ...present in this directory
+##################################################################################
+##################################################################################
+##################################################################################
 
 #=================================================================================
 #========================Definition of the Frotran Compiler=======================
@@ -90,8 +97,9 @@ FFLAGS   = -Og -g -fbacktrace -fcheck=all -fwhole-file -fcheck=pointer -Wuniniti
 # some useful optional arguments of the gfortran compilation command
 FFLAGS   += -J$(MOD_DIR) $(EXTMod)
 # "+=" works the same way as in python, C, etc
-# to these optional aguments are added : "-J" which indicates where to STORE the .mod files of the lib. after compilation (at the contrary of "-I" which...
-# ...indicates where to FIND the needed ones); and the path towards the .mod files of the external library(ies).
+# to these optional aguments are added : "-J" which indicates the DIRECTORY (and not all the path of the .mod files) where to STORE the .mod files of the...
+# ...lib. after compilation (at the contrary of "-I" which indicates where to FIND the needed ones); and the path towards the .mod files of the external...
+# ...library(ies).
 SRCFILES = MC_cavity_mode_m.f90 MC_operator_1D_m.f90
 # the list of all the .f90 source files OF THE LIBRARY (only the modules, not the test/app programs) to be compiled
 OBJ0     = ${SRCFILES:.f90=.o}
@@ -143,7 +151,7 @@ UT ut: test_cavity_mode.exe test_construct_op.exe
 # this command will compile the library (create the .o and .mod files) and the tests (create the .o and .exe files) and create the static library .a file...
 # ... BUT not execute anything !
 .PHONY: all
-all: $(LIBA) test_cavity_mode.exe
+all: $(LIBA) test_cavity_mode.exe test_construct_op.exe
 # Recall : LIBA = libMolecCav
 # this instruction is understood by Make as "see these files". It will search the make file for where they are defined i.e. for their dependancies, and...
 # ... create them as they are defined if they are too old. 
@@ -205,7 +213,7 @@ cleanall : clean
 	cd Ext_Lib ; ./cleanlib
 	@echo "Done all cleaning : objects, modules, statics, and same for external libraries"
 # removes all the files from the OBJ/ directory (.o and .mod), all the static library files, and performs the cleaning the external libraries as defined...
-#... in their makefile
+#... in their makefile in addition to executing the "clean" command
 
 
 #=================================================================================
@@ -226,6 +234,8 @@ cleanall : clean
 #=================================================================================
 test_cavity_mode.exe          : $(OBJ_DIR)/test_cavity_mode.o $(LIBA)
 	$(FFC) -o test_cavity_mode.exe  $(FFLAGS) $(OBJ_DIR)/test_cavity_mode.o $(LIBA) $(EXTLib)
+# N.B. contrary to the next instruction, -o does mean here "link these object files into an executable one" (gfortran argument syntax)
+# N.B. Question : je ne suis pas de pourquoi FFLAGS est nécéssaire pour le linking en .exe puisque je crois que les .mod ne sont pas utiles pour cette étape ?
 # Recall: "FFLAGS also provides the path towards the .mod files : "-J$(MOD_DIR) $(EXTMod)"
 
 $(OBJ_DIR)/test_cavity_mode.o : $(TESTS_DIR)/test_cavity_mode.f90
@@ -253,7 +263,7 @@ $(OBJ_DIR)/MC_operator_1D_m.o : $(SRC_DIR)/MC_operator_1D_m.f90
 #=================================================================================
 #==================Definition of the files to be created by Make==================
 #=========================3. the library (the SRC modules)========================
-#===========================3.1. The static library file==========================
+#===========================3.2. The static library file==========================
 #=================================================================================
 # /!\ this file definition has been moved to the "3. the static library compilation and creation command "lib"" section /!\.
 
