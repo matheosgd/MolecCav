@@ -23,7 +23,8 @@ MODULE MC_operator_1D_m
 
 
   SUBROUTINE MolecCav_Construct_Operator(Operator, operator_type, scalar_space, matrix_shape_type, Nb, w, m)
-    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
+    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
+    USE QDUtil_m
     IMPLICIT NONE
 
     TYPE(MC_operator_1D_t), intent(inout) :: Operator                          ! the object of type Operator_t to be constructed here
@@ -34,7 +35,7 @@ MODULE MC_operator_1D_m
     real(kind=Rkind),       intent(in)    :: w, m                              ! eigenpulsation and mass associated with this HO
 
     !--------------first steps of the construction of the Operator-------------
-    Operator%operator_type = operator_type                                     ! allocation on assignement. operator type has the right lengths (no spaces added) thanks to len=* at declaration and it will fit the Op%op_type thanks to len=:, allocatable at declaration of the derived type. 
+    Operator%operator_type = operator_type                                     ! allocation on assignement. operator_type has the right lengths (no spaces added) thanks to len=* at declaration and it will fit the Op%op_type thanks to len=:, allocatable at declaration of the derived type. 
     Operator%scalar_space  = scalar_space                                      ! allocation on assignement too.
 
     !--------------------construction of the matrix Operator-------------------
@@ -58,6 +59,7 @@ MODULE MC_operator_1D_m
 
   SUBROUTINE MolecCav_Construct_H_cavity_mode(Hamiltonian, matrix_shape_type, Nb, w)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
+    USE QDUtil_m
     IMPLICIT NONE
     
     TYPE(MC_operator_1D_t), intent(inout) :: Hamiltonian                       ! matrix of the one-dimensional harmonic Hamiltonian associated with HO D
@@ -102,6 +104,7 @@ MODULE MC_operator_1D_m
 
   SUBROUTINE MolecCav_Construct_x_cavity_mode(Position_Op, matrix_shape_type, Nb, w, m)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
+    USE QDUtil_m
     IMPLICIT NONE
     
     TYPE(MC_operator_1D_t), intent(inout) :: Position_Op
@@ -152,6 +155,7 @@ MODULE MC_operator_1D_m
 
   SUBROUTINE MolecCav_Construct_N_cavity_mode(Nb_photon_Op, matrix_shape_type, Nb)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
+    USE QDUtil_m
     IMPLICIT NONE
     
     TYPE(MC_operator_1D_t), intent(inout) :: Nb_photon_Op
@@ -194,6 +198,7 @@ MODULE MC_operator_1D_m
 
   SUBROUTINE MolecCav_Action_Operator_1D(Psi_result, Operator, Psi_argument)   ! /!\ FOR NOW EVERYTHING IS REAL /!\ compute the resulting vector Psi_result(:) from the action of the operator of the cavity mode on the photon state vector Psi_argument(:) written in the Eigenbasis of H_ho
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
+    USE QDUtil_m
     IMPLICIT NONE
 
     real(kind=Rkind), intent(inout)    :: Psi_result(:)
@@ -220,6 +225,7 @@ MODULE MC_operator_1D_m
 
   SUBROUTINE MolecCav_Action_Dense_Operator_1D(Psi_result, Operator, Psi_argument)  ! _R for the case where Psi is a real vector. 
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
+    USE QDUtil_m
     IMPLICIT NONE
     
     real(kind=Rkind), intent(inout)    :: Psi_result(:)
@@ -233,6 +239,7 @@ MODULE MC_operator_1D_m
 
   SUBROUTINE MolecCav_Action_Diag_Operator_1D(Psi_result, Operator, Psi_argument) 
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
+    USE QDUtil_m
     IMPLICIT NONE
     
     real(kind=Rkind), intent(inout)    :: Psi_result(:)
@@ -246,6 +253,7 @@ MODULE MC_operator_1D_m
 
   SUBROUTINE MolecCav_Action_Band_Operator_1D(Psi_result, Operator, Psi_argument)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
+    USE QDUtil_m
     IMPLICIT NONE
     
     real(kind=Rkind), intent(inout)   :: Psi_result(:)
