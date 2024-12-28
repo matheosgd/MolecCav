@@ -57,11 +57,7 @@ echo "##########################################################################
 #------------------------------------------------------------------------------
 FFC="gfortran"                                                                 # the fortran compiler
 FFLAGS="-Og -g -fbacktrace -fcheck=all -fwhole-file -fcheck=pointer -Wuninitialized -finit-real=nan -finit-integer=nan"
-
-TESTS=("test_cavity_mode" "test_construct_op")
-SRC_TESTS=(${TESTS[@]/%/.f90})                                                 #parenthesis must be added here to make bash know that the nex var is also an array
-OBJ_TESTS=(${TESTS[@]/%/.o})                                                   
-EXE_TESTS=(${TESTS[@]/%/.exe})                                                 
+                                                                               # some useful options for the compiler
 
 MODULES_LIB=("MC_cavity_mode_m" "MC_operator_1D_m")
 SRC_LIB=(${MODULES_LIB[@]/%/.f90})
@@ -69,7 +65,14 @@ OBJ_LIB=(${MODULES_LIB[@]/%/.o})
 
 LIB="libMolecCav"
 LIBA="$LIB.a"
-                                                                               # some useful options for the compiler
+
+TESTS=("test_cavity_mode" "test_construct_op")
+SRC_TESTS=(${TESTS[@]/%/.f90})                                                 #parenthesis must be added here to make bash know that the nex var is also an array
+OBJ_TESTS=(${TESTS[@]/%/.o})                                                   
+EXE_TESTS=(${TESTS[@]/%/.exe})                                                 
+
+OUTPUT_DIR="OUT"
+
 ExtLibDIR="Ext_Lib"
 OOPT="0"
 OOMP="1"
@@ -83,7 +86,6 @@ EXTLib="$QDLIBA"
 #------------------------------------------------------------------------------
 #-----------------------0.2 Declaration of the functions-----------------------
 #------------------------------------------------------------------------------
-
 Claim()
 {
   if [ ! "$1" = "/end" ]
@@ -177,6 +179,7 @@ Build_tests()
   done
   Claim "/end"
 }
+
 
 #------------------------------------------------------------------------------
 #-------------------------1. Recovery of the arguments-------------------------
@@ -379,7 +382,8 @@ case "$command" in
 "clean") 
 	rm -f $OBJ_DIR/*.o
 	rm -f test*.exe
-	rm -f test*.log
+	rm -f $OUTPUT_DIR/test_cavity_mode.log
+	rm -f $OUTPUT_DIR/test_construct_op.log
 	Claim "Done cleaning objects, executables, and tests outputs"
   echo "################################################################################"
   echo "################################################################################"
@@ -435,26 +439,37 @@ case "$command" in
   echo "################################################################################"
   exit 0;;
 
+
 #------------------------------------------------------------------------------
 #--------------------------2. Execution of the command-------------------------
 #------------------------------2.1. The ut command-----------------------------
 #------------------------------------------------------------------------------
 "ut")
+  if [ ! -d "$OUTPUT_DIR" ]                                                    # d teste l'existence du directory "<...>"
+  then
+    mkdir "$OUTPUT_DIR"
+    Claim "$OUTPUT_DIR/ directory was not here yet : created" "/end"
+  else
+    Claim "$OUTPUT_DIR directory already created : ok" "/end"
+  fi
+
   Build_lib
   Build_tests
   #./$test_name.exe < $data_file.nml > $data_file.out
-	./test_cavity_mode.exe < data_tests.nml > test_cavity_mode.log
-	Claim "$(grep "Test" test_cavity_mode.log)"
-	./test_construct_op.exe < data_tests.nml > test_construct_op.log
-	Claim "$(grep "Test" test_construct_op.log)"
+	./test_cavity_mode.exe < data_tests.nml > "$OUTPUT_DIR/"test_cavity_mode.log
+	Claim "$(grep "Test" "$OUTPUT_DIR/"test_cavity_mode.log)"
+	./test_construct_op.exe < data_tests.nml > "$OUTPUT_DIR/"test_construct_op.log
+	Claim "$(grep "Test" "$OUTPUT_DIR/"test_construct_op.log)"
 	Claim "Done Tests"
 
   echo "################################################################################"
   echo "################################################################################"
   exit 0;;
+
 *)
   Claim "something is weird"
   echo "################################################################################"
   echo "################################################################################"
   exit 1;;
 esac
+

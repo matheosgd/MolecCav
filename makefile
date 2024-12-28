@@ -40,6 +40,7 @@ SRC_DIR   = SRC
 # the name of the directory where to find the source files of the library's modules
 TESTS_DIR = TESTS
 # the name of the directory where to find the source files of the library's test programs
+OUTPUT_DIR = OUT
 
 EXTMod    =                      
 # the directory where the external libraries are to find (cf next subpart)
@@ -56,6 +57,8 @@ $(shell [ -d $(OBJ_DIR) ] || mkdir -p $(OBJ_DIR)) # the instruction A = $(shell 
                                                   # ...but still executed.
                                                   # as we did in the script, this more compact command test the existence of OBJ/ and creates...
                                                   # ...it if it was not here (-p allow to create also the sub-directory /obj/)
+
+$(shell [ -d $(OUTPUT_DIR) ] || mkdir -p $(OUTPUT_DIR))
 
 
 #=================================================================================
@@ -129,10 +132,10 @@ $(info ***********************************************************************)
 # the ".PHONY <string1> <string2> <...>" make command indicates to make that the provided string are neither files nor directories and allows to use them...
 # ... as key-words, ex: as command-line commands
 UT ut: test_cavity_mode.exe test_construct_op.exe
-	./test_cavity_mode.exe < data_tests.nml > test_cavity_mode.log
-	grep "Test" test_cavity_mode.log
-	./test_construct_op.exe < data_tests.nml > test_construct_op.log
-	grep "Test" test_construct_op.log
+	./test_cavity_mode.exe < data_tests.nml > $(OUTPUT_DIR)/test_cavity_mode.log
+	grep "Test" $(OUTPUT_DIR)/test_cavity_mode.log
+	./test_construct_op.exe < data_tests.nml > $(OUTPUT_DIR)/test_construct_op.log
+	grep "Test" $(OUTPUT_DIR)/test_construct_op.log
 	@echo "Done Tests"
 # here is the actual definition of the command. It is declared as "UT" OR "ut" to make it cass-insensitive (both can be used to call it). NB: UT = Utility Test
 # the first line instruction is understood by Make as "see these files". It will search the make file for where they are defined i.e. for their...
@@ -203,7 +206,8 @@ $(QDLIBA):
 clean:
 	rm -f $(OBJ_DIR)/*.o
 	rm -f test*.exe
-	rm -f test_cavity_mode.log
+	rm -f $(OUTPUT_DIR)/test_cavity_mode.log
+	rm -f $(OUTPUT_DIR)/test_construct_op.log
 	@echo "Done cleaning objects, executables, and tests outputs"
 # removes all the object files from the OBJ/ directory, all the executable files, and the output files from the tests
 

@@ -127,7 +127,7 @@ MODULE MC_operator_1D_m
       ALLOCATE(Position_Op%Band_val_R(Nb,3))                                   ! Nb lines (number of diagonal elements) and 3 columns because 3 bands to consider : the diagonal, and the two bands above and below it
       Position_Op%Band_val_R = ZERO
       !------------------------Construction of the matrix----------------------
-      DO i = 1, Nb - 1                                                     ! /!\ Fortran counts from 1 to Nb !!! /!\ Nb-1 not to have Band_val_R(i+1) out of range
+      DO i = 1, Nb - 1                                                         ! /!\ Fortran counts from 1 to Nb !!! /!\ Nb-1 not to have Band_val_R(i+1) out of range
         Position_Op%Band_val_R(i,1)   = SQRT(REAL(i,kind=Rkind))
         Position_Op%Band_val_R(i+1,3) = SQRT(REAL(i,kind=Rkind))
       END DO
