@@ -1,7 +1,8 @@
 OBJ/*
-*.exe
+*.mod
 *.a
+*.exe
+OUT/*
 *.log
 *.out
-*.mod
 ARCH/*
