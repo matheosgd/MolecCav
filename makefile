@@ -30,6 +30,8 @@ FFC = gfortran
 #=================================================================================
 MAIN_DIR  = APP
 # the name of the directory where to find the source file(s) of the application/exemple program
+MAIN      = App_MolecCav
+# the name of the application file without the extension
 OBJ_DIR   = OBJ/obj
 # the name of the directory where to store the objects .o and .mod files (/obj because we might... 
 # ...want to create different sub libraries with different parameters => different obj/ directories)
@@ -46,7 +48,7 @@ EXTMod    =
 # the directory where the external libraries are to find (cf next subpart)
 
 LIB      = libMolecCav
-# the name of the library (the actual name of the actual library, not the name of any file of the library so far) 
+# the name of the library (the actual name of the actual library, not the name of any file of the library so far)
 LIBA     = $(LIB).a
 # the name (/!\ WITH the extension) of the library (the name of its full static object file this time = all... 
 # ...the .o files of its modules)
@@ -131,11 +133,13 @@ $(info ***********************************************************************)
 .PHONY: ut UT
 # the ".PHONY <string1> <string2> <...>" make command indicates to make that the provided string are neither files nor directories and allows to use them...
 # ... as key-words, ex: as command-line commands
-UT ut: test_cavity_mode.exe test_construct_op.exe
+UT ut: test_cavity_mode.exe test_construct_op.exe test_action_op.exe
 	./test_cavity_mode.exe < data_tests.nml > $(OUTPUT_DIR)/test_cavity_mode.log
 	grep "Test" $(OUTPUT_DIR)/test_cavity_mode.log
 	./test_construct_op.exe < data_tests.nml > $(OUTPUT_DIR)/test_construct_op.log
 	grep "Test" $(OUTPUT_DIR)/test_construct_op.log
+	./test_action_op.exe < data_tests.nml > $(OUTPUT_DIR)/test_action_op.log
+	grep "Test" $(OUTPUT_DIR)/test_action_op.log
 	@echo "Done Tests"
 # here is the actual definition of the command. It is declared as "UT" OR "ut" to make it cass-insensitive (both can be used to call it). NB: UT = Utility Test
 # the first line instruction is understood by Make as "see these files". It will search the make file for where they are defined i.e. for their...
@@ -149,7 +153,18 @@ UT ut: test_cavity_mode.exe test_construct_op.exe
 
 #=================================================================================
 #=========================Definition of the make commands=========================
-#===================2. the everything compilation command "all"===================
+#====================2. the application execution command "APP"===================
+#=================================================================================
+# this command will compile the library (create the .o and .mod files) and the tests (create the .o and .exe files) and create the static library .a file...
+# ... BUT not execute anything !
+.PHONY: app APP App
+app APP App: $(MAIN).exe
+	./$(MAIN).exe < data_app.nml > $(OUTPUT_DIR)/$(MAIN).log
+
+
+#=================================================================================
+#=========================Definition of the make commands=========================
+#===================3. the everything compilation command "all"===================
 #=================================================================================
 # this command will compile the library (create the .o and .mod files) and the tests (create the .o and .exe files) and create the static library .a file...
 # ... BUT not execute anything !
@@ -162,7 +177,7 @@ all: $(LIBA) test_cavity_mode.exe test_construct_op.exe
 
 #=================================================================================
 #=========================Definition of the make commands=========================
-#===========3. the static library compilation and creation command "lib"==========
+#===========4. the static library compilation and creation command "lib"==========
 #=================================================================================
 # this command will compile the library (create the .o and .mod files) into the static library file (create the .a file).
 # the same command as "all" but without the compilation of the tests : the library only !  
@@ -176,9 +191,10 @@ $(LIBA): $(OBJ)
 # here is also added the definition of the static library file (instead of with the other file definitions below). cf. at the "Definition of the files"...
 # ... section for more explanations
 
+
 #=================================================================================
 #=========================Definition of the make commands=========================
-#====4. the static external libraries compilation and creation command "getlib"===
+#====5. the static external libraries compilation and creation command "getlib"===
 #=================================================================================
 # this command will (install if possible and) compile the external libraries
 .PHONY: getlib
@@ -198,7 +214,7 @@ $(QDLIBA):
 
 #=================================================================================
 #=========================Definition of the make commands=========================
-#=================5. the cleaning commands "clean" and "cleanall"=================
+#=================6. the cleaning commands "clean" and "cleanall"=================
 #=================================================================================
 # these commands are designed to get rid of all the files created at the compilation and execution of the library : object, modules, executables, statics,...
 # ... outputs, etc
@@ -206,8 +222,11 @@ $(QDLIBA):
 clean:
 	rm -f $(OBJ_DIR)/*.o
 	rm -f test*.exe
+	rm -f $(MAIN).exe
 	rm -f $(OUTPUT_DIR)/test_cavity_mode.log
 	rm -f $(OUTPUT_DIR)/test_construct_op.log
+	rm -f $(OUTPUT_DIR)/test_action_op.log
+	rm -f $(OUTPUT_DIR)/$(MAIN).log
 	@echo "Done cleaning objects, executables, and tests outputs"
 # removes all the object files from the OBJ/ directory, all the executable files, and the output files from the tests
 
@@ -224,6 +243,8 @@ cleanall : clean
 #==================Definition of the files to be created by Make==================
 #====================1. the main executable (the APP/ program)====================
 #=================================================================================
+$(MAIN).exe                    : $(OBJ_DIR)/$(MAIN).o $(LIBA)
+	$(FFC) -o $(MAIN).exe $(FFLAGS) $(OBJ_DIR)/$(MAIN).o $(LIBA) $(EXTLib)
 # this syntax define a file in Make : it shows its dependancies and then the compilation instructions
 # the first line "<the file defined here> : <list of the files it depends on>" provides the dependancies. If Make has to treat this file, it will compare...
 # ... its date of creation with the one of the files it depends on. If it has been created after them all nothing is done. Otherwise or if the file doesn't...
@@ -231,37 +252,46 @@ cleanall : clean
 # the following lines are thus the creation instructions. They are usually compilation instruction but not necessarily
 # /!\ they have to be indented with a TABULATION and not with spaces /!\.
 
+$(OBJ_DIR)/$(MAIN).o           : $(MAIN_DIR)/$(MAIN).f90
+	$(FFC) -c -o $(OBJ_DIR)/$(MAIN).o $(FFLAGS) $(MAIN_DIR)/$(MAIN).f90
+
 
 #=================================================================================
 #==================Definition of the files to be created by Make==================
 #========================2. the tests (the TESTS/ programs)=======================
 #=================================================================================
-test_cavity_mode.exe          : $(OBJ_DIR)/test_cavity_mode.o $(LIBA)
+test_cavity_mode.exe           : $(OBJ_DIR)/test_cavity_mode.o $(LIBA)
 	$(FFC) -o test_cavity_mode.exe  $(FFLAGS) $(OBJ_DIR)/test_cavity_mode.o $(LIBA) $(EXTLib)
 # N.B. contrary to the next instruction, -o does mean here "link these object files into an executable one" (gfortran argument syntax)
 # N.B. Question : je ne suis pas de pourquoi FFLAGS est nécéssaire pour le linking en .exe puisque je crois que les .mod ne sont pas utiles pour cette étape ?
 # Recall: "FFLAGS also provides the path towards the .mod files : "-J$(MOD_DIR) $(EXTMod)"
 
-$(OBJ_DIR)/test_cavity_mode.o : $(TESTS_DIR)/test_cavity_mode.f90
+$(OBJ_DIR)/test_cavity_mode.o  : $(TESTS_DIR)/test_cavity_mode.f90
 	$(FFC) -c -o $(OBJ_DIR)/test_cavity_mode.o $(FFLAGS) $(TESTS_DIR)/test_cavity_mode.f90
 # "-c" is the compilation and can take also as an argument "-o" which here does not mean "link into executable" but allows to choose the name of the thereby...
 #... created object files. Here the path where they have to be stored (OBJ/obj) is added as a prefix to the name 
 
-test_construct_op.exe         : $(OBJ_DIR)/test_construct_op.o $(LIBA)
+test_construct_op.exe          : $(OBJ_DIR)/test_construct_op.o $(LIBA)
 	$(FFC) -o test_construct_op.exe  $(FFLAGS) $(OBJ_DIR)/test_construct_op.o $(LIBA) $(EXTLib)
 
 $(OBJ_DIR)/test_construct_op.o : $(TESTS_DIR)/test_construct_op.f90
 	$(FFC) -c -o $(OBJ_DIR)/test_construct_op.o $(FFLAGS) $(TESTS_DIR)/test_construct_op.f90
+
+test_action_op.exe             : $(OBJ_DIR)/test_action_op.o $(LIBA)
+	$(FFC) -o test_action_op.exe  $(FFLAGS) $(OBJ_DIR)/test_action_op.o $(LIBA) $(EXTLib)
+
+$(OBJ_DIR)/test_action_op.o : $(TESTS_DIR)/test_action_op.f90
+	$(FFC) -c -o $(OBJ_DIR)/test_action_op.o $(FFLAGS) $(TESTS_DIR)/test_action_op.f90
 
 #=================================================================================
 #==================Definition of the files to be created by Make==================
 #=========================3. the library (the SRC modules)========================
 #==============================3.1. The object files==============================
 #=================================================================================
-$(OBJ_DIR)/MC_cavity_mode_m.o : $(SRC_DIR)/MC_cavity_mode_m.f90
+$(OBJ_DIR)/MC_cavity_mode_m.o  : $(SRC_DIR)/MC_cavity_mode_m.f90
 	$(FFC) -c -o $(OBJ_DIR)/MC_cavity_mode_m.o $(FFLAGS) $(SRC_DIR)/MC_cavity_mode_m.f90
 
-$(OBJ_DIR)/MC_operator_1D_m.o : $(SRC_DIR)/MC_operator_1D_m.f90
+$(OBJ_DIR)/MC_operator_1D_m.o  : $(SRC_DIR)/MC_operator_1D_m.f90
 	$(FFC) -c -o $(OBJ_DIR)/MC_operator_1D_m.o $(FFLAGS) $(SRC_DIR)/MC_operator_1D_m.f90
 
 #=================================================================================
@@ -286,6 +316,9 @@ $(OBJ_DIR)/MC_operator_1D_m.o : $(SRC_DIR)/MC_operator_1D_m.f90
 # ... specify that one module needs another one
 $(OBJ_DIR)/test_cavity_mode.o  : $(LIBA)
 $(OBJ_DIR)/test_construct_op.o : $(LIBA)
+$(OBJ_DIR)/test_action_op.o    : $(LIBA)
+
+$(OBJ_DIR)/$(MAIN).o           : $(LIBA)
 
 $(OBJ)                         : | $(QDLIBA)
 # the pipe means that only the EXISTENCE is tested and not the dates of the files. The logical test is True if $(QDLIBA) exists, EVEN if its creation date...

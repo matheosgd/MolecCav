@@ -6,11 +6,13 @@
 ## This script allows to build the library and run the tests in a similar m- ##
 ## anner than the makefile, despite not allowing as much flexibility. The F- ##
 ## ortran compiler cannot be changed and the date of creation of the files   ##
-## are not compared to each other : all files are built each time.           ##
+## are not compared to each other : all files are built each time. Contrary  ##
+## to the make, only the "ut" command exists (not "UT") and so does the "ap- ##
+## p" (not the "App" nor "APP").                                             ##
 ##                                                                           ##
 ## Syntax :                                                                  ##
-## "./run.sh <arg1> <arg2> <arg3>"; all the arguments being optionnal, prov- ##
-## ided in any order.                                                        ##
+## "./run.sh <arg1> <arg2> <arg3> <arg4>"; all the arguments being optionna- ##
+## l, provided in any order.                                                 ##
 ## No more than four arguments are expected for now.                         ##
 ##                                                                           ##
 ## 1. One of the arguments is expected to be the name of the command to be   ##
@@ -20,20 +22,23 @@
 ## arg2 Can be provided. In that case, it is expected to be the name of a t- ##
 ## est WITHOUT THE EXTENSION, which will be the only test built and execute- ##
 ## d.                                                                        ## 
-## 1.2. "all" : build the library (.mod; .o; .a files) and the executable f- ##
+## 1.2. "app" : the application will be built and executed, and as a conseq- ##
+## uence, the library will be built too. PLEASE do NOT change the name of t- ##
+## he application source file !                                              ##
+## 1.3. "all" : build the library (.mod; .o; .a files) and the executable f- ##
 ## ile of all the tests but do not execute anything.                         ##
-## 1.3. "lib" : same command as "all" but without the test .i.e. build the   ##
+## 1.4. "lib" : same command as "all" but without the test .i.e. build the   ##
 ## library.                                                                  ##
-## 1.4. "getlib" :  with this instruction, the script will actually execute  ##
+## 1.5. "getlib" :  with this instruction, the script will actually execute  ##
 ## the get_Lib.sh script as written in the directory of the corresponding e- ##
 ## xternal library, with the name of the library (QDUtilLib) as an argument. ##
 ## This will install the library from GitHub.                                ##
-## 1.5. "clean" : removes all the object files from the OBJ/ directory, all  ##
+## 1.6. "clean" : removes all the object files from the OBJ/ directory, all  ##
 ## the executable files, and the output files from the tests.                ##
-## 1.6. "cleanall" : removes all the files from the OBJ/ directory (.o and   ##
+## 1.7. "cleanall" : removes all the files from the OBJ/ directory (.o and   ##
 # .mod), all the static library files, and performs the cleaning of the ext- ##
 ## ernal libraries as defined in their makefile.                             ##
-## 1.7. The default is arg1 = "ut"; arg2 = "".                               ##
+## 1.8. The default is arg1 = "ut"; arg2 = "".                               ##
 ##                                                                           ##
 ## 2. The other arguments are expected to be :                               ##
 ## 2.1. either the name /!\ without the extension /!\ of the test to be exe- ##
@@ -66,10 +71,17 @@ OBJ_LIB=(${MODULES_LIB[@]/%/.o})
 LIB="libMolecCav"
 LIBA="$LIB.a"
 
-TESTS=("test_cavity_mode" "test_construct_op")
-SRC_TESTS=(${TESTS[@]/%/.f90})                                                 #parenthesis must be added here to make bash know that the nex var is also an array
+TESTS=("test_cavity_mode" "test_construct_op" "test_action_op")
+SRC_TESTS=(${TESTS[@]/%/.f90})                                                 # parenthesis must be added here to make bash know that the nex var is also an array
 OBJ_TESTS=(${TESTS[@]/%/.o})                                                   
-EXE_TESTS=(${TESTS[@]/%/.exe})                                                 
+EXE_TESTS=(${TESTS[@]/%/.exe})  
+
+MAIN_DIR="APP"
+MAIN="App_MolecCav"
+SRC_MAIN="$MAIN.f90"
+OBJ_MAIN="$MAIN.o"
+EXE_MAIN="$MAIN.exe"
+OUT_MAIN="$MAIN.log"
 
 OUTPUT_DIR="OUT"
 
@@ -166,6 +178,8 @@ Build_tests()
 	$FFC -o ${EXE_TESTS[0]}  $FFLAGS ${TESTS_OBJ_FILES[0]} $LIBA $EXTLib
 	$FFC -c -o ${TESTS_OBJ_FILES[1]} $FFLAGS ${TESTS_SRC_FILES[1]}
 	$FFC -o ${EXE_TESTS[1]}  $FFLAGS ${TESTS_OBJ_FILES[1]} $LIBA $EXTLib
+	$FFC -c -o ${TESTS_OBJ_FILES[2]} $FFLAGS ${TESTS_SRC_FILES[2]}
+	$FFC -o ${EXE_TESTS[2]}  $FFLAGS ${TESTS_OBJ_FILES[2]} $LIBA $EXTLib
 
   for file in ${TESTS_OBJ_FILES[@]}
   do
@@ -178,6 +192,14 @@ Build_tests()
     Claim "Done $file"
   done
   Claim "/end"
+}
+
+Build_app()
+{
+  $FFC -c -o $OBJ_DIR/$OBJ_MAIN $FFLAGS $MAIN_DIR/$SRC_MAIN
+  $FFC -o $EXE_MAIN $FFLAGS $OBJ_DIR/$OBJ_MAIN $LIBA $EXTLib
+  Claim "Done $OBJ_MAIN" "/end"
+  Claim "Done $EXE_MAIN" "/end"
 }
 
 
@@ -210,25 +232,25 @@ fi
 #-------------------------------1.1. The command-------------------------------
 #------------------------------------------------------------------------------
 case "$1" in
-"ut" | "all" | "lib" | "getlib" | "clean" | "cleanall")
+"ut" | "all" | "lib" | "getlib" | "clean" | "cleanall" | "app")
   command="$1";;
 *)
   Claim "The first argument is not a command"
 esac
 case "$2" in
-"ut" | "all" | "lib" | "getlib" | "clean" | "cleanall")
+"ut" | "all" | "lib" | "getlib" | "clean" | "cleanall" | "app")
   command="$2";;
 *)
   Claim "The second argument is not a command"
 esac
 case "$3" in
-"ut" | "all" | "lib" | "getlib" | "clean" | "cleanall")
+"ut" | "all" | "lib" | "getlib" | "clean" | "cleanall" | "app")
   command="$3";;
 *)
   Claim "The third argument is not a command"
 esac
 case "$4" in
-"ut" | "all" | "lib" | "getlib" | "clean" | "cleanall")
+"ut" | "all" | "lib" | "getlib" | "clean" | "cleanall" | "app")
   command="$4";;
 *)
   Claim "The fourth argument is not a command";;
@@ -274,13 +296,13 @@ case "data_" in
   data_file="$4.nml";;
 *) 
   case "$command" in
-  "lib" | "all" | "ut")
+  "lib" | "all" | "ut" | "app")
     Claim "No data_file provided !"
     Claim "The default data_tests.nml will be used" "/end";;
   "clean" | "cleanall" | "getlib")
     Claim "No data_file provided !" "/end";;
   *) 
-    Claim "something is weird"
+    Claim "something is weird 1"
     echo "################################################################################"
     echo "################################################################################"
     exit 1;;
@@ -346,6 +368,10 @@ case "$command" in
   else
   Claim "...and executing all the tests."
   fi;;
+"app")
+  Claim "This script will run the command .................... $command ..."
+  Claim "...using the data of the namelist .......... data_app.nml ..."
+  Claim "...using, for the .o and .mod files, the directory ..... $OBJ_DIR ...";;
 "getlib")
   Claim "This script will run the command .................... $command...";;
 "clean")
@@ -353,7 +379,7 @@ case "$command" in
 "cleanall")
   Claim "This script will run the command .................... $command...";;
 *) 
-  Claim "something is weird"
+  Claim "something is weird 2"
   Claim "################################################################################"
   Claim "################################################################################"
   exit 1;;
@@ -368,6 +394,8 @@ OBJ=(${OBJ_LIB[@]/#/$OBJ_DIR/})
 SRC_FILES=(${SRC_LIB[@]/#/$SRC_DIR/})
 TESTS_SRC_FILES=(${SRC_TESTS[@]/#/$TESTS_DIR/})
 TESTS_OBJ_FILES=(${OBJ_TESTS[@]/#/$OBJ_DIR/})
+MAIN_OBJ_FILES=$OBJ_DIR/$OBJ_MAIN
+MAIN_SRC_FILES=$MAIN_DIR/$MAIN
 #echo "\${OBJ[@]} = ${OBJ[@]}"
 #echo "\${SRC_FILES[@] = ${SRC_FILES[@]}"
 #echo "TESTS_FILES = ${TESTS_SRC_FILES[@]}"
@@ -382,8 +410,11 @@ case "$command" in
 "clean") 
 	rm -f $OBJ_DIR/*.o
 	rm -f test*.exe
+  rm -f $EXE_MAIN
 	rm -f $OUTPUT_DIR/test_cavity_mode.log
 	rm -f $OUTPUT_DIR/test_construct_op.log
+  rm -f $OUTPUT_DIR/test_action_op.log
+	rm -f $OUTPUT_DIR/$OUT_MAIN
 	Claim "Done cleaning objects, executables, and tests outputs"
   echo "################################################################################"
   echo "################################################################################"
@@ -460,14 +491,39 @@ case "$command" in
 	Claim "$(grep "Test" "$OUTPUT_DIR/"test_cavity_mode.log)"
 	./test_construct_op.exe < data_tests.nml > "$OUTPUT_DIR/"test_construct_op.log
 	Claim "$(grep "Test" "$OUTPUT_DIR/"test_construct_op.log)"
+	./test_action_op.exe < data_tests.nml > "$OUTPUT_DIR/"test_action_op.log
+	Claim "$(grep "Test" "$OUTPUT_DIR/"test_action_op.log)"
 	Claim "Done Tests"
 
   echo "################################################################################"
   echo "################################################################################"
   exit 0;;
 
+
+#------------------------------------------------------------------------------
+#--------------------------2. Execution of the command-------------------------
+#------------------------------2.1. The ut command-----------------------------
+#------------------------------------------------------------------------------
+"app")
+  if [ ! -d "$OUTPUT_DIR" ]                                                    # d teste l'existence du directory "<...>"
+  then
+    mkdir "$OUTPUT_DIR"
+    Claim "$OUTPUT_DIR/ directory was not here yet : created" "/end"
+  else
+    Claim "$OUTPUT_DIR directory already created : ok" "/end"
+  fi
+
+  Build_lib
+  Build_app
+	./$EXE_MAIN < data_app.nml > "$OUTPUT_DIR/"$OUT_MAIN
+	Claim "Done application"
+
+  echo "################################################################################"
+  echo "################################################################################"
+  exit 0;;
+
 *)
-  Claim "something is weird"
+  Claim "something is weird 3"
   echo "################################################################################"
   echo "################################################################################"
   exit 1;;

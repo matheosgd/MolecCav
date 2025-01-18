@@ -1,5 +1,14 @@
-/!\ to run a test using the script test.sh, one have to change the 24^{th}, and 37^{th} lines on the aforementioned script and provide one's own path towards the MolecCav/OBJ/ directory (or the MolecCav/ one for the latter)/!\
-
-Syntaxe to launch a test from test.sh :
-./test.sh <name of the test (1)> <name of the data file (1) (optional)>
-(1) : without the extension
+Quick Introduction and Objective of the library
+    Quick catch sentence and general context to present aim of the lib.
+    Present our model : what the lib does, for what system/limits and the Ham. (more details cf. manual)
+General view of the library - structure and roles (do not rewrite) (c.f. the details in the manual)
+    List the directories and explain in a few words what they do contain. Only detail where the files are source files : name and what they do
+Installation of the library and requirements
+    gfortran, designed for a linux distribution
+    choose repertory
+    git clone or download
+    make sur script paths ok
+    build the lib : make or run.sh
+Running the tests and the application
+    make or run
+Modify and run your application
