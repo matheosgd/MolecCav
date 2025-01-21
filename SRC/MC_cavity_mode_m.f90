@@ -28,14 +28,14 @@ MODULE MC_cavity_mode_m
 
     NAMELIST /HO_1/ D, Nb, w, m, lambda                                        ! declare the nml HO_1 and specify the parameter's list to be found within
 
-    !----------------------Initialization to default values---------------------
-    D      = 1
+    !----------------------Initialization to default values--------------------
+    D      = 0
     Nb     = 1
-    w      = ONE
-    m      = ONE
-    lambda = ONE
+    w      = ZERO
+    m      = ZERO
+    lambda = ZERO
  
-    !------------------------------Reading of the nml---------------------------
+    !------------------------------Reading of the nml--------------------------
     WRITE(out_unit,*) ''
     WRITE(out_unit,*) '*******************************************************'
     WRITE(out_unit,*) '************* READING BASIS OF THE HO *****************'
@@ -43,7 +43,7 @@ MODULE MC_cavity_mode_m
     
     READ(nio, nml = HO_1, iostat = err_io)                                     ! assign the values read in the nml to the declared list of parameters
 
-    WRITE(out_unit, nml = HO_1)                                             ! just to have it in the output file
+    WRITE(out_unit, nml = HO_1)                                                ! just to have it in the output file
     
     !------------------------------Check reading error-------------------------
     IF(err_io < 0) then

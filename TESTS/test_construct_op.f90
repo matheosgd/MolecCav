@@ -38,13 +38,13 @@ PROGRAM test_construct_op
 
   !-----------------------tests in progress-----------------------
   real(kind=Rkind), allocatable       :: Result_total_WF(:,:)
-  real(kind=Rkind), allocatable       :: Matter_hamiltonianSystem_WF(:,:)     ! size Nb_M*Nb_C. |H_MatterSystem_WF(:,i_C)> = H_Matter|System_WF(:,i_C)>
-  TYPE(MC_operator_1D_t) :: Cavity_hamiltonian_1D
-  TYPE(MC_operator_1D_t) :: Cavity_position_1D
-  TYPE(MC_operator_1D_t) :: Matter_dipolar_moment
-  real(kind=Rkind), allocatable       :: System_WF(:,:)                       ! size Nb_M*Nb_C
-  real(kind=Rkind)       :: lambda_cavity_mode, w_cavity_mode    ! coupling strenght and eigenpulsation
-  integer                :: Nb_C, Nb_M
+  real(kind=Rkind), allocatable       :: Matter_hamiltonianSystem_WF(:,:)      ! size Nb_M*Nb_C. |H_MatterSystem_WF(:,i_C)> = H_Matter|System_WF(:,i_C)>
+  TYPE(MC_operator_1D_t)              :: Cavity_hamiltonian_1D
+  TYPE(MC_operator_1D_t)              :: Cavity_position_1D
+  TYPE(MC_operator_1D_t)              :: Matter_dipolar_moment
+  real(kind=Rkind), allocatable       :: System_WF(:,:)                        ! size Nb_M*Nb_C
+  real(kind=Rkind)                    :: lambda_cavity_mode, w_cavity_mode     ! coupling strenght and eigenpulsation
+  integer                             :: Nb_C, Nb_M
 
 
   !-----------------------construct HO matricies to test-----------------------

@@ -217,7 +217,7 @@ TESTS_DIR="TESTS"
 
 FFLAGS+=" -J$MOD_DIR $EXTMod"
 
-if [ -z "$1" ]                                             # z=!n; teste si la valeur est une chaîne vide.
+if [ -z "$1" ]                                             # z=!n; tests if the value is an empty string.
 then
   Claim "No instruction provided !"
   Claim "The script will be run with the default parameters"

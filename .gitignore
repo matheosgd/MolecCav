@@ -4,5 +4,4 @@ OBJ/*
 *.exe
 OUT/*
 *.log
-*.out
 ARCH/*
