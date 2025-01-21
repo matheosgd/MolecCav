@@ -2,6 +2,7 @@ PROGRAM App_MolecCav
   USE QDUtil_m
   USE MC_cavity_mode_m
   USE MC_operator_1D_m
+  USE MC_total_hamiltonian_m
   IMPLICIT NONE
 
 
@@ -11,8 +12,9 @@ PROGRAM App_MolecCav
   TYPE(MC_operator_1D_t)        :: x_ho_molecule_1
   TYPE(MC_operator_1D_t)        :: N_ho_molecule_1                             ! here N does not count the number of photons but of excitation quanta in the vibrational state
   TYPE(MC_operator_1D_t)        :: Matter_dipolar_moment
-
-!-------------------------------First cavity mode------------------------------
+  real(kind=Rkind)              :: Cte_dipole_moment                           ! the intensity of the variation of the dipole moment with a variation of the matter DOF
+  
+  !-------------------------------First cavity mode------------------------------
   TYPE(MC_cavity_mode_t)        :: Cavity_mode_1
   TYPE(MC_operator_1D_t)        :: H_ho_cavity_mode_1                          ! matrix of the one-dimensional harmonic Hamiltonian associated with HO D
   TYPE(MC_operator_1D_t)        :: x_ho_cavity_mode_1
@@ -55,12 +57,14 @@ PROGRAM App_MolecCav
                                  & m=Molecule_1%m)
   
   CALL MolecCav_Construct_Operator(Operator=Matter_dipolar_moment, &
-                                 & operator_type="Nb_photons", &               ! oui, ce n'est pas un op nb de photons
+                                 & operator_type="Position", &               ! initialized as a position operator because of approximation over its expression (cf. readme.md or manual)
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
                                  & Nb=Molecule_1%Nb, &
                                  & w=Molecule_1%w, &
                                  & m=Molecule_1%m)
+
+  Cte_dipole_moment = ONE
                                 
 !--------------------------------First cavity mode-----------------------------
   CALL MolecCav_Read_cavity_mode(Mode=Cavity_mode_1, nio=in_unit)
@@ -94,10 +98,11 @@ PROGRAM App_MolecCav
 !------------------Part of the code using the MolecCav library-----------------
   ALLOCATE(System_WF(Molecule_1%Nb,Cavity_mode_1%Nb))
   ALLOCATE(Matter_hamiltonianSystem_WF(Molecule_1%Nb,Cavity_mode_1%Nb))
+  
   System_WF = ZERO
   Matter_hamiltonianSystem_WF = ZERO
 
-  DO i = 1, MIN(Molecule_1%Nb, Cavity_mode_1%Nb)
+  DO i = 1, MIN(Molecule_1%Nb, Cavity_mode_1%Nb)                               ! initialize Systel_WF arbitrarily
     System_WF(i,i) = i
   END DO
 
@@ -106,9 +111,15 @@ PROGRAM App_MolecCav
     WRITE(out_unit,*) System_WF(i,:)
   END DO
 
-  DO i = 1, MIN(Molecule_1%Nb, Cavity_mode_1%Nb)
-    Matter_hamiltonianSystem_WF(i,i) = (i+ONETENTH)*ELEVEN
+  !DO i = 1, Molecule_1%Nb                                                      ! initialize Matter_hamiltonianSystem_WF by applying the matter hamiltonian to each column of the matrix of the total system WF but creates an sysmalloc : assertion failed if we initialize like that
+  !  CALL MolecCav_Action_Operator_1D(Matter_hamiltonianSystem_WF(:,i), &
+  !                                   & H_ho_molecule_1, &
+  !                                   & System_WF(:,i))
+  !END DO
+  DO i = 1, MIN(Molecule_1%Nb, Cavity_mode_1%Nb)                               ! initialize Systel_WF arbitrarily to avoid the sysmalloc error : to correct
+    Matter_hamiltonianSystem_WF(i,i) = i
   END DO
+
 
   WRITE(out_unit,*) "Matter_hamiltonianSystem_WF"
   DO i = 1, Molecule_1%Nb
@@ -121,7 +132,7 @@ PROGRAM App_MolecCav
 
   CALL MolecCav_Action_Total_Hamiltonian_1D(Result_total_WF, Matter_hamiltonianSystem_WF, &
                                           & H_ho_cavity_mode_1, x_ho_cavity_mode_1, &
-                                          & Matter_dipolar_moment, System_WF, &
+                                          & Matter_dipolar_moment, Cte_dipole_moment, System_WF, &
                                           & Cavity_mode_1%lambda, Cavity_mode_1%w)
   
   WRITE(out_unit,*) "Result_total_WF"
@@ -130,5 +141,4 @@ PROGRAM App_MolecCav
   END DO
 
 
-  WRITE(out_unit,*) "youhou"
 END PROGRAM

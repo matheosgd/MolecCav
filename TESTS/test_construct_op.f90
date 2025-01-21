@@ -567,54 +567,6 @@ PROGRAM test_construct_op
     WRITE(out_unit,*) 'Test 2 stopped ! The file did not execute as it should have !'
   END IF
 
-  !-----------------------------------test in progress-----------------------------------
-  lambda_cavity_mode = ONE
-  w_cavity_mode      = ONE
-  Nb_C               = 6
-  Nb_M               = 7
-
-  CALL MolecCav_Construct_Operator(Operator=Cavity_hamiltonian_1D, &
-                                 & operator_type="Hamiltonian", &
-                                 & scalar_space="Real", &
-                                 & matrix_shape_type="Opt", &              ! opt => get analytical shape. non_opt => get dense shape
-                                 & Nb=Nb_C, &
-                                 & w=w_cavity_mode, &
-                                 & m=ONE)
-
-CALL MolecCav_Construct_Operator(Operator=Cavity_position_1D, &
-                               & operator_type="Position", &
-                               & scalar_space="Real", &
-                               & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
-                               & Nb=Nb_C, &
-                               & w=w_cavity_mode, &
-                               & m=ONE)
-
-CALL MolecCav_Construct_Operator(Operator=Matter_dipolar_moment, & ! Je sais que ce n'est pas un op nb ph., c'est juste pour le test
-                               & operator_type="Nb_photons", &
-                               & scalar_space="Real", &
-                               & matrix_shape_type="Opt", &
-                               & Nb=Nb_M, &
-                               & w=w_cavity_mode, &
-                               & m=ONE)
-
-ALLOCATE(System_WF(Nb_M,Nb_C))
-ALLOCATE(Matter_hamiltonianSystem_WF(Nb_M,Nb_C))
-ALLOCATE(Result_total_WF(Nb_M,Nb_C))
-
-System_WF                   = ZERO
-System_WF(4,5)              = ONE
-Matter_hamiltonianSystem_WF = ZERO
-Result_total_WF             = ZERO
-
-CALL MolecCav_Action_Total_Hamiltonian_1D(Result_total_WF, Matter_hamiltonianSystem_WF, &
-                                          & Cavity_hamiltonian_1D, Cavity_position_1D, &
-                                          & Matter_dipolar_moment, System_WF, &
-                                          & lambda_cavity_mode, w_cavity_mode)
-
-WRITE(out_unit,*) "Result_total_WF"
-DO i = 1, Nb_M
-  WRITE(out_unit,*) Result_total_WF(i,:)
-END DO
 
 END PROGRAM
 
