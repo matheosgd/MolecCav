@@ -36,16 +36,21 @@ Theoretical studies in photochemical process and spectroscopy have great interes
 
 The aim is to provide numerical and methodological methods for a quantum description of an optical cavity-caged molecule, including the molecular modes with non-adiabatic couplings, and a quantum description of the electric field of the cavity modes and its couplings with the molecule. Numerical developments of a analytically-based computation of the cavity-matter couplings are carried out. This project aims to provide a Modern Fortran library to compute the effects of the cavity and the couplings between a single-mode cavity and the molecule, neglecting the magnetic contribution of the field, and based on analytical properties of the cavity model. The molecular part of the system is assumed to be computed by the code calling the library since it is supposed to be coupled to quantum dynamics programs.  
 
-This library is designed, in a first time, to compute the effects of the interactions between **one** molecule and a **single** mode of the cavity it is confined in. The system is considered non-relativistic and in the dipole approximation. As a first approach, the cavity will be considered having infinite dimensions over the y and z-axis and small over the x-axis. No quantisation of the cavity field will thus be observed on the two former axis, and the considered single stationary cavity mode will resonate only along the latter one. As a consequence, the photon displacement coordinate $$**x** \in R^3$$ can be reduced to a one-dimensional coordinate along this very axis $$x \in R$$. Within the framework of the Extended Jaynes-Cummings Model (EJCM), this cavity mode will be modeled by a quantum HO of mass m = 1 a.u., eigenpulsation $$\omega_c$$ and force constant $$k_c = m\omega_c$$, each eigenstate $$\ket{n}, \forall n\in N$$ of which i.e. each excitation quanta of which corresponding to the number of photons n resonating in the mode. As for the total system Hamiltonian, it is expressed as written below **for a given electronic state** as well as the expression of the photon field Hamiltonian which comes from the HO character of the electric field model (using atomic units and m = 1 a.u. property), and the expression of the matter and the cavity-matter coupling Hamiltonians which are written directly following the EJCM formalism, adapted to a single-mode cavity.  
+This library is designed, in a first time, to compute the effects of the interactions between **one** molecule and a **single** mode of the cavity it is confined in. The system is considered non-relativistic and in the dipole approximation. As a first approach, the cavity will be considered having infinite dimensions over the y and z-axis and small over the x-axis. No quantisation of the cavity field will thus be observed on the two former axis, and the considered single stationary cavity mode will resonate only along the latter one. As a consequence, the photon displacement coordinate $$\vec{x} \in R^3$$ can be reduced to a one-dimensional coordinate along this very axis $$x \in R$$. Within the framework of the Extended Jaynes-Cummings Model (EJCM), this cavity mode will be modeled by a quantum HO of mass m = 1 a.u., eigenpulsation $$\omega_c$$ and force constant $$k_c = m\omega_c$$, each eigenstate $$\ket{n}, \forall n\in N$$ of which i.e. each excitation quanta of which corresponding to the number of photons n resonating in the mode. As for the total system Hamiltonian, it is expressed as written below **for a given electronic state** as well as the expression of the photon field Hamiltonian which comes from the HO character of the electric field model (using atomic units and m = 1 a.u. property), and the expression of the matter and the cavity-matter coupling Hamiltonians which are written directly following the EJCM formalism, adapted to a single-mode cavity.  
 
-Yet, one is actually not concerned with the expression of ```math \hat{H}_{mat}``` since it is not computed in the library and left to the quantum chemistry code calling MolecCav, nor is the action of the matter total dipole moment ```math \hat{\mu}_{M}```.  
+Yet, one is actually not concerned with the expression of $$ \hat{H}_{mat} $$ since it is not computed in the library and left to the quantum chemistry code calling MolecCav, nor is the action of the matter total dipole moment $$ \hat{\mu}_{M} $$.  
 
 ```math
-\hat{H}_{tot}(x,**R**) = \hat{H}_{mat}(**R**) + \hat{H}_{cav}(x) + \hat{H}_{CM}(x,**R**)
-\hat{H}_{mat}(**R**) = \hat{T}_N(**R**) + E_{elec}(**R**)
-\hat{H}_{cav}(x) = \hbar \omega_c\left(\hat{a}^{\dag}\hat{a}+\frac{1}{2}\right) = \frac{\hat{p}^2_x}{2m} + \frac{1}{2}k_c\hat{x}^2 \stackrel{\bra{x}}{=} -\frac{\hbar^2}{2m}\frac{\partial^2}{\partial x^2} + \frac{1}{2}k_cx^2
-\qquad \qquad = \omega_c\left(\hat{a}^{\dag}\hat{a}+\frac{1}{2}\right) = \frac{1}{2}\left(\hat{p}_x^2 + \omega_c^2\hat{x}^2\right) \stackrel{\bra{x}}{=} \frac{1}{2}\left(-\frac{\partial^2}{\partial x^2} + \omega_c^2x^2\right)
-\hat{H}_{CM}(x,**R**) = \lambda\omega_c\hat{\mu}_{M}(**R**)\hat{x}
+\hat{H}_{tot}(x,R) = \hat{H}_{mat}(R) + \hat{H}_{cav}(x) + \hat{H}_{CM}(x,R)
+```
+```math
+\hat{H}_{mat}(R) = \hat{T}_N(R) + E_{elec}(R)
+```
+```math
+\hat{H}_{cav}(x) = \omega_c\left(\hat{a}^{\dag}\hat{a}+\frac{1}{2}\right) = \frac{1}{2}\left(\hat{p}_x^2 + \omega_c^2\hat{x}^2\right) \stackrel{\bra{x}}{=} \frac{1}{2}\left(-\frac{\partial^2}{\partial x^2} + \omega_c^2x^2\right)
+```
+```math
+\hat{H}_{CM}(x,R) = \lambda\omega_c\hat{\mu}_{M}(R)\hat{x}
 ```
 
 More detailed information about the model can be found in the Manual "MolecCav_Manual.pdf"  
@@ -125,7 +130,11 @@ This directory contains the source ```.f90``` file of the application program. I
 
 ```math
 \mu(R) = \mu_0 + \frac{\partial\mu}{\partial R}(R-R_0) 
+```  
+```math
 \mu(R) = \frac{\partial\mu}{\partial R}.R
+```  
+```math
 \mu(R) = Cte.R
 ```  
 
