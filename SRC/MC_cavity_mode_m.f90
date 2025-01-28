@@ -46,7 +46,7 @@ MODULE MC_cavity_mode_m
     WRITE(out_unit, nml = HO_1)                                                ! just to have it in the output file
     
     !------------------------------Check reading error-------------------------
-    IF(err_io < 0) then
+    IF(err_io < 0) THEN
       WRITE(out_unit,*) ''
       WRITE(out_unit,*) '#######################################################'
       WRITE(out_unit,*) '######## Error in Read_cavity_mode (err_io<0) #########'
@@ -54,7 +54,7 @@ MODULE MC_cavity_mode_m
       WRITE(out_unit,*) '################ err_io = ', err_io, '################'
       STOP '################# Check basis data ################'
 
-    ELSE IF( err_io > 0) then
+    ELSE IF( err_io > 0) THEN
       WRITE(out_unit,*) ''
       WRITE(out_unit,*) '#######################################################'
       WRITE(out_unit,*) '######## Error in Read_cavity_mode (err_io>0) #########'

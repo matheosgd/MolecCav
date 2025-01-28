@@ -74,6 +74,61 @@ MODULE MC_total_hamiltonian_m
     
     END SUBROUTINE
   
-  
+
+    SUBROUTINE MolecCav_Construct_H_tot(H_tot, Nb_M, Nb_C, Matter_hamiltonianSystem_WF, &
+                                      & Cavity_hamiltonian_1D, Cavity_position_1D, &
+                                      & Matter_dipolar_moment, Cte_dipole_moment, &
+                                      & lambda_cavity_mode, w_cavity_mode)
+      USE QDUtil_m
+      USE MC_operator_1D_m
+      IMPLICIT NONE
+
+      real(kind=Rkind), intent(inout)    :: H_tot(:,:)
+      integer, intent(in)                :: Nb_M, Nb_C
+      real(kind=Rkind), intent(in)       :: Matter_hamiltonianSystem_WF(:,:)     ! size Nb_M*Nb_C. |H_MatterSystem_WF(:,i_C)> = H_Matter|System_WF(:,i_C)>
+      TYPE(MC_operator_1D_t), intent(in) :: Cavity_hamiltonian_1D
+      TYPE(MC_operator_1D_t), intent(in) :: Cavity_position_1D
+      TYPE(MC_operator_1D_t), intent(in) :: Matter_dipolar_moment                ! \hat{\mu}_{M}(R) = Cte.\hat{R} selon hypothèses
+      real(kind=Rkind), intent(in)       :: Cte_dipole_moment                    ! the intensity of the variation of the dipole moment with a variation of the matter DOF
+      real(kind=Rkind), intent(in)       :: lambda_cavity_mode, w_cavity_mode    ! coupling strenght and eigenpulsation
+
+
+      real(kind=Rkind), allocatable   :: Psi_basis(:,:), Psi_result(:,:)
+      integer                         :: NB, I, J, j_M, j_C, i_M, i_C
+
+      J = 0
+      NB = Size(H_tot, 1)
+      ALLOCATE(Psi_basis(Nb_M, Nb_C))
+      ALLOCATE(Psi_result(Nb_M, Nb_C))
+
+      IF (NB /= Size(H_tot, 2) .OR. NB /= Nb_M*Nb_C) THEN
+        STOP "wrong allocation of the H_tot matrix"
+      END IF
+
+      DO j_M = 1, Nb_M
+        DO j_C = 1, Nb_C
+          J = J + 1
+          I = 0
+          Psi_basis = ZERO
+          Psi_basis(j_M, j_C) = ONE
+          Psi_result = ZERO
+
+          CALL MolecCav_Action_Total_Hamiltonian_1D(Psi_result, Matter_hamiltonianSystem_WF, &
+                                                  & Cavity_hamiltonian_1D, Cavity_position_1D, &
+                                                  & Matter_dipolar_moment, Cte_dipole_moment, &
+                                                  & Psi_basis, lambda_cavity_mode, w_cavity_mode)
+          
+          DO i_M = 1, Nb_M
+            DO i_C = 1, Nb_C
+              I = I + 1
+              H_tot(I,J) = Psi_result(i_M, i_C)
+            END DO
+          END DO
+        END DO
+      END DO
+
+    END SUBROUTINE
+
+
   END MODULE
   

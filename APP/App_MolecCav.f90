@@ -23,10 +23,11 @@ PROGRAM App_MolecCav
 !---------------------------------Wavefunctions--------------------------------
   real(kind=Rkind), allocatable :: System_WF(:,:)                              ! size Nb_M*Nb_C. |System_WF> = |Molecule_WF>.TENSOR.|Cavity_WF> 
   real(kind=Rkind), allocatable :: Matter_hamiltonianSystem_WF(:,:)            ! size Nb_M*Nb_C. |H_MatterSystem_WF(:,i_C)> = H_Matter|System_WF(:,i_C)>
-  real(kind=Rkind), allocatable :: Result_total_WF(:,:)                        ! already allocated !
+  !real(kind=Rkind), allocatable :: Result_total_WF(:,:)
+  real(kind=Rkind), allocatable :: H_tot(:,:)                               
 
 !-----------------------------------Utilities----------------------------------
-  integer                       :: i
+  integer                       :: i, NB
 
 
 !--------------Diatomic molecule in a harmonic electonic potential-------------
@@ -127,18 +128,30 @@ PROGRAM App_MolecCav
   END DO
 
 !-------------------------Part of the MolecCav library-------------------------
-  ALLOCATE(Result_total_WF(Molecule_1%Nb,Cavity_mode_1%Nb))
-  Result_total_WF = ZERO
+  !ALLOCATE(Result_total_WF(Molecule_1%Nb,Cavity_mode_1%Nb))
+  !Result_total_WF = ZERO
 
-  CALL MolecCav_Action_Total_Hamiltonian_1D(Result_total_WF, Matter_hamiltonianSystem_WF, &
-                                          & H_ho_cavity_mode_1, x_ho_cavity_mode_1, &
-                                          & Matter_dipolar_moment, Cte_dipole_moment, System_WF, &
-                                          & Cavity_mode_1%lambda, Cavity_mode_1%w)
+  !CALL MolecCav_Action_Total_Hamiltonian_1D(Result_total_WF, Matter_hamiltonianSystem_WF, &
+  !                                        & H_ho_cavity_mode_1, x_ho_cavity_mode_1, &
+  !                                        & Matter_dipolar_moment, Cte_dipole_moment, System_WF, &
+  !                                        & Cavity_mode_1%lambda, Cavity_mode_1%w)
   
-  WRITE(out_unit,*) "Result_total_WF"
-  DO i = 1, Molecule_1%Nb
-    WRITE(out_unit,*) Result_total_WF(i,:)
-  END DO
+  !WRITE(out_unit,*) "Result_total_WF"
+  !DO i = 1, Molecule_1%Nb
+  !  WRITE(out_unit,*) Result_total_WF(i,:)
+  !END DO
 
+  ! not used anymore since this subroutine is called within the following one :
+  NB = Molecule_1%Nb * Cavity_mode_1%Nb
+  ALLOCATE(H_tot(NB, NB))
+
+  CALL MolecCav_Construct_H_tot(H_tot, Molecule_1%Nb, Cavity_mode_1%Nb, Matter_hamiltonianSystem_WF, &
+                              & H_ho_cavity_mode_1, x_ho_cavity_mode_1, Matter_dipolar_moment, &
+                              & Cte_dipole_moment, Cavity_mode_1%lambda, Cavity_mode_1%w)  
+
+  WRITE(out_unit,*) "H_tot"
+  DO i = 1, NB
+    WRITE(out_unit,*) H_tot(i,:)
+  END DO
 
 END PROGRAM
