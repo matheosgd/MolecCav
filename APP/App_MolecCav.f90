@@ -31,7 +31,7 @@ PROGRAM App_MolecCav
   integer                       :: i, NB
 
   !------------------------------Tests in progress-----------------------------
-  real(kind=Rkind)              :: Norm_sys
+  real(kind=Rkind)              :: Norm_sys, Projection
   real(kind=Rkind), allocatable :: System_WF_mapped(:)
 
 !-----------------------------SYSTEM INITIALIZATION----------------------------

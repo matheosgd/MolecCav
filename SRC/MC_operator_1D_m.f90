@@ -281,4 +281,25 @@ MODULE MC_operator_1D_m
   END SUBROUTINE
   
 
+  SUBROUTINE MolecCav_Average_value_operator_1D(Value, Operator, Psi_argument)   ! /!\ FOR NOW EVERYTHING IS REAL /!\ compute the resulting vector Psi_result(:) from the action of the operator of the cavity mode on the photon state vector Psi_argument(:) written in the Eigenbasis of H_ho
+    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
+    USE QDUtil_m
+    IMPLICIT NONE
+
+    real(kind=Rkind), intent(inout)    :: Value
+    TYPE(MC_operator_1D_t), intent(in) :: Operator
+    real(kind=Rkind), intent(in)       :: Psi_argument(:)
+
+    real(kind=Rkind), allocatable      :: Intermediary(:)
+    integer                            :: Nb
+
+    Nb = Size(Psi_argument)
+    ALLOCATE(Intermediary(Nb))
+
+    CALL MolecCav_Action_Operator_1D(Intermediary, Operator, Psi_argument)
+    Value = DOT_PRODUCT(Psi_argument, Intermediary) 
+
+  END SUBROUTINE
+
+
 END MODULE
