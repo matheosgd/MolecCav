@@ -64,7 +64,7 @@ FFC="gfortran"                                                                 #
 FFLAGS="-Og -g -fbacktrace -fcheck=all -fwhole-file -fcheck=pointer -Wuninitialized -finit-real=nan -finit-integer=nan -fopenmp"
                                                                                # some useful options for the compiler
 
-MODULES_LIB=("MC_cavity_mode_m" "MC_operator_1D_m" "MC_total_hamiltonian_m")
+MODULES_LIB=("MC_cavity_mode_m" "MC_operator_1D_m" "MC_total_hamiltonian_m" "MC_algebra_m")
 SRC_LIB=(${MODULES_LIB[@]/%/.f90})
 OBJ_LIB=(${MODULES_LIB[@]/%/.o})
 
@@ -153,6 +153,9 @@ Build_obj_lib()
                                                                                          # SRC_FILES[1] = OBJ/obj/MC_cavity_mode_m.f90
   $FFC -c -o ${OBJ[2]} $FFLAGS ${SRC_FILES[2]}                                           # OBJ[2] = OBJ/obj/MC_total_hamiltonian_m.o
                                                                                          # SRC_FILES[2] = OBJ/obj/MC_total_hamiltonian_m.f90
+  $FFC -c -o ${OBJ[3]} $FFLAGS ${SRC_FILES[3]}                                           # OBJ[2] = OBJ/obj/MC_algebra_m.o
+                                                                                         # SRC_FILES[2] = OBJ/obj/MC_algebra_m.f90
+
 
   for file in ${OBJ[@]}
   do
@@ -200,8 +203,8 @@ Build_tests()
 Build_app()
 {
   $FFC -c -o $OBJ_DIR/$OBJ_MAIN $FFLAGS $MAIN_DIR/$SRC_MAIN
-  $FFC -o $EXE_MAIN $FFLAGS $OBJ_DIR/$OBJ_MAIN $LIBA $EXTLib
   Claim "Done $OBJ_MAIN" "/end"
+  $FFC -o $EXE_MAIN $FFLAGS $OBJ_DIR/$OBJ_MAIN $LIBA $EXTLib
   Claim "Done $EXE_MAIN" "/end"
 }
 
