@@ -205,11 +205,11 @@ This program test that the corresponding module initializes well all the operato
 # Compiling the library
 The library can be built using either the makefile or the run.sh shell script. Again, more details are in the manual. Both support the following commands to manage the library :  
 
-    - "getlib" : install the external library if not already downloaded.  
-    - "lib" : Compiles the external library's modules and build the .a static library file if needed, then does the same for the MolecCav library.  
-    - "all" : Performs the same actions as "lib"" in addition also to compile the source files of the tests and link them with the static library file into executables.
-    - "clean" : Deletes all the object, executable and output files from MolecCav (not those of the external libraries).
-    - "cleanall" : Performs the same cleaning as "clean" in addition also to delete the .mod and static library files, and run the cleanlib shell script from the external QDUtilLib library that takes the same actions upon its files.
+    * "getlib" : install the external library if not already downloaded.  
+    * "lib" : Compiles the external library's modules and build the .a static library file if needed, then does the same for the MolecCav library.  
+    * "all" : Performs the same actions as "lib"" in addition also to compile the source files of the tests and link them with the static library file into executables.
+    * "clean" : Deletes all the object, executable and output files from MolecCav (not those of the external libraries).
+    * "cleanall" : Performs the same cleaning as "clean" in addition also to delete the .mod and static library files, and run the cleanlib shell script from the external QDUtilLib library that takes the same actions upon its files.
 
 They can be executed by commad-line :  
 ```bash
@@ -221,15 +221,15 @@ make <name of the command>
 # Running the tests
 The tests can be compiled and executed using either the makefile or the run.sh shell script. The shell script allows to choose to compile and execute only one of the tests and to choose the data file to read if one is not interested in the default one. It uses these commands on both the makefile and the script :
 
-    - "all" : Performs the same actions as "lib"" in addition also to compile the source files of the tests and link them with the static library file into executables.
-    - "ut" : Performs the same actions as "all" in addition also to execute the tests, using the indicated data file and direct the output into the corresponding .log output file. Then it grabs the final sentence of these files for each test and display them on the screen. In both makefile and run.sh, it is the default command if no arguments are passed when they are called.  
+    * "all" : Performs the same actions as "lib"" in addition also to compile the source files of the tests and link them with the static library file into executables.
+    * "ut" : Performs the same actions as "all" in addition also to execute the tests, using the indicated data file and direct the output into the corresponding .log output file. Then it grabs the final sentence of these files for each test and display them on the screen. In both makefile and run.sh, it is the default command if no arguments are passed when they are called.  
 
 
 # Running the application
 The application can be compiled and executed using either the makefile or the run.sh shell script. The shell script allows to choose data file to read. It uses these commands on both the makefile and the script :  
 
-    - "all" : Performs the same actions as "lib"" in addition also to compile the source files of the tests and link them with the static library file into executables.
-    - "app" : Performs the same actions as "all" in addition also to compile the application source file, link it with the library into an executable and execute it using the indicated data file and direct the output into the corresponding .log output file.
+    * "all" : Performs the same actions as "lib"" in addition also to compile the source files of the tests and link them with the static library file into executables.
+    * "app" : Performs the same actions as "all" in addition also to compile the application source file, link it with the library into an executable and execute it using the indicated data file and direct the output into the corresponding .log output file.
 
 ## Authors
 *Developed by :*   
