@@ -111,16 +111,13 @@ PROGRAM App_MolecCav
   DO i = 1, Molecule_1%Nb
     WRITE(out_unit,*) System_WF(i,:)
   END DO
+  !FLUSH(out_unit)                                                             ! without the flush the whole matrix is not written but stops at the 10th line ? Not anymore now the afterward error is fixed
 
-  !DO i = 1, Molecule_1%Nb                                                      ! initialize Matter_hamiltonianSystem_WF by applying the matter hamiltonian to each column of the matrix of the total system WF but creates an sysmalloc : assertion failed if we initialize like that
-  !  CALL MolecCav_Action_Operator_1D(Matter_hamiltonianSystem_WF(:,i), &
-  !                                   & H_ho_molecule_1, &
-  !                                   & System_WF(:,i))
-  !END DO
-  DO i = 1, MIN(Molecule_1%Nb, Cavity_mode_1%Nb)                               ! initialize Systel_WF arbitrarily to avoid the sysmalloc error : to correct
-    Matter_hamiltonianSystem_WF(i,i) = i
+  DO i = 1, Cavity_mode_1%Nb                                                   ! initialize Matter_hamiltonianSystem_WF by applying the matter hamiltonian to each column of the matrix of the total system WF but creates an sysmalloc : assertion failed if we initialize like that
+    CALL MolecCav_Action_Operator_1D(Matter_hamiltonianSystem_WF(:,i), &
+                                     & H_ho_molecule_1, &
+                                     & System_WF(:,i))
   END DO
-
 
   WRITE(out_unit,*) "Matter_hamiltonianSystem_WF"
   DO i = 1, Molecule_1%Nb

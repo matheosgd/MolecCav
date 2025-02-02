@@ -98,7 +98,7 @@ EXTMod     = -I$(QDMOD_DIR)
 #==================Definition of other useful names in variables==================
 #=========================3. For the gfortran compilation=========================
 #=================================================================================
-FFLAGS   = -Og -g -fbacktrace -fcheck=all -fwhole-file -fcheck=pointer -Wuninitialized -finit-real=nan -finit-integer=nan
+FFLAGS   = -Og -g -fbacktrace -fcheck=all -fwhole-file -fcheck=pointer -Wuninitialized -finit-real=nan -finit-integer=nan -fopenmp
 # some useful optional arguments of the gfortran compilation command
 FFLAGS   += -J$(MOD_DIR) $(EXTMod)
 # "+=" works the same way as in python, C, etc
@@ -169,7 +169,7 @@ app APP App: $(MAIN).exe
 # this command will compile the library (create the .o and .mod files) and the tests (create the .o and .exe files) and create the static library .a file...
 # ... BUT not execute anything !
 .PHONY: all
-all: $(LIBA) test_cavity_mode.exe test_construct_op.exe
+all: $(LIBA) test_cavity_mode.exe test_construct_op.exe $(MAIN).exe
 # Recall : LIBA = libMolecCav
 # this instruction is understood by Make as "see these files". It will search the make file for where they are defined i.e. for their dependancies, and...
 # ... create them as they are defined if they are too old. 

@@ -61,7 +61,7 @@ echo "##########################################################################
 #---------------------------0.1 Useful variable names--------------------------
 #------------------------------------------------------------------------------
 FFC="gfortran"                                                                 # the fortran compiler
-FFLAGS="-Og -g -fbacktrace -fcheck=all -fwhole-file -fcheck=pointer -Wuninitialized -finit-real=nan -finit-integer=nan"
+FFLAGS="-Og -g -fbacktrace -fcheck=all -fwhole-file -fcheck=pointer -Wuninitialized -finit-real=nan -finit-integer=nan -fopenmp"
                                                                                # some useful options for the compiler
 
 MODULES_LIB=("MC_cavity_mode_m" "MC_operator_1D_m" "MC_total_hamiltonian_m")
@@ -226,7 +226,6 @@ then
   Claim "The script will be run with the default parameters"
   Claim "cf. \"Syntaxe\""
   Claim "/end"
-  command="ut"
 fi
 
 
@@ -469,6 +468,8 @@ case "$command" in
   Build_lib
   #echo "${TESTS_OBJ_FILES[@]} ${TESTS_SRC_FILES[@]} ${EXE_TESTS[@]}"
   Build_tests
+  Build_app
+  Claim "Done library, tests executables, and application executable"
   echo "################################################################################"
   echo "################################################################################"
   exit 0;;

@@ -1,16 +1,22 @@
-# MolecCav : Molecule trapped in optical Cavity
-*Developed by*:  
-Mathéo Segaud $^{1,\dagger}$  
-*Under the supervision of:*  
-Research Professor : David Lauvergnat $^{1,2,\dagger}$
+# MolecCav : Molecule trapped in optical Cavity  
+*Developed by :*   
+Mathéo Segaud $^{\dagger}$  
+*Under the supervision of :*  
+Research Professor : David Lauvergnat $^{\dagger,1,2}$  
 
-${^1}$ Université Paris-Saclay, 3 rue Joliot Curie, Bâtiment Breguet, 91190 Gif-sur-Yvette  
+${^{\dagger}}$ Université Paris-Saclay, 3 rue Joliot Curie, Bâtiment Breguet, 91190 Gif-sur-Yvette  
+${^1}$ Institut de Chimie Physique, 310 Rue Michel Magat, 91400 Orsay  
+${^2}$ CNRS  
+
 
 
 ## Contents
 - [Quick introduction and Objectives](#Quick-introduction-and-Objectives) 
 - [Setting up environment](#Setting-up-environment)
 - [MolecCav Installation](#MolecCav-Installation)
+    - [```Downloading the files```](#Downloading-the-files)
+    - [```Cloning the files```](#Cloning-the-files)
+    - [```Modifying the run.sh script```](#Modifying-the-run.sh-script)
 - [General view and Structure](#General-view-and-Structure)
     - [```APP```](#APP)
     - [```Ext_Lib```](#Ext_Lib)
@@ -47,7 +53,7 @@ Yet, one is actually not concerned with the expression of $$\hat{H}_{mat}$$ sinc
 \hat{H}_{mat}(R) = \hat{T}_N(R) + E_{elec}(R)
 ```
 ```math
-\hat{H}_{cav}(x) = \omega_c\left(\hat{a}^{\dag}\hat{a}+\frac{1}{2}\right) = \frac{1}{2}\left(\hat{p}_x^2 + \omega_c^2\hat{x}^2\right) \stackrel{\bra{x}}{=} \frac{1}{2}\left(-\frac{\partial^2}{\partial x^2} + \omega_c^2x^2\right)
+\hat{H}_{cav}(x) = \omega_c\left(\hat{a}^{\dagger}\hat{a}+\frac{1}{2}\right) = \frac{1}{2}\left(\hat{p}_x^2 + \omega_c^2\hat{x}^2\right) \stackrel{\bra{x}}{=} \frac{1}{2}\left(-\frac{\partial^2}{\partial x^2} + \omega_c^2x^2\right)
 ```
 ```math
 \hat{H}_{CM}(x,R) = \lambda\omega_c\hat{\mu}_{M}(R)\hat{x}
@@ -57,7 +63,7 @@ More detailed information about the model can be found in the Manual "MolecCav_M
 
 
 # Setting up environment
-This library is designed to work within a GNU/Linux operating system and the compilation and execution files (makefile and run.sh) were written to use the gfortran compiler for Fortran90.  
+This library is designed to work within a GNU/Linux operating system and the compilation and execution files (makefile and run.sh) were written to use the gfortran compiler for Fortran90. It needs the QDUtilLib Fortran library [[1]](#reference) designed by David Lauvergnat (cf. Authors) to work, but one do not need to download it by themself because this external library is automatically downloaded from GitHub when the library is built (cf. Compiling the library).  
 
 
 # MolecCav installation
@@ -76,6 +82,20 @@ One can either install the library by downloading its files (if they are not int
     3. In the menue that appeared, select HTTPS to make the URL appear and copy it.
     4. Open the terminal of the computer and ```bash cd``` to the chosed directory
     5. execute the command : ```bash git clone <the copied link>``` 
+
+
+## Modifying the run.sh script
+Depending on the file the user installed MolecCav in, the compilation/execution script run.sh has to be modified in order to work properly. One just has to replace every occurence of the path towards the library directory by the actual one within their computer :  
+
+```bash
+cd ~/MolecCav
+```
+
+has to be changed by :
+
+```bash
+cd ~/<the new path>/MolecCav
+```
 
 
 # General view and Structure
@@ -212,12 +232,14 @@ The application can be compiled and executed using either the makefile or the ru
     - "app" : Performs the same actions as "all" in addition also to compile the application source file, link it with the library into an executable and execute it using the indicated data file and direct the output into the corresponding .log output file.
 
 ## Authors
-*Developed by*: \
-Mathéo Segaud $^{1,\dagger}$ \
-*Under the supervision of:* \
-Research Professor : David Lauvergnat $^{1,2,\dagger}$
+*Developed by :*   
+Mathéo Segaud $^{\dagger}$  
+*Under the supervision of :*  
+Research Professor : David Lauvergnat $^{\dagger,1,2}$  
 
-${^1}$ Université Paris-Saclay, 3 rue Joliot Curie, Bâtiment Breguet, 91190 Gif-sur-Yvette \
+${^{\dagger}}$ Université Paris-Saclay, 3 rue Joliot Curie, Bâtiment Breguet, 91190 Gif-sur-Yvette  
+${^1}$ Institut de Chimie Physique, 310 Rue Michel Magat, 91400 Orsay  
+${^2}$ CNRS  
 
 ## Reference
 [1] [https://github.com/lauvergn/QDUtilLib)  

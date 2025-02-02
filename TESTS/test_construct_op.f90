@@ -500,6 +500,9 @@ PROGRAM test_construct_op
   !N_ho_1D_dense_6%Dense_val_R(1,1) = 5
   !N_ho_1D_diag_6%Diag_val_R(1) = 5
 
+  WRITE(out_unit, *) ALLOCATED(N_ho_1D_diag_17%Diag_val_R), ALLOCATED(N_ho_1D_dense_theo_17)
+  FLUSH(out_unit)
+  
   DO i = 1, 17
     IF (ABS(N_ho_1D_diag_17%Diag_val_R(i) - N_ho_1D_dense_theo_17(i,i)) > threshold_x) THEN
       WRITE(out_unit,*) 

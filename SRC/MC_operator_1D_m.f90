@@ -39,14 +39,14 @@ MODULE MC_operator_1D_m
     Operator%scalar_space  = scalar_space                                      ! allocation on assignement too.
 
     !--------------------construction of the matrix Operator-------------------
-    SELECT CASE (Operator%operator_type)
-      CASE ("Hamiltonian")
+    SELECT CASE (TO_lowercase(Operator%operator_type))                         ! TO_lowercase avoid case sensitivity issues
+      CASE ("hamiltonian")
         CALL MolecCav_Construct_H_cavity_mode(Hamiltonian=Operator, matrix_shape_type=matrix_shape_type, Nb=Nb, w=w)
       
-      CASE ("Position")
+      CASE ("position")
         CALL MolecCav_Construct_x_cavity_mode(Position_Op=Operator, matrix_shape_type=matrix_shape_type, Nb=Nb, w=w, m=m)
       
-      CASE ("Nb_photons")
+      CASE ("nb_photons")
         CALL MolecCav_Construct_N_cavity_mode(Nb_photon_Op=Operator, matrix_shape_type=matrix_shape_type, Nb=Nb)
 
       CASE DEFAULT
@@ -73,9 +73,9 @@ MODULE MC_operator_1D_m
     WRITE(out_unit,*) '*******************************************************'
     WRITE(out_unit,*) '******* CONSTRUCTING THE HAMILTONIAN OF THE HO ********'
 
-    IF (matrix_shape_type == "Opt") THEN
+    IF (TO_lowercase(matrix_shape_type) == "opt") THEN
       !----------Initialization of the characteristics of the operator---------
-      Hamiltonian%matrix_shape_type = "Diagonal"
+      Hamiltonian%matrix_shape_type = "diagonal"
       !---------------------Initialization to default values-------------------
       ALLOCATE(Hamiltonian%Diag_val_R(Nb))
       Hamiltonian%Diag_val_R = ZERO
@@ -84,9 +84,9 @@ MODULE MC_operator_1D_m
         Hamiltonian%Diag_val_R(i) = w*(i - ONE + HALF)                         ! "-1" because the first Fortran vector is the fundamental eigenvector of the HO i.e. the 0^{th} ket 
       END DO
       
-    ELSE IF (matrix_shape_type == "Non_opt") THEN
+    ELSE IF (TO_lowercase(matrix_shape_type) == "non_opt") THEN
       !----------Initialization of the characteristics of the operator---------
-      Hamiltonian%matrix_shape_type = "Dense"
+      Hamiltonian%matrix_shape_type = "dense"
       !---------------------Initialization to default values-------------------
       ALLOCATE(Hamiltonian%Dense_val_R(Nb, Nb))
       Hamiltonian%Dense_val_R = ZERO
@@ -118,9 +118,9 @@ MODULE MC_operator_1D_m
     WRITE(out_unit,*) '*******************************************************'
     WRITE(out_unit,*) '******* CONSTRUCTING THE POSITION OP OF THE HO ********'
 
-    IF (matrix_shape_type == "Opt") THEN
+    IF (TO_lowercase(matrix_shape_type) == "opt") THEN
       !----------Initialization of the characteristics of the operator---------
-      Position_Op%matrix_shape_type = "Band"
+      Position_Op%matrix_shape_type = "band"
       Position_Op%Upper_bandwidth   = 1
       Position_Op%Lower_bandwidth   = 1
       !---------------------Initialization to default values-------------------
@@ -133,9 +133,9 @@ MODULE MC_operator_1D_m
       END DO
       Position_Op%Band_val_R = Position_Op%Band_val_R / SQRT(TWO * w * m)
         
-    ELSE IF (matrix_shape_type == "Non_opt") THEN
+    ELSE IF (TO_lowercase(matrix_shape_type) == "non_opt") THEN
       !----------Initialization of the characteristics of the operator---------
-      Position_Op%matrix_shape_type = "Dense"
+      Position_Op%matrix_shape_type = "dense"
       !---------------------Initialization to default values-------------------
       ALLOCATE(Position_Op%Dense_val_R(Nb, Nb))
       Position_Op%Dense_val_R = ZERO
@@ -168,9 +168,9 @@ MODULE MC_operator_1D_m
     WRITE(out_unit,*) '*******************************************************'
     WRITE(out_unit,*) '******* CONSTRUCTING THE NB QUANTA OP OF THE HO *******'
 
-    IF (matrix_shape_type == "Opt") THEN
+    IF (TO_lowercase(matrix_shape_type) == "opt") THEN
       !----------Initialization of the characteristics of the operator---------
-      Nb_photon_Op%matrix_shape_type = "Diagonal"
+      Nb_photon_Op%matrix_shape_type = "diagonal"
       !---------------------Initialization to default values-------------------
       ALLOCATE(Nb_photon_Op%Diag_val_R(Nb))
       Nb_photon_Op%Diag_val_R = ZERO
@@ -179,9 +179,9 @@ MODULE MC_operator_1D_m
         Nb_photon_Op%Diag_val_R(i) = i - 1
       END DO
       
-    ELSE IF (matrix_shape_type == "Non_opt") THEN
+    ELSE IF (TO_lowercase(matrix_shape_type) == "non_opt") THEN
       !----------Initialization of the characteristics of the operator---------
-      Nb_photon_Op%matrix_shape_type = "Dense"
+      Nb_photon_Op%matrix_shape_type = "dense"
       !---------------------Initialization to default values-------------------
       ALLOCATE(Nb_photon_Op%Dense_val_R(Nb, Nb))
       Nb_photon_Op%Dense_val_R = ZERO
@@ -206,14 +206,14 @@ MODULE MC_operator_1D_m
     real(kind=Rkind), intent(in)       :: Psi_argument(:)
 
     !--------------------Selection of the calculation method-------------------
-    SELECT CASE (Operator%matrix_shape_type)
-      CASE ("Dense")
+    SELECT CASE (TO_lowercase(Operator%matrix_shape_type))
+      CASE ("dense")
         CALL MolecCav_Action_Dense_Operator_1D(Psi_result=Psi_result, Operator=Operator, Psi_argument=Psi_argument)
       
-      CASE ("Diagonal")
+      CASE ("diagonal")
         CALL MolecCav_Action_Diag_Operator_1D(Psi_result=Psi_result, Operator=Operator, Psi_argument=Psi_argument)
       
-      CASE ("Band")
+      CASE ("band")
         CALL MolecCav_Action_Band_Operator_1D(Psi_result=Psi_result, Operator=Operator, Psi_argument=Psi_argument)
 
       CASE DEFAULT
