@@ -27,6 +27,10 @@ PROGRAM App_MolecCav
   !real(kind=Rkind), allocatable :: Result_total_WF(:,:)
   real(kind=Rkind), allocatable :: H_tot(:,:)                               
 
+  !-----------------------------------Results----------------------------------
+  real(kind=Rkind), allocatable :: REigval(:)
+  real(kind=Rkind), allocatable :: REigvec(:,:)
+
   !----------------------------------Utilities---------------------------------
   integer                       :: i, NB
 
@@ -214,6 +218,20 @@ PROGRAM App_MolecCav
 
   CALL MolecCav_Average_value_H_tot(Average, H_tot, System_WF_mapped)
   WRITE(out_unit, *) "Average E_tot = ", Average, "Ha"
+
+  !---------------------------Computation Eigenstates--------------------------
+  ALLOCATE(REigval(Nb))
+  ALLOCATE(REigvec(NB,NB))
+  CALL diagonalization(H_tot, REigval, Reigvec)
+
+  !---------------------------Writing the eigenvalues--------------------------
+  WRITE(out_unit,*) 'EIGENVALUES'
+  CALL WRITE_Vec(Reigval, out_unit, 6, info = 'VP[Ha]')
+  WRITE(out_unit,*)
+
+  !--------------------------Writing the eigenvectors--------------------------
+  WRITE(out_unit,*) 'EIGENVECTORS'
+  !CALL WRITE_Mat(Reigvec, out_unit, 6, info = 'Eigenvectors')
 
 
 END PROGRAM
