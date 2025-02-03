@@ -19,6 +19,7 @@ ${^2}$ CNRS
     - [```Modifying the run.sh script```](#Modifying-the-run.sh-script)
 - [General view and Structure](#General-view-and-Structure)
     - [```APP```](#APP)
+    - [```DATA```](#DATA)
     - [```Ext_Lib```](#Ext_Lib)
     - [```OBJ```](#OBJ)
     - [```OUT```](#OUT)
@@ -106,6 +107,11 @@ MolecCav
 ├── APP
 │   └── App_MolecCav.f90
 │
+├── DATA
+│   ├── data_app.nml
+│   ├── data_tests.nml
+│   └── data.nml
+│
 ├── Ext_Lib
 │   ├── QDUtilLib
 │   ├── QDUtilLib_loc
@@ -132,10 +138,7 @@ MolecCav
 │   ├── test_cavity_mode.f90
 │   └── test_construct_op.f90
 │
-├── .gitignore
-├── data_app.nml
-├── data_tests.nml
-├── data.nml
+├── .gitignore 
 ├── makefile
 ├── MolecCav_Manual.pdf
 ├── README.md
@@ -157,6 +160,10 @@ This directory contains the source ```.f90``` file of the application program. I
 ```math
 \mu(R) = Cte.R
 ```  
+
+## DATA
+This directory contains the namelists data files used by MolecCav. Three are provided. Please do not modify the two dedicated respectively to the execution of the tests and the application. The third one is the one supposed to be modified and used by the user for specific uses.  
+
 
 ## Ext_Lib
 This directory contains the external libraries used by MolecCav. Up to now, the QDUtilLib [[1]](#reference) library designed by David Lauvergnat.  
@@ -188,10 +195,6 @@ This module contains the procedures to compute the action of the total hamiltoni
 
 ## TESTS
 This directory contains all the source ```.f90``` files of the programs designed to test automatically that the library is working as expected. For now, it contains the two following tests.  
-
-
-## The data files
-Three are provided. Please do not modify the two dedicated respectively to the execution of the tests and the application. The third one is the one supposed to be modified and used by the user for specific uses.
 
 
 ### test_cavity_mode.f90

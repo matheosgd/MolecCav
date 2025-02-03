@@ -302,4 +302,52 @@ MODULE MC_operator_1D_m
   END SUBROUTINE
 
 
+  SUBROUTINE MolecCav_Action_cavity_operator_2D(Psi_result, Operator, Psi_argument)   ! /!\ FOR NOW EVERYTHING IS REAL /!\ compute the resulting vector Psi_result(:) from the action of the operator of the cavity mode on the photon state vector Psi_argument(:) written in the Eigenbasis of H_ho
+    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
+    USE QDUtil_m
+    IMPLICIT NONE
+
+    real(kind=Rkind), intent(inout)    :: Psi_result(:,:)                      ! already allocated !
+    TYPE(MC_operator_1D_t), intent(in) :: Operator
+    real(kind=Rkind), intent(in)       :: Psi_argument(:,:)
+
+    integer                            :: Nb_M, Nb_C, i_M
+
+    Nb_M = Size(Psi_argument, 1)
+    Nb_C = Size(Psi_argument, 2)
+    
+    IF (Nb_M /= Size(Psi_result, 1) .OR. Nb_C /= Size(Psi_result, 2)) THEN
+      STOP "The size of the Psi_argument does not match the size of the Psi_result."
+    END IF
+
+    DO i_M = 1, Nb_M
+      CALL MolecCav_Action_Operator_1D(Psi_result(i_M, :), Operator, Psi_argument(i_M, :))
+    END DO
+
+  END SUBROUTINE
+
+
+  SUBROUTINE MolecCav_Average_value_cavity_operator_2D(Value, Operator, Psi_argument)   ! /!\ FOR NOW EVERYTHING IS REAL /!\ compute the resulting vector Psi_result(:) from the action of the operator of the cavity mode on the photon state vector Psi_argument(:) written in the Eigenbasis of H_ho
+    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
+    USE QDUtil_m
+    USE MC_algebra_m
+    IMPLICIT NONE
+
+    real(kind=Rkind), intent(inout)    :: Value
+    TYPE(MC_operator_1D_t), intent(in) :: Operator
+    real(kind=Rkind), intent(in)       :: Psi_argument(:,:)
+
+    real(kind=Rkind), allocatable      :: Intermediary(:,:)
+    integer                            :: Nb_M, Nb_C
+
+    Nb_M = Size(Psi_argument, 1)
+    Nb_C = Size(Psi_argument, 2)
+    ALLOCATE(Intermediary(Nb_M, Nb_C))
+
+    CALL MolecCav_Action_cavity_operator_2D(Intermediary, Operator, Psi_argument)
+    CALL MolecCav_scalar_product_2D(Value, Intermediary, Psi_argument)
+
+  END SUBROUTINE
+  
+
 END MODULE

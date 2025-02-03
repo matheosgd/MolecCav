@@ -43,6 +43,9 @@ SRC_DIR   = SRC
 TESTS_DIR = TESTS
 # the name of the directory where to find the source files of the library's test programs
 OUTPUT_DIR = OUT
+# the name of the directory where to store the log files of the library's programs
+DATA_DIR = DATA
+# the name of the directory where to find the data files of the library
 
 EXTMod    =                      
 # the directory where the external libraries are to find (cf next subpart)
@@ -134,11 +137,11 @@ $(info ***********************************************************************)
 # the ".PHONY <string1> <string2> <...>" make command indicates to make that the provided string are neither files nor directories and allows to use them...
 # ... as key-words, ex: as command-line commands
 UT ut: test_cavity_mode.exe test_construct_op.exe test_action_op.exe
-	./test_cavity_mode.exe < data_tests.nml > $(OUTPUT_DIR)/test_cavity_mode.log
+	./test_cavity_mode.exe < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_cavity_mode.log
 	grep "Test" $(OUTPUT_DIR)/test_cavity_mode.log
-	./test_construct_op.exe < data_tests.nml > $(OUTPUT_DIR)/test_construct_op.log
+	./test_construct_op.exe < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_construct_op.log
 	grep "Test" $(OUTPUT_DIR)/test_construct_op.log
-	./test_action_op.exe < data_tests.nml > $(OUTPUT_DIR)/test_action_op.log
+	./test_action_op.exe < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_action_op.log
 	grep "Test" $(OUTPUT_DIR)/test_action_op.log
 	@echo "Done Tests"
 # here is the actual definition of the command. It is declared as "UT" OR "ut" to make it cass-insensitive (both can be used to call it). NB: UT = Utility Test
@@ -159,7 +162,7 @@ UT ut: test_cavity_mode.exe test_construct_op.exe test_action_op.exe
 # ... BUT not execute anything !
 .PHONY: app APP App
 app APP App: $(MAIN).exe
-	./$(MAIN).exe < data_app.nml > $(OUTPUT_DIR)/$(MAIN).log
+	./$(MAIN).exe < $(DATA_DIR)/data_app.nml > $(OUTPUT_DIR)/$(MAIN).log
 
 
 #=================================================================================

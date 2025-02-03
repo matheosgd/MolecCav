@@ -85,6 +85,8 @@ OUT_MAIN="$MAIN.log"
 
 OUTPUT_DIR="OUT"
 
+DATA_DIR="DATA"
+
 ExtLibDIR="Ext_Lib"
 OOPT="0"
 OOMP="1"
@@ -204,7 +206,7 @@ Build_app()
 {
   $FFC -c -o $OBJ_DIR/$OBJ_MAIN $FFLAGS $MAIN_DIR/$SRC_MAIN
   Claim "Done $OBJ_MAIN" "/end"
-  $FFC -o $EXE_MAIN $FFLAGS $OBJ_DIR/$OBJ_MAIN $LIBA $EXTLib
+  $FFC -o $EXE_MAIN $FFLAGS $OBJ_DIR/$OBJ_MAIN $LIBA $EXTLib                   # from the most internal module to the least internal one
   Claim "Done $EXE_MAIN" "/end"
 }
 
@@ -494,11 +496,11 @@ case "$command" in
   Build_lib
   Build_tests
   #./$test_name.exe < $data_file.nml > $data_file.out
-	./test_cavity_mode.exe < data_tests.nml > "$OUTPUT_DIR/"test_cavity_mode.log
+	./test_cavity_mode.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_cavity_mode.log
 	Claim "$(grep "Test" "$OUTPUT_DIR/"test_cavity_mode.log)"
-	./test_construct_op.exe < data_tests.nml > "$OUTPUT_DIR/"test_construct_op.log
+	./test_construct_op.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_construct_op.log
 	Claim "$(grep "Test" "$OUTPUT_DIR/"test_construct_op.log)"
-	./test_action_op.exe < data_tests.nml > "$OUTPUT_DIR/"test_action_op.log
+	./test_action_op.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_action_op.log
 	Claim "$(grep "Test" "$OUTPUT_DIR/"test_action_op.log)"
 	Claim "Done Tests"
 
@@ -522,7 +524,7 @@ case "$command" in
 
   Build_lib
   Build_app
-	./$EXE_MAIN < data_app.nml > "$OUTPUT_DIR/"$OUT_MAIN
+	./$EXE_MAIN < ${DATA_DIR}/data_app.nml > "$OUTPUT_DIR/"$OUT_MAIN
 	Claim "Done application"
 
   echo "################################################################################"

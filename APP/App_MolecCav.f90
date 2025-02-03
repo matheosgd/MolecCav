@@ -31,8 +31,9 @@ PROGRAM App_MolecCav
   integer                       :: i, NB
 
   !------------------------------Tests in progress-----------------------------
-  real(kind=Rkind)              :: Norm_sys, Projection
+  real(kind=Rkind)              :: Norm_sys, Projection, Average
   real(kind=Rkind), allocatable :: System_WF_mapped(:)
+  real(kind=Rkind), allocatable :: Psi_result(:,:)
 
 !-----------------------------SYSTEM INITIALIZATION----------------------------
   !-------------Diatomic molecule in a harmonic electonic potential------------
@@ -146,6 +147,17 @@ PROGRAM App_MolecCav
                                      & H_ho_molecule_1, &
                                      & System_WF(:,i))
   END DO
+
+  ALLOCATE(Psi_result(Molecule_1%Nb, Cavity_mode_1%Nb))
+  CALL MolecCav_Action_cavity_operator_2D(Psi_result, N_ho_cavity_mode_1, System_WF)
+  WRITE(out_unit,*) "Result Nb photon op"
+  DO i = 1, Size(Psi_result, 1)
+    WRITE(out_unit,*) Psi_result(i,:)
+  END DO
+  CALL MolecCav_scalar_product_2D(Average, Psi_result, System_WF)
+  WRITE(out_unit, *) "The average nb of photons of the normalised System_WF is (first method) : ", Average
+  CALL MolecCav_Average_value_cavity_operator_2D(Average, N_ho_cavity_mode_1, System_WF)
+  WRITE(out_unit, *) "The average nb of photons of the normalised System_WF is (second method) : ", Average
 
   WRITE(out_unit,*) "Matter_hamiltonianSystem_WF"
   DO i = 1, Molecule_1%Nb
