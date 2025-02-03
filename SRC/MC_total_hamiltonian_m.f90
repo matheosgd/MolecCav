@@ -10,7 +10,7 @@ MODULE MC_total_hamiltonian_m
     
   SUBROUTINE MolecCav_Action_Total_Hamiltonian_1D(Result_total_WF, Matter_hamiltonianSystem_WF, &
                                                  & Cavity_hamiltonian_1D, Cavity_position_1D, &
-                                                 & Matter_dipolar_moment, Cte_dipole_moment, System_WF, &
+                                                 & Matter_dipolar_moment, System_WF, &
                                                  & lambda_cavity_mode, w_cavity_mode)
     USE QDUtil_m
     USE MC_operator_1D_m
@@ -21,7 +21,6 @@ MODULE MC_total_hamiltonian_m
     TYPE(MC_operator_1D_t), intent(in) :: Cavity_hamiltonian_1D
     TYPE(MC_operator_1D_t), intent(in) :: Cavity_position_1D
     TYPE(MC_operator_1D_t), intent(in) :: Matter_dipolar_moment                ! \hat{\mu}_{M}(R) = Cte.\hat{R} selon hypothèses
-    real(kind=Rkind), intent(in)       :: Cte_dipole_moment                    ! the intensity of the variation of the dipole moment with a variation of the matter DOF
     real(kind=Rkind), intent(in)       :: System_WF(:,:)                       ! size Nb_M*Nb_C
     real(kind=Rkind), intent(in)       :: lambda_cavity_mode, w_cavity_mode    ! coupling strenght and eigenpulsation
 
@@ -60,24 +59,48 @@ MODULE MC_total_hamiltonian_m
  
     !---------H_MatterCoupling(Intermediary) = Cte.pos_op of the matter--------
     ALLOCATE(Matter_cavity_coupling_hamiltonian_1DSystem_WF(Nb_M,Nb_C))
-    DO i_C = 1, Nb_C
-      CALL MolecCav_Action_Operator_1D(Matter_cavity_coupling_hamiltonian_1DSystem_WF(:,i_C), &
-                                     & Matter_dipolar_moment, &
-                                     & Intermediary(:,i_C))
-      Matter_cavity_coupling_hamiltonian_1DSystem_WF(:,i_C) = &
-                                     & Matter_cavity_coupling_hamiltonian_1DSystem_WF(:,i_C)&
-                                     & *Cte_dipole_moment
-    END DO
+    CALL MolecCav_Action_matter_dipolar_moment_1D(Matter_cavity_coupling_hamiltonian_1DSystem_WF, &
+                                                & Matter_dipolar_moment, &
+                                                & Intermediary)                ! the matter_dipolar_moment is assumed to already contains its intensity constant (\frac{d\mu}{dq}) within its matrix /!\
  
     !-----------------------------H_tot = summation----------------------------
     Result_total_WF = Result_total_WF + Matter_cavity_coupling_hamiltonian_1DSystem_WF
-    
+
+    DEALLOCATE(Intermediary)
+
+  
   END SUBROUTINE
   
 
+  SUBROUTINE MolecCav_Action_matter_dipolar_moment_1D(Psi_result, Matter_dipolar_moment, Psi_argument) ! /!\ only for the app i.e. for a diatomic molecule with the approximation of a linear dip. mom. with the matter position /!\
+    USE QDUtil_m
+    USE MC_operator_1D_m
+    IMPLICIT NONE
+
+    real(kind=Rkind),       intent(inout) :: Psi_result(:,:)
+    TYPE(MC_operator_1D_t), intent(in)    :: Matter_dipolar_moment             ! supposed to contains the constant (\frac{d\mu}{dq}) within its matrix
+    real(kind=Rkind),       intent(in)    :: Psi_argument(:,:)
+
+    integer                               :: Nb_C, i_C 
+
+    Nb_C = Size(Psi_result, 2)
+
+    IF (Size(Psi_argument, 1) /= Size(Psi_result, 1) .OR. Size(Psi_argument, 2) /= Nb_C) THEN
+      STOP "The size of Psi_argument does not match the size of Psi_result"
+    END IF
+
+    DO i_C = 1, Nb_C
+      CALL MolecCav_Action_Operator_1D(Psi_result(:,i_C), &
+                                     & Matter_dipolar_moment, &
+                                     & Psi_argument(:,i_C))
+    END DO
+
+  END SUBROUTINE
+
+
   SUBROUTINE MolecCav_Construct_H_tot(H_tot, Nb_M, Nb_C, Matter_hamiltonianSystem_WF, &
                                     & Cavity_hamiltonian_1D, Cavity_position_1D, &
-                                    & Matter_dipolar_moment, Cte_dipole_moment, &
+                                    & Matter_dipolar_moment, &
                                     & lambda_cavity_mode, w_cavity_mode)
     USE QDUtil_m
     USE MC_operator_1D_m
@@ -89,7 +112,6 @@ MODULE MC_total_hamiltonian_m
     TYPE(MC_operator_1D_t), intent(in) :: Cavity_hamiltonian_1D
     TYPE(MC_operator_1D_t), intent(in) :: Cavity_position_1D
     TYPE(MC_operator_1D_t), intent(in) :: Matter_dipolar_moment                ! \hat{\mu}_{M}(R) = Cte.\hat{R} selon hypothèses
-    real(kind=Rkind), intent(in)       :: Cte_dipole_moment                    ! the intensity of the variation of the dipole moment with a variation of the matter DOF
     real(kind=Rkind), intent(in)       :: lambda_cavity_mode, w_cavity_mode    ! coupling strenght and eigenpulsation
 
 
@@ -115,7 +137,7 @@ MODULE MC_total_hamiltonian_m
 
         CALL MolecCav_Action_Total_Hamiltonian_1D(Psi_result, Matter_hamiltonianSystem_WF, &
                                                   & Cavity_hamiltonian_1D, Cavity_position_1D, &
-                                                  & Matter_dipolar_moment, Cte_dipole_moment, &
+                                                  & Matter_dipolar_moment, &
                                                   & Psi_basis, lambda_cavity_mode, w_cavity_mode)
           
         DO i_M = 1, Nb_M
@@ -156,8 +178,31 @@ MODULE MC_total_hamiltonian_m
       END DO
     END DO
 
-    END SUBROUTINE
+  END SUBROUTINE
 
+
+  SUBROUTINE MolecCav_Average_value_H_tot(Value, H_tot, Psi_argument)   ! /!\ FOR NOW EVERYTHING IS REAL /!\ compute the resulting vector Psi_result(:) from the action of the operator of the cavity mode on the photon state vector Psi_argument(:) written in the Eigenbasis of H_ho
+    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
+    USE QDUtil_m
+    IMPLICIT NONE
+  
+    real(kind=Rkind), intent(inout)    :: Value
+    real(kind=Rkind), intent(in)       :: H_tot(:,:)    
+    real(kind=Rkind), intent(in)       :: Psi_argument(:)
+  
+    real(kind=Rkind), allocatable      :: Intermediary(:)
+    integer                            :: NB
+  
+    NB = Size(Psi_argument)
+    ALLOCATE(Intermediary(NB))
+
+    Intermediary(:) = MATMUL(H_tot, Psi_argument)
+    Value = DOT_PRODUCT(Psi_argument, Intermediary) 
+
+    DEALLOCATE(Intermediary)
+  
+  END SUBROUTINE
+  
 
 END MODULE
   

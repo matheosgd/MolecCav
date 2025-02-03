@@ -34,7 +34,11 @@ PROGRAM App_MolecCav
   real(kind=Rkind)              :: Norm_sys, Projection, Average
   real(kind=Rkind), allocatable :: System_WF_mapped(:)
   real(kind=Rkind), allocatable :: Psi_result(:,:)
+  !real(kind=Rkind), allocatable :: H_tot2(:,:)                               
+  !integer                       :: j
+  real(kind=Rkind), allocatable :: Psi_mapped_result(:)
 
+  
 !-----------------------------SYSTEM INITIALIZATION----------------------------
   !-------------Diatomic molecule in a harmonic electonic potential------------
   CALL MolecCav_Read_cavity_mode(Mode=Molecule_1, nio=in_unit)
@@ -71,7 +75,8 @@ PROGRAM App_MolecCav
                                  & w=Molecule_1%w, &
                                  & m=Molecule_1%m)
 
-  Cte_dipole_moment = ONE
+  Cte_dipole_moment = TWELVE
+  Matter_dipolar_moment%Band_val_R = Matter_dipolar_moment%Band_val_R*Cte_dipole_moment ! /!\ so that the matrix already contains the intensity constant of the dipolar moment with the position of the matter (cf. manual for formulas)
                                 
   !------------------------------First cavity mode-----------------------------
   CALL MolecCav_Read_cavity_mode(Mode=Cavity_mode_1, nio=in_unit)
@@ -178,18 +183,37 @@ PROGRAM App_MolecCav
   !  WRITE(out_unit,*) Result_total_WF(i,:)
   !END DO
 
-  ! not used anymore since the latter subroutine is called within the following one :
   NB = Molecule_1%Nb * Cavity_mode_1%Nb
   ALLOCATE(H_tot(NB, NB))
 
   CALL MolecCav_Construct_H_tot(H_tot, Molecule_1%Nb, Cavity_mode_1%Nb, Matter_hamiltonianSystem_WF, &
                               & H_ho_cavity_mode_1, x_ho_cavity_mode_1, Matter_dipolar_moment, &
-                              & Cte_dipole_moment, Cavity_mode_1%lambda, Cavity_mode_1%w)  
+                              & Cavity_mode_1%lambda, Cavity_mode_1%w)  
 
   WRITE(out_unit,*) "H_tot"
   DO i = 1, NB
     WRITE(out_unit,*) H_tot(i,:)
   END DO
+
+  ! JUST SOME TESTS FOR THE SUBROUTINES :
+  !Matter_dipolar_moment%Band_val_R = Matter_dipolar_moment%Band_val_R/Cte_dipole_moment ! /!\ so that the matrix already contains the intensity constant of the dipolar moment with the position of the matter (cf. manual for formulas)
+  !Cte_dipole_moment = ONE
+  !Matter_dipolar_moment%Band_val_R = Matter_dipolar_moment%Band_val_R*Cte_dipole_moment ! /!\ so that the matrix already contains the intensity constant of the dipolar moment with the position of the matter (cf. manual for formulas)
+  !ALLOCATE(H_tot2(NB, NB))
+  !CALL MolecCav_Construct_H_tot(H_tot2, Molecule_1%Nb, Cavity_mode_1%Nb, Matter_hamiltonianSystem_WF, &
+  !                            & H_ho_cavity_mode_1, x_ho_cavity_mode_1, Matter_dipolar_moment, &
+  !                            & Cte_dipole_moment, Cavity_mode_1%lambda, Cavity_mode_1%w)
+
+  !DO i = 1, NB
+  !  DO j =1, NB
+  !    IF (ABS(H_tot2(i,j) - H_tot(i,j)) > 1E-08_Rkind) THEN
+  !      WRITE(out_unit,*) "i,j,H_tot2(i,j),H_tot(i,j) = ", i, j, H_tot2(i,j), H_tot(i,j)
+  !    END IF
+  !  END DO
+  !END DO
+
+  CALL MolecCav_Average_value_H_tot(Average, H_tot, System_WF_mapped)
+  WRITE(out_unit, *) "Average E_tot = ", Average, "Ha"
 
 
 END PROGRAM

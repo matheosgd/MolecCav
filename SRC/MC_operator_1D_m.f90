@@ -299,6 +299,9 @@ MODULE MC_operator_1D_m
     CALL MolecCav_Action_Operator_1D(Intermediary, Operator, Psi_argument)
     Value = DOT_PRODUCT(Psi_argument, Intermediary) 
 
+    DEALLOCATE(Intermediary)
+    
+
   END SUBROUTINE
 
 
