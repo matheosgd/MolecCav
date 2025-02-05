@@ -231,9 +231,9 @@ PROGRAM App_MolecCav
                               & H_ho_cavity_mode_1, x_ho_cavity_mode_1, Matter_dipolar_moment, &
                               & Cavity_mode_1%lambda, Cavity_mode_1%w)  
 
-  WRITE(out_unit,*) "Total Hamiltonian (mapped, lambda /= 0, w_C /= w_M) (5:5 slicing)"
+  WRITE(out_unit,*) "Total Hamiltonian (mapped, lambda /= 0, w_C /= w_M) (10:10 slicing)"
   !CALL Write_Mat(H_tot, out_unit, NB)
-  CALL Write_Mat(H_tot(1:5,1:5), out_unit, 5)
+  CALL Write_Mat(H_tot(1:10,1:10), out_unit, 10)
 
   ! JUST SOME TESTS FOR THE SUBROUTINES/CONSTRUCTION OF HTOT WITH DIFFERENT DIPOLAR MOMENT VALUES :
   !Matter_dipolar_moment%Band_val_R = Matter_dipolar_moment%Band_val_R/Cte_dipole_moment ! 
@@ -263,7 +263,7 @@ PROGRAM App_MolecCav
 
   WRITE(out_unit,*) 'EIGENVALUES'
   !CALL WRITE_Vec(Reigval, out_unit, 6, info = 'VP[Ha]')
-  CALL WRITE_Vec(Reigval(1:5), out_unit, 5, info = 'VP[Ha]')
+  CALL WRITE_Vec(Reigval(1:10), out_unit, 10, info = 'VP[Ha]')
 
   !WRITE(out_unit,*) 'EIGENVECTORS'
   !CALL WRITE_Mat(Reigvec, out_unit, 6, info = 'Eigenvectors')
@@ -277,9 +277,9 @@ PROGRAM App_MolecCav
                               & H_ho_cavity_mode_1, x_ho_cavity_mode_1, Matter_dipolar_moment, &
                               & Cavity_mode_1%lambda, Cavity_mode_1%w)  
 
-  WRITE(out_unit,*) "Total Hamiltonian (mapped, lambda = 0, w_C /= w_M) (5:5 slicing)"
+  WRITE(out_unit,*) "Total Hamiltonian (mapped, lambda = 0, w_C /= w_M) (10:10 slicing)"
   !CALL Write_Mat(H_tot, out_unit, NB)
-  CALL Write_Mat(H_tot(1:5,1:5), out_unit, 5)
+  CALL Write_Mat(H_tot(1:10,1:10), out_unit, 10)
 
   !---------------------------Computation Eigenstates--------------------------
   DEALLOCATE(REigval)
@@ -293,7 +293,7 @@ PROGRAM App_MolecCav
 
   WRITE(out_unit,*) 'EIGENVALUES'
   !CALL Write_Vec(Reigval, out_unit, 6, info = 'VP[Ha]')
-  CALL Write_Vec(Reigval(1:5), out_unit, 5, info = 'VP[Ha]')
+  CALL Write_Vec(Reigval(1:10), out_unit, 10, info = 'VP[Ha]')
 
   !WRITE(out_unit,*) 'EIGENVECTORS'
   !CALL Write_Mat(Reigvec, out_unit, 6, info = 'Eigenvectors')
@@ -308,9 +308,9 @@ PROGRAM App_MolecCav
                               & H_ho_cavity_mode_1, x_ho_cavity_mode_1, Matter_dipolar_moment, &
                               & Cavity_mode_1%lambda, Cavity_mode_1%w)  
 
-  WRITE(out_unit,*) "Total Hamiltonian (mapped, lambda = 1.0, w_C = w_M) (5:5 slicing)"
+  WRITE(out_unit,*) "Total Hamiltonian (mapped, lambda = 1.0, w_C = w_M) (10:10 slicing)"
   !CALL Write_Mat(H_tot, out_unit, NB)
-  CALL Write_Mat(H_tot(1:5,1:5), out_unit, 5)
+  CALL Write_Mat(H_tot(1:10,1:10), out_unit, 10)
 
   !---------------------------Computation Eigenstates--------------------------
   DEALLOCATE(REigval)
@@ -319,9 +319,9 @@ PROGRAM App_MolecCav
   ALLOCATE(REigvec(NB,NB))
   CALL diagonalization(H_tot, REigval, Reigvec)
 
-  WRITE(out_unit,*) 'EIGENVALUES (5 firsts)'
+  WRITE(out_unit,*) 'EIGENVALUES (10 firsts)'
   !CALL Write_Vec(Reigval, out_unit, 6, info = 'VP[Ha]')
-  CALL Write_Vec(Reigval(1:5), out_unit, 5, info = 'VP[Ha]')
+  CALL Write_Vec(Reigval(1:10), out_unit, 10, info = 'VP[Ha]')
 
   !WRITE(out_unit,*) 'EIGENVECTORS'
   !CALL Write_Mat(Reigvec, out_unit, 6, info = 'Eigenvectors')
