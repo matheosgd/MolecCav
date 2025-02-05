@@ -89,7 +89,7 @@ PROGRAM App_MolecCav
                                  & w=Molecule_1%w, &
                                  & m=Molecule_1%m)
 
-  Cte_dipole_moment = TWELVE
+  Cte_dipole_moment = FIVE
   Matter_dipolar_moment%Band_val_R = Matter_dipolar_moment%Band_val_R*Cte_dipole_moment ! /!\ so that the matrix already contains the intensity constant of the dipolar moment with the position of the matter (cf. manual for formulas)
     
   WRITE(out_unit, *) "Molecular Dipole moment"
@@ -231,8 +231,9 @@ PROGRAM App_MolecCav
                               & H_ho_cavity_mode_1, x_ho_cavity_mode_1, Matter_dipolar_moment, &
                               & Cavity_mode_1%lambda, Cavity_mode_1%w)  
 
-  WRITE(out_unit,*) "Total Hamiltonian (mapped)"
-  CALL Write_Mat(H_tot, out_unit, NB)
+  WRITE(out_unit,*) "Total Hamiltonian (mapped, lambda /= 0, w_C /= w_M) (5:5 slicing)"
+  !CALL Write_Mat(H_tot, out_unit, NB)
+  CALL Write_Mat(H_tot(1:5,1:5), out_unit, 5)
 
   ! JUST SOME TESTS FOR THE SUBROUTINES/CONSTRUCTION OF HTOT WITH DIFFERENT DIPOLAR MOMENT VALUES :
   !Matter_dipolar_moment%Band_val_R = Matter_dipolar_moment%Band_val_R/Cte_dipole_moment ! 
@@ -256,12 +257,13 @@ PROGRAM App_MolecCav
   WRITE(out_unit, *) "Average E_tot = ", Average, "Ha"
 
   !---------------------------Computation Eigenstates--------------------------
-  ALLOCATE(REigval(Nb))
+  ALLOCATE(REigval(NB))
   ALLOCATE(REigvec(NB,NB))
   CALL diagonalization(H_tot, REigval, Reigvec)
 
   WRITE(out_unit,*) 'EIGENVALUES'
-  CALL WRITE_Vec(Reigval, out_unit, 6, info = 'VP[Ha]')
+  !CALL WRITE_Vec(Reigval, out_unit, 6, info = 'VP[Ha]')
+  CALL WRITE_Vec(Reigval(1:5), out_unit, 5, info = 'VP[Ha]')
 
   !WRITE(out_unit,*) 'EIGENVECTORS'
   !CALL WRITE_Mat(Reigvec, out_unit, 6, info = 'Eigenvectors')
@@ -275,21 +277,51 @@ PROGRAM App_MolecCav
                               & H_ho_cavity_mode_1, x_ho_cavity_mode_1, Matter_dipolar_moment, &
                               & Cavity_mode_1%lambda, Cavity_mode_1%w)  
 
-  WRITE(out_unit,*) "Total Hamiltonian (mapped, lambda = 0)"
-  CALL Write_Mat(H_tot, out_unit, NB)
+  WRITE(out_unit,*) "Total Hamiltonian (mapped, lambda = 0, w_C /= w_M) (5:5 slicing)"
+  !CALL Write_Mat(H_tot, out_unit, NB)
+  CALL Write_Mat(H_tot(1:5,1:5), out_unit, 5)
 
   !---------------------------Computation Eigenstates--------------------------
   DEALLOCATE(REigval)
   DEALLOCATE(REigvec)
-  ALLOCATE(REigval(Nb))
+  ALLOCATE(REigval(NB))
   ALLOCATE(REigvec(NB,NB))
   CALL diagonalization(H_tot, REigval, Reigvec)
-  !Missing : procedure to write diagonal H_tot
+  !Missing : procedure to write diagonal H_tot : no need, assume it worked and diag. elements = Eigenvalues
   !WRITE(out_unit,*) 'Total Hamiltonian (mapped, lambda = 0, diagonalized)'
   !CALL Write_Mat(H_tot, out_unit, 42)
 
   WRITE(out_unit,*) 'EIGENVALUES'
-  CALL Write_Vec(Reigval, out_unit, 6, info = 'VP[Ha]')
+  !CALL Write_Vec(Reigval, out_unit, 6, info = 'VP[Ha]')
+  CALL Write_Vec(Reigval(1:5), out_unit, 5, info = 'VP[Ha]')
+
+  !WRITE(out_unit,*) 'EIGENVECTORS'
+  !CALL Write_Mat(Reigvec, out_unit, 6, info = 'Eigenvectors')
+
+  !--------Construction of a Total Hamiltonian matrix with CM-couplings--------
+  DEALLOCATE(H_tot)
+  ALLOCATE(H_tot(NB, NB))
+
+  Cavity_mode_1%lambda = ONE
+  Cavity_mode_1%w = Molecule_1%w
+  CALL MolecCav_Construct_H_tot(H_tot, Molecule_1%Nb, Cavity_mode_1%Nb, Matter_hamiltonianSystem_WF, &
+                              & H_ho_cavity_mode_1, x_ho_cavity_mode_1, Matter_dipolar_moment, &
+                              & Cavity_mode_1%lambda, Cavity_mode_1%w)  
+
+  WRITE(out_unit,*) "Total Hamiltonian (mapped, lambda = 1.0, w_C = w_M) (5:5 slicing)"
+  !CALL Write_Mat(H_tot, out_unit, NB)
+  CALL Write_Mat(H_tot(1:5,1:5), out_unit, 5)
+
+  !---------------------------Computation Eigenstates--------------------------
+  DEALLOCATE(REigval)
+  DEALLOCATE(REigvec)
+  ALLOCATE(REigval(NB))
+  ALLOCATE(REigvec(NB,NB))
+  CALL diagonalization(H_tot, REigval, Reigvec)
+
+  WRITE(out_unit,*) 'EIGENVALUES (5 firsts)'
+  !CALL Write_Vec(Reigval, out_unit, 6, info = 'VP[Ha]')
+  CALL Write_Vec(Reigval(1:5), out_unit, 5, info = 'VP[Ha]')
 
   !WRITE(out_unit,*) 'EIGENVECTORS'
   !CALL Write_Mat(Reigvec, out_unit, 6, info = 'Eigenvectors')
