@@ -3,6 +3,6 @@ PROGRAM test_action_op
   IMPLICIT NONE
 
   WRITE(out_unit,*) ''
-  WRITE(out_unit,*) 'Test checked !'
+  !WRITE(out_unit,*) 'Test checked !'
 
 END PROGRAM

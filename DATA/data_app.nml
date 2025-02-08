@@ -4,7 +4,7 @@
 !
 &HO_1             !The diatomic molecule
 D = 1             !Label of the basis/HO/mode/dimension
-Nb = 37           !Number of basis vectors associated with the HO D
+Nb = 7           !Number of basis vectors associated with the HO D
 w = 1.7           !Eigenpulsation associated with the HO D (maybe HF molecule : 0.005866505831680149)
 m = 1744.60504565 !Mass associated with the HO D
 lambda = 1.0      !Strength parameter of the coupling between the mode D and the molecule
@@ -12,7 +12,7 @@ lambda = 1.0      !Strength parameter of the coupling between the mode D and the
 
 &HO_1             !The Cavity
 D = 2
-Nb = 36
+Nb = 6
 w = 1.5
 m = 1.0
 lambda = 1.0

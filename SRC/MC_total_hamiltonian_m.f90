@@ -37,7 +37,7 @@ MODULE MC_total_hamiltonian_m
     !-----------H_tot = H_Matter + H_Cavity + H_MatterCavityCoupling-----------
     !----------H_Matter|System_WF> = H_Matter(System_WF) already known---------
     Result_total_WF = Matter_hamiltonianSystem_WF
-
+  
     !-----------H_Cavity|System_WF> = H_Cavity(System_WF) to compute-----------
     ALLOCATE(Cavity_hamiltonian_1DSystem_WF(Nb_C))
     DO i_M = 1, Nb_M
@@ -50,19 +50,20 @@ MODULE MC_total_hamiltonian_m
     !---------------------H_MatterCavityCoupling|System_WF>--------------------
     !------------------------H_CavityCoupling(System_WF)-----------------------
     ALLOCATE(Intermediary(Nb_M,Nb_C))
+    Intermediary = ZERO
     DO i_M = 1, Nb_M
       CALL MolecCav_Action_Operator_1D(Intermediary(i_M,:), &
                                      & Cavity_position_1D, &
                                      & System_WF(i_M,:))
     END DO
     Intermediary = lambda_cavity_mode*w_cavity_mode*Intermediary
- 
+
     !---------H_MatterCoupling(Intermediary) = Cte.pos_op of the matter--------
     ALLOCATE(Matter_cavity_coupling_hamiltonian_1DSystem_WF(Nb_M,Nb_C))
     CALL MolecCav_Action_matter_dipolar_moment_1D(Matter_cavity_coupling_hamiltonian_1DSystem_WF, &
                                                 & Matter_dipolar_moment, &
                                                 & Intermediary)                ! the matter_dipolar_moment is assumed to already contains its intensity constant (\frac{d\mu}{dq}) within its matrix /!\
- 
+                                            
     !-----------------------------H_tot = summation----------------------------
     Result_total_WF = Result_total_WF + Matter_cavity_coupling_hamiltonian_1DSystem_WF
 
@@ -90,7 +91,7 @@ MODULE MC_total_hamiltonian_m
     END IF
 
     DO i_C = 1, Nb_C
-      CALL MolecCav_Action_Operator_1D(Psi_result(:,i_C), &
+      CALL MolecCav_Action_Operator_1D(Psi_result(:,i_C), &                    ! just a matricial product vector by vector to abide by the arguments constraints of the subroutine (i think we could replace by matmul(matter_dip_mom), Psi_argu)
                                      & Matter_dipolar_moment, &
                                      & Psi_argument(:,i_C))
     END DO
@@ -120,6 +121,7 @@ MODULE MC_total_hamiltonian_m
 
     J = 0
     NB = Size(H_tot, 1)
+    H_tot(:,:) = ZERO
     ALLOCATE(Psi_basis(Nb_M, Nb_C))
     ALLOCATE(Psi_result(Nb_M, Nb_C))
 

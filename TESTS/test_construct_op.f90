@@ -56,6 +56,9 @@ PROGRAM test_construct_op
                                  & w=ONE, &
                                  & m=ONE)
 
+  WRITE(out_unit,*) "1D Hamiltonian (Optimized, Nb = 6, m = 1.0 a.u., w = 1.0 a.u.)"
+  CALL Write_Vec(H_ho_1D_diag_1_6%Diag_val_R, out_unit, 1)
+
   CALL MolecCav_Construct_Operator(Operator=H_ho_1D_diag_14_6, &
                                  & operator_type="Hamiltonian", &
                                  & scalar_space="Real", &
@@ -87,7 +90,10 @@ PROGRAM test_construct_op
                                  & Nb=6, &
                                  & w=ONE, &
                                  & m=ONE)
-                                 
+  
+  WRITE(out_unit,*) "1D Hamiltonian (Non-optimized, Nb = 6, m = 1.0 a.u., w = 14.0 a.u.)"
+  CALL Write_Mat(H_ho_1D_dense_1_6%Dense_val_R, out_unit, 6)
+                               
   CALL MolecCav_Construct_Operator(Operator=H_ho_1D_dense_14_17, &
                                  & operator_type="Hamiltonian", &
                                  & scalar_space="Real", &

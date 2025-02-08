@@ -300,6 +300,9 @@ $(OBJ_DIR)/MC_operator_1D_m.o  : $(SRC_DIR)/MC_operator_1D_m.f90
 $(OBJ_DIR)/MC_total_hamiltonian_m.o  : $(SRC_DIR)/MC_total_hamiltonian_m.f90
 	$(FFC) -c -o $(OBJ_DIR)/MC_total_hamiltonian_m.o $(FFLAGS) $(SRC_DIR)/MC_total_hamiltonian_m.f90
 
+$(OBJ_DIR)/MC_algebra_m.o  : $(SRC_DIR)/MC_algebra_m.f90
+	$(FFC) -c -o $(OBJ_DIR)/MC_algebra_m.o $(FFLAGS) $(SRC_DIR)/MC_algebra_m.f90
+
 #=================================================================================
 #==================Definition of the files to be created by Make==================
 #=========================3. the library (the SRC modules)========================
@@ -323,6 +326,8 @@ $(OBJ_DIR)/MC_total_hamiltonian_m.o  : $(SRC_DIR)/MC_total_hamiltonian_m.f90
 $(OBJ_DIR)/test_cavity_mode.o  : $(LIBA)
 $(OBJ_DIR)/test_construct_op.o : $(LIBA)
 $(OBJ_DIR)/test_action_op.o    : $(LIBA)
+
+$(OBJ_DIR)/MC_operator_1D_m.o  : $(OBJ_DIR)/MC_algebra_m.o 
 
 $(OBJ_DIR)/$(MAIN).o           : $(LIBA)
 

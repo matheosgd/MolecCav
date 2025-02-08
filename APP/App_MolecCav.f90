@@ -23,11 +23,15 @@ PROGRAM App_MolecCav
 
   !--------------------------------Wavefunctions-------------------------------
   real(kind=Rkind), allocatable :: System_WF(:,:)                              ! The total system (matter-cavity) wavefunction. Size Nb_M*Nb_C. |System_WF> = |Molecule_WF>.TENSOR.|Cavity_WF> 
+  real(kind=Rkind), allocatable :: System_WF_mapped(:)
   real(kind=Rkind), allocatable :: Matter_hamiltonianSystem_WF(:,:)            ! The wavefunction resulting from the action of the matter hamiltonian on System_WF. Size Nb_M*Nb_C. |H_MatterSystem_WF(:,i_C)> = H_Matter|System_WF(:,i_C)>
-  !real(kind=Rkind), allocatable :: Result_total_WF(:,:)
   real(kind=Rkind), allocatable :: H_tot(:,:)                               
 
+  !------------------------------Some expermients------------------------------
+
   !-----------------------------------Results----------------------------------
+  real(kind=Rkind)              :: Average
+  real(kind=Rkind), allocatable :: Psi_cavity(:), Psi_result_bis(:)
   real(kind=Rkind), allocatable :: REigval(:)
   real(kind=Rkind), allocatable :: REigvec(:,:)
 
@@ -35,17 +39,21 @@ PROGRAM App_MolecCav
   integer                       :: i, NB
 
   !------------------------------Tests in progress-----------------------------
-  real(kind=Rkind)              :: Norm_sys, Projection, Average
-  real(kind=Rkind), allocatable :: System_WF_mapped(:)
+  real(kind=Rkind)              :: Norm_sys
+  !real(kind=Rkind)              :: Projection
+  real(kind=Rkind), allocatable :: Intermediary(:,:), Intermediary2(:,:)
+  real(kind=Rkind), allocatable :: Result_total_WF(:,:)
   real(kind=Rkind), allocatable :: Psi_result(:,:)
   !real(kind=Rkind), allocatable :: H_tot2(:,:)                               
   !integer                       :: j
-  real(kind=Rkind), allocatable :: Psi_mapped_result(:)
-  real(kind=Rkind), allocatable :: Psi_cavity(:), Psi_result_bis(:)
+  !real(kind=Rkind), allocatable :: Psi_mapped_result(:)
+  !real(kind=Rkind), allocatable :: Cavity_hamiltonian_1DSystem_WF(:,:)
 
   
 !-----------------------------SYSTEM INITIALIZATION----------------------------
   !-------------Diatomic molecule in a harmonic electonic potential------------
+  WRITE(out_unit, *) "-----------------------------SYSTEM INITIALIZATION----------------------------"
+  
   CALL MolecCav_Read_cavity_mode(Mode=Molecule_1, nio=in_unit)
 
   CALL MolecCav_Construct_Operator(Operator=H_ho_molecule_1, &
@@ -62,13 +70,14 @@ PROGRAM App_MolecCav
   CALL MolecCav_Construct_Operator(Operator=x_ho_molecule_1, &
                                  & operator_type="Position", &
                                  & scalar_space="Real", &
-                                 & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
+                                 & matrix_shape_type="Non_Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
                                  & Nb=Molecule_1%Nb, &
                                  & w=Molecule_1%w, &
                                  & m=Molecule_1%m)
 
   WRITE(out_unit, *) "Molecular Position"
-  CALL Write_Mat(x_ho_molecule_1%Band_val_R, out_unit, 3)
+  !CALL Write_Mat(x_ho_molecule_1%Band_val_R, out_unit, 3)
+  CALL Write_Mat(x_ho_molecule_1%Dense_val_R, out_unit, Molecule_1%Nb)
 
   CALL MolecCav_Construct_Operator(Operator=N_ho_molecule_1, &
                                  & operator_type="Nb_photons", &
@@ -84,16 +93,17 @@ PROGRAM App_MolecCav
   CALL MolecCav_Construct_Operator(Operator=Matter_dipolar_moment, &
                                  & operator_type="Position", &                 ! initialized as a position operator because of approximation over its expression (cf. readme.md or manual)
                                  & scalar_space="Real", &
-                                 & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
+                                 & matrix_shape_type="Non_Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
                                  & Nb=Molecule_1%Nb, &
                                  & w=Molecule_1%w, &
                                  & m=Molecule_1%m)
 
-  Cte_dipole_moment = FIVE
+  Cte_dipole_moment = ONE
   Matter_dipolar_moment%Band_val_R = Matter_dipolar_moment%Band_val_R*Cte_dipole_moment ! /!\ so that the matrix already contains the intensity constant of the dipolar moment with the position of the matter (cf. manual for formulas)
     
   WRITE(out_unit, *) "Molecular Dipole moment"
-  CALL Write_Mat(Matter_dipolar_moment%Band_val_R, out_unit, 3)
+  !CALL Write_Mat(Matter_dipolar_moment%Band_val_R, out_unit, 3)
+  CALL Write_Mat(Matter_dipolar_moment%Dense_val_R, out_unit, Molecule_1%Nb)
 
   !------------------------------First cavity mode-----------------------------
   CALL MolecCav_Read_cavity_mode(Mode=Cavity_mode_1, nio=in_unit)
@@ -112,13 +122,14 @@ PROGRAM App_MolecCav
   CALL MolecCav_Construct_Operator(Operator=x_ho_cavity_mode_1, &
                                  & operator_type="Position", &
                                  & scalar_space="Real", &
-                                 & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
+                                 & matrix_shape_type="Non_Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
                                  & Nb=Cavity_mode_1%Nb, &
                                  & w=Cavity_mode_1%w, &
                                  & m=Cavity_mode_1%m)
 
   WRITE(out_unit, *) "Cavity mode Position"
-  CALL Write_Mat(x_ho_cavity_mode_1%Band_val_R, out_unit, 3)
+  !CALL Write_Mat(x_ho_cavity_mode_1%Band_val_R, out_unit, 3)
+  CALL Write_Mat(x_ho_cavity_mode_1%Dense_val_R, out_unit, Molecule_1%Nb)
 
   CALL MolecCav_Construct_Operator(Operator=N_ho_cavity_mode_1, &
                                  & operator_type="Nb_photons", &
@@ -133,8 +144,10 @@ PROGRAM App_MolecCav
   CALL Write_Vec(N_ho_cavity_mode_1%Diag_val_R, out_unit, 1)
 
   !-----------------------------Total Wavefunctions----------------------------
+  WRITE(out_unit, *) "-----------------------------Total Wavefunctions----------------------------"
+
   ALLOCATE(System_WF(Molecule_1%Nb,Cavity_mode_1%Nb))
-  System_WF = ZERO
+  System_WF(:,:) = ZERO
   DO i = 1, MIN(Molecule_1%Nb, Cavity_mode_1%Nb)                               ! initialize Systel_WF arbitrarily
     System_WF(i,i) = i
   END DO
@@ -165,6 +178,8 @@ PROGRAM App_MolecCav
                     & computed here because of <<multiple definition of moleccav_norm_wf_2d>> ??"
 
   !----------------------Action of the Matter Hamiltonian----------------------
+  WRITE(out_unit, *) "----------------------Action of the Matter Hamiltonian----------------------"
+
   ALLOCATE(Matter_hamiltonianSystem_WF(Molecule_1%Nb, Cavity_mode_1%Nb))
   Matter_hamiltonianSystem_WF = ZERO
 
@@ -178,6 +193,8 @@ PROGRAM App_MolecCav
   CALL Write_Mat(Matter_hamiltonianSystem_WF, out_unit, Cavity_mode_1%Nb)
 
   !----------------Computation of the photon number of System_WF---------------
+  WRITE(out_unit, *) "----------------Computation of the photon number of System_WF---------------"
+
   ALLOCATE(Psi_result(Molecule_1%Nb, Cavity_mode_1%Nb))
 
   CALL MolecCav_Action_cavity_operator_2D(Psi_result, N_ho_cavity_mode_1, System_WF)
@@ -190,20 +207,11 @@ PROGRAM App_MolecCav
   CALL MolecCav_Average_value_cavity_operator_2D(Average, N_ho_cavity_mode_1, System_WF)
   WRITE(out_unit, *) "The average nb of photons of the normalised System_WF is (second method) : ", Average
 
-  !ALLOCATE(Result_total_WF(Molecule_1%Nb,Cavity_mode_1%Nb))
-  !Result_total_WF = ZERO
-
-  !CALL MolecCav_Action_Total_Hamiltonian_1D(Result_total_WF, Matter_hamiltonianSystem_WF, &
-  !                                        & H_ho_cavity_mode_1, x_ho_cavity_mode_1, &
-  !                                        & Matter_dipolar_moment, Cte_dipole_moment, System_WF, &
-  !                                        & Cavity_mode_1%lambda, Cavity_mode_1%w)
-  
-  !WRITE(out_unit,*) "Result_total_WF"
-  !DO i = 1, Molecule_1%Nb
-  !  WRITE(out_unit,*) Result_total_WF(i,:)
-  !END DO
+  DEALLOCATE(Psi_result)
 
   !-----------------------An experiment on the Nb_photons----------------------
+  WRITE(out_unit, *) "-----------------------An experiment on the Nb_photons----------------------"
+
   ALLOCATE(Psi_cavity(Cavity_mode_1%Nb))
   Psi_cavity = ZERO
   Psi_cavity(1) = ONE
@@ -222,8 +230,31 @@ PROGRAM App_MolecCav
   CALL MolecCav_Average_value_operator_1D(Average, N_ho_cavity_mode_1, Psi_cavity)
   WRITE(out_unit, *) 'The avegeraged number of photons of that Psi_cavity is analytically expected to be &
                     & 0.5 and is = ', Average
+  
+  DEALLOCATE(Psi_result_bis)
+
+  !----------------An experiment on the total Hamiltonian action---------------
+  WRITE(out_unit, *) "----------------------Action of the total Hamiltonian----------------------"
+
+  WRITE(out_unit,*) "System_WF"
+  CALL Write_Mat(System_WF, out_unit, Cavity_mode_1%Nb)
+  FLUSH(out_unit) 
+
+  ALLOCATE(Psi_result(Molecule_1%Nb, Cavity_mode_1%Nb))
+  Psi_result(:,:) = ZERO
+
+  CALL MolecCav_Action_Total_Hamiltonian_1D(Psi_result, Matter_hamiltonianSystem_WF, &
+                                          & H_ho_cavity_mode_1, x_ho_cavity_mode_1, &
+                                          & Matter_dipolar_moment, System_WF, &
+                                          & ZERO, Cavity_mode_1%w)
+
+  WRITE(out_unit,*) "Action of the uncoupled total Hamiltonian over System_WF"
+  CALL Write_Mat(Psi_result, out_unit, Cavity_mode_1%Nb)
+  FLUSH(out_unit) 
 
   !----------------Construction of the Total Hamiltonian matrix----------------
+  WRITE(out_unit, *) "----------------Construction of the Total Hamiltonian matrix----------------"
+
   NB = Molecule_1%Nb * Cavity_mode_1%Nb
   ALLOCATE(H_tot(NB, NB))
 
@@ -253,10 +284,12 @@ PROGRAM App_MolecCav
   !END DO
 
   !-----------------------Computation of some observables----------------------
+
   CALL MolecCav_Average_value_H_tot(Average, H_tot, System_WF_mapped)
   WRITE(out_unit, *) "Average E_tot = ", Average, "Ha"
 
   !---------------------------Computation Eigenstates--------------------------
+
   ALLOCATE(REigval(NB))
   ALLOCATE(REigvec(NB,NB))
   CALL diagonalization(H_tot, REigval, Reigvec)
@@ -269,6 +302,8 @@ PROGRAM App_MolecCav
   !CALL WRITE_Mat(Reigvec, out_unit, 6, info = 'Eigenvectors')
 
   !-------Construction of a Total Hamiltonian matrix without CM-couplings------
+  WRITE(out_unit, *) "-------Construction of a Total Hamiltonian matrix without CM-couplings------"
+
   DEALLOCATE(H_tot)
   ALLOCATE(H_tot(NB, NB))
 
@@ -299,6 +334,8 @@ PROGRAM App_MolecCav
   !CALL Write_Mat(Reigvec, out_unit, 6, info = 'Eigenvectors')
 
   !--------Construction of a Total Hamiltonian matrix with CM-couplings--------
+  WRITE(out_unit, *) "-------Construction of a Total Hamiltonian matrix without CM-couplings------"
+
   DEALLOCATE(H_tot)
   ALLOCATE(H_tot(NB, NB))
 
@@ -325,5 +362,6 @@ PROGRAM App_MolecCav
 
   !WRITE(out_unit,*) 'EIGENVECTORS'
   !CALL Write_Mat(Reigvec, out_unit, 6, info = 'Eigenvectors')
+
 
 END PROGRAM

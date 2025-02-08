@@ -151,13 +151,12 @@ Build_obj_lib()
   cd ~/MolecCav
  	$FFC -c -o ${OBJ[0]} $FFLAGS ${SRC_FILES[0]}                                           # OBJ[0] = OBJ/obj/MC_cavity_mode_m.o 
                                                                                          # SRC_FILES[0] = OBJ/obj/MC_cavity_mode_m.f90
-  $FFC -c -o ${OBJ[1]} $FFLAGS ${SRC_FILES[1]}                                           # OBJ[1] = OBJ/obj/MC_cavity_mode_m.o
+  $FFC -c -o ${OBJ[3]} $FFLAGS ${SRC_FILES[3]}                                           # OBJ[2] = OBJ/obj/MC_algebra_m.o
+                                                                                         # SRC_FILES[2] = OBJ/obj/MC_algebra_m.f90    |/!\ algebra has to be compiled         /!\
+  $FFC -c -o ${OBJ[1]} $FFLAGS ${SRC_FILES[1]}                                           # OBJ[1] = OBJ/obj/MC_cavity_mode_m.o        |/!\ before operator_1d (used in op_1d) /!\
                                                                                          # SRC_FILES[1] = OBJ/obj/MC_cavity_mode_m.f90
   $FFC -c -o ${OBJ[2]} $FFLAGS ${SRC_FILES[2]}                                           # OBJ[2] = OBJ/obj/MC_total_hamiltonian_m.o
                                                                                          # SRC_FILES[2] = OBJ/obj/MC_total_hamiltonian_m.f90
-  $FFC -c -o ${OBJ[3]} $FFLAGS ${SRC_FILES[3]}                                           # OBJ[2] = OBJ/obj/MC_algebra_m.o
-                                                                                         # SRC_FILES[2] = OBJ/obj/MC_algebra_m.f90
-
 
   for file in ${OBJ[@]}
   do
