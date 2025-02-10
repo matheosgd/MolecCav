@@ -5,3 +5,4 @@ OBJ/*
 OUT/*
 *.log
 ARCH/*
+test_action_op.f90
