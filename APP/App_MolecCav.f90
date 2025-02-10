@@ -357,10 +357,12 @@ PROGRAM App_MolecCav
   ALLOCATE(REigvec(NB,NB))
   CALL diagonalization(H_tot, REigval, Reigvec)
 
+  WRITE(out_unit,*) 'EIGENVALUES (10 firsts)'
+  !CALL Write_Vec(Reigval, out_unit, 6, info = 'VP[Ha]')
+  CALL Write_Vec(Reigval(1:10), out_unit, 10, info = 'VP[Ha]')
+  
   !WRITE(out_unit,*) 'EIGENVECTORS'
   !CALL Write_Mat(Reigvec, out_unit, 6, info = 'Eigenvectors')
-
-  WRITE(out_unit, *) "testing branches features"
 
 
 END PROGRAM
