@@ -45,6 +45,9 @@ PROGRAM App_MolecCav
   real(kind=Rkind), allocatable :: Psi_result(:,:)
   !real(kind=Rkind), allocatable :: Psi_mapped_result(:)
   !real(kind=Rkind), allocatable :: Cavity_hamiltonian_1DSystem_WF(:,:)
+  real(kind=Rkind), allocatable :: Psi_test1(:,:)
+  integer                       :: j
+  
 
   
 !-----------------------------SYSTEM INITIALIZATION----------------------------
@@ -163,17 +166,17 @@ PROGRAM App_MolecCav
   WRITE(out_unit,*) "Not normalized System_WF_mapped"
   CALL Write_Vec(System_WF_mapped, out_unit, 1)
 
-  CALL MolecCav_Normalize_WF_2D(System_WF)
+  CALL MolecCav_Normalize_2D_real(System_WF)
   WRITE(out_unit, *) "Normalized System_WF wavefunction"
   CALL Write_Mat(System_WF, out_unit, Cavity_mode_1%Nb)
 
-  CALL MolecCav_Normalize_WF_1D(System_WF_mapped)
+  CALL MolecCav_Normalize_1D_real(System_WF_mapped)
   WRITE(out_unit,*) "Normalized System_WF_mapped"
   CALL Write_Vec(System_WF_mapped, out_unit, 1)
 
-  CALL MolecCav_Norm_WF_1D(Norm_sys, System_WF_mapped)
+  CALL MolecCav_Norm_1D_real(Norm_sys, System_WF_mapped)
   WRITE(out_unit, *) "the norm of system_wf_mapped is ", Norm_sys, "but those of system_wf cannot be &
-                    & computed here because of <<multiple definition of moleccav_norm_wf_2d>> ??"
+                    & computed here because of <<multiple definition of MolecCav_Norm_2D_real>> ??"
 
   !----------------------Action of the Matter Hamiltonian----------------------
   WRITE(out_unit, *) "----------------------Action of the Matter Hamiltonian----------------------"
@@ -199,7 +202,7 @@ PROGRAM App_MolecCav
   WRITE(out_unit,*) "Action of Nb photon operator over System_WF"
   CALL Write_Mat(Psi_result, out_unit, Cavity_mode_1%Nb)
 
-  CALL MolecCav_scalar_product_2D(Average, Psi_result, System_WF)
+  CALL MolecCav_scalar_product_2D_real(Average, Psi_result, System_WF)
   WRITE(out_unit, *) "The average nb of photons of the normalised System_WF is (first method) : ", Average
 
   CALL MolecCav_Average_value_cavity_operator_2D(Average, N_ho_cavity_mode_1, System_WF)
@@ -216,7 +219,7 @@ PROGRAM App_MolecCav
   Psi_cavity(2) = ONE                                                          ! \ket{Psi} = \ket{0} + \ket{1}
   WRITE(out_unit,*) 'Not normalized Psi_cavity'
   CALL Write_Vec(Psi_cavity, out_unit, 1)
-  CALL MolecCav_Normalize_WF_1D(Psi_cavity)
+  CALL MolecCav_Normalize_1D_real(Psi_cavity)
   WRITE(out_unit,*) 'Normalized Psi_cavity (N.B. \frac{1}{\sqrt{2}} = 0.7071067811865475)'
   CALL Write_Vec(Psi_cavity, out_unit, 1)
 
@@ -361,5 +364,16 @@ PROGRAM App_MolecCav
   !WRITE(out_unit,*) 'EIGENVECTORS'
   !CALL Write_Mat(Reigvec, out_unit, 6, info = 'Eigenvectors')
 
+
+  !---------------------------tests--------------------------
+  Norm_sys = ZERO
+  ALLOCATE(Psi_test1(2,3))
+  DO i = 1, 2
+    DO j = 1, 3
+    Psi_test1(i,j) = i+j
+    END DO 
+  END DO
+
+  CALL MolecCav_scalar_product_2D_real(Norm_sys, Psi_test1, Psi_test1)
 
 END PROGRAM

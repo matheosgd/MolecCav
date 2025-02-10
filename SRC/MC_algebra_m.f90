@@ -7,17 +7,18 @@ MODULE MC_algebra_m
   CONTAINS
   
     
-  SUBROUTINE MolecCav_Normalize_WF_2D(Psi)
+  SUBROUTINE MolecCav_Normalize_2D_real(Psi)
     USE QDUtil_m
     IMPLICIT NONE
 
     real(kind=Rkind), intent(inout)    :: Psi(:,:)                             ! already allocated
 
     real(kind=Rkind)                   :: Norm
+    logical, parameter                 :: debug = .FALSE.
 
     Norm = ZERO
-    CALL MolecCav_Norm_WF_2D(Norm, Psi)
-    WRITE(out_unit, *) "Computed norm of 2D WF = ", Norm
+    CALL MolecCav_Norm_2D_real(Norm, Psi)
+    IF (debug) WRITE(out_unit, *) "Computed norm of 2D WF = ", Norm
 
     IF (Norm < 1E-08_Rkind) THEN
       STOP "Attempt to normalize matrix of norm ZERO"
@@ -25,23 +26,27 @@ MODULE MC_algebra_m
       Psi(:,:) = Psi(:,:) / Norm
     END IF 
 
-    CALL MolecCav_Norm_WF_2D(Norm, Psi)
-    WRITE(out_unit, *) "Computed new norm of 2D WF = ", Norm
+    IF (debug) THEN
+      CALL MolecCav_Norm_2D_real(Norm, Psi)
+      WRITE(out_unit, *) "Computed new norm of 2D WF = ", Norm
+    END IF 
+
 
   END SUBROUTINE
 
   
-  SUBROUTINE MolecCav_Normalize_WF_1D(Psi)
+  SUBROUTINE MolecCav_Normalize_1D_real(Psi)
     USE QDUtil_m
     IMPLICIT NONE
 
     real(kind=Rkind), intent(inout)    :: Psi(:)                               ! already allocated
 
     real(kind=Rkind)                   :: Norm
+    logical, parameter                 :: debug = .FALSE.
 
     Norm = ZERO
-    CALL MolecCav_Norm_WF_1D(Norm, Psi)
-    WRITE(out_unit, *) "Computed norm of 1D WF = ", Norm
+    CALL MolecCav_Norm_1D_real(Norm, Psi)
+    IF (debug) WRITE(out_unit, *) "Computed norm of 1D WF = ", Norm
 
     IF (Norm < 1E-08_Rkind) THEN
       STOP "Attempt to normalize matrix of norm ZERO"
@@ -49,13 +54,16 @@ MODULE MC_algebra_m
       Psi(:) = Psi(:) / Norm
     END IF 
 
-    CALL MolecCav_Norm_WF_1D(Norm, Psi)
-    WRITE(out_unit, *) "Computed new norm of 1D WF = ", Norm
+    IF (debug) THEN
+      CALL MolecCav_Norm_1D_real(Norm, Psi)
+      WRITE(out_unit, *) "Computed new norm of 1D WF = ", Norm
+    END IF 
+
 
   END SUBROUTINE
 
 
-  SUBROUTINE MolecCav_Norm_WF_2D(Norm, Psi)
+  SUBROUTINE MolecCav_Norm_2D_real(Norm, Psi)
     USE QDUtil_m
     IMPLICIT NONE
   
@@ -65,13 +73,13 @@ MODULE MC_algebra_m
     real(kind=Rkind), allocatable   :: A(:,:)
     integer                         :: dim, i
     
-    CALL MolecCav_scalar_product_2D(Norm, Psi, Psi)
+    CALL MolecCav_scalar_product_2D_real(Norm, Psi, Psi)
     Norm = SQRT(Norm)
   
   END SUBROUTINE
 
 
-  SUBROUTINE MolecCav_Norm_WF_1D(Norm, Psi)
+  SUBROUTINE MolecCav_Norm_1D_real(Norm, Psi)
     USE QDUtil_m
     IMPLICIT NONE
   
@@ -83,30 +91,40 @@ MODULE MC_algebra_m
   END SUBROUTINE
 
 
-  SUBROUTINE MolecCav_scalar_product_2D(Projection, Psi_1, Psi_2)
+  SUBROUTINE MolecCav_scalar_product_2D_real(scalar_product, Psi_1, Psi_2)
     USE QDUtil_m
     IMPLICIT NONE
   
-    real(kind=Rkind), intent(inout) :: Projection
-    real(kind=Rkind), intent(in)    :: Psi_1(:,:)                                ! already allocated
-    real(kind=Rkind), intent(in)    :: Psi_2(:,:)                                ! already allocated
+    real(kind=Rkind),         intent(inout) :: scalar_product
+    real(kind=Rkind), target, intent(in)    :: Psi_1(:,:)                                ! already allocated + "target" means that it can be pointed by a pointer
+    real(kind=Rkind), target, intent(in)    :: Psi_2(:,:)                                ! already allocated + "target" means that it can be pointed by a pointer
 
-    real(kind=Rkind), allocatable   :: A(:,:)
-    integer                         :: dim, i
+    real(kind=Rkind), pointer               :: V1(:), V2(:)                              ! <=> real(kind=Rkind), dimension(:), pointer :: V1, V2
+    real(kind=Rkind), target, allocatable   :: A(:), B(:)     ! obligé à cause "Rank remapping target must be rank 1 or simply contiguous" error : à corriger
+    integer                                 :: dim
+    logical, parameter                      :: debug = .TRUE.
     
-    dim = Size(Psi_1,2)
-    IF (dim /= Size(Psi_2,2) .OR. Size(Psi_2,1) /= Size(Psi_2,1)) THEN
-      STOP "The matrices are expected to have same dimensions for the projection."
+    dim = Size(Psi_1, dim=2)
+    IF (dim /= Size(Psi_2, dim=2) .OR. Size(Psi_2, dim=1) /= Size(Psi_2, dim=1)) THEN
+      STOP "The matrices are expected to have same dimensions for the scalar product."
     END IF
 
-    ALLOCATE(A(dim,dim))
-    Projection = ZERO
+    scalar_product = ZERO
 
-    A = MATMUL(TRANSPOSE(Psi_1), Psi_2)
-    DO i=1, dim
-      Projection = Projection + A(i,i)                                                     ! compute the trace
-    END DO
-  
+    ALLOCATE(A(dim*Size(Psi_1, dim=1)))
+    ALLOCATE(B(dim*Size(Psi_1, dim=1)))
+    A(:) = reshape(Psi_1, shape=[dim*Size(Psi_1, dim=1)])
+    B(:) = reshape(Psi_2, shape=[dim*Size(Psi_1, dim=1)])
+    
+    V1(1:Size(Psi_1)) => A(:) ! Psi_1(:,:) ideally
+    V2(1:Size(Psi_2)) => B(:) ! Psi_2(:,:) //
+    scalar_product = DOT_PRODUCT(V1, V2)
+
+    NULLIFY(V1)
+    NULLIFY(V2)
+
+    IF (debug) WRITE(out_unit, *) "Computed scalar product : < Psi_1 |  Psi_2 >  =", scalar_product, "supposed to get 79 the 10/02/2025"
+
   END SUBROUTINE
 
 

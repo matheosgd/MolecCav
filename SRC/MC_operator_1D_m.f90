@@ -348,7 +348,7 @@ MODULE MC_operator_1D_m
     ALLOCATE(Intermediary(Nb_M, Nb_C))
 
     CALL MolecCav_Action_cavity_operator_2D(Intermediary, Operator, Psi_argument)
-    CALL MolecCav_scalar_product_2D(Value, Intermediary, Psi_argument)
+    CALL MolecCav_scalar_product_2D_real(Value, Intermediary, Psi_argument)
 
   END SUBROUTINE
   
