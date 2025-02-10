@@ -40,12 +40,9 @@ PROGRAM App_MolecCav
 
   !------------------------------Tests in progress-----------------------------
   real(kind=Rkind)              :: Norm_sys
-  !real(kind=Rkind)              :: Projection
   real(kind=Rkind), allocatable :: Intermediary(:,:), Intermediary2(:,:)
   real(kind=Rkind), allocatable :: Result_total_WF(:,:)
   real(kind=Rkind), allocatable :: Psi_result(:,:)
-  !real(kind=Rkind), allocatable :: H_tot2(:,:)                               
-  !integer                       :: j
   !real(kind=Rkind), allocatable :: Psi_mapped_result(:)
   !real(kind=Rkind), allocatable :: Cavity_hamiltonian_1DSystem_WF(:,:)
 
@@ -340,7 +337,7 @@ PROGRAM App_MolecCav
   DEALLOCATE(H_tot)
   ALLOCATE(H_tot(NB, NB))
 
-  Cavity_mode_1%lambda = ONE
+  Cavity_mode_1%lambda = TWO
   Cavity_mode_1%w = Molecule_1%w
   CALL MolecCav_Construct_H_tot(H_tot, Molecule_1%Nb, Cavity_mode_1%Nb, Matter_hamiltonianSystem_WF, &
                               & H_ho_cavity_mode_1, x_ho_cavity_mode_1, Matter_dipolar_moment, &
@@ -364,5 +361,6 @@ PROGRAM App_MolecCav
   !WRITE(out_unit,*) 'EIGENVECTORS'
   !CALL Write_Mat(Reigvec, out_unit, 6, info = 'Eigenvectors')
 
+  WRITE(out_unit, *) "this time it will work"
 
 END PROGRAM
