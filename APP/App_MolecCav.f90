@@ -142,7 +142,8 @@ PROGRAM App_MolecCav
 
   WRITE(out_unit, *) "Cavity mode Nb_photons"
   CALL Write_Vec(N_ho_cavity_mode_1%Diag_val_R, out_unit, 1)
-
+  FLUSH(out_unit)
+  
   !-----------------------------Total Wavefunctions----------------------------
   WRITE(out_unit, *) "-----------------------------Total Wavefunctions----------------------------"
 
