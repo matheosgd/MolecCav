@@ -20,7 +20,8 @@ MODULE Operator_1D_m
   PRIVATE
 
   PUBLIC Operator_1D_t, Construct_Operator, Action_Operator_1D, Average_value_operator_1D, & 
-       & MolecCav_Action_cavity_operator_2D, MolecCav_Average_value_cavity_operator_2D
+       & MolecCav_Action_cavity_operator_2D, MolecCav_Average_value_cavity_operator_2D, &
+       & Write_Operator_type
 
   INTERFACE Construct_Operator
     MODULE PROCEDURE MolecCav_Construct_Operator
@@ -30,6 +31,9 @@ MODULE Operator_1D_m
   END INTERFACE
   INTERFACE Average_value_operator_1D
   MODULE PROCEDURE MolecCav_Average_value_operator_1D
+  END INTERFACE
+  INTERFACE Write_Operator_type
+  MODULE PROCEDURE MolecCav_Write_Operator_type
   END INTERFACE
     
 
@@ -47,6 +51,13 @@ MODULE Operator_1D_m
     TYPE(Cavity_mode_t), intent(in)    :: Mode                                 ! the HO/Cavity mode which the operator is relative to
 
     !--------------first steps of the construction of the Operator-------------
+    WRITE(out_unit,*) "Mode : ", Mode
+    IF (present(Dense)) WRITE(out_unit,*) "Dense :", Dense
+    WRITE(out_unit,*) "Op tyoe : ", Operator_type
+    CALL Write_Operator_type(Operator)
+    WRITE(out_unit,*) "Op"
+    FLUSH(out_unit)
+    
     Operator%Operator_type = Operator_type                                     ! allocation on assignement. Operator_type has the right lengths (no spaces added) thanks to len=* at declaration and it will fit the Op%op_type thanks to len=:, allocatable at declaration of the derived type. 
     Operator%D             = Mode%D
     Operator%Nb            = Mode%Nb
@@ -74,6 +85,9 @@ MODULE Operator_1D_m
 
     END SELECT
 
+    CALL Write_Operator_type(Operator)
+    flush(out_unit)
+
   END SUBROUTINE
 
 
@@ -93,7 +107,6 @@ MODULE Operator_1D_m
     IF (.NOT. Hamiltonian%Dense) THEN
       !---------------------Initialization to default values-------------------
       ALLOCATE(Hamiltonian%Diag_val_R(Hamiltonian%Nb))
-      Hamiltonian%Diag_val_R = ZERO
       !------------------------Construction of the matrix----------------------
       DO i = 1, Hamiltonian%Nb                                                             ! /!\ Fortran counts from 1 to Nb !!! /!\
         Hamiltonian%Diag_val_R(i) = Hamiltonian%w*(i - ONE + HALF)                         ! "-1" because the first Fortran vector is the fundamental eigenvector of the HO i.e. the 0^{th} ket 
@@ -176,7 +189,6 @@ MODULE Operator_1D_m
     IF (.NOT. Nb_photon_Op%Dense) THEN
       !---------------------Initialization to default values-------------------
       ALLOCATE(Nb_photon_Op%Diag_val_R(Nb_photon_Op%Nb))
-      Nb_photon_Op%Diag_val_R = ZERO
       !------------------------Construction of the matrix----------------------
       DO i = 1, Nb_photon_Op%Nb                                                             ! /!\ Fortran counts from 1 to Nb !!! /!\
         Nb_photon_Op%Diag_val_R(i) = i - 1
@@ -234,7 +246,6 @@ MODULE Operator_1D_m
     TYPE(Operator_1D_t), intent(in)    :: Operator
     real(kind=Rkind),    intent(in)    :: Psi(:)
 
-    Op_psi = ZERO
     Op_psi(:) = matmul(Operator%Dense_val_R, Psi)
 
   END SUBROUTINE
@@ -249,7 +260,6 @@ MODULE Operator_1D_m
     TYPE(Operator_1D_t), intent(in)    :: Operator
     real(kind=Rkind),    intent(in)    :: Psi(:)
 
-    Op_psi = ZERO
     Op_psi = Operator%Diag_val_R * Psi
 
   END SUBROUTINE
@@ -309,6 +319,44 @@ MODULE Operator_1D_m
     DEALLOCATE(Intermediary)
     
   END SUBROUTINE
+
+
+  SUBROUTINE MolecCav_Write_Operator_type(Operator)
+    TYPE(Operator_1D_t), intent(in) :: Operator
+
+    WRITE(out_unit,*) "---------------------------WRITING THE OPERATOR TYPE---------------------------"
+    WRITE(out_unit,*) "-------------------------THE ASSOCIATED HO CAVITY MODE-------------------------"
+    WRITE(out_unit,*) "Index of the cavity mode Operator%Mode%D : ", Operator%D
+    WRITE(out_unit,*) "Basis set size of the cavity mode Operator%Mode%Nb : ", Operator%Nb
+    WRITE(out_unit,*) "Eigenpulsation of the cavity mode Operator%Mode%w : ", Operator%w
+    WRITE(out_unit,*) "mass of the associated HO Operator%Mode%m : ", Operator%m
+    WRITE(out_unit,*) "coupling strength parameter between the matter and this cavity mode Operator%Mode%lambda : ", Operator%lambda
+    FLUSH(out_unit)
+    WRITE(out_unit,*) "----------------------------THE OPERATOR PARAMETERS----------------------------"
+    WRITE(out_unit,*) "Nature of the operator Operator%operator_type : ", Operator%Operator_type
+    WRITE(out_unit,*) "Is its matrix supposed to be represented as a dense one ? Operator%Dense : ", Operator%Dense
+    WRITE(out_unit,*) "Case of a band matrix, (Operator%Upper_bandwidth, Operator%Lower_bandwidth) : (", & 
+                     & Operator%Upper_bandwidth, Operator%Lower_bandwidth, ")"
+    FLUSH(out_unit)
+    WRITE(out_unit,*) "----------------------------THE OPERATOR'S MATRICES----------------------------"
+    IF (ALLOCATED(Operator%Diag_val_R)) THEN
+      WRITE(out_unit,*) "The operator's Diagonal matrix representation has been used, and is :"
+      CALL Write_Vec(Operator%Diag_val_R, out_unit, 1)
+      FLUSH(out_unit)
+    END IF
+    IF (ALLOCATED(Operator%Band_val_R)) THEN
+      WRITE(out_unit,*) "The operator's Band matrix representation has been used, and is :"
+      CALL Write_Mat(Operator%Band_val_R, out_unit, 3)
+      FLUSH(out_unit)
+    END IF
+    IF (ALLOCATED(Operator%Dense_val_R)) THEN
+      WRITE(out_unit,*) "The operator's Dense matrix representation has been used, and is :"
+      CALL Write_Mat(Operator%Dense_val_R, out_unit, Operator%Nb)
+      FLUSH(out_unit)
+    END IF
+    WRITE(out_unit,*) "end write_operator_tyope"
+    FLUSH(out_unit)
+  END SUBROUTINE 
 
 
   SUBROUTINE MolecCav_Action_cavity_operator_2D(Op_psi, Operator, Psi)   ! /!\ FOR NOW EVERYTHING IS REAL /!\ compute the resulting vector Psi_result(:) from the action of the operator of the cavity mode on the photon state vector Psi_argument(:) written in the Eigenbasis of H_ho

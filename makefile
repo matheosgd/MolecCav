@@ -291,17 +291,23 @@ $(OBJ_DIR)/test_action_op.o : $(TESTS_DIR)/test_action_op.f90
 #=========================3. the library (the SRC modules)========================
 #==============================3.1. The object files==============================
 #=================================================================================
-$(OBJ_DIR)/Cavity_mode_m.o  : $(SRC_DIR)/Cavity_mode_m.f90
-	$(FFC) -c -o $(OBJ_DIR)/Cavity_mode_m.o $(FFLAGS) $(SRC_DIR)/Cavity_mode_m.f90
+#===============================================
+#============= compilation =====================
+#===============================================
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.f90
+	$(FFC) $(FFLAGS) -o $@ -c $<
 
-$(OBJ_DIR)/Operator_1D_m.o  : $(SRC_DIR)/Operator_1D_m.f90
-	$(FFC) -c -o $(OBJ_DIR)/Operator_1D_m.o $(FFLAGS) $(SRC_DIR)/Operator_1D_m.f90
+#$(OBJ_DIR)/Cavity_mode_m.o  : $(SRC_DIR)/Cavity_mode_m.f90
+#	$(FFC) -c -o $(OBJ_DIR)/Cavity_mode_m.o $(FFLAGS) $(SRC_DIR)/Cavity_mode_m.f90
 
-$(OBJ_DIR)/Total_hamiltonian_m.o  : $(SRC_DIR)/Total_hamiltonian_m.f90
-	$(FFC) -c -o $(OBJ_DIR)/Total_hamiltonian_m.o $(FFLAGS) $(SRC_DIR)/Total_hamiltonian_m.f90
+#$(OBJ_DIR)/Operator_1D_m.o  : $(SRC_DIR)/Operator_1D_m.f90
+#	$(FFC) -c -o $(OBJ_DIR)/Operator_1D_m.o $(FFLAGS) $(SRC_DIR)/Operator_1D_m.f90
 
-$(OBJ_DIR)/Algebra_m.o  : $(SRC_DIR)/Algebra_m.f90
-	$(FFC) -c -o $(OBJ_DIR)/Algebra_m.o $(FFLAGS) $(SRC_DIR)/Algebra_m.f90
+#$(OBJ_DIR)/Total_hamiltonian_m.o  : $(SRC_DIR)/Total_hamiltonian_m.f90
+#	$(FFC) -c -o $(OBJ_DIR)/Total_hamiltonian_m.o $(FFLAGS) $(SRC_DIR)/Total_hamiltonian_m.f90
+
+#$(OBJ_DIR)/Algebra_m.o  : $(SRC_DIR)/Algebra_m.f90
+#	$(FFC) -c -o $(OBJ_DIR)/Algebra_m.o $(FFLAGS) $(SRC_DIR)/Algebra_m.f90
 
 #=================================================================================
 #==================Definition of the files to be created by Make==================

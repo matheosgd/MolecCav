@@ -183,7 +183,7 @@ MODULE Algebra_m
   END SUBROUTINE
 
 
-  SUBROUTINE MolecCav_Scalar_product_2D_real(Sca_pdt, Psi_1, Psi_2)
+  SUBROUTINE MolecCav_Scalar_product_2D_real_old(Sca_pdt, Psi_1, Psi_2)
     USE QDUtil_m
     IMPLICIT NONE
   
@@ -210,6 +210,35 @@ MODULE Algebra_m
     
     V1(1:Size(Psi_1)) => A(:) ! Psi_1(:,:) ideally
     V2(1:Size(Psi_2)) => B(:) ! Psi_2(:,:) //
+    Sca_pdt = DOT_PRODUCT(V1, V2)
+
+    NULLIFY(V1)
+    NULLIFY(V2)
+
+    IF (debug) WRITE(out_unit,*) "Computed scalar product : < Psi_1 |  Psi_2 >  =", Sca_pdt, &
+                               & "supposed to get 79 the 10/02/2025"
+
+  END SUBROUTINE
+
+  SUBROUTINE MolecCav_Scalar_product_2D_real(Sca_pdt, Psi_1, Psi_2)
+    USE QDUtil_m
+    IMPLICIT NONE
+  
+    real(kind=Rkind),         intent(inout) :: Sca_pdt
+    real(kind=Rkind), target, contiguous, intent(in)    :: Psi_1(:,:)                                ! already allocated + "target" means that it can be pointed by a pointer
+    real(kind=Rkind), target, contiguous, intent(in)    :: Psi_2(:,:)                                ! already allocated + "target" means that it can be pointed by a pointer
+
+    real(kind=Rkind), pointer               :: V1(:), V2(:)                              ! <=> real(kind=Rkind), Dimension(:), pointer :: V1, V2
+    integer                                 :: Dim
+    logical, parameter                      :: debug = .FALSE.
+    
+    Dim = Size(Psi_1, Dim=2)
+    IF (Dim /= Size(Psi_2, Dim=2) .OR. Size(Psi_2, Dim=1) /= Size(Psi_2, Dim=1)) THEN
+      STOP "The matrices are expected to have same Dimensions for the scalar product."
+    END IF
+    
+    V1(1:Size(Psi_1)) => Psi_1(:,:) 
+    V2(1:Size(Psi_2)) => Psi_2(:,:)
     Sca_pdt = DOT_PRODUCT(V1, V2)
 
     NULLIFY(V1)

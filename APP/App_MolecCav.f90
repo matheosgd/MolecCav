@@ -60,9 +60,10 @@ PROGRAM App_MolecCav
                                  & operator_type="Hamiltonian", &
                                  & Mode=Molecule_1)
 
-  WRITE(out_unit,*) "Molecular Hamiltonian"
-  CALL Write_Vec(H_ho_molecule_1%Diag_val_R, out_unit, 1)
-
+  WRITE(out_unit,*) "Molecular Hamiltonian"!; FLUSH(out_unit)
+  !CALL Write_Vec(H_ho_molecule_1%Diag_val_R, out_unit, 1)
+  CALL Write_Operator_type(H_ho_molecule_1)
+  
   CALL Construct_Operator(Operator=x_ho_molecule_1, &
                                  & operator_type="Position", &
                                  & Dense=.TRUE., &
@@ -71,7 +72,8 @@ PROGRAM App_MolecCav
   WRITE(out_unit,*) "Molecular Position"
   !CALL Write_Mat(x_ho_molecule_1%Band_val_R, out_unit, 3)
   CALL Write_Mat(x_ho_molecule_1%Dense_val_R, out_unit, Molecule_1%Nb)
-
+  !STOP "stop"
+  
   CALL Construct_Operator(Operator=N_ho_molecule_1, &
                                  & operator_type="Nb_photons", &
                                  & Mode=Molecule_1)
