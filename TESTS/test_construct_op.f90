@@ -48,7 +48,7 @@ PROGRAM test_construct_op
 
 
   !-----------------------construct HO matricies to test-----------------------
-  CALL Construct_Operator(Operator=H_ho_1D_diag_1_6, &
+  CALL Construct_Operator_1D(Operator=H_ho_1D_diag_1_6, &
                                  & operator_type="Hamiltonian", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
@@ -59,7 +59,7 @@ PROGRAM test_construct_op
   WRITE(out_unit,*) "1D Hamiltonian (Optimized, Nb = 6, m = 1.0 a.u., w = 1.0 a.u.)"
   CALL Write_Vec(H_ho_1D_diag_1_6%Diag_val_R, out_unit, 1)
 
-  CALL Construct_Operator(Operator=H_ho_1D_diag_14_6, &
+  CALL Construct_Operator_1D(Operator=H_ho_1D_diag_14_6, &
                                  & operator_type="Hamiltonian", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
@@ -67,7 +67,7 @@ PROGRAM test_construct_op
                                  & w=14.0_Rkind, &
                                  & m=ONE)
 
-  CALL Construct_Operator(Operator=H_ho_1D_diag_1_17, &
+  CALL Construct_Operator_1D(Operator=H_ho_1D_diag_1_17, &
                                  & operator_type="Hamiltonian", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
@@ -75,7 +75,7 @@ PROGRAM test_construct_op
                                  & w=ONE, &
                                  & m=ONE)
 
-  CALL Construct_Operator(Operator=H_ho_1D_diag_14_17, &
+  CALL Construct_Operator_1D(Operator=H_ho_1D_diag_14_17, &
                                  & operator_type="Hamiltonian", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
@@ -83,7 +83,7 @@ PROGRAM test_construct_op
                                  & w=14.0_Rkind, &
                                  & m=ONE)
 
-  CALL Construct_Operator(Operator=H_ho_1D_dense_1_6, &
+  CALL Construct_Operator_1D(Operator=H_ho_1D_dense_1_6, &
                                  & operator_type="Hamiltonian", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Non_opt", &              ! opt => get analytical shape. non_opt => get dense shape
@@ -94,7 +94,7 @@ PROGRAM test_construct_op
   WRITE(out_unit,*) "1D Hamiltonian (Non-optimized, Nb = 6, m = 1.0 a.u., w = 14.0 a.u.)"
   CALL Write_Mat(H_ho_1D_dense_1_6%Dense_val_R, out_unit, 6)
                                
-  CALL Construct_Operator(Operator=H_ho_1D_dense_14_17, &
+  CALL Construct_Operator_1D(Operator=H_ho_1D_dense_14_17, &
                                  & operator_type="Hamiltonian", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Non_opt", &              ! opt => get analytical shape. non_opt => get dense shape
@@ -104,7 +104,7 @@ PROGRAM test_construct_op
 
 
   !------------------------construct x matricies to test-----------------------
-  CALL Construct_Operator(Operator=x_ho_1D_band_1_6_1, &
+  CALL Construct_Operator_1D(Operator=x_ho_1D_band_1_6_1, &
                                  & operator_type="Position", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
@@ -112,7 +112,7 @@ PROGRAM test_construct_op
                                  & w=ONE, &
                                  & m=ONE)
 
-  CALL Construct_Operator(Operator=x_ho_1D_band_14_6_1, &
+  CALL Construct_Operator_1D(Operator=x_ho_1D_band_14_6_1, &
                                  & operator_type="Position", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
@@ -120,7 +120,7 @@ PROGRAM test_construct_op
                                  & w=14.0_Rkind, &
                                  & m=ONE)
 
-  CALL Construct_Operator(Operator=x_ho_1D_band_1_17_1, &
+  CALL Construct_Operator_1D(Operator=x_ho_1D_band_1_17_1, &
                                  & operator_type="Position", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
@@ -128,7 +128,7 @@ PROGRAM test_construct_op
                                  & w=ONE, &
                                  & m=ONE)
 
-  CALL Construct_Operator(Operator=x_ho_1D_band_1_6_7, &
+  CALL Construct_Operator_1D(Operator=x_ho_1D_band_1_6_7, &
                                  & operator_type="Position", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
@@ -136,7 +136,7 @@ PROGRAM test_construct_op
                                  & w=ONE, &
                                  & m=SEVEN)
 
-  CALL Construct_Operator(Operator=x_ho_1D_band_14_17_7, &
+  CALL Construct_Operator_1D(Operator=x_ho_1D_band_14_17_7, &
                                  & operator_type="Position", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
@@ -144,7 +144,7 @@ PROGRAM test_construct_op
                                  & w=14.0_Rkind, &
                                  & m=SEVEN)
 
-  CALL Construct_Operator(Operator=x_ho_1D_dense_1_6_1, &
+  CALL Construct_Operator_1D(Operator=x_ho_1D_dense_1_6_1, &
                                  & operator_type="Position", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Non_opt", &              ! opt => get analytical shape. non_opt => get dense shape
@@ -152,7 +152,7 @@ PROGRAM test_construct_op
                                  & w=ONE, &
                                  & m=ONE)
 
-  CALL Construct_Operator(Operator=x_ho_1D_dense_14_17_7, &
+  CALL Construct_Operator_1D(Operator=x_ho_1D_dense_14_17_7, &
                                  & operator_type="Position", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Non_opt", &              ! opt => get analytical shape. non_opt => get dense shape
@@ -161,7 +161,7 @@ PROGRAM test_construct_op
                                  & m=SEVEN)
 
   !------------------------construct N matricies to test-----------------------
-  CALL Construct_Operator(Operator=N_ho_1D_diag_6, &
+  CALL Construct_Operator_1D(Operator=N_ho_1D_diag_6, &
                                  & operator_type="Nb_photons", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
@@ -169,7 +169,7 @@ PROGRAM test_construct_op
                                  & w=ONE, &
                                  & m=ONE)
 
-  CALL Construct_Operator(Operator=N_ho_1D_diag_17, &
+  CALL Construct_Operator_1D(Operator=N_ho_1D_diag_17, &
                                  & operator_type="Nb_photons", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
@@ -177,7 +177,7 @@ PROGRAM test_construct_op
                                  & w=ONE, &
                                  & m=ONE)
 
-  CALL Construct_Operator(Operator=N_ho_1D_dense_6, &
+  CALL Construct_Operator_1D(Operator=N_ho_1D_dense_6, &
                                  & operator_type="Nb_photons", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Non_opt", &              ! opt => get analytical shape. non_opt => get dense shape
@@ -185,7 +185,7 @@ PROGRAM test_construct_op
                                  & w=ONE, &
                                  & m=ONE)
 
-  CALL Construct_Operator(Operator=N_ho_1D_dense_17, &
+  CALL Construct_Operator_1D(Operator=N_ho_1D_dense_17, &
                                  & operator_type="Nb_photons", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Non_opt", &              ! opt => get analytical shape. non_opt => get dense shape

@@ -7,7 +7,6 @@ MODULE Operator_1D_m
 
   TYPE, EXTENDS(Cavity_mode_t) :: Operator_1D_t
     character(len=:),    allocatable :: Operator_type                          ! ex : "Hamiltonian", "Position", "Nb_photons", etc
-    !character(len=:),    allocatable :: matrix_shape_type                      ! ex : "Dense", "Diagonal", "Band", etc
     logical                          :: Dense = .FALSE.                        ! if .TRUE. then the matrix storage will not be optimized and it will be stored as a Dense matrix
     integer                          :: Upper_bandwidth = 0                    ! if type = "Band". Gives the number of additional bands to consider above the diagonal.
     integer                          :: Lower_bandwidth = 0                    ! if type = "Band". Gives the number of additional bands to consider below the diagonal. Ex : Upper_bandwidth=Lower_bandwidth=1 would give a tridiagonal matrix
@@ -19,12 +18,12 @@ MODULE Operator_1D_m
 
   PRIVATE
 
-  PUBLIC Operator_1D_t, Construct_Operator, Action_Operator_1D, Average_value_operator_1D, & 
+  PUBLIC Operator_1D_t, Construct_Operator_1D, Action_Operator_1D, Average_value_operator_1D, & 
        & MolecCav_Action_cavity_operator_2D, MolecCav_Average_value_cavity_operator_2D, &
-       & Write_Operator_type
+       & Write_Operator_1D
 
-  INTERFACE Construct_Operator
-    MODULE PROCEDURE MolecCav_Construct_Operator
+  INTERFACE Construct_Operator_1D
+    MODULE PROCEDURE MolecCav_Construct_Operator_1D
   END INTERFACE
   INTERFACE Action_Operator_1D
     MODULE PROCEDURE MolecCav_Action_Operator_1D
@@ -32,15 +31,15 @@ MODULE Operator_1D_m
   INTERFACE Average_value_operator_1D
   MODULE PROCEDURE MolecCav_Average_value_operator_1D
   END INTERFACE
-  INTERFACE Write_Operator_type
-  MODULE PROCEDURE MolecCav_Write_Operator_type
+  INTERFACE Write_Operator_1D
+  MODULE PROCEDURE MolecCav_Write_Operator_1D
   END INTERFACE
     
 
   CONTAINS
 
 
-  SUBROUTINE MolecCav_Construct_Operator(Operator, Operator_type, Dense, Mode)
+  SUBROUTINE MolecCav_Construct_Operator_1D(Operator, Operator_type, Dense, Mode)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m
     IMPLICIT NONE
@@ -54,7 +53,7 @@ MODULE Operator_1D_m
     WRITE(out_unit,*) "Mode : ", Mode
     IF (present(Dense)) WRITE(out_unit,*) "Dense :", Dense
     WRITE(out_unit,*) "Op tyoe : ", Operator_type
-    CALL Write_Operator_type(Operator)
+    CALL Write_Operator_1D(Operator)
     WRITE(out_unit,*) "Op"
     FLUSH(out_unit)
     
@@ -81,14 +80,15 @@ MODULE Operator_1D_m
         CALL MolecCav_Construct_N_cavity_mode(Nb_photon_Op=Operator)
 
       CASE DEFAULT
-        STOP "No Operator type recognized, please verify the input of Construct_Operator subroutine"
+        WRITE(out_unit,*) "No Operator type recognized, please verify the input of Construct_Operator_1D subroutine"
+        STOP "No Operator type recognized, please verify the input of Construct_Operator_1D subroutine"
 
     END SELECT
 
-    CALL Write_Operator_type(Operator)
+    CALL Write_Operator_1D(Operator)
     flush(out_unit)
 
-  END SUBROUTINE
+  END SUBROUTINE MolecCav_Construct_Operator_1D
 
 
   SUBROUTINE MolecCav_Construct_H_cavity_mode(Hamiltonian)
@@ -125,7 +125,7 @@ MODULE Operator_1D_m
     WRITE(out_unit,*) '********* HAMILTONIAN OF THE HO CONSTRUCTED ***********'
     WRITE(out_unit,*) '*******************************************************'
 
-  END SUBROUTINE
+  END SUBROUTINE MolecCav_Construct_H_cavity_mode
 
 
   SUBROUTINE MolecCav_Construct_x_cavity_mode(Position_Op)
@@ -170,7 +170,7 @@ MODULE Operator_1D_m
     WRITE(out_unit,*) '********* POSITION OP OF THE HO CONSTRUCTED ***********'
     WRITE(out_unit,*) '*******************************************************'
 
-  END SUBROUTINE
+  END SUBROUTINE MolecCav_Construct_x_cavity_mode
 
 
   SUBROUTINE MolecCav_Construct_N_cavity_mode(Nb_photon_Op)
@@ -207,7 +207,7 @@ MODULE Operator_1D_m
     WRITE(out_unit,*) '********* NB QUANTA OP OF THE HO CONSTRUCTED **********'
     WRITE(out_unit,*) '*******************************************************'
 
-  END SUBROUTINE
+  END SUBROUTINE MolecCav_Construct_N_cavity_mode
 
   
   SUBROUTINE MolecCav_Action_Operator_1D(Op_psi, Operator, Psi)   ! /!\ FOR NOW EVERYTHING IS REAL /!\ compute the resulting vector Psi_result(:) from the action of the operator of the cavity mode on the photon state vector Psi_argument(:) written in the Eigenbasis of H_ho
@@ -230,11 +230,12 @@ MODULE Operator_1D_m
       CALL MolecCav_Action_Dense_Operator_1D(Op_psi=Op_psi, Operator=Operator, Psi=Psi)
 
     ELSE
+      WRITE(out_unit,*) "None of this operator's matrices are allocated. Please check its initalization."
       STOP "None of this operator's matrices are allocated. Please check its initalization."
     
     END IF
 
-  END SUBROUTINE
+  END SUBROUTINE MolecCav_Action_Operator_1D
 
   
   SUBROUTINE MolecCav_Action_Dense_Operator_1D(Op_psi, Operator, Psi)  ! _R for the case where Psi is a real vector. 
@@ -248,7 +249,7 @@ MODULE Operator_1D_m
 
     Op_psi(:) = matmul(Operator%Dense_val_R, Psi)
 
-  END SUBROUTINE
+  END SUBROUTINE MolecCav_Action_Dense_Operator_1D
 
   
   SUBROUTINE MolecCav_Action_Diag_Operator_1D(Op_psi, Operator, Psi) 
@@ -262,7 +263,7 @@ MODULE Operator_1D_m
 
     Op_psi = Operator%Diag_val_R * Psi
 
-  END SUBROUTINE
+  END SUBROUTINE MolecCav_Action_Diag_Operator_1D
 
   
   SUBROUTINE MolecCav_Action_Band_Operator_1D(Op_psi, Operator, Psi)
@@ -278,9 +279,13 @@ MODULE Operator_1D_m
 
     Nb = size(Op_psi)
     IF (Nb /= Operator%Nb) THEN
+      WRITE(out_unit,*) "The size of the operator's matrix Band_val_R does not match the size of the &
+          & resulting vector Op_psi. Please check their initialization."
       STOP "The size of the operator's matrix Band_val_R does not match the size of the &
           & resulting vector Op_psi. Please check their initialization."
     ELSE IF (Nb /= Size(Psi)) THEN
+      WRITE(out_unit,*) "The size of the resulting vector Op_psi does not match the size of the operand & 
+          & vector Psi. Please check their initialization."
       STOP "The size of the resulting vector Op_psi does not match the size of the operand & 
           & vector Psi. Please check their initialization."
     END IF
@@ -295,7 +300,7 @@ MODULE Operator_1D_m
                 & Operator%Band_val_R(i+1,3) * Psi(i+1)
     END DO
 
-  END SUBROUTINE
+  END SUBROUTINE MolecCav_Action_Band_Operator_1D
   
 
   SUBROUTINE MolecCav_Average_value_operator_1D(Value, Operator, Psi)   ! /!\ FOR NOW EVERYTHING IS REAL /!\ compute the resulting vector Psi_result(:) from the action of the operator of the cavity mode on the photon state vector Psi_argument(:) written in the Eigenbasis of H_ho
@@ -318,10 +323,10 @@ MODULE Operator_1D_m
 
     DEALLOCATE(Intermediary)
     
-  END SUBROUTINE
+  END SUBROUTINE MolecCav_Average_value_operator_1D
 
 
-  SUBROUTINE MolecCav_Write_Operator_type(Operator)
+  SUBROUTINE MolecCav_Write_Operator_1D(Operator)
     TYPE(Operator_1D_t), intent(in) :: Operator
 
     WRITE(out_unit,*) "---------------------------WRITING THE OPERATOR TYPE---------------------------"
@@ -356,7 +361,8 @@ MODULE Operator_1D_m
     END IF
     WRITE(out_unit,*) "end write_operator_tyope"
     FLUSH(out_unit)
-  END SUBROUTINE 
+
+  END SUBROUTINE MolecCav_Write_Operator_1D
 
 
   SUBROUTINE MolecCav_Action_cavity_operator_2D(Op_psi, Operator, Psi)   ! /!\ FOR NOW EVERYTHING IS REAL /!\ compute the resulting vector Psi_result(:) from the action of the operator of the cavity mode on the photon state vector Psi_argument(:) written in the Eigenbasis of H_ho
@@ -374,6 +380,7 @@ MODULE Operator_1D_m
     Nb_C = Size(Psi, 2)
     
     IF (Nb_M /= Size(Op_psi, 1) .OR. Nb_C /= Size(Op_psi, 2)) THEN
+      WRITE(out_unit,*) "The size of the operand Psi's vector does not match the size of the resulting vector Op_psi."
       STOP "The size of the operand Psi's vector does not match the size of the resulting vector Op_psi."
     END IF
 
@@ -381,7 +388,7 @@ MODULE Operator_1D_m
       CALL MolecCav_Action_Operator_1D(Op_psi(i_M, :), Operator, Psi(i_M, :))
     END DO
 
-  END SUBROUTINE
+  END SUBROUTINE MolecCav_Action_cavity_operator_2D
 
 
   SUBROUTINE MolecCav_Average_value_cavity_operator_2D(Value, Operator, Psi)   ! /!\ FOR NOW EVERYTHING IS REAL /!\ compute the resulting vector Psi_result(:) from the action of the operator of the cavity mode on the photon state vector Psi_argument(:) written in the Eigenbasis of H_ho
@@ -404,7 +411,7 @@ MODULE Operator_1D_m
     CALL MolecCav_Action_cavity_operator_2D(Intermediary, Operator, Psi)
     CALL Scalar_product(Value, Intermediary, Psi)
 
-  END SUBROUTINE
+  END SUBROUTINE MolecCav_Average_value_cavity_operator_2D
   
 
 END MODULE

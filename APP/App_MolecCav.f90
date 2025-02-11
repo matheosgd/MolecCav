@@ -56,15 +56,15 @@ PROGRAM App_MolecCav
   
   CALL MolecCav_Read_cavity_mode(Mode=Molecule_1, nio=in_unit)
 
-  CALL Construct_Operator(Operator=H_ho_molecule_1, &
+  CALL Construct_Operator_1D(Operator=H_ho_molecule_1, &
                                  & operator_type="Hamiltonian", &
                                  & Mode=Molecule_1)
 
-  WRITE(out_unit,*) "Molecular Hamiltonian"!; FLUSH(out_unit)
+  WRITE(out_unit,*) "Molecular Hamiltonian"
   !CALL Write_Vec(H_ho_molecule_1%Diag_val_R, out_unit, 1)
-  CALL Write_Operator_type(H_ho_molecule_1)
+  CALL Write_Operator_1D(H_ho_molecule_1)
   
-  CALL Construct_Operator(Operator=x_ho_molecule_1, &
+  CALL Construct_Operator_1D(Operator=x_ho_molecule_1, &
                                  & operator_type="Position", &
                                  & Dense=.TRUE., &
                                  & Mode=Molecule_1)
@@ -72,16 +72,15 @@ PROGRAM App_MolecCav
   WRITE(out_unit,*) "Molecular Position"
   !CALL Write_Mat(x_ho_molecule_1%Band_val_R, out_unit, 3)
   CALL Write_Mat(x_ho_molecule_1%Dense_val_R, out_unit, Molecule_1%Nb)
-  !STOP "stop"
-  
-  CALL Construct_Operator(Operator=N_ho_molecule_1, &
+
+  CALL Construct_Operator_1D(Operator=N_ho_molecule_1, &
                                  & operator_type="Nb_photons", &
                                  & Mode=Molecule_1)
   
   WRITE(out_unit,*) "Molecular Nb_photon (vibrationnal excitation quanta)"
   CALL Write_Vec(N_ho_molecule_1%Diag_val_R, out_unit, 1)
 
-  CALL Construct_Operator(Operator=Matter_dipolar_moment, &
+  CALL Construct_Operator_1D(Operator=Matter_dipolar_moment, &
                                  & operator_type="Position", &                 ! initialized as a position operator because of approximation over its expression (cf. readme.md or manual)
                                  & Dense=.TRUE., &
                                  & Mode=Molecule_1)
@@ -96,14 +95,14 @@ PROGRAM App_MolecCav
   !------------------------------First cavity mode-----------------------------
   CALL MolecCav_Read_cavity_mode(Mode=Cavity_mode_1, nio=in_unit)
 
-  CALL Construct_Operator(Operator=H_ho_cavity_mode_1, &
+  CALL Construct_Operator_1D(Operator=H_ho_cavity_mode_1, &
                                  & operator_type="Hamiltonian", &
                                  & Mode=Cavity_mode_1)
 
   WRITE(out_unit,*) "Cavity mode Hamiltonian"
   CALL Write_Vec(H_ho_cavity_mode_1%Diag_val_R, out_unit, 1)
 
-  CALL Construct_Operator(Operator=x_ho_cavity_mode_1, &
+  CALL Construct_Operator_1D(Operator=x_ho_cavity_mode_1, &
                                  & operator_type="Position", &
                                  & Dense=.TRUE., &
                                  & Mode=Cavity_mode_1)
@@ -112,7 +111,7 @@ PROGRAM App_MolecCav
   !CALL Write_Mat(x_ho_cavity_mode_1%Band_val_R, out_unit, 3)
   CALL Write_Mat(x_ho_cavity_mode_1%Dense_val_R, out_unit, Molecule_1%Nb)
 
-  CALL Construct_Operator(Operator=N_ho_cavity_mode_1, &
+  CALL Construct_Operator_1D(Operator=N_ho_cavity_mode_1, &
                                  & operator_type="Nb_photons", &
                                  & Mode=Cavity_mode_1)
 
