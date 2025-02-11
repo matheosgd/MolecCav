@@ -1,4 +1,4 @@
-MODULE MC_operator_1D_m
+MODULE Operator_1D_m
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
   USE QDUtil_m
   IMPLICIT NONE
@@ -333,7 +333,7 @@ MODULE MC_operator_1D_m
   SUBROUTINE MolecCav_Average_value_cavity_operator_2D(Value, Operator, Psi_argument)   ! /!\ FOR NOW EVERYTHING IS REAL /!\ compute the resulting vector Psi_result(:) from the action of the operator of the cavity mode on the photon state vector Psi_argument(:) written in the Eigenbasis of H_ho
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     USE QDUtil_m
-    USE MC_algebra_m
+    USE Algebra_m
     IMPLICIT NONE
 
     real(kind=Rkind), intent(inout)    :: Value
@@ -348,7 +348,7 @@ MODULE MC_operator_1D_m
     ALLOCATE(Intermediary(Nb_M, Nb_C))
 
     CALL MolecCav_Action_cavity_operator_2D(Intermediary, Operator, Psi_argument)
-    CALL MolecCav_scalar_product_2D_real(Value, Intermediary, Psi_argument)
+    CALL Scalar_product(Value, Intermediary, Psi_argument)
 
   END SUBROUTINE
   

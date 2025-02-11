@@ -1,7 +1,7 @@
 PROGRAM test_construct_op
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
   USE QDUtil_m
-  USE MC_operator_1D_m
+  USE Operator_1D_m
   IMPLICIT NONE
 
 
@@ -506,7 +506,7 @@ PROGRAM test_construct_op
   !N_ho_1D_dense_6%Dense_val_R(1,1) = 5
   !N_ho_1D_diag_6%Diag_val_R(1) = 5
 
-  WRITE(out_unit, *) ALLOCATED(N_ho_1D_diag_17%Diag_val_R), ALLOCATED(N_ho_1D_dense_theo_17)
+  WRITE(out_unit,*) ALLOCATED(N_ho_1D_diag_17%Diag_val_R), ALLOCATED(N_ho_1D_dense_theo_17)
   FLUSH(out_unit)
   
   DO i = 1, 17

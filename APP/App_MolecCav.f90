@@ -1,9 +1,9 @@
 PROGRAM App_MolecCav
   USE QDUtil_m
-  USE MC_cavity_mode_m
-  USE MC_operator_1D_m
-  USE MC_total_hamiltonian_m
-  USE MC_algebra_m
+  USE Cavity_mode_m
+  USE Operator_1D_m
+  USE Total_hamiltonian_m
+  USE Algebra_m
   IMPLICIT NONE
 
 
@@ -52,7 +52,7 @@ PROGRAM App_MolecCav
   
 !-----------------------------SYSTEM INITIALIZATION----------------------------
   !-------------Diatomic molecule in a harmonic electonic potential------------
-  WRITE(out_unit, *) "-----------------------------SYSTEM INITIALIZATION----------------------------"
+  WRITE(out_unit,*) "-----------------------------SYSTEM INITIALIZATION----------------------------"
   
   CALL MolecCav_Read_cavity_mode(Mode=Molecule_1, nio=in_unit)
 
@@ -64,7 +64,7 @@ PROGRAM App_MolecCav
                                  & w=Molecule_1%w, &
                                  & m=Molecule_1%m)
 
-  WRITE(out_unit, *) "Molecular Hamiltonian"
+  WRITE(out_unit,*) "Molecular Hamiltonian"
   CALL Write_Vec(H_ho_molecule_1%Diag_val_R, out_unit, 1)
 
   CALL MolecCav_Construct_Operator(Operator=x_ho_molecule_1, &
@@ -75,7 +75,7 @@ PROGRAM App_MolecCav
                                  & w=Molecule_1%w, &
                                  & m=Molecule_1%m)
 
-  WRITE(out_unit, *) "Molecular Position"
+  WRITE(out_unit,*) "Molecular Position"
   !CALL Write_Mat(x_ho_molecule_1%Band_val_R, out_unit, 3)
   CALL Write_Mat(x_ho_molecule_1%Dense_val_R, out_unit, Molecule_1%Nb)
 
@@ -87,7 +87,7 @@ PROGRAM App_MolecCav
                                  & w=Molecule_1%w, &
                                  & m=Molecule_1%m)
   
-  WRITE(out_unit, *) "Molecular Nb_photon (vibrationnal excitation quanta)"
+  WRITE(out_unit,*) "Molecular Nb_photon (vibrationnal excitation quanta)"
   CALL Write_Vec(N_ho_molecule_1%Diag_val_R, out_unit, 1)
 
   CALL MolecCav_Construct_Operator(Operator=Matter_dipolar_moment, &
@@ -101,7 +101,7 @@ PROGRAM App_MolecCav
   Cte_dipole_moment = ONE
   Matter_dipolar_moment%Band_val_R = Matter_dipolar_moment%Band_val_R*Cte_dipole_moment ! /!\ so that the matrix already contains the intensity constant of the dipolar moment with the position of the matter (cf. manual for formulas)
     
-  WRITE(out_unit, *) "Molecular Dipole moment"
+  WRITE(out_unit,*) "Molecular Dipole moment"
   !CALL Write_Mat(Matter_dipolar_moment%Band_val_R, out_unit, 3)
   CALL Write_Mat(Matter_dipolar_moment%Dense_val_R, out_unit, Molecule_1%Nb)
 
@@ -116,7 +116,7 @@ PROGRAM App_MolecCav
                                  & w=Cavity_mode_1%w, &
                                  & m=Cavity_mode_1%m)
 
-  WRITE(out_unit, *) "Cavity mode Hamiltonian"
+  WRITE(out_unit,*) "Cavity mode Hamiltonian"
   CALL Write_Vec(H_ho_cavity_mode_1%Diag_val_R, out_unit, 1)
 
   CALL MolecCav_Construct_Operator(Operator=x_ho_cavity_mode_1, &
@@ -127,7 +127,7 @@ PROGRAM App_MolecCav
                                  & w=Cavity_mode_1%w, &
                                  & m=Cavity_mode_1%m)
 
-  WRITE(out_unit, *) "Cavity mode Position"
+  WRITE(out_unit,*) "Cavity mode Position"
   !CALL Write_Mat(x_ho_cavity_mode_1%Band_val_R, out_unit, 3)
   CALL Write_Mat(x_ho_cavity_mode_1%Dense_val_R, out_unit, Molecule_1%Nb)
 
@@ -140,12 +140,12 @@ PROGRAM App_MolecCav
                                  & m=Cavity_mode_1%m)
 
 
-  WRITE(out_unit, *) "Cavity mode Nb_photons"
+  WRITE(out_unit,*) "Cavity mode Nb_photons"
   CALL Write_Vec(N_ho_cavity_mode_1%Diag_val_R, out_unit, 1)
   FLUSH(out_unit)
   
   !-----------------------------Total Wavefunctions----------------------------
-  WRITE(out_unit, *) "-----------------------------Total Wavefunctions----------------------------"
+  WRITE(out_unit,*) "-----------------------------Total Wavefunctions----------------------------"
 
   ALLOCATE(System_WF(Molecule_1%Nb,Cavity_mode_1%Nb))
   System_WF(:,:) = ZERO
@@ -158,7 +158,7 @@ PROGRAM App_MolecCav
   !  WRITE(out_unit,*) System_WF(i,:)
   !END DO
   !FLUSH(out_unit)                                                             ! without the flush the whole matrix is not written but stops at the 10th line ? Not anymore now the afterward error is fixed
-  WRITE(out_unit, *) "Not normalized System_WF total wavefunction"
+  WRITE(out_unit,*) "Not normalized System_WF total wavefunction"
   CALL Write_Mat(System_WF, out_unit, Cavity_mode_1%Nb)
   
   ALLOCATE(System_WF_mapped(Molecule_1%Nb * Cavity_mode_1%Nb))
@@ -166,20 +166,16 @@ PROGRAM App_MolecCav
   WRITE(out_unit,*) "Not normalized System_WF_mapped"
   CALL Write_Vec(System_WF_mapped, out_unit, 1)
 
-  CALL MolecCav_Normalize_2D_real(System_WF)
-  WRITE(out_unit, *) "Normalized System_WF wavefunction"
+  CALL Normalize(System_WF)
+  WRITE(out_unit,*) "Normalized System_WF wavefunction"
   CALL Write_Mat(System_WF, out_unit, Cavity_mode_1%Nb)
 
-  CALL MolecCav_Normalize_1D_real(System_WF_mapped)
+  CALL Normalize(System_WF_mapped)
   WRITE(out_unit,*) "Normalized System_WF_mapped"
   CALL Write_Vec(System_WF_mapped, out_unit, 1)
 
-  CALL MolecCav_Norm_1D_real(Norm_sys, System_WF_mapped)
-  WRITE(out_unit, *) "the norm of system_wf_mapped is ", Norm_sys, "but those of system_wf cannot be &
-                    & computed here because of <<multiple definition of MolecCav_Norm_2D_real>> ??"
-
   !----------------------Action of the Matter Hamiltonian----------------------
-  WRITE(out_unit, *) "----------------------Action of the Matter Hamiltonian----------------------"
+  WRITE(out_unit,*) "----------------------Action of the Matter Hamiltonian----------------------"
 
   ALLOCATE(Matter_hamiltonianSystem_WF(Molecule_1%Nb, Cavity_mode_1%Nb))
   Matter_hamiltonianSystem_WF = ZERO
@@ -194,7 +190,7 @@ PROGRAM App_MolecCav
   CALL Write_Mat(Matter_hamiltonianSystem_WF, out_unit, Cavity_mode_1%Nb)
 
   !----------------Computation of the photon number of System_WF---------------
-  WRITE(out_unit, *) "----------------Computation of the photon number of System_WF---------------"
+  WRITE(out_unit,*) "----------------Computation of the photon number of System_WF---------------"
 
   ALLOCATE(Psi_result(Molecule_1%Nb, Cavity_mode_1%Nb))
 
@@ -202,16 +198,16 @@ PROGRAM App_MolecCav
   WRITE(out_unit,*) "Action of Nb photon operator over System_WF"
   CALL Write_Mat(Psi_result, out_unit, Cavity_mode_1%Nb)
 
-  CALL MolecCav_scalar_product_2D_real(Average, Psi_result, System_WF)
-  WRITE(out_unit, *) "The average nb of photons of the normalised System_WF is (first method) : ", Average
+  CALL Scalar_product(Average, Psi_result, System_WF)
+  WRITE(out_unit,*) "The average nb of photons of the normalised System_WF is (first method) : ", Average
 
   CALL MolecCav_Average_value_cavity_operator_2D(Average, N_ho_cavity_mode_1, System_WF)
-  WRITE(out_unit, *) "The average nb of photons of the normalised System_WF is (second method) : ", Average
+  WRITE(out_unit,*) "The average nb of photons of the normalised System_WF is (second method) : ", Average
 
   DEALLOCATE(Psi_result)
 
   !-----------------------An experiment on the Nb_photons----------------------
-  WRITE(out_unit, *) "-----------------------An experiment on the Nb_photons----------------------"
+  WRITE(out_unit,*) "-----------------------An experiment on the Nb_photons----------------------"
 
   ALLOCATE(Psi_cavity(Cavity_mode_1%Nb))
   Psi_cavity = ZERO
@@ -219,7 +215,7 @@ PROGRAM App_MolecCav
   Psi_cavity(2) = ONE                                                          ! \ket{Psi} = \ket{0} + \ket{1}
   WRITE(out_unit,*) 'Not normalized Psi_cavity'
   CALL Write_Vec(Psi_cavity, out_unit, 1)
-  CALL MolecCav_Normalize_1D_real(Psi_cavity)
+  CALL Normalize(Psi_cavity)
   WRITE(out_unit,*) 'Normalized Psi_cavity (N.B. \frac{1}{\sqrt{2}} = 0.7071067811865475)'
   CALL Write_Vec(Psi_cavity, out_unit, 1)
 
@@ -229,13 +225,13 @@ PROGRAM App_MolecCav
   CALL Write_Vec(Psi_result_bis, out_unit, 1)
 
   CALL MolecCav_Average_value_operator_1D(Average, N_ho_cavity_mode_1, Psi_cavity)
-  WRITE(out_unit, *) 'The avegeraged number of photons of that Psi_cavity is analytically expected to be &
+  WRITE(out_unit,*) 'The avegeraged number of photons of that Psi_cavity is analytically expected to be &
                     & 0.5 and is = ', Average
   
   DEALLOCATE(Psi_result_bis)
 
   !----------------An experiment on the total Hamiltonian action---------------
-  WRITE(out_unit, *) "----------------------Action of the total Hamiltonian----------------------"
+  WRITE(out_unit,*) "----------------------Action of the total Hamiltonian----------------------"
 
   WRITE(out_unit,*) "System_WF"
   CALL Write_Mat(System_WF, out_unit, Cavity_mode_1%Nb)
@@ -254,7 +250,7 @@ PROGRAM App_MolecCav
   FLUSH(out_unit) 
 
   !----------------Construction of the Total Hamiltonian matrix----------------
-  WRITE(out_unit, *) "----------------Construction of the Total Hamiltonian matrix----------------"
+  WRITE(out_unit,*) "----------------Construction of the Total Hamiltonian matrix----------------"
 
   NB = Molecule_1%Nb * Cavity_mode_1%Nb
   ALLOCATE(H_tot(NB, NB))
@@ -287,7 +283,7 @@ PROGRAM App_MolecCav
   !-----------------------Computation of some observables----------------------
 
   CALL MolecCav_Average_value_H_tot(Average, H_tot, System_WF_mapped)
-  WRITE(out_unit, *) "Average E_tot = ", Average, "Ha"
+  WRITE(out_unit,*) "Average E_tot = ", Average, "Ha"
 
   !---------------------------Computation Eigenstates--------------------------
 
@@ -303,7 +299,7 @@ PROGRAM App_MolecCav
   !CALL WRITE_Mat(Reigvec, out_unit, 6, info = 'Eigenvectors')
 
   !-------Construction of a Total Hamiltonian matrix without CM-couplings------
-  WRITE(out_unit, *) "-------Construction of a Total Hamiltonian matrix without CM-couplings------"
+  WRITE(out_unit,*) "-------Construction of a Total Hamiltonian matrix without CM-couplings------"
 
   DEALLOCATE(H_tot)
   ALLOCATE(H_tot(NB, NB))
@@ -335,7 +331,7 @@ PROGRAM App_MolecCav
   !CALL Write_Mat(Reigvec, out_unit, 6, info = 'Eigenvectors')
 
   !--------Construction of a Total Hamiltonian matrix with CM-couplings--------
-  WRITE(out_unit, *) "-------Construction of a Total Hamiltonian matrix without CM-couplings------"
+  WRITE(out_unit,*) "-------Construction of a Total Hamiltonian matrix without CM-couplings------"
 
   DEALLOCATE(H_tot)
   ALLOCATE(H_tot(NB, NB))
@@ -374,6 +370,6 @@ PROGRAM App_MolecCav
     END DO 
   END DO
 
-  CALL MolecCav_scalar_product_2D_real(Norm_sys, Psi_test1, Psi_test1)
+  CALL Scalar_product(Norm_sys, Psi_test1, Psi_test1)
 
 END PROGRAM

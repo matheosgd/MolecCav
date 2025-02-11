@@ -108,7 +108,7 @@ FFLAGS   += -J$(MOD_DIR) $(EXTMod)
 # to these optional aguments are added : "-J" which indicates the DIRECTORY (and not all the path of the .mod files) where to STORE the .mod files of the...
 # ...lib. after compilation (at the contrary of "-I" which indicates where to FIND the needed ones); and the path towards the .mod files of the external...
 # ...library(ies).
-SRCFILES = MC_cavity_mode_m.f90 MC_operator_1D_m.f90 MC_total_hamiltonian_m.f90 MC_algebra_m.f90
+SRCFILES = Cavity_mode_m.f90 Operator_1D_m.f90 Total_hamiltonian_m.f90 Algebra_m.f90
 # the list of all the .f90 source files OF THE LIBRARY (only the modules, not the test/app programs) to be compiled
 OBJ0     = ${SRCFILES:.f90=.o}
 # this syntax looks like a list slicing in python : change the .f90 string of the var to .o : it allows to change the extension of the file from .f90 to .o
@@ -291,17 +291,17 @@ $(OBJ_DIR)/test_action_op.o : $(TESTS_DIR)/test_action_op.f90
 #=========================3. the library (the SRC modules)========================
 #==============================3.1. The object files==============================
 #=================================================================================
-$(OBJ_DIR)/MC_cavity_mode_m.o  : $(SRC_DIR)/MC_cavity_mode_m.f90
-	$(FFC) -c -o $(OBJ_DIR)/MC_cavity_mode_m.o $(FFLAGS) $(SRC_DIR)/MC_cavity_mode_m.f90
+$(OBJ_DIR)/Cavity_mode_m.o  : $(SRC_DIR)/Cavity_mode_m.f90
+	$(FFC) -c -o $(OBJ_DIR)/Cavity_mode_m.o $(FFLAGS) $(SRC_DIR)/Cavity_mode_m.f90
 
-$(OBJ_DIR)/MC_operator_1D_m.o  : $(SRC_DIR)/MC_operator_1D_m.f90
-	$(FFC) -c -o $(OBJ_DIR)/MC_operator_1D_m.o $(FFLAGS) $(SRC_DIR)/MC_operator_1D_m.f90
+$(OBJ_DIR)/Operator_1D_m.o  : $(SRC_DIR)/Operator_1D_m.f90
+	$(FFC) -c -o $(OBJ_DIR)/Operator_1D_m.o $(FFLAGS) $(SRC_DIR)/Operator_1D_m.f90
 
-$(OBJ_DIR)/MC_total_hamiltonian_m.o  : $(SRC_DIR)/MC_total_hamiltonian_m.f90
-	$(FFC) -c -o $(OBJ_DIR)/MC_total_hamiltonian_m.o $(FFLAGS) $(SRC_DIR)/MC_total_hamiltonian_m.f90
+$(OBJ_DIR)/Total_hamiltonian_m.o  : $(SRC_DIR)/Total_hamiltonian_m.f90
+	$(FFC) -c -o $(OBJ_DIR)/Total_hamiltonian_m.o $(FFLAGS) $(SRC_DIR)/Total_hamiltonian_m.f90
 
-$(OBJ_DIR)/MC_algebra_m.o  : $(SRC_DIR)/MC_algebra_m.f90
-	$(FFC) -c -o $(OBJ_DIR)/MC_algebra_m.o $(FFLAGS) $(SRC_DIR)/MC_algebra_m.f90
+$(OBJ_DIR)/Algebra_m.o  : $(SRC_DIR)/Algebra_m.f90
+	$(FFC) -c -o $(OBJ_DIR)/Algebra_m.o $(FFLAGS) $(SRC_DIR)/Algebra_m.f90
 
 #=================================================================================
 #==================Definition of the files to be created by Make==================
@@ -327,7 +327,7 @@ $(OBJ_DIR)/test_cavity_mode.o  : $(LIBA)
 $(OBJ_DIR)/test_construct_op.o : $(LIBA)
 $(OBJ_DIR)/test_action_op.o    : $(LIBA)
 
-$(OBJ_DIR)/MC_operator_1D_m.o  : $(OBJ_DIR)/MC_algebra_m.o 
+$(OBJ_DIR)/Operator_1D_m.o  : $(OBJ_DIR)/Algebra_m.o 
 
 $(OBJ_DIR)/$(MAIN).o           : $(LIBA)
 

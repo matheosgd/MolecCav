@@ -64,7 +64,7 @@ FFC="gfortran"                                                                 #
 FFLAGS="-Og -g -fbacktrace -fcheck=all -fwhole-file -fcheck=pointer -Wuninitialized -finit-real=nan -finit-integer=nan -fopenmp"
                                                                                # some useful options for the compiler
 
-MODULES_LIB=("MC_cavity_mode_m" "MC_operator_1D_m" "MC_total_hamiltonian_m" "MC_algebra_m")
+MODULES_LIB=("Cavity_mode_m" "Operator_1D_m" "Total_hamiltonian_m" "Algebra_m")
 SRC_LIB=(${MODULES_LIB[@]/%/.f90})
 OBJ_LIB=(${MODULES_LIB[@]/%/.o})
 
@@ -149,14 +149,14 @@ Build_QDLIBA()
 Build_obj_lib()
 {
   cd ~/MolecCav
- 	$FFC -c -o ${OBJ[0]} $FFLAGS ${SRC_FILES[0]}                                           # OBJ[0] = OBJ/obj/MC_cavity_mode_m.o 
-                                                                                         # SRC_FILES[0] = OBJ/obj/MC_cavity_mode_m.f90
-  $FFC -c -o ${OBJ[3]} $FFLAGS ${SRC_FILES[3]}                                           # OBJ[2] = OBJ/obj/MC_algebra_m.o
-                                                                                         # SRC_FILES[2] = OBJ/obj/MC_algebra_m.f90    |/!\ algebra has to be compiled         /!\
-  $FFC -c -o ${OBJ[1]} $FFLAGS ${SRC_FILES[1]}                                           # OBJ[1] = OBJ/obj/MC_cavity_mode_m.o        |/!\ before operator_1d (used in op_1d) /!\
-                                                                                         # SRC_FILES[1] = OBJ/obj/MC_cavity_mode_m.f90
-  $FFC -c -o ${OBJ[2]} $FFLAGS ${SRC_FILES[2]}                                           # OBJ[2] = OBJ/obj/MC_total_hamiltonian_m.o
-                                                                                         # SRC_FILES[2] = OBJ/obj/MC_total_hamiltonian_m.f90
+ 	$FFC -c -o ${OBJ[0]} $FFLAGS ${SRC_FILES[0]}                                           # OBJ[0] = OBJ/obj/Cavity_mode_m.o 
+                                                                                         # SRC_FILES[0] = OBJ/obj/Cavity_mode_m.f90
+  $FFC -c -o ${OBJ[3]} $FFLAGS ${SRC_FILES[3]}                                           # OBJ[2] = OBJ/obj/Algebra_m.o
+                                                                                         # SRC_FILES[2] = OBJ/obj/Algebra_m.f90    |/!\ algebra has to be compiled         /!\
+  $FFC -c -o ${OBJ[1]} $FFLAGS ${SRC_FILES[1]}                                           # OBJ[1] = OBJ/obj/Cavity_mode_m.o        |/!\ before operator_1d (used in op_1d) /!\
+                                                                                         # SRC_FILES[1] = OBJ/obj/Cavity_mode_m.f90
+  $FFC -c -o ${OBJ[2]} $FFLAGS ${SRC_FILES[2]}                                           # OBJ[2] = OBJ/obj/Total_hamiltonian_m.o
+                                                                                         # SRC_FILES[2] = OBJ/obj/Total_hamiltonian_m.f90
 
   for file in ${OBJ[@]}
   do

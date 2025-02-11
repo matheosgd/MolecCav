@@ -1,7 +1,7 @@
 PROGRAM test_cavity_mode
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
   USE QDUtil_m
-  USE MC_cavity_mode_m
+  USE Cavity_mode_m
   IMPLICIT NONE
 
 

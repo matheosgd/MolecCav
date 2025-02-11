@@ -1,7 +1,7 @@
-MODULE MC_total_hamiltonian_m
+MODULE Total_hamiltonian_m
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
   USE QDUtil_m
-  USE MC_operator_1D_m
+  USE Operator_1D_m
   IMPLICIT NONE
 
   
@@ -13,7 +13,7 @@ MODULE MC_total_hamiltonian_m
                                                  & Matter_dipolar_moment, System_WF, &
                                                  & lambda_cavity_mode, w_cavity_mode)
     USE QDUtil_m
-    USE MC_operator_1D_m
+    USE Operator_1D_m
     IMPLICIT NONE
 
     real(kind=Rkind), intent(inout)    :: Result_total_WF(:,:)                 ! already allocated !
@@ -75,7 +75,7 @@ MODULE MC_total_hamiltonian_m
 
   SUBROUTINE MolecCav_Action_matter_dipolar_moment_1D(Psi_result, Matter_dipolar_moment, Psi_argument) ! /!\ only for the app i.e. for a diatomic molecule with the approximation of a linear dip. mom. with the matter position /!\
     USE QDUtil_m
-    USE MC_operator_1D_m
+    USE Operator_1D_m
     IMPLICIT NONE
 
     real(kind=Rkind),       intent(inout) :: Psi_result(:,:)
@@ -104,7 +104,7 @@ MODULE MC_total_hamiltonian_m
                                     & Matter_dipolar_moment, &
                                     & lambda_cavity_mode, w_cavity_mode)
     USE QDUtil_m
-    USE MC_operator_1D_m
+    USE Operator_1D_m
     IMPLICIT NONE
 
     real(kind=Rkind), intent(inout)    :: H_tot(:,:)

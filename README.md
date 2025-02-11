@@ -24,10 +24,10 @@ ${^2}$ CNRS
     - [```OBJ```](#OBJ)
     - [```OUT```](#OUT)
     - [```SRC```](#SRC)
-        - [```MC_algebra_m.f90```](#MC_algebra_m.f90)
-        - [```MC_cavity_mode_m.f90```](#MC_cavity_mode_m.f90)
-        - [```MC_operator_1D_m.f90```](#MC_operator_1D_m.f90)
-        - [```MC_total_hamiltonian_m.f90```](#MC_total_hamiltonian_m.f90)
+        - [```Algebra_m.f90```](#Algebra_m.f90)
+        - [```Cavity_mode_m.f90```](#Cavity_mode_m.f90)
+        - [```Operator_1D_m.f90```](#Operator_1D_m.f90)
+        - [```Total_hamiltonian_m.f90```](#Total_hamiltonian_m.f90)
     - [```TESTS```](#TESTS)
         - [```test_cavity_mode.f90```](#test_cavity_mode.f90)
         - [```test_construct_op.f90```](#test_construct_op.f90)
@@ -130,10 +130,10 @@ MolecCav
 │   └── *.log
 │
 ├── SRC
-│   ├── MC_algebra_m.f90
-│   ├── MC_cavity_mode_m.f90
-│   ├── MC_operator_1D_m.f90
-│   └── MC_total_hamiltonian_m.f90
+│   ├── Algebra_m.f90
+│   ├── Cavity_mode_m.f90
+│   ├── Operator_1D_m.f90
+│   └── Total_hamiltonian_m.f90
 │
 ├── TESTS
 │   ├── test_action_op.f90
@@ -183,19 +183,19 @@ This directory contains all the output ```.log``` files generated as the tests o
 This directory contains all the source ```.f90``` files of the modules that composes the library.  
 
 
-### MC_algebra_m.f90
+### Algebra_m.f90
 This module contains some procedures related to vectors and matrices management and operations.  
 
 
-### MC_cavity_mode_m.f90
+### Cavity_mode_m.f90
 This module contains the procedures to build and describe the modes of the cavity.  
 
 
-### MC_operator_1D_m.f90
+### Operator_1D_m.f90
 This module contains the procedures to build the quantum mechanics operators relative to a cavity mode, and to compute their action on a photon system vector.  
 
 
-### MC_total_hamiltonian_m.f90
+### Total_hamiltonian_m.f90
 This module contains the procedures to compute the action of the total hamiltonian $$\hat{H}_{tot}(x,R)$$ over a matrix representing the total system's wavefunction.  
 
 
