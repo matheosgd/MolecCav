@@ -18,9 +18,9 @@ MODULE Total_hamiltonian_m
 
     real(kind=Rkind), intent(inout)    :: Result_total_WF(:,:)                 ! already allocated !
     real(kind=Rkind), intent(in)       :: Matter_hamiltonianSystem_WF(:,:)     ! size Nb_M*Nb_C. |H_MatterSystem_WF(:,i_C)> = H_Matter|System_WF(:,i_C)>
-    TYPE(MC_operator_1D_t), intent(in) :: Cavity_hamiltonian_1D
-    TYPE(MC_operator_1D_t), intent(in) :: Cavity_position_1D
-    TYPE(MC_operator_1D_t), intent(in) :: Matter_dipolar_moment                ! \hat{\mu}_{M}(R) = Cte.\hat{R} selon hypothèses
+    TYPE(Operator_1D_t), intent(in)    :: Cavity_hamiltonian_1D
+    TYPE(Operator_1D_t), intent(in)    :: Cavity_position_1D
+    TYPE(Operator_1D_t), intent(in)    :: Matter_dipolar_moment                ! \hat{\mu}_{M}(R) = Cte.\hat{R} selon hypothèses
     real(kind=Rkind), intent(in)       :: System_WF(:,:)                       ! size Nb_M*Nb_C
     real(kind=Rkind), intent(in)       :: lambda_cavity_mode, w_cavity_mode    ! coupling strenght and eigenpulsation
 
@@ -41,7 +41,7 @@ MODULE Total_hamiltonian_m
     !-----------H_Cavity|System_WF> = H_Cavity(System_WF) to compute-----------
     ALLOCATE(Cavity_hamiltonian_1DSystem_WF(Nb_C))
     DO i_M = 1, Nb_M
-      CALL MolecCav_Action_Operator_1D(Cavity_hamiltonian_1DSystem_WF, &
+      CALL Action_Operator_1D(Cavity_hamiltonian_1DSystem_WF, &
                                      & Cavity_hamiltonian_1D, &
                                      & System_WF(i_M,:))
       Result_total_WF(i_M,:) = Result_total_WF(i_M,:) + Cavity_hamiltonian_1DSystem_WF(:)
@@ -52,7 +52,7 @@ MODULE Total_hamiltonian_m
     ALLOCATE(Intermediary(Nb_M,Nb_C))
     Intermediary = ZERO
     DO i_M = 1, Nb_M
-      CALL MolecCav_Action_Operator_1D(Intermediary(i_M,:), &
+      CALL Action_Operator_1D(Intermediary(i_M,:), &
                                      & Cavity_position_1D, &
                                      & System_WF(i_M,:))
     END DO
@@ -79,7 +79,7 @@ MODULE Total_hamiltonian_m
     IMPLICIT NONE
 
     real(kind=Rkind),       intent(inout) :: Psi_result(:,:)
-    TYPE(MC_operator_1D_t), intent(in)    :: Matter_dipolar_moment             ! supposed to contains the constant (\frac{d\mu}{dq}) within its matrix
+    TYPE(Operator_1D_t),    intent(in)    :: Matter_dipolar_moment             ! supposed to contains the constant (\frac{d\mu}{dq}) within its matrix
     real(kind=Rkind),       intent(in)    :: Psi_argument(:,:)
 
     integer                               :: Nb_C, i_C 
@@ -91,7 +91,7 @@ MODULE Total_hamiltonian_m
     END IF
 
     DO i_C = 1, Nb_C
-      CALL MolecCav_Action_Operator_1D(Psi_result(:,i_C), &                    ! just a matricial product vector by vector to abide by the arguments constraints of the subroutine (i think we could replace by matmul(matter_dip_mom), Psi_argu)
+      CALL Action_Operator_1D(Psi_result(:,i_C), &                    ! just a matricial product vector by vector to abide by the arguments constraints of the subroutine (i think we could replace by matmul(matter_dip_mom), Psi_argu)
                                      & Matter_dipolar_moment, &
                                      & Psi_argument(:,i_C))
     END DO
@@ -107,17 +107,17 @@ MODULE Total_hamiltonian_m
     USE Operator_1D_m
     IMPLICIT NONE
 
-    real(kind=Rkind), intent(inout)    :: H_tot(:,:)
-    integer, intent(in)                :: Nb_M, Nb_C
-    real(kind=Rkind), intent(in)       :: Matter_hamiltonianSystem_WF(:,:)     ! size Nb_M*Nb_C. |H_MatterSystem_WF(:,i_C)> = H_Matter|System_WF(:,i_C)>
-    TYPE(MC_operator_1D_t), intent(in) :: Cavity_hamiltonian_1D
-    TYPE(MC_operator_1D_t), intent(in) :: Cavity_position_1D
-    TYPE(MC_operator_1D_t), intent(in) :: Matter_dipolar_moment                ! \hat{\mu}_{M}(R) = Cte.\hat{R} selon hypothèses
-    real(kind=Rkind), intent(in)       :: lambda_cavity_mode, w_cavity_mode    ! coupling strenght and eigenpulsation
+    real(kind=Rkind),    intent(inout) :: H_tot(:,:)
+    integer,             intent(in)    :: Nb_M, Nb_C
+    real(kind=Rkind),    intent(in)    :: Matter_hamiltonianSystem_WF(:,:)     ! size Nb_M*Nb_C. |H_MatterSystem_WF(:,i_C)> = H_Matter|System_WF(:,i_C)>
+    TYPE(Operator_1D_t), intent(in)    :: Cavity_hamiltonian_1D
+    TYPE(Operator_1D_t), intent(in)    :: Cavity_position_1D
+    TYPE(Operator_1D_t), intent(in)    :: Matter_dipolar_moment                ! \hat{\mu}_{M}(R) = Cte.\hat{R} selon hypothèses
+    real(kind=Rkind),    intent(in)    :: lambda_cavity_mode, w_cavity_mode    ! coupling strenght and eigenpulsation
 
 
-    real(kind=Rkind), allocatable   :: Psi_basis(:,:), Psi_result(:,:)
-    integer                         :: NB, I, J, j_M, j_C, i_M, i_C
+    real(kind=Rkind), allocatable      :: Psi_basis(:,:), Psi_result(:,:)
+    integer                            :: NB, I, J, j_M, j_C, i_M, i_C
 
     J = 0
     NB = Size(H_tot, 1)

@@ -6,31 +6,31 @@ PROGRAM test_construct_op
 
 
 !--------------------------------First cavity mode-----------------------------
-  TYPE(MC_operator_1D_t)        :: H_ho_1D_diag_1_6                            ! matrix of the one-dimensional harmonic Hamiltonian associated with HO D. The first number = eigenpulsation of the HO, the second one = the number of basis functions to expand the matrix in.
-  TYPE(MC_operator_1D_t)        :: H_ho_1D_diag_14_6                           ! 14 = w (eigenpulsation); 6 = Nb (number of Ho basis vectors)
-  TYPE(MC_operator_1D_t)        :: H_ho_1D_diag_1_17
-  TYPE(MC_operator_1D_t)        :: H_ho_1D_diag_14_17
-  TYPE(MC_operator_1D_t)        :: H_ho_1D_dense_1_6
-  TYPE(MC_operator_1D_t)        :: H_ho_1D_dense_14_17
+  TYPE(Operator_1D_t)        :: H_ho_1D_diag_1_6                            ! matrix of the one-dimensional harmonic Hamiltonian associated with HO D. The first number = eigenpulsation of the HO, the second one = the number of basis functions to expand the matrix in.
+  TYPE(Operator_1D_t)        :: H_ho_1D_diag_14_6                           ! 14 = w (eigenpulsation); 6 = Nb (number of Ho basis vectors)
+  TYPE(Operator_1D_t)        :: H_ho_1D_diag_1_17
+  TYPE(Operator_1D_t)        :: H_ho_1D_diag_14_17
+  TYPE(Operator_1D_t)        :: H_ho_1D_dense_1_6
+  TYPE(Operator_1D_t)        :: H_ho_1D_dense_14_17
   real(kind=Rkind), allocatable :: H_ho_1D_diag_theo_14_17(:)
   real(kind=Rkind), allocatable :: H_ho_1D_dense_theo_1_6(:,:)
   real(kind=Rkind), allocatable :: H_ho_1D_dense_theo_14_17(:,:)
 
-  TYPE(MC_operator_1D_t)        :: x_ho_1D_band_1_6_1
-  TYPE(MC_operator_1D_t)        :: x_ho_1D_band_14_6_1                         ! 14 = w (eigenpulsation); 6 = Nb (number of Ho basis vectors); 1 = m (mass associated to the HO)
-  TYPE(MC_operator_1D_t)        :: x_ho_1D_band_1_17_1
-  TYPE(MC_operator_1D_t)        :: x_ho_1D_band_1_6_7
-  TYPE(MC_operator_1D_t)        :: x_ho_1D_band_14_17_7
-  TYPE(MC_operator_1D_t)        :: x_ho_1D_dense_1_6_1
-  TYPE(MC_operator_1D_t)        :: x_ho_1D_dense_14_17_7
+  TYPE(Operator_1D_t)        :: x_ho_1D_band_1_6_1
+  TYPE(Operator_1D_t)        :: x_ho_1D_band_14_6_1                         ! 14 = w (eigenpulsation); 6 = Nb (number of Ho basis vectors); 1 = m (mass associated to the HO)
+  TYPE(Operator_1D_t)        :: x_ho_1D_band_1_17_1
+  TYPE(Operator_1D_t)        :: x_ho_1D_band_1_6_7
+  TYPE(Operator_1D_t)        :: x_ho_1D_band_14_17_7
+  TYPE(Operator_1D_t)        :: x_ho_1D_dense_1_6_1
+  TYPE(Operator_1D_t)        :: x_ho_1D_dense_14_17_7
   real(kind=Rkind), allocatable :: x_ho_1D_band_theo_1_17_1(:,:)
   real(kind=Rkind), allocatable :: x_ho_1D_dense_theo_1_6_1(:,:)
   real(kind=Rkind), allocatable :: x_ho_1D_dense_theo_14_17_7(:,:)
 
-  TYPE(MC_operator_1D_t)        :: N_ho_1D_diag_6
-  TYPE(MC_operator_1D_t)        :: N_ho_1D_diag_17
-  TYPE(MC_operator_1D_t)        :: N_ho_1D_dense_6
-  TYPE(MC_operator_1D_t)        :: N_ho_1D_dense_17
+  TYPE(Operator_1D_t)        :: N_ho_1D_diag_6
+  TYPE(Operator_1D_t)        :: N_ho_1D_diag_17
+  TYPE(Operator_1D_t)        :: N_ho_1D_dense_6
+  TYPE(Operator_1D_t)        :: N_ho_1D_dense_17
   real(kind=Rkind), allocatable :: N_ho_1D_dense_theo_17(:,:)
 
   integer                       :: i, error_H, error_x, error_N
@@ -39,16 +39,16 @@ PROGRAM test_construct_op
   !-----------------------tests in progress-----------------------
   real(kind=Rkind), allocatable       :: Result_total_WF(:,:)
   real(kind=Rkind), allocatable       :: Matter_hamiltonianSystem_WF(:,:)      ! size Nb_M*Nb_C. |H_MatterSystem_WF(:,i_C)> = H_Matter|System_WF(:,i_C)>
-  TYPE(MC_operator_1D_t)              :: Cavity_hamiltonian_1D
-  TYPE(MC_operator_1D_t)              :: Cavity_position_1D
-  TYPE(MC_operator_1D_t)              :: Matter_dipolar_moment
+  TYPE(Operator_1D_t)              :: Cavity_hamiltonian_1D
+  TYPE(Operator_1D_t)              :: Cavity_position_1D
+  TYPE(Operator_1D_t)              :: Matter_dipolar_moment
   real(kind=Rkind), allocatable       :: System_WF(:,:)                        ! size Nb_M*Nb_C
   real(kind=Rkind)                    :: lambda_cavity_mode, w_cavity_mode     ! coupling strenght and eigenpulsation
   integer                             :: Nb_C, Nb_M
 
 
   !-----------------------construct HO matricies to test-----------------------
-  CALL MolecCav_Construct_Operator(Operator=H_ho_1D_diag_1_6, &
+  CALL Construct_Operator(Operator=H_ho_1D_diag_1_6, &
                                  & operator_type="Hamiltonian", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
@@ -59,7 +59,7 @@ PROGRAM test_construct_op
   WRITE(out_unit,*) "1D Hamiltonian (Optimized, Nb = 6, m = 1.0 a.u., w = 1.0 a.u.)"
   CALL Write_Vec(H_ho_1D_diag_1_6%Diag_val_R, out_unit, 1)
 
-  CALL MolecCav_Construct_Operator(Operator=H_ho_1D_diag_14_6, &
+  CALL Construct_Operator(Operator=H_ho_1D_diag_14_6, &
                                  & operator_type="Hamiltonian", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
@@ -67,7 +67,7 @@ PROGRAM test_construct_op
                                  & w=14.0_Rkind, &
                                  & m=ONE)
 
-  CALL MolecCav_Construct_Operator(Operator=H_ho_1D_diag_1_17, &
+  CALL Construct_Operator(Operator=H_ho_1D_diag_1_17, &
                                  & operator_type="Hamiltonian", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
@@ -75,7 +75,7 @@ PROGRAM test_construct_op
                                  & w=ONE, &
                                  & m=ONE)
 
-  CALL MolecCav_Construct_Operator(Operator=H_ho_1D_diag_14_17, &
+  CALL Construct_Operator(Operator=H_ho_1D_diag_14_17, &
                                  & operator_type="Hamiltonian", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
@@ -83,7 +83,7 @@ PROGRAM test_construct_op
                                  & w=14.0_Rkind, &
                                  & m=ONE)
 
-  CALL MolecCav_Construct_Operator(Operator=H_ho_1D_dense_1_6, &
+  CALL Construct_Operator(Operator=H_ho_1D_dense_1_6, &
                                  & operator_type="Hamiltonian", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Non_opt", &              ! opt => get analytical shape. non_opt => get dense shape
@@ -94,7 +94,7 @@ PROGRAM test_construct_op
   WRITE(out_unit,*) "1D Hamiltonian (Non-optimized, Nb = 6, m = 1.0 a.u., w = 14.0 a.u.)"
   CALL Write_Mat(H_ho_1D_dense_1_6%Dense_val_R, out_unit, 6)
                                
-  CALL MolecCav_Construct_Operator(Operator=H_ho_1D_dense_14_17, &
+  CALL Construct_Operator(Operator=H_ho_1D_dense_14_17, &
                                  & operator_type="Hamiltonian", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Non_opt", &              ! opt => get analytical shape. non_opt => get dense shape
@@ -104,7 +104,7 @@ PROGRAM test_construct_op
 
 
   !------------------------construct x matricies to test-----------------------
-  CALL MolecCav_Construct_Operator(Operator=x_ho_1D_band_1_6_1, &
+  CALL Construct_Operator(Operator=x_ho_1D_band_1_6_1, &
                                  & operator_type="Position", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
@@ -112,7 +112,7 @@ PROGRAM test_construct_op
                                  & w=ONE, &
                                  & m=ONE)
 
-  CALL MolecCav_Construct_Operator(Operator=x_ho_1D_band_14_6_1, &
+  CALL Construct_Operator(Operator=x_ho_1D_band_14_6_1, &
                                  & operator_type="Position", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
@@ -120,7 +120,7 @@ PROGRAM test_construct_op
                                  & w=14.0_Rkind, &
                                  & m=ONE)
 
-  CALL MolecCav_Construct_Operator(Operator=x_ho_1D_band_1_17_1, &
+  CALL Construct_Operator(Operator=x_ho_1D_band_1_17_1, &
                                  & operator_type="Position", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
@@ -128,7 +128,7 @@ PROGRAM test_construct_op
                                  & w=ONE, &
                                  & m=ONE)
 
-  CALL MolecCav_Construct_Operator(Operator=x_ho_1D_band_1_6_7, &
+  CALL Construct_Operator(Operator=x_ho_1D_band_1_6_7, &
                                  & operator_type="Position", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
@@ -136,7 +136,7 @@ PROGRAM test_construct_op
                                  & w=ONE, &
                                  & m=SEVEN)
 
-  CALL MolecCav_Construct_Operator(Operator=x_ho_1D_band_14_17_7, &
+  CALL Construct_Operator(Operator=x_ho_1D_band_14_17_7, &
                                  & operator_type="Position", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
@@ -144,7 +144,7 @@ PROGRAM test_construct_op
                                  & w=14.0_Rkind, &
                                  & m=SEVEN)
 
-  CALL MolecCav_Construct_Operator(Operator=x_ho_1D_dense_1_6_1, &
+  CALL Construct_Operator(Operator=x_ho_1D_dense_1_6_1, &
                                  & operator_type="Position", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Non_opt", &              ! opt => get analytical shape. non_opt => get dense shape
@@ -152,7 +152,7 @@ PROGRAM test_construct_op
                                  & w=ONE, &
                                  & m=ONE)
 
-  CALL MolecCav_Construct_Operator(Operator=x_ho_1D_dense_14_17_7, &
+  CALL Construct_Operator(Operator=x_ho_1D_dense_14_17_7, &
                                  & operator_type="Position", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Non_opt", &              ! opt => get analytical shape. non_opt => get dense shape
@@ -161,7 +161,7 @@ PROGRAM test_construct_op
                                  & m=SEVEN)
 
   !------------------------construct N matricies to test-----------------------
-  CALL MolecCav_Construct_Operator(Operator=N_ho_1D_diag_6, &
+  CALL Construct_Operator(Operator=N_ho_1D_diag_6, &
                                  & operator_type="Nb_photons", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
@@ -169,7 +169,7 @@ PROGRAM test_construct_op
                                  & w=ONE, &
                                  & m=ONE)
 
-  CALL MolecCav_Construct_Operator(Operator=N_ho_1D_diag_17, &
+  CALL Construct_Operator(Operator=N_ho_1D_diag_17, &
                                  & operator_type="Nb_photons", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
@@ -177,7 +177,7 @@ PROGRAM test_construct_op
                                  & w=ONE, &
                                  & m=ONE)
 
-  CALL MolecCav_Construct_Operator(Operator=N_ho_1D_dense_6, &
+  CALL Construct_Operator(Operator=N_ho_1D_dense_6, &
                                  & operator_type="Nb_photons", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Non_opt", &              ! opt => get analytical shape. non_opt => get dense shape
@@ -185,7 +185,7 @@ PROGRAM test_construct_op
                                  & w=ONE, &
                                  & m=ONE)
 
-  CALL MolecCav_Construct_Operator(Operator=N_ho_1D_dense_17, &
+  CALL Construct_Operator(Operator=N_ho_1D_dense_17, &
                                  & operator_type="Nb_photons", &
                                  & scalar_space="Real", &
                                  & matrix_shape_type="Non_opt", &              ! opt => get analytical shape. non_opt => get dense shape
@@ -373,8 +373,8 @@ PROGRAM test_construct_op
   error_x = 0
   threshold_x = 1E-08_Rkind
 
-!  TYPE(MC_operator_1D_t)        :: x_ho_1D_band_14_6_1                         ! 14 = w (eigenpulsation); 6 = Nb (number of Ho basis vectors); 1 = m (mass associated to the HO)
-!  TYPE(MC_operator_1D_t)        :: x_ho_1D_band_1_6_7
+!  TYPE(Operator_1D_t)        :: x_ho_1D_band_14_6_1                         ! 14 = w (eigenpulsation); 6 = Nb (number of Ho basis vectors); 1 = m (mass associated to the HO)
+!  TYPE(Operator_1D_t)        :: x_ho_1D_band_1_6_7
 
   !x_ho_1D_band_1_17_1%Band_val_R(1,1) = 5
 
@@ -492,7 +492,7 @@ PROGRAM test_construct_op
   !-------------------------------comparisons N-------------------------------
   error_N = 0
   threshold_N = 1E-08_Rkind
-  !TYPE(MC_operator_1D_t)        :: N_ho_1D_diag_6
+  !TYPE(Operator_1D_t)        :: N_ho_1D_diag_6
 
   !N_ho_1D_dense_17%Dense_val_R(1,1) = 5
 

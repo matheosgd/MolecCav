@@ -6,7 +6,7 @@ PROGRAM test_cavity_mode
 
 
 !--------------------------------First cavity mode-----------------------------
-  TYPE(MC_cavity_mode_t)  :: Cavity_mode_1
+  TYPE(Cavity_mode_t)  :: Cavity_mode_1
   integer                 :: error
 
 

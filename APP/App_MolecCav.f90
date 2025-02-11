@@ -8,18 +8,18 @@ PROGRAM App_MolecCav
 
 
   !-------------Diatomic molecule in a harmonic electonic potential------------
-  TYPE(MC_cavity_mode_t)        :: Molecule_1
-  TYPE(MC_operator_1D_t)        :: H_ho_molecule_1                             ! matrix of the one-dimensional harmonic Hamiltonian associated with HO D
-  TYPE(MC_operator_1D_t)        :: x_ho_molecule_1
-  TYPE(MC_operator_1D_t)        :: N_ho_molecule_1                             ! here N does not count the number of photons but of excitation quanta in the vibrational state
-  TYPE(MC_operator_1D_t)        :: Matter_dipolar_moment
+  TYPE(Cavity_mode_t)           :: Molecule_1
+  TYPE(Operator_1D_t)           :: H_ho_molecule_1                             ! matrix of the one-dimensional harmonic Hamiltonian associated with HO D
+  TYPE(Operator_1D_t)           :: x_ho_molecule_1
+  TYPE(Operator_1D_t)           :: N_ho_molecule_1                             ! here N does not count the number of photons but of excitation quanta in the vibrational state
+  TYPE(Operator_1D_t)           :: Matter_dipolar_moment
   real(kind=Rkind)              :: Cte_dipole_moment                           ! the intensity of the variation of the dipole moment with a variation of the matter DOF
   
   !------------------------------First cavity mode-----------------------------
-  TYPE(MC_cavity_mode_t)        :: Cavity_mode_1
-  TYPE(MC_operator_1D_t)        :: H_ho_cavity_mode_1                          ! matrix of the one-dimensional harmonic Hamiltonian associated with HO D
-  TYPE(MC_operator_1D_t)        :: x_ho_cavity_mode_1
-  TYPE(MC_operator_1D_t)        :: N_ho_cavity_mode_1
+  TYPE(Cavity_mode_t)           :: Cavity_mode_1
+  TYPE(Operator_1D_t)           :: H_ho_cavity_mode_1                          ! matrix of the one-dimensional harmonic Hamiltonian associated with HO D
+  TYPE(Operator_1D_t)           :: x_ho_cavity_mode_1
+  TYPE(Operator_1D_t)           :: N_ho_cavity_mode_1
 
   !--------------------------------Wavefunctions-------------------------------
   real(kind=Rkind), allocatable :: System_WF(:,:)                              ! The total system (matter-cavity) wavefunction. Size Nb_M*Nb_C. |System_WF> = |Molecule_WF>.TENSOR.|Cavity_WF> 
@@ -56,47 +56,33 @@ PROGRAM App_MolecCav
   
   CALL MolecCav_Read_cavity_mode(Mode=Molecule_1, nio=in_unit)
 
-  CALL MolecCav_Construct_Operator(Operator=H_ho_molecule_1, &
+  CALL Construct_Operator(Operator=H_ho_molecule_1, &
                                  & operator_type="Hamiltonian", &
-                                 & scalar_space="Real", &
-                                 & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
-                                 & Nb=Molecule_1%Nb, &
-                                 & w=Molecule_1%w, &
-                                 & m=Molecule_1%m)
+                                 & Mode=Molecule_1)
 
   WRITE(out_unit,*) "Molecular Hamiltonian"
   CALL Write_Vec(H_ho_molecule_1%Diag_val_R, out_unit, 1)
 
-  CALL MolecCav_Construct_Operator(Operator=x_ho_molecule_1, &
+  CALL Construct_Operator(Operator=x_ho_molecule_1, &
                                  & operator_type="Position", &
-                                 & scalar_space="Real", &
-                                 & matrix_shape_type="Non_Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
-                                 & Nb=Molecule_1%Nb, &
-                                 & w=Molecule_1%w, &
-                                 & m=Molecule_1%m)
+                                 & Dense=.TRUE., &
+                                 & Mode=Molecule_1)
 
   WRITE(out_unit,*) "Molecular Position"
   !CALL Write_Mat(x_ho_molecule_1%Band_val_R, out_unit, 3)
   CALL Write_Mat(x_ho_molecule_1%Dense_val_R, out_unit, Molecule_1%Nb)
 
-  CALL MolecCav_Construct_Operator(Operator=N_ho_molecule_1, &
+  CALL Construct_Operator(Operator=N_ho_molecule_1, &
                                  & operator_type="Nb_photons", &
-                                 & scalar_space="Real", &
-                                 & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
-                                 & Nb=Molecule_1%Nb, &
-                                 & w=Molecule_1%w, &
-                                 & m=Molecule_1%m)
+                                 & Mode=Molecule_1)
   
   WRITE(out_unit,*) "Molecular Nb_photon (vibrationnal excitation quanta)"
   CALL Write_Vec(N_ho_molecule_1%Diag_val_R, out_unit, 1)
 
-  CALL MolecCav_Construct_Operator(Operator=Matter_dipolar_moment, &
+  CALL Construct_Operator(Operator=Matter_dipolar_moment, &
                                  & operator_type="Position", &                 ! initialized as a position operator because of approximation over its expression (cf. readme.md or manual)
-                                 & scalar_space="Real", &
-                                 & matrix_shape_type="Non_Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
-                                 & Nb=Molecule_1%Nb, &
-                                 & w=Molecule_1%w, &
-                                 & m=Molecule_1%m)
+                                 & Dense=.TRUE., &
+                                 & Mode=Molecule_1)
 
   Cte_dipole_moment = ONE
   Matter_dipolar_moment%Band_val_R = Matter_dipolar_moment%Band_val_R*Cte_dipole_moment ! /!\ so that the matrix already contains the intensity constant of the dipolar moment with the position of the matter (cf. manual for formulas)
@@ -108,36 +94,25 @@ PROGRAM App_MolecCav
   !------------------------------First cavity mode-----------------------------
   CALL MolecCav_Read_cavity_mode(Mode=Cavity_mode_1, nio=in_unit)
 
-  CALL MolecCav_Construct_Operator(Operator=H_ho_cavity_mode_1, &
+  CALL Construct_Operator(Operator=H_ho_cavity_mode_1, &
                                  & operator_type="Hamiltonian", &
-                                 & scalar_space="Real", &
-                                 & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
-                                 & Nb=Cavity_mode_1%Nb, &
-                                 & w=Cavity_mode_1%w, &
-                                 & m=Cavity_mode_1%m)
+                                 & Mode=Cavity_mode_1)
 
   WRITE(out_unit,*) "Cavity mode Hamiltonian"
   CALL Write_Vec(H_ho_cavity_mode_1%Diag_val_R, out_unit, 1)
 
-  CALL MolecCav_Construct_Operator(Operator=x_ho_cavity_mode_1, &
+  CALL Construct_Operator(Operator=x_ho_cavity_mode_1, &
                                  & operator_type="Position", &
-                                 & scalar_space="Real", &
-                                 & matrix_shape_type="Non_Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
-                                 & Nb=Cavity_mode_1%Nb, &
-                                 & w=Cavity_mode_1%w, &
-                                 & m=Cavity_mode_1%m)
+                                 & Dense=.TRUE., &
+                                 & Mode=Cavity_mode_1)
 
   WRITE(out_unit,*) "Cavity mode Position"
   !CALL Write_Mat(x_ho_cavity_mode_1%Band_val_R, out_unit, 3)
   CALL Write_Mat(x_ho_cavity_mode_1%Dense_val_R, out_unit, Molecule_1%Nb)
 
-  CALL MolecCav_Construct_Operator(Operator=N_ho_cavity_mode_1, &
+  CALL Construct_Operator(Operator=N_ho_cavity_mode_1, &
                                  & operator_type="Nb_photons", &
-                                 & scalar_space="Real", &
-                                 & matrix_shape_type="Opt", &                  ! opt => get analytical shape. non_opt => get dense shape
-                                 & Nb=Cavity_mode_1%Nb, &
-                                 & w=Cavity_mode_1%w, &
-                                 & m=Cavity_mode_1%m)
+                                 & Mode=Cavity_mode_1)
 
 
   WRITE(out_unit,*) "Cavity mode Nb_photons"
@@ -181,7 +156,7 @@ PROGRAM App_MolecCav
   Matter_hamiltonianSystem_WF = ZERO
 
   DO i = 1, Cavity_mode_1%Nb                                                   ! initialize Matter_hamiltonianSystem_WF by applying the matter hamiltonian to each column of the matrix of the total system WF but creates an sysmalloc : assertion failed if we initialize like that
-  CALL MolecCav_Action_Operator_1D(Matter_hamiltonianSystem_WF(:,i), &
+  CALL Action_Operator_1D(Matter_hamiltonianSystem_WF(:,i), &
                                      & H_ho_molecule_1, &
                                      & System_WF(:,i))
   END DO
@@ -220,11 +195,11 @@ PROGRAM App_MolecCav
   CALL Write_Vec(Psi_cavity, out_unit, 1)
 
   ALLOCATE(Psi_result_bis(Cavity_mode_1%Nb))
-  CALL MolecCav_Action_Operator_1D(Psi_result_bis, N_ho_cavity_mode_1, Psi_cavity)
+  CALL Action_Operator_1D(Psi_result_bis, N_ho_cavity_mode_1, Psi_cavity)
   WRITE(out_unit,*) 'Action of Nb_photons over Psi_cavity'
   CALL Write_Vec(Psi_result_bis, out_unit, 1)
 
-  CALL MolecCav_Average_value_operator_1D(Average, N_ho_cavity_mode_1, Psi_cavity)
+  CALL Average_value_operator_1D(Average, N_ho_cavity_mode_1, Psi_cavity)
   WRITE(out_unit,*) 'The avegeraged number of photons of that Psi_cavity is analytically expected to be &
                     & 0.5 and is = ', Average
   

@@ -4,7 +4,7 @@ MODULE Cavity_mode_m
   IMPLICIT NONE
 
 
-  TYPE :: MC_cavity_mode_t                                                     ! MC = MolecCav NB: everything is initialized at values that are not supposed to make it possible of the cavity mode lecture/creation have successfully been executed
+  TYPE :: Cavity_mode_t                                                     ! MC = MolecCav NB: everything is initialized at values that are not supposed to make it possible of the cavity mode lecture/creation have successfully been executed
     integer          :: D      = 0                                             ! label of the HO/mode/dimension/associated basis set
     integer          :: Nb     = 1                                             ! number of basis vectors associated with the HO D
     real(kind=Rkind) :: w      = ZERO                                          ! eigenpulsation associated with the HO D
@@ -20,7 +20,7 @@ MODULE Cavity_mode_m
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     IMPLICIT NONE
     
-    TYPE(MC_cavity_mode_t), intent(inout) :: Mode   
+    TYPE(Cavity_mode_t), intent(inout) :: Mode   
     integer,                intent(in)    :: nio
 
     integer                               :: D, Nb, err_io                     ! label of the basis/HO/mode/dimension, its number of basis vectors, and an error control variable
@@ -64,7 +64,7 @@ MODULE Cavity_mode_m
 
     END IF
 
-    !---------------Construction of the MC_cavity_mode_t type object-----------
+    !---------------Construction of the Cavity_mode_t type object-----------
     Mode%D      = D
     Mode%Nb     = Nb
     Mode%w      = w
