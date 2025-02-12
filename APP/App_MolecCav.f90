@@ -58,7 +58,8 @@ PROGRAM App_MolecCav
 
   CALL Construct_Operator_1D(Operator=H_ho_molecule_1, &
                                  & operator_type="Hamiltonian", &
-                                 & Mode=Molecule_1)
+                                 & Mode=Molecule_1, &
+                                 & Debug=.TRUE.)
 
   WRITE(out_unit,*) "Molecular Hamiltonian"
   !CALL Write_Vec(H_ho_molecule_1%Diag_val_R, out_unit, 1)
@@ -82,15 +83,15 @@ PROGRAM App_MolecCav
 
   CALL Construct_Operator_1D(Operator=Matter_dipolar_moment, &
                                  & operator_type="Position", &                 ! initialized as a position operator because of approximation over its expression (cf. readme.md or manual)
-                                 & Dense=.TRUE., &
+  !                               & Dense=.TRUE., &                            !/!\ if initialize as dense MUST change two lines below : Matter_dipolar_moment%Dense_val_R /!\
                                  & Mode=Molecule_1)
 
   Cte_dipole_moment = ONE
   Matter_dipolar_moment%Band_val_R = Matter_dipolar_moment%Band_val_R*Cte_dipole_moment ! /!\ so that the matrix already contains the intensity constant of the dipolar moment with the position of the matter (cf. manual for formulas)
     
   WRITE(out_unit,*) "Molecular Dipole moment"
-  !CALL Write_Mat(Matter_dipolar_moment%Band_val_R, out_unit, 3)
-  CALL Write_Mat(Matter_dipolar_moment%Dense_val_R, out_unit, Molecule_1%Nb)
+  CALL Write_Mat(Matter_dipolar_moment%Band_val_R, out_unit, 3)
+  !CALL Write_Mat(Matter_dipolar_moment%Dense_val_R, out_unit, Molecule_1%Nb)
 
   !------------------------------First cavity mode-----------------------------
   CALL MolecCav_Read_cavity_mode(Mode=Cavity_mode_1, nio=in_unit)

@@ -28,11 +28,11 @@ MODULE Algebra_m
     real(kind=Rkind), intent(inout) :: Psi(:,:)                             ! already allocated
 
     real(kind=Rkind)                :: Norm, Threshold
-    logical, parameter              :: debug = .FALSE.
+    logical, parameter              :: Debug = .FALSE.
 
     Threshold = 1E-08_Rkind
     CALL MolecCav_Norm_2D_real(Norm, Psi)
-    IF (debug) WRITE(out_unit,*) "Computed norm of 2D WF = ", Norm
+    IF (Debug) WRITE(out_unit,*) "Computed norm of 2D WF = ", Norm
 
     IF (Norm < Threshold) THEN
       WRITE(out_unit,*) "Attempt to normalize matrix of norm ZERO"
@@ -41,7 +41,7 @@ MODULE Algebra_m
       Psi(:,:) = Psi(:,:) / Norm
     END IF 
 
-    IF (debug) THEN
+    IF (Debug) THEN
       CALL MolecCav_Norm_2D_real(Norm, Psi)
       WRITE(out_unit,*) "Computed new norm of 2D WF = ", Norm
     END IF 
@@ -56,11 +56,11 @@ MODULE Algebra_m
     complex(kind=Rkind), intent(inout) :: Psi(:,:)                             ! already allocated
 
     real(kind=Rkind)                   :: Norm, Threshold
-    logical, parameter                 :: debug = .FALSE.
+    logical, parameter                 :: Debug = .FALSE.
 
     Threshold = 1E-08_Rkind
     CALL MolecCav_Norm_2D_complex(Norm, Psi)
-    IF (debug) WRITE(out_unit,*) "Computed norm of 2D WF = ", Norm
+    IF (Debug) WRITE(out_unit,*) "Computed norm of 2D WF = ", Norm
 
     IF (Norm < Threshold) THEN
       WRITE(out_unit,*) "Attempt to normalize matrix of norm ZERO"
@@ -69,7 +69,7 @@ MODULE Algebra_m
       Psi(:,:) = Psi(:,:) / Norm
     END IF 
 
-    IF (debug) THEN
+    IF (Debug) THEN
       CALL MolecCav_Norm_2D_complex(Norm, Psi)
       WRITE(out_unit,*) "Computed new norm of 2D WF = ", Norm
     END IF 
@@ -84,11 +84,11 @@ MODULE Algebra_m
     real(kind=Rkind), intent(inout) :: Psi(:)                               ! already allocated
 
     real(kind=Rkind)                :: Norm, Threshold
-    logical, parameter              :: debug = .FALSE.
+    logical, parameter              :: Debug = .FALSE.
 
     Threshold = 1E-08_Rkind
     CALL MolecCav_Norm_1D_real(Norm, Psi)
-    IF (debug) WRITE(out_unit,*) "Computed norm of 1D WF = ", Norm
+    IF (Debug) WRITE(out_unit,*) "Computed norm of 1D WF = ", Norm
 
     IF (Norm < Threshold) THEN
       WRITE(out_unit,*) "Attempt to normalize matrix of norm ZERO"
@@ -97,7 +97,7 @@ MODULE Algebra_m
       Psi(:) = Psi(:) / Norm
     END IF 
 
-    IF (debug) THEN
+    IF (Debug) THEN
       CALL MolecCav_Norm_1D_real(Norm, Psi)
       WRITE(out_unit,*) "Computed new norm of 1D WF = ", Norm
     END IF 
@@ -112,11 +112,11 @@ MODULE Algebra_m
     complex(kind=Rkind), intent(inout) :: Psi(:)                               ! already allocated
 
     real(kind=Rkind)                   :: Norm, Threshold
-    logical, parameter                 :: debug = .FALSE.
+    logical, parameter                 :: Debug = .FALSE.
 
     Threshold = 1E-08_Rkind
     CALL MolecCav_Norm_1D_complex(Norm, Psi)
-    IF (debug) WRITE(out_unit,*) "Computed norm of 1D WF = ", Norm
+    IF (Debug) WRITE(out_unit,*) "Computed norm of 1D WF = ", Norm
 
     IF (Norm < Threshold) THEN
       WRITE(out_unit,*) "Attempt to normalize matrix of norm ZERO"
@@ -125,7 +125,7 @@ MODULE Algebra_m
       Psi(:) = Psi(:) / Norm
     END IF 
 
-    IF (debug) THEN
+    IF (Debug) THEN
       CALL MolecCav_Norm_1D_complex(Norm, Psi)
       WRITE(out_unit,*) "Computed new norm of 1D WF = ", Norm
     END IF 
@@ -168,7 +168,8 @@ MODULE Algebra_m
     real(kind=Rkind), intent(inout) :: Norm
     real(kind=Rkind), intent(in)    :: Psi(:)                                  ! already allocated
     
-    Norm = SQRT(DOT_PRODUCT(Psi, Psi))
+    CALL Scalar_product(Norm, Psi, Psi)
+    Norm = SQRT(Norm)
   
   END SUBROUTINE MolecCav_Norm_1D_real
 
@@ -179,9 +180,11 @@ MODULE Algebra_m
   
     real(kind=Rkind),    intent(inout) :: Norm
     complex(kind=Rkind), intent(in)    :: Psi(:)                                  ! already allocated
+
+    complex(kind=Rkind)                :: Sca_pdt
     
-    Norm = REAL(DOT_PRODUCT(Psi, Psi), kind=Rkind)
-    Norm = SQRT(Norm)
+    CALL Scalar_product(Sca_pdt, Psi, Psi)
+    Norm = SQRT(REAL(Sca_pdt, kind=Rkind))
   
   END SUBROUTINE MolecCav_Norm_1D_complex
 
@@ -195,7 +198,7 @@ MODULE Algebra_m
     real(kind=Rkind), target, intent(in)    :: Psi_2(:,:)                                ! already allocated + "target" means that it can be pointed by a pointer
 
     integer                                 :: Dim, i_2
-    logical, parameter                      :: debug = .FALSE.
+    logical, parameter                      :: Debug = .FALSE.
     
     Dim = Size(Psi_1, Dim=2)
     IF (Dim /= Size(Psi_2, Dim=2) .OR. Size(Psi_2, Dim=1) /= Size(Psi_2, Dim=1)) THEN
@@ -209,7 +212,7 @@ MODULE Algebra_m
       Sca_pdt = Sca_pdt + DOT_PRODUCT(Psi_1(:,i_2), Psi_2(:,i_2))
     END DO
 
-    IF (debug) WRITE(out_unit,*) "Computed scalar product : < Psi_1 |  Psi_2 >  =", Sca_pdt, &
+    IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Psi_1 |  Psi_2 >  =", Sca_pdt, &
                                & "supposed to get 79 the 10/02/2025"
 
   END SUBROUTINE MolecCav_Scalar_product_2D_real
@@ -225,7 +228,7 @@ MODULE Algebra_m
 
     real(kind=Rkind), pointer                           :: V1(:), V2(:)                              ! <=> real(kind=Rkind), Dimension(:), pointer :: V1, V2
     integer                                             :: Dim
-    logical, parameter                                  :: debug = .FALSE.
+    logical, parameter                                  :: Debug = .FALSE.
     
     Dim = Size(Psi_1, Dim=2)
     IF (Dim /= Size(Psi_2, Dim=2) .OR. Size(Psi_2, Dim=1) /= Size(Psi_2, Dim=1)) THEN
@@ -240,7 +243,7 @@ MODULE Algebra_m
     NULLIFY(V1)
     NULLIFY(V2)
 
-    IF (debug) WRITE(out_unit,*) "Computed scalar product : < Psi_1 |  Psi_2 >  =", Sca_pdt, &
+    IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Psi_1 |  Psi_2 >  =", Sca_pdt, &
                                & "supposed to get 79 the 10/02/2025"
 
   END SUBROUTINE MolecCav_Scalar_product_2D_real_old
@@ -255,7 +258,7 @@ MODULE Algebra_m
     complex(kind=Rkind), target, intent(in)    :: Psi_2(:,:)                                ! already allocated + "target" means that it can be pointed by a pointer
 
     integer                                    :: Dim, i_2
-    logical, parameter                         :: debug = .FALSE.
+    logical, parameter                         :: Debug = .FALSE.
     
     Dim = Size(Psi_1, Dim=2)
     IF (Dim /= Size(Psi_2, Dim=2) .OR. Size(Psi_2, Dim=1) /= Size(Psi_2, Dim=1)) THEN
@@ -269,8 +272,7 @@ MODULE Algebra_m
       Sca_pdt = Sca_pdt + DOT_PRODUCT(Psi_1(:,i_2), Psi_2(:,i_2))
     END DO
 
-    IF (debug) WRITE(out_unit,*) "Computed scalar product : < Psi_1 |  Psi_2 >  =", Sca_pdt, &
-                               & "supposed to get 79 the 10/02/2025"
+    IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Psi_1 |  Psi_2 >  =", Sca_pdt
 
   END SUBROUTINE MolecCav_Scalar_product_2D_complex
 
@@ -284,7 +286,7 @@ MODULE Algebra_m
     real(kind=Rkind), intent(in)    :: Psi_2(:)                                ! already allocated + "target" means that it can be pointed by a pointer
 
     integer                         :: Dim
-    logical, parameter              :: debug = .FALSE.
+    logical, parameter              :: Debug = .FALSE.
     
     Dim = Size(Psi_1)
     IF (Dim /= Size(Psi_2)) THEN
@@ -294,8 +296,7 @@ MODULE Algebra_m
 
     Sca_pdt = DOT_PRODUCT(Psi_1, Psi_2)
 
-    IF (debug) WRITE(out_unit,*) "Computed scalar product : < Psi_1 |  Psi_2 >  =", Sca_pdt, &
-                               & "supposed to get 79 the 10/02/2025"
+    IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Psi_1 |  Psi_2 >  =", Sca_pdt
 
   END SUBROUTINE MolecCav_Scalar_product_1D_real
 
@@ -309,7 +310,7 @@ MODULE Algebra_m
     complex(kind=Rkind), intent(in)    :: Psi_2(:)                                ! already allocated + "target" means that it can be pointed by a pointer
 
     integer                            :: Dim
-    logical, parameter                 :: debug = .FALSE.
+    logical, parameter                 :: Debug = .FALSE.
     
     Dim = Size(Psi_1)
     IF (Dim /= Size(Psi_2)) THEN
@@ -319,8 +320,7 @@ MODULE Algebra_m
 
     Sca_pdt = DOT_PRODUCT(Psi_1, Psi_2)
 
-    IF (debug) WRITE(out_unit,*) "Computed scalar product : < Psi_1 |  Psi_2 >  =", Sca_pdt, &
-                               & "supposed to get 79 the 10/02/2025"
+    IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Psi_1 |  Psi_2 >  =", Sca_pdt
 
   END SUBROUTINE MolecCav_Scalar_product_1D_complex
 
