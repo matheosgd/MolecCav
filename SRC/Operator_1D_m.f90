@@ -68,7 +68,7 @@ MODULE Operator_1D_m
     
     !--------------first steps of the construction of the Operator-------------
     ALLOCATE(character(len=LEN_TRIM(Operator_type)) :: Operator%Operator_type) ! /!\ strings cannot be allocated the exact same way as tables ! /!\
-    Operator%Operator_type = TRIM(Operator_type)                               ! allocation on assignement (not anymore). Operator_type has the right lengths (no spaces added) thanks to len=* at declaration and it will fit the Op%op_type thanks to len=:, allocatable at declaration of the derived type. 
+    Operator%Operator_type = TO_lowercase(TRIM(Operator_type))                 ! allocation on assignement (not anymore). Operator_type has the right lengths (no spaces added) thanks to len=* at declaration and it will fit the Op%op_type thanks to len=:, allocatable at declaration of the derived type. 
     Operator%Cavity_mode_t = Mode                                              ! no need to have a variable of type Cavity_mode_t to use the "%" writing !!!
 
     IF (PRESENT(Dense)) THEN
@@ -76,7 +76,7 @@ MODULE Operator_1D_m
     END IF
 
     !--------------------construction of the matrix Operator-------------------
-    SELECT CASE (TO_lowercase(Operator%Operator_type))                         ! TO_lowercase avoid case sensitivity issues
+    SELECT CASE (Operator%Operator_type)                         ! TO_lowercase avoid case sensitivity issues
       CASE ("hamiltonian")
         CALL MolecCav_Construct_H_cavity_mode(Hamiltonian=Operator)
     
@@ -92,7 +92,13 @@ MODULE Operator_1D_m
 
     END SELECT
 
-    IF (Write_op) CALL Write_Operator_1D(Operator)
+    IF (Write_op) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "-------------Operator constructed by MolecCav_Construct_Operator_1D-------------"
+      CALL Write_Operator_1D(Operator)
+      WRITE(out_unit,*) "-----------End operator constructed by MolecCav_Construct_Operator_1D-----------"
+      WRITE(out_unit,*)
+    END IF
 
   END SUBROUTINE MolecCav_Construct_Operator_1D
 
@@ -336,77 +342,65 @@ MODULE Operator_1D_m
     TYPE(Operator_1D_t), intent(in) :: Operator
 
     WRITE(out_unit,*) "---------------------------WRITING THE OPERATOR TYPE---------------------------"
-    WRITE(out_unit,*) "-------------------------the associated HO cavity mode-------------------------"
-    WRITE(out_unit,*) "_______________________________________________________________________________________________________"
-    WRITE(out_unit,*) "|Index of the cavity mode Operator%Mode%D                                       | ", Operator%D
-    WRITE(out_unit,*) "|_______________________________________________________________________________|______________________"
-    WRITE(out_unit,*) "|Basis set size of the cavity mode Operator%Mode%Nb                             | ", Operator%Nb
-    WRITE(out_unit,*) "|_______________________________________________________________________________|______________________"
-    WRITE(out_unit,*) "|Eigenpulsation of the cavity mode Operator%Mode%w                              | ", Operator%w
-    WRITE(out_unit,*) "|_______________________________________________________________________________|______________________"
-    WRITE(out_unit,*) "|Mass of the associated HO Operator%Mode%m                                      | ", Operator%m
-    WRITE(out_unit,*) "|_______________________________________________________________________________|______________________"
-    WRITE(out_unit,*) "|Coupling strength between the matter and this cavity mode Operator%Mode%lambda | ", Operator%lambda
-    WRITE(out_unit,*) "|_______________________________________________________________________________|______________________"
-    FLUSH(out_unit)
+    CALL Write_cavity_mode(Operator%Cavity_mode_t)
     WRITE(out_unit,*) "----------------------------the operator parameters----------------------------"
     IF (ALLOCATED(Operator%Operator_type)) THEN
-      WRITE(out_unit,*) "_______________________________________________________________________________________________________"
-      WRITE(out_unit,*) "|The operator's nature <<Operator_type>> information do is allocated, and is    |", Operator%Operator_type
+      WRITE(out_unit,*) "____________________________________________________________________________________________________"
+      WRITE(out_unit,*) "|The operator's nature <<Operator_type>> information do is allocated, and is |", Operator%Operator_type
       FLUSH(out_unit)
-      WRITE(out_unit,*) "|_______________________________________________________________________________|______________________"
+      WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
     ELSE 
-      WRITE(out_unit,*) "________________________________________________________________________________"
-      WRITE(out_unit,*) "|The operator's nature <<Operator_type>> information is NOT allocated.          |"
+      WRITE(out_unit,*) "_____________________________________________________________________________"
+      WRITE(out_unit,*) "|The operator's nature <<Operator_type>> information is NOT allocated.       |"
       FLUSH(out_unit)
-      WRITE(out_unit,*) "|_______________________________________________________________________________|___&
+      WRITE(out_unit,*) "|____________________________________________________________________________|___&
                       &_________________________"
     END IF
 
-    WRITE(out_unit,*) "|Is its matrix supposed to be represented as a dense one ? Operator%Dense       | ", Operator%Dense
-    WRITE(out_unit,*) "|_______________________________________________________________________________|_____&
+    WRITE(out_unit,*) "|Is its matrix supposed to be represented as a dense one ? Operator%Dense    | ", Operator%Dense
+    WRITE(out_unit,*) "|____________________________________________________________________________|_____&
                       &_______________________"
-    WRITE(out_unit,*) "|Case of a band matrix, (Operator%Upper_bandwidth, Operator%Lower_bandwidth)    | (", & 
+    WRITE(out_unit,*) "|Case of a band matrix, (Operator%Upper_bandwidth, Operator%Lower_bandwidth) | (", & 
                      & Operator%Upper_bandwidth, Operator%Lower_bandwidth, ")"
     FLUSH(out_unit)
-    WRITE(out_unit,*) "|_______________________________________________________________________________|_____&
+    WRITE(out_unit,*) "|____________________________________________________________________________|_____&
                       &_______________________"
     WRITE(out_unit,*) "-------------------------the operator's representations-------------------------"
-    WRITE(out_unit,*) "________________________________________________________________________________"
+    WRITE(out_unit,*) "_____________________________________________________________________________"
     IF (ALLOCATED(Operator%Diag_val_R)) THEN                                   ! we assume that the code is supposed to be used only allocating one of the matrices of each Operator_t object
-      WRITE(out_unit,*) "|The operator's Diagonal matrix representation has been used, and is            |"
-      WRITE(out_unit,*) "|_______________________________________________________________________________|"
+      WRITE(out_unit,*) "|The operator's Diagonal matrix representation has been used, and is         |"
+      WRITE(out_unit,*) "|____________________________________________________________________________|"
       CALL Write_Vec(Operator%Diag_val_R, out_unit, 1, info="Diag_val_R")
-      WRITE(out_unit,*) "|_______________________________________________________________________________|"
+      WRITE(out_unit,*) "|____________________________________________________________________________|"
       FLUSH(out_unit)
     ELSE 
-      WRITE(out_unit,*) "|The operator's Diagonal matrix representation is NOT allocated.                |"
+      WRITE(out_unit,*) "|The operator's Diagonal matrix representation is NOT allocated.             |"
       FLUSH(out_unit)
-      WRITE(out_unit,*) "|_______________________________________________________________________________|"
+      WRITE(out_unit,*) "|____________________________________________________________________________|"
     END IF
 
     IF (ALLOCATED(Operator%Band_val_R)) THEN
-      WRITE(out_unit,*) "|The operator's Band matrix representation has been used, and is                |"
-      WRITE(out_unit,*) "|_______________________________________________________________________________|"
+      WRITE(out_unit,*) "|The operator's Band matrix representation has been used, and is             |"
+      WRITE(out_unit,*) "|____________________________________________________________________________|"
       CALL Write_Mat(Operator%Band_val_R, out_unit, 3, info="Band_val_R")
-      WRITE(out_unit,*) "|_______________________________________________________________________________|"
+      WRITE(out_unit,*) "|____________________________________________________________________________|"
       FLUSH(out_unit)
     ELSE 
-      WRITE(out_unit,*) "|The operator's Band matrix representation is NOT allocated.                    |"
+      WRITE(out_unit,*) "|The operator's Band matrix representation is NOT allocated.                 |"
       FLUSH(out_unit)
-      WRITE(out_unit,*) "|_______________________________________________________________________________|"
+      WRITE(out_unit,*) "|____________________________________________________________________________|"
     END IF
 
     IF (ALLOCATED(Operator%Dense_val_R)) THEN
-      WRITE(out_unit,*) "|_______________________________________________________________________________|"
-      WRITE(out_unit,*) "|The operator's Dense matrix representation has been used, and is               |"
+      WRITE(out_unit,*) "|____________________________________________________________________________|"
+      WRITE(out_unit,*) "|The operator's Dense matrix representation has been used, and is            |"
       CALL Write_Mat(Operator%Dense_val_R, out_unit, Operator%Nb, info="Dense_val_R")
-      WRITE(out_unit,*) "|_______________________________________________________________________________|"
+      WRITE(out_unit,*) "|____________________________________________________________________________|"
       FLUSH(out_unit)
     ELSE 
-      WRITE(out_unit,*) "|The operator's Dense matrix representation is NOT allocated.                   |"
+      WRITE(out_unit,*) "|The operator's Dense matrix representation is NOT allocated.                |"
       FLUSH(out_unit)
-      WRITE(out_unit,*) "|_______________________________________________________________________________|"
+      WRITE(out_unit,*) "|____________________________________________________________________________|"
     END IF
 
     WRITE(out_unit,*) "-----------------------------END WRITE OPERATOR TYPE----------------------------"

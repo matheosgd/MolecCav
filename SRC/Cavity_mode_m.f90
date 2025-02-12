@@ -13,6 +13,14 @@ MODULE Cavity_mode_m
   END TYPE
 
 
+  INTERFACE Read_cavity_mode
+    MODULE PROCEDURE MolecCav_Read_cavity_mode
+  END INTERFACE
+  INTERFACE Write_cavity_mode
+    MODULE PROCEDURE MolecCav_Write_cavity_mode
+  END INTERFACE
+    
+
   CONTAINS
 
 
@@ -76,7 +84,27 @@ MODULE Cavity_mode_m
     WRITE(out_unit,*) '*********** BASIS OF THE HO CONSTRUCTED ***************'
     WRITE(out_unit,*) '*******************************************************'
 
-  END SUBROUTINE
+  END SUBROUTINE MolecCav_Read_cavity_mode
 
   
+  SUBROUTINE MolecCav_Write_cavity_mode(Mode)
+    TYPE(Cavity_mode_t), intent(in) :: Mode
+
+    WRITE(out_unit,*) "-------------------------the associated HO cavity mode-------------------------"
+    WRITE(out_unit,*) "____________________________________________________________________________________________________"
+    WRITE(out_unit,*) "|Index of the cavity mode Mode%D                                             | ", Mode%D
+    WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
+    WRITE(out_unit,*) "|Basis set size of the cavity mode Mode%Nb                                   | ", Mode%Nb
+    WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
+    WRITE(out_unit,*) "|Eigenpulsation of the cavity mode Mode%w                                    | ", Mode%w
+    WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
+    WRITE(out_unit,*) "|Mass of the associated HO Mode%m                                            | ", Mode%m
+    WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
+    WRITE(out_unit,*) "|Coupling strength between the matter and this cavity mode Mode%lambda       | ", Mode%lambda
+    WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
+    FLUSH(out_unit)
+
+  END SUBROUTINE MolecCav_Write_cavity_mode
+
+
 END MODULE

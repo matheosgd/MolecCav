@@ -58,8 +58,8 @@ PROGRAM App_MolecCav
 
   CALL Construct_Operator_1D(Operator=H_ho_molecule_1, &
                                  & operator_type="Hamiltonian", &
-                                 & Mode=Molecule_1, &
-                                 & Debug=.TRUE.)
+                                 & Mode=Molecule_1)!, &
+                                 !& Debug=.TRUE.)
 
   WRITE(out_unit,*) "Molecular Hamiltonian"
   !CALL Write_Vec(H_ho_molecule_1%Diag_val_R, out_unit, 1)
