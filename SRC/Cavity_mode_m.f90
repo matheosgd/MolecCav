@@ -28,11 +28,12 @@ MODULE Cavity_mode_m
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     IMPLICIT NONE
     
-    TYPE(Cavity_mode_t), intent(inout) :: Mode   
+    TYPE(Cavity_mode_t),    intent(inout) :: Mode   
     integer,                intent(in)    :: nio
 
     integer                               :: D, Nb, err_io                     ! label of the basis/HO/mode/dimension, its number of basis vectors, and an error control variable
     real(kind=Rkind)                      :: w, m, lambda                      ! eigenpulsation, mass, and molecule-coupling strength associated with this HO
+    logical, parameter                    :: Debug = .TRUE.
 
     NAMELIST /HO_1/ D, Nb, w, m, lambda                                        ! declare the nml HO_1 and specify the parameter's list to be found within
 
@@ -51,7 +52,11 @@ MODULE Cavity_mode_m
     
     READ(nio, nml = HO_1, iostat = err_io)                                     ! assign the values read in the nml to the declared list of parameters
 
-    WRITE(out_unit, nml = HO_1)                                                ! just to have it in the output file
+    IF (Debug) THEN
+      WRITE(out_unit,*) "-----------------------The namelist parameters are read as----------------------"
+      WRITE(out_unit, nml = HO_1)
+      WRITE(out_unit,*) "-------------------------End of the namelist parameters-------------------------"
+    END IF
     
     !------------------------------Check reading error-------------------------
     IF(err_io < 0) THEN
@@ -83,6 +88,12 @@ MODULE Cavity_mode_m
     WRITE(out_unit,*) '*******************************************************'
     WRITE(out_unit,*) '*********** BASIS OF THE HO CONSTRUCTED ***************'
     WRITE(out_unit,*) '*******************************************************'
+
+    IF (Debug) THEN
+      WRITE(out_unit,*) "--------------Cavity mode constructed by MolecCav_Read_cavity_mode--------------"
+      CALL Write_cavity_mode(Mode)
+      WRITE(out_unit,*) "------------End Cavity mode constructed by MolecCav_Read_cavity_mode------------"
+    END IF
 
   END SUBROUTINE MolecCav_Read_cavity_mode
 

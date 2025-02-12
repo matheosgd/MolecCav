@@ -19,7 +19,7 @@ MODULE Operator_1D_m
   PRIVATE
 
   PUBLIC Operator_1D_t, Construct_Operator_1D, Action_Operator_1D, Average_value_operator_1D, & 
-       & MolecCav_Action_cavity_operator_2D, MolecCav_Average_value_cavity_operator_2D, &
+       & MolecCav_Action_operator_2D, MolecCav_Average_value_operator_2D, &
        & Write_Operator_1D
 
   INTERFACE Construct_Operator_1D
@@ -231,6 +231,21 @@ MODULE Operator_1D_m
     TYPE(Operator_1D_t), intent(in)    :: Operator
     real(kind=Rkind),    intent(in)    :: Psi(:)
 
+    !----------------------------Checking dimensions---------------------------
+    IF (Operator%Nb /= Size(Psi)) THEN
+      WRITE(out_unit,*) "The dimensions of the Operator's matrix representation does not match the operand Psi's vector&
+                       & size. Please check initialization."
+      STOP "The dimensions of the Operator's matrix representation does not match the operand Psi's vector size. Please& 
+                       & check initialization."
+    END IF 
+
+    IF (Operator%Nb /= Size(Op_psi)) THEN
+      WRITE(out_unit,*) "The dimensions of the Operator's matrix representation does not match the resulting Op_psi vector's& 
+                       & size. Please check initialization."
+      STOP "The dimensions of the Operator's matrix representation does not match the resulting Op_psi vector's size. Please& 
+                       & check initialization."
+    END IF 
+
     !--------------------Selection of the calculation method-------------------
     IF      (ALLOCATED(Operator%Diag_val_R))   THEN
       CALL MolecCav_Action_Diag_Operator_1D(Op_psi=Op_psi, Operator=Operator, Psi=Psi)
@@ -409,7 +424,7 @@ MODULE Operator_1D_m
   END SUBROUTINE MolecCav_Write_Operator_1D
 
 
-  SUBROUTINE MolecCav_Action_cavity_operator_2D(Op_psi, Operator, Psi)   ! /!\ FOR NOW EVERYTHING IS REAL /!\ compute the resulting vector Psi_result(:) from the action of the operator of the cavity mode on the photon state vector Psi_argument(:) written in the Eigenbasis of H_ho
+  SUBROUTINE MolecCav_Action_operator_2D(Op_psi, Operator, Psi)   ! /!\ FOR NOW EVERYTHING IS REAL /!\ compute the resulting vector Psi_result(:) from the action of the operator of the cavity mode on the photon state vector Psi_argument(:) written in the Eigenbasis of H_ho
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     USE QDUtil_m
     IMPLICIT NONE
@@ -432,10 +447,10 @@ MODULE Operator_1D_m
       CALL MolecCav_Action_Operator_1D(Op_psi(i_M, :), Operator, Psi(i_M, :))
     END DO
 
-  END SUBROUTINE MolecCav_Action_cavity_operator_2D
+  END SUBROUTINE MolecCav_Action_operator_2D
 
 
-  SUBROUTINE MolecCav_Average_value_cavity_operator_2D(Value, Operator, Psi)   ! /!\ FOR NOW EVERYTHING IS REAL /!\ compute the resulting vector Psi_result(:) from the action of the operator of the cavity mode on the photon state vector Psi_argument(:) written in the Eigenbasis of H_ho
+  SUBROUTINE MolecCav_Average_value_operator_2D(Value, Operator, Psi)   ! /!\ FOR NOW EVERYTHING IS REAL /!\ compute the resulting vector Psi_result(:) from the action of the operator of the cavity mode on the photon state vector Psi_argument(:) written in the Eigenbasis of H_ho
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     USE QDUtil_m
     USE Algebra_m
@@ -452,10 +467,10 @@ MODULE Operator_1D_m
     Nb_C = Size(Psi, 2)
     ALLOCATE(Intermediary(Nb_M, Nb_C))
 
-    CALL MolecCav_Action_cavity_operator_2D(Intermediary, Operator, Psi)
+    CALL MolecCav_Action_operator_2D(Intermediary, Operator, Psi)
     CALL Scalar_product(Value, Intermediary, Psi)
 
-  END SUBROUTINE MolecCav_Average_value_cavity_operator_2D
+  END SUBROUTINE MolecCav_Average_value_operator_2D
   
 
 END MODULE
