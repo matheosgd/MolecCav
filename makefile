@@ -108,7 +108,7 @@ FFLAGS   += -J$(MOD_DIR) $(EXTMod)
 # to these optional aguments are added : "-J" which indicates the DIRECTORY (and not all the path of the .mod files) where to STORE the .mod files of the...
 # ...lib. after compilation (at the contrary of "-I" which indicates where to FIND the needed ones); and the path towards the .mod files of the external...
 # ...library(ies).
-SRCFILES = Cavity_mode_m.f90 Operator_1D_m.f90 Total_hamiltonian_m.f90 Algebra_m.f90
+SRCFILES = Cavity_mode_m.f90 Operator_1D_m.f90 Operator_2D_m.f90 Total_hamiltonian_m.f90 Algebra_m.f90
 # the list of all the .f90 source files OF THE LIBRARY (only the modules, not the test/app programs) to be compiled
 OBJ0     = ${SRCFILES:.f90=.o}
 # this syntax looks like a list slicing in python : change the .f90 string of the var to .o : it allows to change the extension of the file from .f90 to .o
@@ -291,9 +291,6 @@ $(OBJ_DIR)/test_action_op.o : $(TESTS_DIR)/test_action_op.f90
 #=========================3. the library (the SRC modules)========================
 #==============================3.1. The object files==============================
 #=================================================================================
-#===============================================
-#============= compilation =====================
-#===============================================
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.f90
 	$(FFC) $(FFLAGS) -o $@ -c $<
 

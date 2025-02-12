@@ -11,6 +11,12 @@ MODULE Total_hamiltonian_m
   INTERFACE Action_total_hamiltonian_1p1D
     MODULE PROCEDURE MolecCav_Action_total_hamiltonian_1p1D_old, MolecCav_Action_total_hamiltonian_1p1D
   END INTERFACE
+  INTERFACE Action_Matter_1p1D
+    MODULE PROCEDURE MolecCav_Action_Matter_1p1D
+  END INTERFACE
+  INTERFACE Action_Cavity_1p1D
+    MODULE PROCEDURE MolecCav_Action_Cavity_1p1D
+  END INTERFACE
   INTERFACE Action_matter_dipolar_moment_1p1D
     MODULE PROCEDURE MolecCav_Action_matter_dipolar_moment_1p1D
   END INTERFACE
@@ -54,15 +60,15 @@ MODULE Total_hamiltonian_m
 
     !------------------------------Initialization------------------------------
     IF (PRESENT(Debug)) Write_results = Debug
-    Nb_M = Size(Psi, 1)
-    Nb_C = Size(Psi, 2)
+    Nb_M     = Size(Psi, 1)
+    Nb_C     = Size(Psi, 2)
 
     ALLOCATE(Psi_1(Nb_M, Nb_C))
     ALLOCATE(Psi_2(Nb_M, Nb_C))
     ALLOCATE(Psi_3(Nb_M, Nb_C))
-    Psi_1 = ZERO
-    Psi_2 = ZERO
-    Psi_3 = ZERO
+    Psi_1    = ZERO
+    Psi_2    = ZERO
+    Psi_3    = ZERO
     TotH_psi = ZERO
 
     !----------------------------Checking dimensions---------------------------
@@ -129,7 +135,7 @@ MODULE Total_hamiltonian_m
   END SUBROUTINE MolecCav_Action_total_hamiltonian_1p1D
   
 
-  SUBROUTINE Action_Matter_1p1D(Psi_1, Psi_2, Psi_3, Mat_dipolar_moment, MatH, Psi)
+  SUBROUTINE MolecCav_Action_Matter_1p1D(Psi_1, Psi_2, Psi_3, Mat_dipolar_moment, MatH, Psi)
     USE QDUtil_m
     USE Cavity_mode_m
     USE Operator_1D_m
@@ -158,10 +164,10 @@ MODULE Total_hamiltonian_m
 
     CALL Action_matter_dipolar_moment_1p1D(Psi_3, Mat_dipolar_moment, Psi)
 
-  END SUBROUTINE Action_Matter_1p1D
+  END SUBROUTINE MolecCav_Action_Matter_1p1D
 
   
-  SUBROUTINE Action_Cavity_1p1D(TotH_psi, CavPosition, CavH, Psi_1, Psi_2, Psi_3, Write_results)
+  SUBROUTINE MolecCav_Action_Cavity_1p1D(TotH_psi, CavPosition, CavH, Psi_1, Psi_2, Psi_3, Write_results)
     USE QDUtil_m
     USE Cavity_mode_m
     USE Operator_1D_m
@@ -229,7 +235,6 @@ MODULE Total_hamiltonian_m
       CALL Write_Mat(Intermediary(1:10,1:10), out_unit, 10, info="[Mat_dipolar_momentxCavPosition]_psi(10:10sliced)")
     END IF
 
-
     TotH_psi(:,:) = TotH_psi(:,:) + CavH%lambda * CavH%w * Intermediary(:,:)
     IF (Write_results .AND. Nb_C <= 10) THEN
       WRITE(out_unit,*)
@@ -239,14 +244,12 @@ MODULE Total_hamiltonian_m
       CALL Write_Mat(TotH_psi(1:10,1:10), out_unit, 10, info="TotH_psi(10:10sliced)")
     END IF
 
-
-  END SUBROUTINE Action_Cavity_1p1D
+  END SUBROUTINE MolecCav_Action_Cavity_1p1D
 
   
-  SUBROUTINE MolecCav_Action_total_hamiltonian_1p1D_old(TotH_psi, MatH_psi,     &
-                                            & CavH, CavPosition,       &
-                                            & Mat_dipolar_moment, Psi, &
-                                            & Mode)
+  SUBROUTINE MolecCav_Action_total_hamiltonian_1p1D_old(TotH_psi, MatH_psi, &
+                                                      & CavH, CavPosition,  &
+                                                      & Mat_dipolar_moment, Psi, Mode)
     USE QDUtil_m
     USE Cavity_mode_m
     USE Operator_1D_m
@@ -266,8 +269,8 @@ MODULE Total_hamiltonian_m
     real(kind=Rkind), allocatable      :: Matter_cavity_coupling_hamiltonian_1DPsi(:,:) ! only one line of Psi
     integer                            :: Nb_M, Nb_C, i_M, i_C
   
-    Nb_M = Size(Psi, 1)
-    Nb_C = Size(Psi, 2)
+    Nb_M     = Size(Psi, 1)
+    Nb_C     = Size(Psi, 2)
 
     TotH_psi = ZERO
 
