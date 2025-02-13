@@ -5,13 +5,18 @@ PROGRAM test_cavity_mode
   IMPLICIT NONE
 
 
-!--------------------------------First cavity mode-----------------------------
-  TYPE(Cavity_mode_t)  :: Cavity_mode_1
-  integer                 :: error
+  !-------------------------------First cavity mode----------------------------
+  TYPE(Cavity_mode_t) :: Cavity_mode_1
+  integer             :: error
 
 
   CALL MolecCav_Read_cavity_mode(Mode=Cavity_mode_1, nio=in_unit)
+  WRITE(out_unit,*)
+  WRITE(out_unit,*) "--------------Cavity mode constructed by MolecCav_Read_cavity_mode--------------"
+  CALL Write_cavity_mode(Cavity_mode_1)
+  WRITE(out_unit,*) "------------End Cavity mode constructed by MolecCav_Read_cavity_mode------------"
 
+  !-----------------------------------The tests--------------------------------
   error = 0
 
   IF (Cavity_mode_1%D == 0) THEN

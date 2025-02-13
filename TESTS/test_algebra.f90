@@ -1,0 +1,598 @@
+PROGRAM test_algebra
+  !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
+  USE QDUtil_m
+  USE Algebra_m
+  IMPLICIT NONE
+  
+  logical, parameter               :: Debug = .FALSE.
+
+  integer                          :: Dim_1 = 5
+  integer                          :: Dim_2 = 6
+
+  real(kind=Rkind),    allocatable :: Basis_R_1D(:)
+  complex(kind=Rkind), allocatable :: Basis_C_1D(:)
+  real(kind=Rkind),    allocatable :: Basis_R_2D(:,:)
+  complex(kind=Rkind), allocatable :: Basis_C_2D(:,:)
+
+  integer                          :: Coeff_1 = 1
+  integer                          :: Coeff_2 = 1
+  integer                          :: Coeff_3 = 4                              ! for the linear combinations
+  real(kind=Rkind),    allocatable :: Any_R_1D(:)
+  complex(kind=Rkind), allocatable :: Any_C_1D(:)
+  real(kind=Rkind),    allocatable :: Any_R_2D(:,:)
+  complex(kind=Rkind), allocatable :: Any_C_2D(:,:)
+  real(kind=Rkind)                 :: Normalization_coeff
+
+  real(kind=Rkind)                 :: Sca_pdt_R
+  complex(kind=Rkind)              :: Sca_pdt_C
+  real(kind=Rkind)                 :: Norm
+
+  real(kind=Rkind),    allocatable :: R_vec(:)                                 ! Buffer
+  real(kind=Rkind),    allocatable :: R_mat(:,:)                               ! Buffer
+  complex(kind=Rkind), allocatable :: C_vec(:)                                 ! Buffer
+  complex(kind=Rkind), allocatable :: C_mat(:,:)                               ! Buffer
+
+  logical                          :: error_sca_pdt       = .FALSE.
+  logical                          :: error_norm          = .FALSE.
+  logical                          :: error_normalization = .FALSE.
+
+
+  !---------------------------Matrices initialization--------------------------
+  ALLOCATE(Basis_R_1D(Dim_1))
+  ALLOCATE(Basis_C_1D(Dim_1))
+  ALLOCATE(Basis_R_2D(Dim_1, Dim_2))
+  ALLOCATE(Basis_C_2D(Dim_1, Dim_2))
+
+  ALLOCATE(Any_R_1D(Dim_1))
+  ALLOCATE(Any_C_1D(Dim_1))
+  ALLOCATE(Any_R_2D(Dim_1, Dim_2))
+  ALLOCATE(Any_C_2D(Dim_1, Dim_2))
+
+  ALLOCATE(R_vec(Dim_1))
+  ALLOCATE(C_vec(Dim_1))
+  ALLOCATE(R_mat(Dim_1, Dim_2))
+  ALLOCATE(C_mat(Dim_1, Dim_2))
+
+  Basis_R_1D(1)   = ONE                                                        ! first basis vector. Supposed to have norm 1
+  Basis_C_1D(1)   = EYE                                                        ! first basis vector. Supposed to have norm 1
+  Basis_R_2D(1,1) = ONE                                                        ! first basis vector. Supposed to have norm 1
+  Basis_C_2D(1,1) = EYE                                                        ! first basis vector. Supposed to have norm 1
+
+  Any_R_1D(:)           = Coeff_1*Basis_R_1D(:)
+  Any_R_1D(Dim_1/2)     = Coeff_2*ONE
+  Any_R_1D(Dim_1/2 + 1) = Coeff_3*ONE                                          ! an arbitrary superposition of 3 basis vectors. Supposed to have norm 18
+  Any_C_1D(:)           = Coeff_1*Basis_C_1D(:)
+  Any_C_1D(Dim_1/2)     = Coeff_2*ONE
+  Any_C_1D(Dim_1/2 + 1) = Coeff_3*EYE                                          ! an arbitrary superposition of 3 basis vectors. Supposed to have norm 18
+
+  Any_R_2D(:,:)                     = Coeff_1*Basis_R_2D(:,:)
+  Any_R_2D(1, Dim_2/2)              = Coeff_2*ONE
+  Any_R_2D(Dim_1/2 + 1, Dim_2/2 +1) = Coeff_3*ONE                              ! an arbitrary superposition of 3 basis vectors. Supposed to have norm 18
+  Any_C_2D(:,:)                     = Coeff_1*Basis_C_2D(:,:)
+  Any_C_2D(1, Dim_2/2)              = Coeff_2*ONE
+  Any_C_2D(Dim_1/2 + 1, Dim_2/2 +1) = Coeff_3*EYE                              ! an arbitrary superposition of 3 basis vectors. Supposed to have norm 18
+
+  Normalization_coeff = SQRT(REAL((Coeff_1**2 + Coeff_2**2 + Coeff_3**2), kind=Rkind)) ! the theoretical/analytical normalization coefficient
+
+  IF (Debug) THEN
+    WRITE(out_unit,*) "---------------------------Matrices initialization--------------------------"
+    CALL Write_Vec(Basis_R_1D, out_unit, 1, info="Basis_R_1D")
+    WRITE(out_unit,*)
+    CALL Write_Vec(Basis_C_1D, out_unit, 1, info="Basis_C_1D")
+    WRITE(out_unit,*)
+    CALL Write_Mat(Basis_R_2D, out_unit, Dim_2, info="Basis_R_2D")
+    WRITE(out_unit,*)
+    CALL Write_Mat(Basis_C_2D, out_unit, Dim_2, info="Basis_C_2D")
+    WRITE(out_unit,*)
+    CALL Write_Vec(Any_R_1D, out_unit, 1, info="Any_R_1D")
+    WRITE(out_unit,*)
+    CALL Write_Vec(Any_C_1D, out_unit, 1, info="Any_C_1D")
+    WRITE(out_unit,*)
+    CALL Write_Mat(Any_R_2D, out_unit, Dim_2, info="Any_R_2D")
+    WRITE(out_unit,*)
+    CALL Write_Mat(Any_C_2D, out_unit, Dim_2, info="Any_C_2D")
+    WRITE(out_unit,*)
+    WRITE(out_unit,*) "Their theoretical/analytical normalization coefficient :", Normalization_coeff
+  END IF
+
+  
+  !-------------------Tests of the Scalar_product procedures-------------------
+  WRITE(out_unit,*)
+  WRITE(out_unit,*) "------------------------The Scalar_product procedures-----------------------"
+  
+  IF (Debug) WRITE(out_unit,*) "Expecting", 1
+  CALL Scalar_product(Sca_pdt_R, Basis_R_1D, Basis_R_1D)
+  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Basis_R_1D |  Basis_R_1D >  =", Sca_pdt_R
+  CALL Equal_R_R_scalar(error_sca_pdt, Sca_pdt_R, ONE)
+  
+  CALL Scalar_product(Sca_pdt_C, Basis_C_1D, Basis_C_1D)
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Basis_C_1D |  Basis_C_1D >  =", Sca_pdt_C
+  CALL Equal_C_C_scalar(error_sca_pdt, Sca_pdt_C, CMPLX(ONE, kind=Rkind))
+
+  CALL Scalar_product(Sca_pdt_R, Basis_R_2D, Basis_R_2D)
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Basis_R_2D |  Basis_R_2D >  =", Sca_pdt_R
+  CALL Equal_R_R_scalar(error_sca_pdt, Sca_pdt_R, ONE)
+
+  CALL Scalar_product(Sca_pdt_C, Basis_C_2D, Basis_C_2D)
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Basis_C_2D |  Basis_C_2D >  =", Sca_pdt_C
+  CALL Equal_C_C_scalar(error_sca_pdt, Sca_pdt_C, CMPLX(ONE, kind=Rkind))
+
+
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) WRITE(out_unit,*) "Expecting", Coeff_1**2 + Coeff_2**2 + Coeff_3**2
+  CALL Scalar_product(Sca_pdt_R, Any_R_1D, Any_R_1D)
+  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Any_R_1D |  Any_R_1D >  =", Sca_pdt_R
+  CALL Equal_R_R_scalar(error_sca_pdt, Sca_pdt_R, 18.0_Rkind)
+
+  CALL Scalar_product(Sca_pdt_C, Any_C_1D, Any_C_1D)
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Any_C_1D |  Any_C_1D >  =", Sca_pdt_C
+  CALL Equal_C_C_scalar(error_sca_pdt, Sca_pdt_C, CMPLX(18.0_Rkind, kind=Rkind))
+
+  CALL Scalar_product(Sca_pdt_R, Any_R_2D, Any_R_2D)
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Any_R_2D |  Any_R_2D >  =", Sca_pdt_R
+  CALL Equal_R_R_scalar(error_sca_pdt, Sca_pdt_R, 18.0_Rkind)
+
+  CALL Scalar_product(Sca_pdt_C, Any_C_2D, Any_C_2D)
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Any_C_2D |  Any_C_2D >  =", Sca_pdt_C
+  CALL Equal_C_C_scalar(error_sca_pdt, Sca_pdt_C, CMPLX(18.0_Rkind, kind=Rkind))
+
+
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) WRITE(out_unit,*) "Expecting", 1, "or", "   i"
+  CALL Scalar_product(Sca_pdt_R, Basis_R_1D, Any_R_1D)
+  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Basis_R_1D |  Any_R_1D >  =", Sca_pdt_R
+  CALL Equal_R_R_scalar(error_sca_pdt, Sca_pdt_R, ONE)
+
+  CALL Scalar_product(Sca_pdt_C, Basis_C_1D, Any_C_1D)
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Basis_C_1D |  Any_C_1D >  =", Sca_pdt_C
+  CALL Equal_C_C_scalar(error_sca_pdt, Sca_pdt_C, CMPLX(ONE, kind=Rkind))
+
+  CALL Scalar_product(Sca_pdt_C, CMPLX(Basis_R_1D(:), kind=Rkind), Any_C_1D)
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Basis_R_1D |  Any_C_1D >  =", Sca_pdt_C
+  CALL Equal_C_C_scalar(error_sca_pdt, Sca_pdt_C, CMPLX(ZERO, ONE, kind=Rkind))
+
+  CALL Scalar_product(Sca_pdt_R, Basis_R_2D, Any_R_2D)
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Basis_R_2D |  Any_R_2D >  =", Sca_pdt_R
+  CALL Equal_R_R_scalar(error_sca_pdt, Sca_pdt_R, ONE)
+
+  CALL Scalar_product(Sca_pdt_C, Basis_C_2D, Any_C_2D)
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Basis_C_2D |  Any_C_2D >  =", Sca_pdt_C
+  CALL Equal_C_C_scalar(error_sca_pdt, Sca_pdt_C, CMPLX(ONE, kind=Rkind))
+
+  CALL Scalar_product(Sca_pdt_C, CMPLX(Basis_R_2D(:,:), kind=Rkind), Any_C_2D)
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Basis_R_2D |  Any_C_2D >  =", Sca_pdt_C
+  CALL Equal_C_C_scalar(error_sca_pdt, Sca_pdt_C, CMPLX(ZERO, ONE, kind=Rkind))
+
+  IF (Debug) WRITE(out_unit,*) 
+  WRITE(out_unit,*) "error_sca_pdt =", error_sca_pdt
+
+
+  !------------------------Tests of the Norm computation-----------------------
+  WRITE(out_unit,*)
+  WRITE(out_unit,*) "----------------------------The Norm computation----------------------------"
+
+  CALL Norm_of(Norm, Basis_R_1D)
+  IF (Debug) WRITE(out_unit,*) "Computed norm : ||Basis_R_1D|| =", Norm
+  CALL Equal_R_R_scalar(error_norm, Norm, ONE)
+  
+  CALL Norm_of(Norm, Basis_C_1D)
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) WRITE(out_unit,*) "Computed norm : ||Basis_C_1D|| =", Norm
+  CALL Equal_R_R_scalar(error_norm, Norm, ONE)
+
+  CALL Norm_of(Norm, Basis_R_2D)
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) WRITE(out_unit,*) "Computed norm : ||Basis_R_2D|| =", Norm
+  CALL Equal_R_R_scalar(error_norm, Norm, ONE)
+
+  CALL Norm_of(Norm, Basis_C_2D)
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) WRITE(out_unit,*) "Computed norm : ||Basis_C_2D|| =", Norm
+  CALL Equal_R_R_scalar(error_norm, Norm, ONE)
+
+  CALL Norm_of(Norm, Any_R_1D)
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) WRITE(out_unit,*) "Computed norm : ||Any_R_1D|| =", Norm
+  CALL Equal_R_R_scalar(error_norm, Norm, Normalization_coeff)
+
+  CALL Norm_of(Norm, Any_C_1D)
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) WRITE(out_unit,*) "Computed norm : ||Any_C_1D|| =", Norm
+  CALL Equal_R_R_scalar(error_norm, Norm, Normalization_coeff)
+
+  CALL Norm_of(Norm, Any_R_2D)
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) WRITE(out_unit,*) "Computed norm : ||Any_R_2D|| =", Norm
+  CALL Equal_R_R_scalar(error_norm, Norm, Normalization_coeff)
+
+  CALL Norm_of(Norm, Any_C_2D)
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) WRITE(out_unit,*) "Computed norm : ||Any_C_2D|| =", Norm
+  CALL Equal_R_R_scalar(error_norm, Norm, Normalization_coeff)
+
+  IF (Debug) WRITE(out_unit,*) 
+  WRITE(out_unit,*) "error_norm =", error_norm
+
+
+  !--------------------Tests of the Normalization procedures-------------------
+  WRITE(out_unit,*)
+  WRITE(out_unit,*) "------------------------The Normalization procedures------------------------"
+
+  R_vec(:) = Basis_R_1D(:)
+  CALL Normalize(Basis_R_1D)
+  CALL Norm_of(Norm, Basis_R_1D)
+  IF (Debug) CALL Write_Vec(Basis_R_1D, out_unit, Dim_1, info="Normalized_Basis_R_1D")
+  CALL Equal_R_R_scalar(error_normalization, Norm, ONE)
+  CALL Equal_R_R_vector(error_normalization, Basis_R_1D, R_vec)
+
+  C_vec(:) = Basis_C_1D(:)
+  CALL Normalize(Basis_C_1D)
+  CALL Norm_of(Norm, Basis_C_1D)
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) CALL Write_Vec(Basis_C_1D, out_unit, Dim_1, info="Normalized_Basis_C_1D")
+  CALL Equal_R_R_scalar(error_normalization, Norm, ONE)
+  CALL Equal_C_C_vector(error_normalization, Basis_C_1D, C_vec)
+
+  R_mat(:,:) = Basis_R_2D(:,:)
+  CALL Normalize(Basis_R_2D)
+  CALL Norm_of(Norm, Basis_R_2D)
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) CALL Write_Mat(Basis_R_2D, out_unit, Dim_2, info="Normalized_Basis_R_2D")
+  CALL Equal_R_R_scalar(error_normalization, Norm, ONE)
+  CALL Equal_R_R_matrix(error_normalization, Basis_R_2D, R_mat)
+
+  C_mat(:,:) = Basis_C_2D(:,:)
+  CALL Normalize(Basis_C_2D)
+  CALL Norm_of(Norm, Basis_C_2D)
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) CALL Write_Mat(Basis_C_2D, out_unit, Dim_2, info="Normalized_Basis_C_2D")
+  CALL Equal_R_R_scalar(error_normalization, Norm, ONE)
+  CALL Equal_C_C_matrix(error_normalization, Basis_C_2D, C_mat)
+
+  R_vec(:) = Any_R_1D(:)
+  CALL Normalize(Any_R_1D)
+  CALL Norm_of(Norm, Any_R_1D)
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) CALL Write_Vec(Any_R_1D, out_unit, Dim_1, info="Normalized_Any_R_1D")
+  CALL Equal_R_R_scalar(error_normalization, Norm, ONE)
+  CALL Equal_R_R_vector(error_normalization, Normalization_coeff*Any_R_1D, R_vec)
+
+  C_vec(:) = Any_C_1D(:)
+  CALL Normalize(Any_C_1D)
+  CALL Norm_of(Norm, Any_C_1D)
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) CALL Write_Vec(Any_C_1D, out_unit, Dim_1, info="Normalized_Any_C_1D")
+  CALL Equal_R_R_scalar(error_normalization, Norm, ONE)
+  CALL Equal_C_C_vector(error_normalization, Normalization_coeff*Any_C_1D, C_vec)
+
+  R_mat(:,:) = Any_R_2D(:,:)
+  CALL Normalize(Any_R_2D)
+  CALL Norm_of(Norm, Any_R_2D)
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) CALL Write_Mat(Any_R_2D, out_unit, Dim_2, info="Normalized_Any_R_2D")
+  CALL Equal_R_R_scalar(error_normalization, Norm, ONE)
+  CALL Equal_R_R_matrix(error_normalization, Normalization_coeff*Any_R_2D, R_mat)
+
+  C_mat(:,:) = Any_C_2D(:,:)
+  CALL Normalize(Any_C_2D)
+  !Any_C_2D(4,4) = FOUR
+  CALL Norm_of(Norm, Any_C_2D)
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) CALL Write_Mat(Any_C_2D, out_unit, Dim_2, info="Normalized_Any_C_2D")
+  CALL Equal_R_R_scalar(error_normalization, Norm, ONE)
+  CALL Equal_C_C_matrix(error_normalization, Normalization_coeff*Any_C_2D, C_mat)
+
+  IF (Debug) WRITE(out_unit,*) 
+  WRITE(out_unit,*) "error_normalization =", error_normalization
+
+  !-----------------------------------Sum up-----------------------------------
+  WRITE(out_unit,*)
+  WRITE(out_unit,*) "-----------------------------------Sum up-----------------------------------"
+
+  IF (error_sca_pdt) THEN
+    WRITE(out_unit,*) 
+    WRITE(out_unit,*) "The Scalar_product procedure does NOT work properly !"
+  ELSE
+    WRITE(out_unit,*) 
+    WRITE(out_unit,*) "The Scalar_product procedure does work properly !"
+  END IF
+
+  IF (error_norm) THEN
+    WRITE(out_unit,*) "The Norm_of procedure does NOT work properly !"
+  ELSE
+    WRITE(out_unit,*) "The Scalar_product procedure does work properly !"
+  END IF
+
+  IF (error_normalization) THEN
+    WRITE(out_unit,*) "The Normalization procedure does NOT work properly !"
+  ELSE
+    WRITE(out_unit,*) "The Scalar_product procedure does work properly !"
+  END IF
+
+  IF (error_sca_pdt .OR. error_norm .OR. error_normalization) THEN
+    WRITE(out_unit,*) 
+    WRITE(out_unit,*) "Test 1 failed ! At least one procedure among the Scalar_product, Norm_of and&
+                     & Normalization ones does NOT work properly ! Please refer to the test_algebra&
+                     &.log output file for more information."
+  ELSE
+    WRITE(out_unit,*) 
+    WRITE(out_unit,*) "Test 1 checked ! The Scalar_product, Norm_of and Normalization procedures do work properly !"
+
+  END IF
+
+
+  CONTAINS
+
+
+  SUBROUTINE Equal_R_R_scalar(error, Rl_1, Rl_2)
+    USE QDUtil_m
+    IMPLICIT NONE 
+
+    logical,          intent(inout) :: error
+    real(kind=Rkind), intent(in)    :: Rl_1
+    real(kind=Rkind), intent(in)    :: Rl_2
+    
+    real(kind=Rkind), parameter     :: Threshold   = 1E-10_Rkind
+    logical, parameter              :: Debug_local = .FALSE.
+
+    IF (ABS(Rl_1 - Rl_2) > Threshold) THEN
+      error = .TRUE.
+      IF (Debug_local) WRITE(out_unit,*) "The two numbers are not close enough to be considered equ&
+                                         &al : R_1 =", Rl_1, "R_2 =", Rl_2, "|R_1-R_2| = ", ABS(Rl_1 - Rl_2)
+    ELSE IF (Debug_local) THEN
+      WRITE(out_unit,*) "The two numbers are close enough to be considered equal : R_1 =", Rl_1, "R&
+                                         &_2 =", Rl_2, "|R_1-R_2| = ", ABS(Rl_1 - Rl_2)
+    END IF
+
+  END SUBROUTINE Equal_R_R_scalar
+  
+
+  SUBROUTINE Equal_C_C_scalar(error, Cmplx_1, Cmplx_2)
+    USE QDUtil_m
+    IMPLICIT NONE 
+  
+    logical,             intent(inout) :: error
+    complex(kind=Rkind), intent(in)    :: Cmplx_1
+    complex(kind=Rkind), intent(in)    :: Cmplx_2
+    
+    complex(kind=Rkind)                :: Difference
+    real(kind=Rkind), parameter        :: Threshold   = 1E-10_Rkind
+    logical,          parameter        :: Debug_local = .FALSE.
+  
+    Difference = Cmplx_1 - Cmplx_2
+  
+    IF (ABS(Difference%Re) > Threshold) THEN
+      error = .TRUE.
+      IF (Debug_local) WRITE(out_unit,*) "The real part of the two numbers are not close enough to &
+                                         &be considered equal : Re_1 =", Cmplx_1%Re, "Re_2 =", Cmpl&
+                                         &x_2%Re, "|Re_1-Re_2| = ", ABS(Difference%Re)
+    ELSE
+      IF (Debug_local) WRITE(out_unit,*) "The real part of the two numbers are close enough to be c&
+                                         &onsidered equal : Re_1 =", Cmplx_1%Re, "Re_2 =", Cmplx_2%&
+                                         &Re, "|Re_1-Re_2| = ", ABS(Difference%Re)
+    END IF
+  
+    IF (ABS(AIMAG(Difference)) > Threshold) THEN
+      error = .TRUE.
+      IF (Debug_local) WRITE(out_unit,*) "The cmplx part of the two numbers are not close enough to&
+                                         & be considered equal : Im_1 =", AIMAG(Cmplx_1), "Im_2 =",&
+                                         & AIMAG(Cmplx_2), "|Im_1-Re_2| = ", ABS(AIMAG(Difference))
+    ELSE
+      IF (Debug_local) WRITE(out_unit,*) "The cmplx part of the two numbers are close enough to be &
+                                         &considered equal : Im_1 =", AIMAG(Cmplx_1), "Im_2 =", AIM&
+                                         &AG(Cmplx_2), "|Im_1-Im_2| = ", ABS(AIMAG(Difference))
+    END IF
+
+  END SUBROUTINE Equal_C_C_scalar
+    
+  
+  SUBROUTINE Equal_R_R_vector(error, Rl_1, Rl_2)
+    USE QDUtil_m
+    IMPLICIT NONE 
+
+    logical,          intent(inout) :: error
+    real(kind=Rkind), intent(in)    :: Rl_1(:)
+    real(kind=Rkind), intent(in)    :: Rl_2(:)
+    
+    real(kind=Rkind), parameter     :: Threshold   = 1E-10_Rkind
+    logical, parameter              :: Debug_local = .FALSE.
+    integer                         :: Nb_1
+
+    Nb_1 = Size(Rl_1)
+    IF (Nb_1 /= Size(Rl_2)) THEN
+      WRITE(out_unit,*) "The two vectors must have same dimensions to compare them. Please, check initialization."
+      STOP "The two vectors must have same dimensions to compare them. Please, check initialization."
+    END IF 
+
+    IF (ANY(ABS(Rl_1 - Rl_2) > Threshold)) THEN
+      error = .TRUE.
+      IF (Debug_local) THEN
+        WRITE(out_unit,*) "The two vectors are not close enough to be considered equal :"
+        CALL Write_Vec(Rl_1, out_unit, Nb_1, info="R_1(:)")
+        CALL Write_Vec(Rl_2, out_unit, Nb_1, info="R_2(:)")
+        CALL Write_Vec(ABS(Rl_1 - Rl_2), out_unit, Nb_1, info="|R_1-R_2| = ")
+      END IF 
+
+    ELSE IF (Debug_local) THEN
+        WRITE(out_unit,*) "The two vectors are close enough to be considered equal :"
+        CALL Write_Vec(Rl_1, out_unit, Nb_1, info="R_1(:)")
+        CALL Write_Vec(Rl_2, out_unit, Nb_1, info="R_2(:)")
+        CALL Write_Vec(ABS(Rl_1 - Rl_2), out_unit, Nb_1, info="|R_1-R_2| = ")
+    END IF 
+
+  END SUBROUTINE Equal_R_R_vector
+  
+
+  SUBROUTINE Equal_C_C_vector(error, Cmplx_1, Cmplx_2)
+    USE QDUtil_m
+    IMPLICIT NONE 
+  
+    logical,             intent(inout) :: error
+    complex(kind=Rkind), intent(in)    :: Cmplx_1(:)
+    complex(kind=Rkind), intent(in)    :: Cmplx_2(:)
+    
+    complex(kind=Rkind), allocatable   :: Difference(:)
+    real(kind=Rkind), parameter        :: Threshold   = 1E-10_Rkind
+    logical,          parameter        :: Debug_local = .FALSE.
+    integer                            :: Nb_1
+
+    Nb_1 = Size(Cmplx_1)
+    IF (Nb_1 /= Size(Cmplx_2)) THEN
+      WRITE(out_unit,*) "The two vectors must have same dimensions to compare them. Please, check initialization."
+      STOP "The two vectors must have same dimensions to compare them. Please, check initialization."
+    END IF 
+  
+    ALLOCATE(Difference(Nb_1))
+    Difference(:) = Cmplx_1(:) - Cmplx_2(:)
+  
+    IF (ANY(ABS(Difference(:)%Re) > Threshold)) THEN
+      error = .TRUE.
+      IF (Debug_local) THEN
+        WRITE(out_unit,*) "The real part of the two vectors are not close enough to be considered equal :"
+        CALL Write_Vec(REAL(Cmplx_1, kind=Rkind), out_unit, Nb_1, info="Re(Cmplx_1(:))")
+        CALL Write_Vec(REAL(Cmplx_2, kind=Rkind), out_unit, Nb_1, info="Re(Cmplx_2(:))")
+        CALL Write_Vec(ABS(REAL(Difference, kind=Rkind)), out_unit, Nb_1, info="|Re(Cmplx_1-Cmplx_2)| = ")
+      END IF 
+
+    ELSE
+      IF (Debug_local) THEN
+        WRITE(out_unit,*) "The real part of the two vectors are close enough to be considered equal :"
+        CALL Write_Vec(REAL(Cmplx_1, kind=Rkind), out_unit, Nb_1, info="Re(Cmplx_1(:))")
+        CALL Write_Vec(REAL(Cmplx_2, kind=Rkind), out_unit, Nb_1, info="Re(Cmplx_2(:))")
+        CALL Write_Vec(ABS(REAL(Difference, kind=Rkind)), out_unit, Nb_1, info="|Re(Cmplx_1-Cmplx_2)| = ")
+      END IF 
+    END IF
+  
+    IF (ANY(ABS(AIMAG(Difference(:))) > Threshold)) THEN
+      error = .TRUE.
+      IF (Debug_local) THEN
+        WRITE(out_unit,*) "The imaginary part of the two vectors are not close enough to be considered equal :"
+        CALL Write_Vec(AIMAG(Cmplx_1), out_unit, Nb_1, info="Cmplx_1(:)")
+        CALL Write_Vec(AIMAG(Cmplx_2), out_unit, Nb_1, info="Cmplx_2(:)")
+        CALL Write_Vec(ABS(AIMAG(Difference)), out_unit, Nb_1, info="|Im(Cmplx_1-Cmplx_2)| = ")
+      END IF 
+
+    ELSE
+      IF (Debug_local) THEN
+        WRITE(out_unit,*) "The imaginary part of the two vectors are close enough to be considered equal :"
+        CALL Write_Vec(AIMAG(Cmplx_1), out_unit, Nb_1, info="Im(Cmplx_1(:))")
+        CALL Write_Vec(AIMAG(Cmplx_2), out_unit, Nb_1, info="Im(Cmplx_2(:))")
+        CALL Write_Vec(ABS(AIMAG(Difference)), out_unit, Nb_1, info="|Im(Cmplx_1-Cmplx_2)| = ")
+      END IF 
+    END IF
+
+  END SUBROUTINE Equal_C_C_vector
+    
+  
+  SUBROUTINE Equal_R_R_matrix(error, Rl_1, Rl_2)
+    USE QDUtil_m
+    IMPLICIT NONE 
+
+    logical,          intent(inout) :: error
+    real(kind=Rkind), intent(in)    :: Rl_1(:,:)
+    real(kind=Rkind), intent(in)    :: Rl_2(:,:)
+    
+    real(kind=Rkind), parameter     :: Threshold   = 1E-10_Rkind
+    logical, parameter              :: Debug_local = .FALSE.
+    integer                         :: Nb_1, Nb_2
+
+    Nb_1 = Size(Rl_1, dim=1)
+    Nb_2 = Size(Rl_2, dim=2)
+    IF (Nb_1 /= Size(Rl_2, dim=1) .OR. Nb_2 /= Size(Rl_2, dim=2)) THEN
+      WRITE(out_unit,*) "The two matrices must have same dimensions to compare them. Please, check initialization."
+      STOP "The two matrices must have same dimensions to compare them. Please, check initialization."
+    END IF 
+
+    IF (ANY(ABS(Rl_1 - Rl_2) > Threshold)) THEN
+      error = .TRUE.
+      IF (Debug_local) THEN
+        WRITE(out_unit,*) "The two matrices are not close enough to be considered equal :"
+        CALL Write_Mat(Rl_1, out_unit, Nb_2, info="R_1(:,:)")
+        CALL Write_Mat(Rl_2, out_unit, Nb_2, info="R_2(:,:)")
+        CALL Write_Mat(ABS(Rl_1 - Rl_2), out_unit, Nb_2, info="|R_1-R_2| = ")
+      END IF 
+
+    ELSE IF (Debug_local) THEN
+        WRITE(out_unit,*) "The two matrices are close enough to be considered equal :"
+        CALL Write_Mat(Rl_1, out_unit, Nb_2, info="R_1(:,:)")
+        CALL Write_Mat(Rl_2, out_unit, Nb_2, info="R_2(:,:)")
+        CALL Write_Mat(ABS(Rl_1 - Rl_2), out_unit, Nb_2, info="|R_1-R_2| = ")
+    END IF 
+
+  END SUBROUTINE Equal_R_R_matrix
+  
+
+  SUBROUTINE Equal_C_C_matrix(error, Cmplx_1, Cmplx_2)
+    USE QDUtil_m
+    IMPLICIT NONE 
+  
+    logical,             intent(inout) :: error
+    complex(kind=Rkind), intent(in)    :: Cmplx_1(:,:)
+    complex(kind=Rkind), intent(in)    :: Cmplx_2(:,:)
+    
+    complex(kind=Rkind), allocatable   :: Difference(:,:)
+    real(kind=Rkind), parameter        :: Threshold   = 1E-10_Rkind
+    logical,          parameter        :: Debug_local = .FALSE.
+    integer                            :: Nb_1, Nb_2
+
+    Nb_1 = Size(Cmplx_1, dim=1)
+    Nb_2 = Size(Cmplx_2, dim=2)
+    IF (Nb_1 /= Size(Cmplx_2, dim=1) .OR. Nb_2 /= Size(Cmplx_2, dim=2)) THEN
+      WRITE(out_unit,*) "The two matrices must have same dimensions to compare them. Please, check initialization."
+      STOP "The two matrices must have same dimensions to compare them. Please, check initialization."
+    END IF 
+  
+    ALLOCATE(Difference(Nb_1, Nb_2))
+    Difference(:,:) = Cmplx_1(:,:) - Cmplx_2(:,:)
+  
+    IF (ANY(ABS(Difference(:,:)%Re) > Threshold)) THEN
+      error = .TRUE.
+      IF (Debug_local) THEN
+        WRITE(out_unit,*) "The real part of the two matrices are not close enough to be considered equal :"
+        CALL Write_Mat(REAL(Cmplx_1, kind=Rkind), out_unit, Nb_2, info="Re(Cmplx_1(:,:))")
+        CALL Write_Mat(REAL(Cmplx_2, kind=Rkind), out_unit, Nb_2, info="Re(Cmplx_2(:,:))")
+        CALL Write_Mat(ABS(REAL(Difference, kind=Rkind)), out_unit, Nb_2, info="|Re(Cmplx_1-Cmplx_2)| = ")
+      END IF 
+
+    ELSE
+      IF (Debug_local) THEN
+        WRITE(out_unit,*) "The real part of the two matrices are close enough to be considered equal :"
+        CALL Write_Mat(REAL(Cmplx_1, kind=Rkind), out_unit, Nb_2, info="Re(Cmplx_1(:,:))")
+        CALL Write_Mat(REAL(Cmplx_2, kind=Rkind), out_unit, Nb_2, info="Re(Cmplx_2(:,:))")
+        CALL Write_Mat(ABS(REAL(Difference, kind=Rkind)), out_unit, Nb_2, info="|Re(Cmplx_1-Cmplx_2)| = ")
+      END IF 
+    END IF
+  
+    IF (ANY(ABS(AIMAG(Difference(:,:))) > Threshold)) THEN
+      error = .TRUE.
+      IF (Debug_local) THEN
+        WRITE(out_unit,*) "The imaginary part of the two matrices are not close enough to be considered equal :"
+        CALL Write_Mat(AIMAG(Cmplx_1), out_unit, Nb_2, info="Cmplx_1(:,:)")
+        CALL Write_Mat(AIMAG(Cmplx_2), out_unit, Nb_2, info="Cmplx_2(:,:)")
+        CALL Write_Mat(ABS(AIMAG(Difference)), out_unit, Nb_2, info="|Im(Cmplx_1-Cmplx_2)| = ")
+      END IF 
+
+    ELSE
+      IF (Debug_local) THEN
+        WRITE(out_unit,*) "The imaginary part of the two matrices are close enough to be considered equal :"
+        CALL Write_Mat(AIMAG(Cmplx_1), out_unit, Nb_2, info="Im(Cmplx_1(:,:))")
+        CALL Write_Mat(AIMAG(Cmplx_2), out_unit, Nb_2, info="Im(Cmplx_2(:,:))")
+        CALL Write_Mat(ABS(AIMAG(Difference)), out_unit, Nb_2, info="|Im(Cmplx_1-Cmplx_2)| = ")
+      END IF 
+    END IF
+
+  END SUBROUTINE Equal_C_C_matrix
+    
+  
+END PROGRAM

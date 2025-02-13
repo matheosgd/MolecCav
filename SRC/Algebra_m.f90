@@ -6,18 +6,22 @@ MODULE Algebra_m
   
   PRIVATE
 
-  PUBLIC Normalize, Scalar_product
+  PUBLIC Normalize, Norm_of, Scalar_product
 
   INTERFACE Normalize
     MODULE PROCEDURE MolecCav_Normalize_2D_real, MolecCav_Normalize_2D_complex, & 
                    & MolecCav_Normalize_1D_real, MolecCav_Normalize_1D_complex
+  END INTERFACE
+  INTERFACE Norm_of
+    MODULE PROCEDURE MolecCav_Norm_2D_real, MolecCav_Norm_2D_complex, & 
+                   & MolecCav_Norm_1D_real, MolecCav_Norm_1D_complex
   END INTERFACE
   INTERFACE Scalar_product
     MODULE PROCEDURE MolecCav_Scalar_product_2D_real, MolecCav_Scalar_product_2D_complex, & 
                    & MolecCav_Scalar_product_1D_real, MolecCav_Scalar_product_1D_complex
   END INTERFACE
 
-    
+  
   CONTAINS
 
 

@@ -33,7 +33,7 @@ MODULE Cavity_mode_m
 
     integer                               :: D, Nb, err_io                     ! label of the basis/HO/mode/dimension, its number of basis vectors, and an error control variable
     real(kind=Rkind)                      :: w, m, lambda                      ! eigenpulsation, mass, and molecule-coupling strength associated with this HO
-    logical, parameter                    :: Debug = .TRUE.
+    logical, parameter                    :: Debug = .FALSE.
 
     NAMELIST /HO_1/ D, Nb, w, m, lambda                                        ! declare the nml HO_1 and specify the parameter's list to be found within
 
@@ -45,14 +45,15 @@ MODULE Cavity_mode_m
     lambda = ZERO
  
     !------------------------------Reading of the nml--------------------------
-    WRITE(out_unit,*) ''
-    WRITE(out_unit,*) '*******************************************************'
-    WRITE(out_unit,*) '************* READING BASIS OF THE HO *****************'
-    WRITE(out_unit,*) '*******************************************************'
+    WRITE(out_unit,*) 
+    WRITE(out_unit,*) '********************************************************************************'
+    WRITE(out_unit,*) '**************************** READING BASIS OF THE HO ***************************'
+    WRITE(out_unit,*) '********************************************************************************'
     
     READ(nio, nml = HO_1, iostat = err_io)                                     ! assign the values read in the nml to the declared list of parameters
 
     IF (Debug) THEN
+      WRITE(out_unit,*)
       WRITE(out_unit,*) "-----------------------The namelist parameters are read as----------------------"
       WRITE(out_unit, nml = HO_1)
       WRITE(out_unit,*) "-------------------------End of the namelist parameters-------------------------"
@@ -84,12 +85,13 @@ MODULE Cavity_mode_m
     Mode%m      = m
     Mode%lambda = lambda
 
-    WRITE(out_unit,*) ''
-    WRITE(out_unit,*) '*******************************************************'
-    WRITE(out_unit,*) '*********** BASIS OF THE HO CONSTRUCTED ***************'
-    WRITE(out_unit,*) '*******************************************************'
+    WRITE(out_unit,*) 
+    WRITE(out_unit,*) '********************************************************************************'
+    WRITE(out_unit,*) '************************** BASIS OF THE HO CONSTRUCTED *************************'
+    WRITE(out_unit,*) '********************************************************************************'
 
     IF (Debug) THEN
+      WRITE(out_unit,*)
       WRITE(out_unit,*) "--------------Cavity mode constructed by MolecCav_Read_cavity_mode--------------"
       CALL Write_cavity_mode(Mode)
       WRITE(out_unit,*) "------------End Cavity mode constructed by MolecCav_Read_cavity_mode------------"
@@ -101,8 +103,7 @@ MODULE Cavity_mode_m
   SUBROUTINE MolecCav_Write_cavity_mode(Mode)
     TYPE(Cavity_mode_t), intent(in) :: Mode
 
-    WRITE(out_unit,*) "-------------------------the associated HO cavity mode-------------------------"
-    WRITE(out_unit,*) "____________________________________________________________________________________________________"
+    WRITE(out_unit,*) "____________________________________The associated HO cavity mode___________________________________"
     WRITE(out_unit,*) "|Index of the cavity mode Mode%D                                             | ", Mode%D
     WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
     WRITE(out_unit,*) "|Basis set size of the cavity mode Mode%Nb                                   | ", Mode%Nb

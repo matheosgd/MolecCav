@@ -350,7 +350,8 @@ PROGRAM App_MolecCav
   CALL Scalar_product(Norm_sys, Psi_test1, Psi_test1)
 
   ALLOCATE(TotH_psi(Molecule_1%Nb, Cavity_mode_1%Nb))
+  H_ho_cavity_mode_1%lambda = ZERO
   CALL Action_total_hamiltonian_1p1D(TotH_psi, x_ho_cavity_mode_1, H_ho_cavity_mode_1, &
-  &Matter_dipolar_moment, H_ho_molecule_1, System_WF, Debug=.TRUE.)
+                                    &Matter_dipolar_moment, H_ho_molecule_1, System_WF, Debug=.TRUE.)
 
 END PROGRAM
