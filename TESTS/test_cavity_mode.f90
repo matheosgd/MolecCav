@@ -9,11 +9,11 @@ PROGRAM test_cavity_mode
   TYPE(Cavity_mode_t) :: Cavity_mode_1
   logical             :: Debug = .FALSE.
   logical             :: error = .FALSE.
-  TYPE(type_t)        :: test_cavity_mode
+  TYPE(test_t)        :: test_cavity_init
 
 
   !-----------------------------Test initialization----------------------------
-  CALL Initialize_Test(test_cavity_mode, test_name=OUT/test_cavity_mode)
+  CALL Initialize_Test(test_cavity_init, test_name="OUT/test_file_cav_mode")
 
 
   !-------------------------Cavity mode initialization-------------------------
@@ -28,40 +28,37 @@ PROGRAM test_cavity_mode
 
   !-----------------------------------The tests--------------------------------
   error = (Cavity_mode_1%D == 0)
-  CALL Logical_Test(test_cavity_mode, error, test2=.FALSE., info="Cavity_mode_1%D = 0")
+  CALL Logical_Test(test_cavity_init, error, test2=.FALSE., info="Cavity_mode_1%D = 0")
   IF (error .AND. Debug) WRITE(out_unit,*) 'Mode%D failed to initialize'
 
-  IF (Cavity_mode_1%Nb == 1) THEN
-    WRITE(out_unit,*) ''
-    WRITE(out_unit,*) 'Mode%Nb failed to initialize'
-    error = 1
-  END IF
-  IF (Cavity_mode_1%w == 0) THEN
-    WRITE(out_unit,*) ''
-    WRITE(out_unit,*) 'Mode%w failed to initialize'
-    error = 1
-  END IF
-  IF (Cavity_mode_1%m == 0) THEN
-    WRITE(out_unit,*) ''
-    WRITE(out_unit,*) 'Mode%m failed to initialize'
-    error = 1
-  END IF
-  IF (Cavity_mode_1%lambda == 0) THEN
-    WRITE(out_unit,*) ''
-    WRITE(out_unit,*) 'Mode%lambda failed to initialize'
-    error = 1
-  END IF
+  error = (Cavity_mode_1%Nb == 1)
+  CALL Logical_Test(test_cavity_init, error, test2=.FALSE., info="Cavity_mode_1%Nb == 1")
+  IF (error .AND. Debug) WRITE(out_unit,*) 'Mode%Nb failed to initialize'
 
-  IF (error == 0) THEN
-    WRITE(out_unit,*) ''
-    WRITE(out_unit,*) 'Test 1 checked ! The Cavity mode initializes successfully !'
-  ELSE IF (error == 1) THEN
-    WRITE(out_unit,*) ''
-    WRITE(out_unit,*) 'Test 1 failed ! The Cavity mode did not initialize successfully...'
-  ELSE
-    WRITE(out_unit,*) ''
-    WRITE(out_unit,*) 'Test 1 stopped ! The file did not execute as it should have !'
-  END IF
+  error = (Cavity_mode_1%w == 0)
+  CALL Logical_Test(test_cavity_init, error, test2=.FALSE., info="Cavity_mode_1%w == 0")
+  IF (error .AND. Debug) WRITE(out_unit,*) 'Mode%w failed to initialize'
+
+  error = (Cavity_mode_1%m == 0)
+  CALL Logical_Test(test_cavity_init, error, test2=.FALSE., info="Cavity_mode_1%m == 0")
+  IF (error .AND. Debug) WRITE(out_unit,*) 'Mode%m failed to initialize'
+
+  error = (Cavity_mode_1%lambda == 0)
+  CALL Logical_Test(test_cavity_init, error, test2=.FALSE., info="Cavity_mode_1%lambda == 0")
+  IF (error .AND. Debug) WRITE(out_unit,*) 'Mode%lambda failed to initialize'
+
+  CALL Finalize_Test(test_cavity_init)
+
+  !IF (error == 0) THEN
+  !  WRITE(out_unit,*) ''
+  !  WRITE(out_unit,*) 'Test 1 checked ! The Cavity mode initializes successfully !'
+  !ELSE IF (error == 1) THEN
+  !  WRITE(out_unit,*) ''
+  !  WRITE(out_unit,*) 'Test 1 failed ! The Cavity mode did not initialize successfully...'
+  !ELSE
+  !  WRITE(out_unit,*) ''
+  !  WRITE(out_unit,*) 'Test 1 stopped ! The file did not execute as it should have !'
+  !END IF
   
   
 END PROGRAM

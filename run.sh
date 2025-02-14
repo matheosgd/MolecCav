@@ -498,13 +498,13 @@ case "$command" in
   Build_tests
   #./$test_name.exe < $data_file.nml > $data_file.out
   ./test_algebra.exe > "$OUTPUT_DIR/"test_algebra.log
-  Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_sca_pdt.log)"
-  Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_norm.log)"
-  Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_normalization.log)"
+  Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_file_sca_pdt.log)"
+  Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_file_norm.log)"
+  Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_file_normalztn.log)"
 	./test_cavity_mode.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_cavity_mode.log
-	Claim "$(grep "Test" "$OUTPUT_DIR/"test_cavity_mode.log)"
-#	./test_construct_op.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_construct_op.log
-#	Claim "$(grep "Test" "$OUTPUT_DIR/"test_construct_op.log)"
+	Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_cavity_mode.log)"
+	./test_construct_op.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_construct_op.log
+	Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_construct_op.log)"
 #	./test_action_op.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_action_op.log
 #	Claim "$(grep "Test" "$OUTPUT_DIR/"test_action_op.log)"
 	Claim "Done Tests"
