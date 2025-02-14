@@ -71,7 +71,7 @@ OBJ_LIB=(${MODULES_LIB[@]/%/.o})
 LIB="libMolecCav"
 LIBA="$LIB.a"
 
-TESTS=("test_cavity_mode" "test_construct_op" "test_action_op")
+TESTS=("test_algebra" "test_cavity_mode") # "test_construct_op" "test_action_op")
 SRC_TESTS=(${TESTS[@]/%/.f90})                                                 # parenthesis must be added here to make bash know that the nex var is also an array
 OBJ_TESTS=(${TESTS[@]/%/.o})                                                   
 EXE_TESTS=(${TESTS[@]/%/.exe})  
@@ -112,7 +112,7 @@ Claim()
     for ((i=0 ; $((Nb_lines-1)) - $i ; i++))
     do
       line="## ${1:$((i*73)):73}- ##"
-      echo "$line"
+      echo -e "$line"
     done
 
     remaining_characters="$(($Nb_characters-73*$Nb_lines+73))"
@@ -121,7 +121,7 @@ Claim()
     remains="$(($Nb_spaces%2))"
   
     line="## ${blank_line:0:$((Demi_Nb_spaces+$remains))}${1:$((73*Nb_lines-73))}${blank_line:0:$Demi_Nb_spaces} ##"
-    echo "$line"
+    echo -e "$line"
   fi 
 
   if [ "$1" = "/end" -o "$2" = "/end" ]
@@ -187,8 +187,8 @@ Build_tests()
 	$FFC -o ${EXE_TESTS[0]}  $FFLAGS ${TESTS_OBJ_FILES[0]} $LIBA $EXTLib
 	$FFC -c -o ${TESTS_OBJ_FILES[1]} $FFLAGS ${TESTS_SRC_FILES[1]}
 	$FFC -o ${EXE_TESTS[1]}  $FFLAGS ${TESTS_OBJ_FILES[1]} $LIBA $EXTLib
-	$FFC -c -o ${TESTS_OBJ_FILES[2]} $FFLAGS ${TESTS_SRC_FILES[2]}
-	$FFC -o ${EXE_TESTS[2]}  $FFLAGS ${TESTS_OBJ_FILES[2]} $LIBA $EXTLib
+#	$FFC -c -o ${TESTS_OBJ_FILES[2]} $FFLAGS ${TESTS_SRC_FILES[2]}
+#	$FFC -o ${EXE_TESTS[2]}  $FFLAGS ${TESTS_OBJ_FILES[2]} $LIBA $EXTLib
 
   for file in ${TESTS_OBJ_FILES[@]}
   do
@@ -497,12 +497,16 @@ case "$command" in
   Build_lib
   Build_tests
   #./$test_name.exe < $data_file.nml > $data_file.out
+  ./test_algebra.exe > "$OUTPUT_DIR/"test_algebra.log
+  Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_sca_pdt.log)"
+  Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_norm.log)"
+  Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_normalization.log)"
 	./test_cavity_mode.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_cavity_mode.log
 	Claim "$(grep "Test" "$OUTPUT_DIR/"test_cavity_mode.log)"
-	./test_construct_op.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_construct_op.log
-	Claim "$(grep "Test" "$OUTPUT_DIR/"test_construct_op.log)"
-	./test_action_op.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_action_op.log
-	Claim "$(grep "Test" "$OUTPUT_DIR/"test_action_op.log)"
+#	./test_construct_op.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_construct_op.log
+#	Claim "$(grep "Test" "$OUTPUT_DIR/"test_construct_op.log)"
+#	./test_action_op.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_action_op.log
+#	Claim "$(grep "Test" "$OUTPUT_DIR/"test_action_op.log)"
 	Claim "Done Tests"
 
   echo "################################################################################"

@@ -1,6 +1,7 @@
 PROGRAM test_algebra
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
   USE QDUtil_m
+  USE QDUtil_Test_m
   USE Algebra_m
   IMPLICIT NONE
   
@@ -32,9 +33,18 @@ PROGRAM test_algebra
   complex(kind=Rkind), allocatable :: C_vec(:)                                 ! Buffer
   complex(kind=Rkind), allocatable :: C_mat(:,:)                               ! Buffer
 
+  TYPE(test_t)                     :: test_sca_pdt
+  TYPE(test_t)                     :: test_norm
+  TYPE(test_t)                     :: test_normalization  
   logical                          :: error_sca_pdt       = .FALSE.
   logical                          :: error_norm          = .FALSE.
   logical                          :: error_normalization = .FALSE.
+
+
+  !----------------------------Tests initialization----------------------------
+  CALL Initialize_Test(test_sca_pdt,      test_name='OUT/test_sca_pdt')
+  CALL Initialize_Test(test_norm,         test_name='OUT/test_norm')
+  CALL Initialize_Test(test_normalization,test_name='OUT/test_normalization')
 
 
   !---------------------------Matrices initialization--------------------------
@@ -42,6 +52,10 @@ PROGRAM test_algebra
   ALLOCATE(Basis_C_1D(Dim_1))
   ALLOCATE(Basis_R_2D(Dim_1, Dim_2))
   ALLOCATE(Basis_C_2D(Dim_1, Dim_2))
+  Basis_R_1D = ZERO
+  Basis_C_1D = ZERO
+  Basis_R_2D = ZERO
+  Basis_C_2D = ZERO
 
   ALLOCATE(Any_R_1D(Dim_1))
   ALLOCATE(Any_C_1D(Dim_1))
@@ -102,80 +116,91 @@ PROGRAM test_algebra
   
   IF (Debug) WRITE(out_unit,*) "Expecting", 1
   CALL Scalar_product(Sca_pdt_R, Basis_R_1D, Basis_R_1D)
-  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Basis_R_1D |  Basis_R_1D >  =", Sca_pdt_R
+  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Basis_R_1D | Basis_R_1D >  =", Sca_pdt_R
   CALL Equal_R_R_scalar(error_sca_pdt, Sca_pdt_R, ONE)
-  
+  CALL Logical_Test(test_sca_pdt, test1=error_sca_pdt, test2=.FALSE., info="< Basis_R_1D | Basis_R_1D > = 1")
+
   CALL Scalar_product(Sca_pdt_C, Basis_C_1D, Basis_C_1D)
   IF (Debug) WRITE(out_unit,*)
   IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Basis_C_1D |  Basis_C_1D >  =", Sca_pdt_C
   CALL Equal_C_C_scalar(error_sca_pdt, Sca_pdt_C, CMPLX(ONE, kind=Rkind))
+  CALL Logical_Test(test_sca_pdt, test1=error_sca_pdt, test2=.FALSE., info="< Basis_C_1D | Basis_C_1D > = 1")
 
   CALL Scalar_product(Sca_pdt_R, Basis_R_2D, Basis_R_2D)
   IF (Debug) WRITE(out_unit,*)
   IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Basis_R_2D |  Basis_R_2D >  =", Sca_pdt_R
   CALL Equal_R_R_scalar(error_sca_pdt, Sca_pdt_R, ONE)
+  CALL Logical_Test(test_sca_pdt, test1=error_sca_pdt, test2=.FALSE., info="< Basis_R_2D | Basis_R_2D > = 1")
 
   CALL Scalar_product(Sca_pdt_C, Basis_C_2D, Basis_C_2D)
   IF (Debug) WRITE(out_unit,*)
   IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Basis_C_2D |  Basis_C_2D >  =", Sca_pdt_C
   CALL Equal_C_C_scalar(error_sca_pdt, Sca_pdt_C, CMPLX(ONE, kind=Rkind))
+  CALL Logical_Test(test_sca_pdt, test1=error_sca_pdt, test2=.FALSE., info="< Basis_C_2D | Basis_C_2D > = 1")
 
 
   IF (Debug) WRITE(out_unit,*)
   IF (Debug) WRITE(out_unit,*) "Expecting", Coeff_1**2 + Coeff_2**2 + Coeff_3**2
   CALL Scalar_product(Sca_pdt_R, Any_R_1D, Any_R_1D)
-  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Any_R_1D |  Any_R_1D >  =", Sca_pdt_R
+  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Any_R_1D | Any_R_1D >  =", Sca_pdt_R
   CALL Equal_R_R_scalar(error_sca_pdt, Sca_pdt_R, 18.0_Rkind)
+  CALL Logical_Test(test_sca_pdt, test1=error_sca_pdt, test2=.FALSE., info="< Any_R_1D | Any_R_1D > = 18")
 
   CALL Scalar_product(Sca_pdt_C, Any_C_1D, Any_C_1D)
   IF (Debug) WRITE(out_unit,*)
-  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Any_C_1D |  Any_C_1D >  =", Sca_pdt_C
+  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Any_C_1D | Any_C_1D >  =", Sca_pdt_C
   CALL Equal_C_C_scalar(error_sca_pdt, Sca_pdt_C, CMPLX(18.0_Rkind, kind=Rkind))
+  CALL Logical_Test(test_sca_pdt, test1=error_sca_pdt, test2=.FALSE., info="< Any_C_1D | Any_C_1D > = 18")
 
   CALL Scalar_product(Sca_pdt_R, Any_R_2D, Any_R_2D)
   IF (Debug) WRITE(out_unit,*)
-  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Any_R_2D |  Any_R_2D >  =", Sca_pdt_R
+  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Any_R_2D | Any_R_2D >  =", Sca_pdt_R
   CALL Equal_R_R_scalar(error_sca_pdt, Sca_pdt_R, 18.0_Rkind)
+  CALL Logical_Test(test_sca_pdt, test1=error_sca_pdt, test2=.FALSE., info=" < Any_R_2D | Any_R_2D > = 18")
 
   CALL Scalar_product(Sca_pdt_C, Any_C_2D, Any_C_2D)
   IF (Debug) WRITE(out_unit,*)
-  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Any_C_2D |  Any_C_2D >  =", Sca_pdt_C
+  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Any_C_2D | Any_C_2D >  =", Sca_pdt_C
   CALL Equal_C_C_scalar(error_sca_pdt, Sca_pdt_C, CMPLX(18.0_Rkind, kind=Rkind))
+  CALL Logical_Test(test_sca_pdt, test1=error_sca_pdt, test2=.FALSE., info="< Any_C_2D | Any_C_2D > = 18")
 
 
   IF (Debug) WRITE(out_unit,*)
   IF (Debug) WRITE(out_unit,*) "Expecting", 1, "or", "   i"
   CALL Scalar_product(Sca_pdt_R, Basis_R_1D, Any_R_1D)
-  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Basis_R_1D |  Any_R_1D >  =", Sca_pdt_R
+  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Basis_R_1D | Any_R_1D >  =", Sca_pdt_R
   CALL Equal_R_R_scalar(error_sca_pdt, Sca_pdt_R, ONE)
+  CALL Logical_Test(test_sca_pdt, test1=error_sca_pdt, test2=.FALSE., info="< Basis_R_1D | Any_R_1D > = 1")
 
   CALL Scalar_product(Sca_pdt_C, Basis_C_1D, Any_C_1D)
   IF (Debug) WRITE(out_unit,*)
-  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Basis_C_1D |  Any_C_1D >  =", Sca_pdt_C
+  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Basis_C_1D | Any_C_1D >  =", Sca_pdt_C
   CALL Equal_C_C_scalar(error_sca_pdt, Sca_pdt_C, CMPLX(ONE, kind=Rkind))
+  CALL Logical_Test(test_sca_pdt, test1=error_sca_pdt, test2=.FALSE., info="< Basis_C_1D | Any_C_1D > = 1")
 
   CALL Scalar_product(Sca_pdt_C, CMPLX(Basis_R_1D(:), kind=Rkind), Any_C_1D)
   IF (Debug) WRITE(out_unit,*)
-  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Basis_R_1D |  Any_C_1D >  =", Sca_pdt_C
+  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Basis_R_1D | Any_C_1D >  =", Sca_pdt_C
   CALL Equal_C_C_scalar(error_sca_pdt, Sca_pdt_C, CMPLX(ZERO, ONE, kind=Rkind))
+  CALL Logical_Test(test_sca_pdt, test1=error_sca_pdt, test2=.FALSE., info="< Basis_R_1D | Any_C_1D > = i")
 
   CALL Scalar_product(Sca_pdt_R, Basis_R_2D, Any_R_2D)
   IF (Debug) WRITE(out_unit,*)
-  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Basis_R_2D |  Any_R_2D >  =", Sca_pdt_R
+  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Basis_R_2D | Any_R_2D >  =", Sca_pdt_R
   CALL Equal_R_R_scalar(error_sca_pdt, Sca_pdt_R, ONE)
+  CALL Logical_Test(test_sca_pdt, test1=error_sca_pdt, test2=.FALSE., info="< Basis_R_2D | Any_R_2D > = 1")
 
   CALL Scalar_product(Sca_pdt_C, Basis_C_2D, Any_C_2D)
   IF (Debug) WRITE(out_unit,*)
-  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Basis_C_2D |  Any_C_2D >  =", Sca_pdt_C
+  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Basis_C_2D | Any_C_2D >  =", Sca_pdt_C
   CALL Equal_C_C_scalar(error_sca_pdt, Sca_pdt_C, CMPLX(ONE, kind=Rkind))
+  CALL Logical_Test(test_sca_pdt, test1=error_sca_pdt, test2=.FALSE., info="< Basis_C_2D | Any_C_2D > = 1")
 
   CALL Scalar_product(Sca_pdt_C, CMPLX(Basis_R_2D(:,:), kind=Rkind), Any_C_2D)
   IF (Debug) WRITE(out_unit,*)
-  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Basis_R_2D |  Any_C_2D >  =", Sca_pdt_C
+  IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Basis_R_2D | Any_C_2D >  =", Sca_pdt_C
   CALL Equal_C_C_scalar(error_sca_pdt, Sca_pdt_C, CMPLX(ZERO, ONE, kind=Rkind))
-
-  IF (Debug) WRITE(out_unit,*) 
-  WRITE(out_unit,*) "error_sca_pdt =", error_sca_pdt
+  CALL Logical_Test(test_sca_pdt, test1=error_sca_pdt, test2=.FALSE., info="< Basis_R_2D | Any_C_2D > = i")
 
 
   !------------------------Tests of the Norm computation-----------------------
@@ -185,44 +210,49 @@ PROGRAM test_algebra
   CALL Norm_of(Norm, Basis_R_1D)
   IF (Debug) WRITE(out_unit,*) "Computed norm : ||Basis_R_1D|| =", Norm
   CALL Equal_R_R_scalar(error_norm, Norm, ONE)
-  
+  CALL Logical_Test(test_norm, test1=error_norm, test2=.FALSE., info="||Basis_R_1D|| = 1")
+
   CALL Norm_of(Norm, Basis_C_1D)
   IF (Debug) WRITE(out_unit,*)
   IF (Debug) WRITE(out_unit,*) "Computed norm : ||Basis_C_1D|| =", Norm
   CALL Equal_R_R_scalar(error_norm, Norm, ONE)
+  CALL Logical_Test(test_norm, test1=error_norm, test2=.FALSE., info="||Basis_C_1D|| = 1")
 
   CALL Norm_of(Norm, Basis_R_2D)
   IF (Debug) WRITE(out_unit,*)
   IF (Debug) WRITE(out_unit,*) "Computed norm : ||Basis_R_2D|| =", Norm
   CALL Equal_R_R_scalar(error_norm, Norm, ONE)
+  CALL Logical_Test(test_norm, test1=error_norm, test2=.FALSE., info="||Basis_R_2D|| = 1")
 
   CALL Norm_of(Norm, Basis_C_2D)
   IF (Debug) WRITE(out_unit,*)
   IF (Debug) WRITE(out_unit,*) "Computed norm : ||Basis_C_2D|| =", Norm
   CALL Equal_R_R_scalar(error_norm, Norm, ONE)
+  CALL Logical_Test(test_norm, test1=error_norm, test2=.FALSE., info="||Basis_C_2D|| = 1")
 
   CALL Norm_of(Norm, Any_R_1D)
   IF (Debug) WRITE(out_unit,*)
   IF (Debug) WRITE(out_unit,*) "Computed norm : ||Any_R_1D|| =", Norm
   CALL Equal_R_R_scalar(error_norm, Norm, Normalization_coeff)
+  CALL Logical_Test(test_norm, test1=error_norm, test2=.FALSE., info="||Any_R_1D|| = 18")
 
   CALL Norm_of(Norm, Any_C_1D)
   IF (Debug) WRITE(out_unit,*)
   IF (Debug) WRITE(out_unit,*) "Computed norm : ||Any_C_1D|| =", Norm
   CALL Equal_R_R_scalar(error_norm, Norm, Normalization_coeff)
+  CALL Logical_Test(test_norm, test1=error_norm, test2=.FALSE., info="||Any_C_1D|| = 18")
 
   CALL Norm_of(Norm, Any_R_2D)
   IF (Debug) WRITE(out_unit,*)
   IF (Debug) WRITE(out_unit,*) "Computed norm : ||Any_R_2D|| =", Norm
   CALL Equal_R_R_scalar(error_norm, Norm, Normalization_coeff)
+  CALL Logical_Test(test_norm, test1=error_norm, test2=.FALSE., info="||Any_R_2D|| = 18")
 
   CALL Norm_of(Norm, Any_C_2D)
   IF (Debug) WRITE(out_unit,*)
   IF (Debug) WRITE(out_unit,*) "Computed norm : ||Any_C_2D|| =", Norm
   CALL Equal_R_R_scalar(error_norm, Norm, Normalization_coeff)
-
-  IF (Debug) WRITE(out_unit,*) 
-  WRITE(out_unit,*) "error_norm =", error_norm
+  CALL Logical_Test(test_norm, test1=error_norm, test2=.FALSE., info="||Any_C_2D|| = 18")
 
 
   !--------------------Tests of the Normalization procedures-------------------
@@ -234,7 +264,9 @@ PROGRAM test_algebra
   CALL Norm_of(Norm, Basis_R_1D)
   IF (Debug) CALL Write_Vec(Basis_R_1D, out_unit, Dim_1, info="Normalized_Basis_R_1D")
   CALL Equal_R_R_scalar(error_normalization, Norm, ONE)
+  CALL Logical_Test(test_normalization, test1=error_normalization, test2=.FALSE., info="||Normalized_Basis_R_1D|| = 1")
   CALL Equal_R_R_vector(error_normalization, Basis_R_1D, R_vec)
+  CALL Logical_Test(test_normalization, test1=error_normalization, test2=.FALSE., info="Normalized_Basis_R_1D normalized ?")
 
   C_vec(:) = Basis_C_1D(:)
   CALL Normalize(Basis_C_1D)
@@ -242,7 +274,9 @@ PROGRAM test_algebra
   IF (Debug) WRITE(out_unit,*)
   IF (Debug) CALL Write_Vec(Basis_C_1D, out_unit, Dim_1, info="Normalized_Basis_C_1D")
   CALL Equal_R_R_scalar(error_normalization, Norm, ONE)
+  CALL Logical_Test(test_normalization, test1=error_normalization, test2=.FALSE., info="||Normalized_Basis_C_1D|| = 1")
   CALL Equal_C_C_vector(error_normalization, Basis_C_1D, C_vec)
+  CALL Logical_Test(test_normalization, test1=error_normalization, test2=.FALSE., info="Normalized_Basis_C_1D normalized ?")
 
   R_mat(:,:) = Basis_R_2D(:,:)
   CALL Normalize(Basis_R_2D)
@@ -250,7 +284,9 @@ PROGRAM test_algebra
   IF (Debug) WRITE(out_unit,*)
   IF (Debug) CALL Write_Mat(Basis_R_2D, out_unit, Dim_2, info="Normalized_Basis_R_2D")
   CALL Equal_R_R_scalar(error_normalization, Norm, ONE)
+  CALL Logical_Test(test_normalization, test1=error_normalization, test2=.FALSE., info="||Normalized_Basis_R_2D|| = 1")
   CALL Equal_R_R_matrix(error_normalization, Basis_R_2D, R_mat)
+  CALL Logical_Test(test_normalization, test1=error_normalization, test2=.FALSE., info="Normalized_Basis_R_2D normalized ?")
 
   C_mat(:,:) = Basis_C_2D(:,:)
   CALL Normalize(Basis_C_2D)
@@ -258,7 +294,9 @@ PROGRAM test_algebra
   IF (Debug) WRITE(out_unit,*)
   IF (Debug) CALL Write_Mat(Basis_C_2D, out_unit, Dim_2, info="Normalized_Basis_C_2D")
   CALL Equal_R_R_scalar(error_normalization, Norm, ONE)
+  CALL Logical_Test(test_normalization, test1=error_normalization, test2=.FALSE., info="||Normalized_Basis_C_2D|| = 1")
   CALL Equal_C_C_matrix(error_normalization, Basis_C_2D, C_mat)
+  CALL Logical_Test(test_normalization, test1=error_normalization, test2=.FALSE., info="Normalized_Basis_C_2D normalized ?")
 
   R_vec(:) = Any_R_1D(:)
   CALL Normalize(Any_R_1D)
@@ -266,7 +304,9 @@ PROGRAM test_algebra
   IF (Debug) WRITE(out_unit,*)
   IF (Debug) CALL Write_Vec(Any_R_1D, out_unit, Dim_1, info="Normalized_Any_R_1D")
   CALL Equal_R_R_scalar(error_normalization, Norm, ONE)
+  CALL Logical_Test(test_normalization, test1=error_normalization, test2=.FALSE., info="||Normalized_Any_R_1D|| = 1")
   CALL Equal_R_R_vector(error_normalization, Normalization_coeff*Any_R_1D, R_vec)
+  CALL Logical_Test(test_normalization, test1=error_normalization, test2=.FALSE., info="Normalized_Any_R_1D normalized ?")
 
   C_vec(:) = Any_C_1D(:)
   CALL Normalize(Any_C_1D)
@@ -274,7 +314,9 @@ PROGRAM test_algebra
   IF (Debug) WRITE(out_unit,*)
   IF (Debug) CALL Write_Vec(Any_C_1D, out_unit, Dim_1, info="Normalized_Any_C_1D")
   CALL Equal_R_R_scalar(error_normalization, Norm, ONE)
+  CALL Logical_Test(test_normalization, test1=error_normalization, test2=.FALSE., info="||Normalized_Any_C_1D|| = 1")
   CALL Equal_C_C_vector(error_normalization, Normalization_coeff*Any_C_1D, C_vec)
+  CALL Logical_Test(test_normalization, test1=error_normalization, test2=.FALSE., info="Normalized_Any_C_1D normalized ?")
 
   R_mat(:,:) = Any_R_2D(:,:)
   CALL Normalize(Any_R_2D)
@@ -282,7 +324,9 @@ PROGRAM test_algebra
   IF (Debug) WRITE(out_unit,*)
   IF (Debug) CALL Write_Mat(Any_R_2D, out_unit, Dim_2, info="Normalized_Any_R_2D")
   CALL Equal_R_R_scalar(error_normalization, Norm, ONE)
+  CALL Logical_Test(test_normalization, test1=error_normalization, test2=.FALSE., info="||Normalized_Any_R_2D|| = 1")
   CALL Equal_R_R_matrix(error_normalization, Normalization_coeff*Any_R_2D, R_mat)
+  CALL Logical_Test(test_normalization, test1=error_normalization, test2=.FALSE., info="Normalized_Any_R_2D normalized ?")
 
   C_mat(:,:) = Any_C_2D(:,:)
   CALL Normalize(Any_C_2D)
@@ -291,45 +335,29 @@ PROGRAM test_algebra
   IF (Debug) WRITE(out_unit,*)
   IF (Debug) CALL Write_Mat(Any_C_2D, out_unit, Dim_2, info="Normalized_Any_C_2D")
   CALL Equal_R_R_scalar(error_normalization, Norm, ONE)
+  CALL Logical_Test(test_normalization, test1=error_normalization, test2=.FALSE., info="||Normalized_Any_C_2D|| = 1")
   CALL Equal_C_C_matrix(error_normalization, Normalization_coeff*Any_C_2D, C_mat)
+  CALL Logical_Test(test_normalization, test1=error_normalization, test2=.FALSE., info="Normalized_Any_C_2D normalized ?")
 
-  IF (Debug) WRITE(out_unit,*) 
-  WRITE(out_unit,*) "error_normalization =", error_normalization
 
   !-----------------------------------Sum up-----------------------------------
   WRITE(out_unit,*)
   WRITE(out_unit,*) "-----------------------------------Sum up-----------------------------------"
 
-  IF (error_sca_pdt) THEN
-    WRITE(out_unit,*) 
-    WRITE(out_unit,*) "The Scalar_product procedure does NOT work properly !"
-  ELSE
-    WRITE(out_unit,*) 
-    WRITE(out_unit,*) "The Scalar_product procedure does work properly !"
-  END IF
+  CALL Finalize_Test(test_sca_pdt)
+  CALL Finalize_Test(test_norm)
+  CALL Finalize_Test(test_normalization)
 
-  IF (error_norm) THEN
-    WRITE(out_unit,*) "The Norm_of procedure does NOT work properly !"
-  ELSE
-    WRITE(out_unit,*) "The Scalar_product procedure does work properly !"
-  END IF
-
-  IF (error_normalization) THEN
-    WRITE(out_unit,*) "The Normalization procedure does NOT work properly !"
-  ELSE
-    WRITE(out_unit,*) "The Scalar_product procedure does work properly !"
-  END IF
-
-  IF (error_sca_pdt .OR. error_norm .OR. error_normalization) THEN
-    WRITE(out_unit,*) 
-    WRITE(out_unit,*) "Test 1 failed ! At least one procedure among the Scalar_product, Norm_of and&
-                     & Normalization ones does NOT work properly ! Please refer to the test_algebra&
-                     &.log output file for more information."
-  ELSE
-    WRITE(out_unit,*) 
-    WRITE(out_unit,*) "Test 1 checked ! The Scalar_product, Norm_of and Normalization procedures do work properly !"
-
-  END IF
+  !IF (test_sca_pdt%nb_Err > 0 .OR. test_norm%nb_Err > 0 .OR. test_normalization%nb_Err > 0) THEN
+  !  WRITE(out_unit,*) 
+  !  WRITE(out_unit,*) "Test 1 failed ! At least one procedure among the Scalar_product, Norm_of and&
+  !                   & Normalization ones does NOT work properly ! Please refer to the test_algebra&
+  !                   &.log output file for more information."
+  !ELSE
+  !  WRITE(out_unit,*) 
+  !  WRITE(out_unit,*) "Test 1 checked ! The Scalar_product, Norm_of and Normalization procedures do work properly !"
+  !
+  !END IF
 
 
   CONTAINS
@@ -350,9 +378,10 @@ PROGRAM test_algebra
       error = .TRUE.
       IF (Debug_local) WRITE(out_unit,*) "The two numbers are not close enough to be considered equ&
                                          &al : R_1 =", Rl_1, "R_2 =", Rl_2, "|R_1-R_2| = ", ABS(Rl_1 - Rl_2)
-    ELSE IF (Debug_local) THEN
-      WRITE(out_unit,*) "The two numbers are close enough to be considered equal : R_1 =", Rl_1, "R&
-                                         &_2 =", Rl_2, "|R_1-R_2| = ", ABS(Rl_1 - Rl_2)
+    ELSE 
+      error = .FALSE.
+      IF (Debug_local) WRITE(out_unit,*) "The two numbers are close enough to be considered equal :&
+                                         & R_1 =", Rl_1, "R_2 =", Rl_2, "|R_1-R_2| = ", ABS(Rl_1 - Rl_2)
     END IF
 
   END SUBROUTINE Equal_R_R_scalar
@@ -378,6 +407,7 @@ PROGRAM test_algebra
                                          &be considered equal : Re_1 =", Cmplx_1%Re, "Re_2 =", Cmpl&
                                          &x_2%Re, "|Re_1-Re_2| = ", ABS(Difference%Re)
     ELSE
+      error = .FALSE.
       IF (Debug_local) WRITE(out_unit,*) "The real part of the two numbers are close enough to be c&
                                          &onsidered equal : Re_1 =", Cmplx_1%Re, "Re_2 =", Cmplx_2%&
                                          &Re, "|Re_1-Re_2| = ", ABS(Difference%Re)
@@ -389,6 +419,7 @@ PROGRAM test_algebra
                                          & be considered equal : Im_1 =", AIMAG(Cmplx_1), "Im_2 =",&
                                          & AIMAG(Cmplx_2), "|Im_1-Re_2| = ", ABS(AIMAG(Difference))
     ELSE
+      error = .FALSE.
       IF (Debug_local) WRITE(out_unit,*) "The cmplx part of the two numbers are close enough to be &
                                          &considered equal : Im_1 =", AIMAG(Cmplx_1), "Im_2 =", AIM&
                                          &AG(Cmplx_2), "|Im_1-Im_2| = ", ABS(AIMAG(Difference))
@@ -424,11 +455,14 @@ PROGRAM test_algebra
         CALL Write_Vec(ABS(Rl_1 - Rl_2), out_unit, Nb_1, info="|R_1-R_2| = ")
       END IF 
 
-    ELSE IF (Debug_local) THEN
+    ELSE 
+      error = .FALSE.
+      IF (Debug_local) THEN
         WRITE(out_unit,*) "The two vectors are close enough to be considered equal :"
         CALL Write_Vec(Rl_1, out_unit, Nb_1, info="R_1(:)")
         CALL Write_Vec(Rl_2, out_unit, Nb_1, info="R_2(:)")
         CALL Write_Vec(ABS(Rl_1 - Rl_2), out_unit, Nb_1, info="|R_1-R_2| = ")
+      END IF
     END IF 
 
   END SUBROUTINE Equal_R_R_vector
@@ -466,6 +500,7 @@ PROGRAM test_algebra
       END IF 
 
     ELSE
+      error = .FALSE.
       IF (Debug_local) THEN
         WRITE(out_unit,*) "The real part of the two vectors are close enough to be considered equal :"
         CALL Write_Vec(REAL(Cmplx_1, kind=Rkind), out_unit, Nb_1, info="Re(Cmplx_1(:))")
@@ -484,6 +519,7 @@ PROGRAM test_algebra
       END IF 
 
     ELSE
+      error = .FALSE.
       IF (Debug_local) THEN
         WRITE(out_unit,*) "The imaginary part of the two vectors are close enough to be considered equal :"
         CALL Write_Vec(AIMAG(Cmplx_1), out_unit, Nb_1, info="Im(Cmplx_1(:))")
@@ -523,11 +559,14 @@ PROGRAM test_algebra
         CALL Write_Mat(ABS(Rl_1 - Rl_2), out_unit, Nb_2, info="|R_1-R_2| = ")
       END IF 
 
-    ELSE IF (Debug_local) THEN
+    ELSE 
+      error = .FALSE.
+      IF (Debug_local) THEN
         WRITE(out_unit,*) "The two matrices are close enough to be considered equal :"
         CALL Write_Mat(Rl_1, out_unit, Nb_2, info="R_1(:,:)")
         CALL Write_Mat(Rl_2, out_unit, Nb_2, info="R_2(:,:)")
         CALL Write_Mat(ABS(Rl_1 - Rl_2), out_unit, Nb_2, info="|R_1-R_2| = ")
+      END IF
     END IF 
 
   END SUBROUTINE Equal_R_R_matrix
@@ -566,6 +605,7 @@ PROGRAM test_algebra
       END IF 
 
     ELSE
+      error = .FALSE.
       IF (Debug_local) THEN
         WRITE(out_unit,*) "The real part of the two matrices are close enough to be considered equal :"
         CALL Write_Mat(REAL(Cmplx_1, kind=Rkind), out_unit, Nb_2, info="Re(Cmplx_1(:,:))")
@@ -584,6 +624,7 @@ PROGRAM test_algebra
       END IF 
 
     ELSE
+      error = .FALSE.
       IF (Debug_local) THEN
         WRITE(out_unit,*) "The imaginary part of the two matrices are close enough to be considered equal :"
         CALL Write_Mat(AIMAG(Cmplx_1), out_unit, Nb_2, info="Im(Cmplx_1(:,:))")

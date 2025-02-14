@@ -138,7 +138,7 @@ $(info ***********************************************************************)
 # ... as key-words, ex: as command-line commands
 UT ut: test_algebra.exe test_cavity_mode.exe #test_construct_op.exe test_action_op.exe
 	./test_algebra.exe > $(OUTPUT_DIR)/test_algebra.log
-	grep "Test" $(OUTPUT_DIR)/test_algebra.log
+	grep "Number of error(s)" $(OUTPUT_DIR)/test_algebra.log
 	./test_cavity_mode.exe < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_cavity_mode.log
 	grep "Test" $(OUTPUT_DIR)/test_cavity_mode.log
 #	./test_construct_op.exe < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_construct_op.log

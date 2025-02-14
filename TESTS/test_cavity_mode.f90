@@ -1,29 +1,36 @@
 PROGRAM test_cavity_mode
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
   USE QDUtil_m
+  USE QDUtil_Test_m
   USE Cavity_mode_m
   IMPLICIT NONE
 
 
-  !-------------------------------First cavity mode----------------------------
   TYPE(Cavity_mode_t) :: Cavity_mode_1
-  integer             :: error
+  logical             :: Debug = .FALSE.
+  logical             :: error = .FALSE.
+  TYPE(type_t)        :: test_cavity_mode
 
 
+  !-----------------------------Test initialization----------------------------
+  CALL Initialize_Test(test_cavity_mode, test_name=OUT/test_cavity_mode)
+
+
+  !-------------------------Cavity mode initialization-------------------------
   CALL MolecCav_Read_cavity_mode(Mode=Cavity_mode_1, nio=in_unit)
-  WRITE(out_unit,*)
-  WRITE(out_unit,*) "--------------Cavity mode constructed by MolecCav_Read_cavity_mode--------------"
-  CALL Write_cavity_mode(Cavity_mode_1)
-  WRITE(out_unit,*) "------------End Cavity mode constructed by MolecCav_Read_cavity_mode------------"
+  IF (Debug) THEN
+    WRITE(out_unit,*)
+    WRITE(out_unit,*) "--------------Cavity mode constructed by MolecCav_Read_cavity_mode--------------"
+    CALL Write_cavity_mode(Cavity_mode_1)
+    WRITE(out_unit,*) "------------End Cavity mode constructed by MolecCav_Read_cavity_mode------------"
+  END IF
+
 
   !-----------------------------------The tests--------------------------------
-  error = 0
+  error = (Cavity_mode_1%D == 0)
+  CALL Logical_Test(test_cavity_mode, error, test2=.FALSE., info="Cavity_mode_1%D = 0")
+  IF (error .AND. Debug) WRITE(out_unit,*) 'Mode%D failed to initialize'
 
-  IF (Cavity_mode_1%D == 0) THEN
-    WRITE(out_unit,*) ''
-    WRITE(out_unit,*) 'Mode%D failed to initialize'
-    error = 1
-  END IF
   IF (Cavity_mode_1%Nb == 1) THEN
     WRITE(out_unit,*) ''
     WRITE(out_unit,*) 'Mode%Nb failed to initialize'
