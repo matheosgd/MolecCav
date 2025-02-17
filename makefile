@@ -136,15 +136,15 @@ $(info ***********************************************************************)
 .PHONY: ut UT
 # the ".PHONY <string1> <string2> <...>" make command indicates to make that the provided string are neither files nor directories and allows to use them...
 # ... as key-words, ex: as command-line commands
-UT ut: test_algebra.exe test_cavity_mode.exe test_construct_op.exe #test_action_op.exe
+UT ut: test_algebra.exe test_cavity_mode.exe test_construct_op.exe test_action_op.exe
 	./test_algebra.exe > $(OUTPUT_DIR)/test_algebra.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_algebra.log
 	./test_cavity_mode.exe < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_cavity_mode.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_cavity_mode.log
 	./test_construct_op.exe < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_construct_op.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_construct_op.log
-#	./test_action_op.exe < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_action_op.log
-#	grep "Test" $(OUTPUT_DIR)/test_action_op.log
+	./test_action_op.exe < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_action_op.log
+	grep "Number of error(s)" $(OUTPUT_DIR)/test_action_op.log
 	@echo "Done Tests"
 # here is the actual definition of the command. It is declared as "UT" OR "ut" to make it cass-insensitive (both can be used to call it). NB: UT = Utility Test
 # the first line instruction is understood by Make as "see these files". It will search the make file for where they are defined i.e. for their...

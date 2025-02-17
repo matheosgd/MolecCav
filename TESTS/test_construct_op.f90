@@ -7,7 +7,7 @@ PROGRAM test_construct_op
   IMPLICIT NONE
 
 
-  logical                       :: Debug = .TRUE.
+  logical                       :: Debug = .FALSE.
 
   TYPE(Cavity_mode_t)           :: Mode 
 

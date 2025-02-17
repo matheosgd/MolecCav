@@ -57,16 +57,16 @@ MODULE Operator_1D_m
     IF (Write_op) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "-------------------Arguments of MolecCav_Construct_Operator_1D------------------"
-      WRITE(out_unit,*) "Operator :"
+      WRITE(out_unit,*) "The <<Operator>> argument :"
       CALL Write_Operator_1D(Operator)
-      WRITE(out_unit,*) "Operator_type :", Operator_type
+      WRITE(out_unit,*) "The <<Operator_type>> argument : ", Operator_type
       IF (present(Dense)) WRITE(out_unit,*) "Dense :", Dense
-      WRITE(out_unit,*) "Mode : ", Mode
+      WRITE(out_unit,*) "The <<Mode>> argument : ", Mode
       WRITE(out_unit,*) "-----------------End arguments of MolecCav_Construct_Operator_1D----------------"
       FLUSH(out_unit)
     END IF
     
-    !--------------first steps of the construction of the Operator-------------
+    !--------------First steps of the construction of the Operator-------------
     ALLOCATE(character(len=LEN_TRIM(Operator_type)) :: Operator%Operator_type) ! /!\ strings cannot be allocated the exact same way as tables ! /!\
     Operator%Operator_type = TO_lowercase(TRIM(Operator_type))                 ! allocation on assignement (not anymore). Operator_type has the right lengths (no spaces added) thanks to len=* at declaration and it will fit the Op%op_type thanks to len=:, allocatable at declaration of the derived type. 
     Operator%Cavity_mode_t = Mode                                              ! no need to have a variable of type Cavity_mode_t to use the "%" writing !!!
@@ -75,7 +75,7 @@ MODULE Operator_1D_m
       Operator%Dense = Dense
     END IF
 
-    !--------------------construction of the matrix Operator-------------------
+    !--------------------Construction of the matrix Operator-------------------
     SELECT CASE (Operator%Operator_type)                         ! TO_lowercase avoid case sensitivity issues
       CASE ("hamiltonian")
         CALL MolecCav_Construct_H_cavity_mode(Hamiltonian=Operator)
