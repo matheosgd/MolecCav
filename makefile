@@ -136,15 +136,17 @@ $(info ***********************************************************************)
 .PHONY: ut UT
 # the ".PHONY <string1> <string2> <...>" make command indicates to make that the provided string are neither files nor directories and allows to use them...
 # ... as key-words, ex: as command-line commands
-UT ut: test_algebra.exe test_cavity_mode.exe test_construct_op.exe test_action_op.exe
+UT ut: test_algebra.exe test_cavity_mode.exe test_construct_op.exe test_action_op.exe test_total_hamiltonian.exe
 	./test_algebra.exe > $(OUTPUT_DIR)/test_algebra.log
-	grep "Number of error(s)" $(OUTPUT_DIR)/test_algebra.log
 	./test_cavity_mode.exe < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_cavity_mode.log
-	grep "Number of error(s)" $(OUTPUT_DIR)/test_cavity_mode.log
 	./test_construct_op.exe < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_construct_op.log
-	grep "Number of error(s)" $(OUTPUT_DIR)/test_construct_op.log
 	./test_action_op.exe < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_action_op.log
+	./test_total_hamiltonian.exe < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_total_hamiltonian.log
+	grep "Number of error(s)" $(OUTPUT_DIR)/test_algebra.log
+	grep "Number of error(s)" $(OUTPUT_DIR)/test_cavity_mode.log
+	grep "Number of error(s)" $(OUTPUT_DIR)/test_construct_op.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_action_op.log
+	grep "Number of error(s)" $(OUTPUT_DIR)/test_total_hamiltonian.log
 	@echo "Done Tests"
 # here is the actual definition of the command. It is declared as "UT" OR "ut" to make it cass-insensitive (both can be used to call it). NB: UT = Utility Test
 # the first line instruction is understood by Make as "see these files". It will search the make file for where they are defined i.e. for their...
@@ -174,7 +176,7 @@ app APP App: $(MAIN).exe
 # this command will compile the library (create the .o and .mod files) and the tests (create the .o and .exe files) and create the static library .a file...
 # ... BUT not execute anything !
 .PHONY: all
-all: $(LIBA) test_algebra.exe test_cavity_mode.exe test_construct_op.exe $(MAIN).exe
+all: $(LIBA) test_algebra.exe test_cavity_mode.exe test_construct_op.exe test_action_op.exe test_total_hamiltonian.exe $(MAIN).exe
 # Recall : LIBA = libMolecCav
 # this instruction is understood by Make as "see these files". It will search the make file for where they are defined i.e. for their dependancies, and...
 # ... create them as they are defined if they are too old. 
@@ -280,17 +282,23 @@ $(OBJ_DIR)/test_cavity_mode.o  : $(TESTS_DIR)/test_cavity_mode.f90
 # "-c" is the compilation and can take also as an argument "-o" which here does not mean "link into executable" but allows to choose the name of the thereby...
 #... created object files. Here the path where they have to be stored (OBJ/obj) is added as a prefix to the name 
 
-test_construct_op.exe          : $(OBJ_DIR)/test_construct_op.o $(LIBA)
+test_construct_op.exe               : $(OBJ_DIR)/test_construct_op.o $(LIBA)
 	$(FFC) -o test_construct_op.exe  $(FFLAGS) $(OBJ_DIR)/test_construct_op.o $(LIBA) $(EXTLib)
 
-$(OBJ_DIR)/test_construct_op.o : $(TESTS_DIR)/test_construct_op.f90
+$(OBJ_DIR)/test_construct_op.o      : $(TESTS_DIR)/test_construct_op.f90
 	$(FFC) -c -o $(OBJ_DIR)/test_construct_op.o $(FFLAGS) $(TESTS_DIR)/test_construct_op.f90
 
-test_action_op.exe             : $(OBJ_DIR)/test_action_op.o $(LIBA)
+test_action_op.exe                  : $(OBJ_DIR)/test_action_op.o $(LIBA)
 	$(FFC) -o test_action_op.exe  $(FFLAGS) $(OBJ_DIR)/test_action_op.o $(LIBA) $(EXTLib)
 
-$(OBJ_DIR)/test_action_op.o : $(TESTS_DIR)/test_action_op.f90
+$(OBJ_DIR)/test_action_op.o         : $(TESTS_DIR)/test_action_op.f90
 	$(FFC) -c -o $(OBJ_DIR)/test_action_op.o $(FFLAGS) $(TESTS_DIR)/test_action_op.f90
+
+test_total_hamiltonian.exe          : $(OBJ_DIR)/test_total_hamiltonian.o $(LIBA)
+	$(FFC) -o test_total_hamiltonian.exe  $(FFLAGS) $(OBJ_DIR)/test_total_hamiltonian.o $(LIBA) $(EXTLib)
+
+$(OBJ_DIR)/test_total_hamiltonian.o : $(TESTS_DIR)/test_total_hamiltonian.f90
+	$(FFC) -c -o $(OBJ_DIR)/test_total_hamiltonian.o $(FFLAGS) $(TESTS_DIR)/test_total_hamiltonian.f90
 
 #=================================================================================
 #==================Definition of the files to be created by Make==================
@@ -332,23 +340,24 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.f90
 #=================================================================================
 # here are added the other dependancies between modules, that arre mandatory for a good compilation, but which do not lead to creation instructions. Just to...
 # ... specify that one module needs another one
-$(OBJ_DIR)/test_algebra.o        : $(LIBA)
-$(OBJ_DIR)/test_cavity_mode.o    : $(LIBA)
-$(OBJ_DIR)/test_construct_op.o   : $(LIBA)
-$(OBJ_DIR)/test_action_op.o      : $(LIBA)
+$(OBJ_DIR)/test_algebra.o           : $(LIBA)
+$(OBJ_DIR)/test_cavity_mode.o       : $(LIBA)
+$(OBJ_DIR)/test_construct_op.o      : $(LIBA)
+$(OBJ_DIR)/test_action_op.o         : $(LIBA)
+$(OBJ_DIR)/test_total_hamiltonian.o : $(LIBA)
 
-$(OBJ_DIR)/Operator_1D_m.o       : $(OBJ_DIR)/Algebra_m.o 
-$(OBJ_DIR)/Operator_1D_m.o       : $(OBJ_DIR)/Cavity_mode_m.o 
-$(OBJ_DIR)/Operator_2D_m.o       : $(OBJ_DIR)/Algebra_m.o 
-$(OBJ_DIR)/Operator_2D_m.o       : $(OBJ_DIR)/Cavity_mode_m.o 
-$(OBJ_DIR)/Operator_2D_m.o       : $(OBJ_DIR)/Operator_1D_m.o 
-$(OBJ_DIR)/Total_hamiltonian_m.o : $(OBJ_DIR)/Cavity_mode_m.o 
-$(OBJ_DIR)/Total_hamiltonian_m.o : $(OBJ_DIR)/Operator_1D_m.o 
+$(OBJ_DIR)/Operator_1D_m.o          : $(OBJ_DIR)/Algebra_m.o 
+$(OBJ_DIR)/Operator_1D_m.o          : $(OBJ_DIR)/Cavity_mode_m.o 
+$(OBJ_DIR)/Operator_2D_m.o          : $(OBJ_DIR)/Algebra_m.o 
+$(OBJ_DIR)/Operator_2D_m.o          : $(OBJ_DIR)/Cavity_mode_m.o 
+$(OBJ_DIR)/Operator_2D_m.o          : $(OBJ_DIR)/Operator_1D_m.o 
+$(OBJ_DIR)/Total_hamiltonian_m.o    : $(OBJ_DIR)/Cavity_mode_m.o 
+$(OBJ_DIR)/Total_hamiltonian_m.o    : $(OBJ_DIR)/Operator_1D_m.o 
 
 
-$(OBJ_DIR)/$(MAIN).o             : $(LIBA)
+$(OBJ_DIR)/$(MAIN).o                : $(LIBA)
 
-$(OBJ)                           : | $(QDLIBA)
+$(OBJ)                              : | $(QDLIBA)
 # the pipe means that only the EXISTENCE is tested and not the dates of the files. The logical test is True if $(QDLIBA) exists, EVEN if its creation date...
 #... is more recent than the tested file
 

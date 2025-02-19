@@ -50,7 +50,7 @@ MODULE Total_hamiltonian_m
 
     real(kind=Rkind), allocatable      :: Psi_1(:,:), Psi_2(:,:), Psi_3(:,:)   ! cf. below for meaning
     integer                            :: Nb_M, Nb_C
-    logical                            :: Write_results = .TRUE.
+    logical                            :: Debug_local = .TRUE.
   
     ! TotH_psi = [MatH x CavIdentity]_psi + [MatIdentity x CavH]_psi + lambda_C.w_C.[Mat_dipolar_moment x CavPosition]_psi
     !          = [CavIdentity]_psi_1 + [CavH]_psi_2 + lambda_C.w_C.[CavPosition]_psi_3
@@ -59,7 +59,7 @@ MODULE Total_hamiltonian_m
     !    Psi_3 = [Mat_dipolar_moment]_psi
 
     !------------------------------Initialization------------------------------
-    IF (PRESENT(Debug)) Write_results = Debug
+    IF (PRESENT(Debug)) Debug_local = Debug
     Nb_M     = Size(Psi, 1)
     Nb_C     = Size(Psi, 2)
 
@@ -110,8 +110,9 @@ MODULE Total_hamiltonian_m
     !--------------------------------Computation-------------------------------
     CALL Action_Matter_1p1D(Psi_1, Psi_2, Psi_3, Mat_dipolar_moment, MatH, Psi)
 
-    IF (Write_results .AND. Nb_C <= 10) THEN
+    IF (Debug_local .AND. Nb_C <= 10) THEN
       WRITE(out_unit,*)
+      WRITE(out_unit,*) "-----------------Computing the action of the total Hamiltonian over the 1p1D system-----------------"
       CALL Write_Mat(Psi,   out_unit, Nb_C, info="Psi")
       WRITE(out_unit,*)
       CALL Write_Mat(Psi_1, out_unit, Nb_C, info="Psi_1")
@@ -119,8 +120,9 @@ MODULE Total_hamiltonian_m
       CALL Write_Mat(Psi_2, out_unit, Nb_C, info="Psi_2")
       WRITE(out_unit,*)
       CALL Write_Mat(Psi_3, out_unit, Nb_C, info="Psi_3")
-    ELSE IF (Write_results .AND. Nb_C > 10) THEN
+    ELSE IF (Debug_local .AND. Nb_C > 10) THEN
       WRITE(out_unit,*)
+      WRITE(out_unit,*) "-----------------Computing the action of the total Hamiltonian over the 1p1D system-----------------"
       CALL Write_Mat(Psi(1:10,1:10),   out_unit, 10, info="Psi(10:10sliced)")
       WRITE(out_unit,*)
       CALL Write_Mat(Psi_1(1:10,1:10), out_unit, 10, info="Psi_1(10:10sliced)")
@@ -130,7 +132,7 @@ MODULE Total_hamiltonian_m
       CALL Write_Mat(Psi_3(1:10,1:10), out_unit, 10, info="Psi_3(10:10sliced)")
     END IF
 
-    CALL Action_Cavity_1p1D(TotH_psi, CavPosition, CavH, Psi_1, Psi_2, Psi_3, Write_results)
+    CALL Action_Cavity_1p1D(TotH_psi, CavPosition, CavH, Psi_1, Psi_2, Psi_3, Debug_local)
 
   END SUBROUTINE MolecCav_Action_total_hamiltonian_1p1D
   
@@ -167,7 +169,7 @@ MODULE Total_hamiltonian_m
   END SUBROUTINE MolecCav_Action_Matter_1p1D
 
   
-  SUBROUTINE MolecCav_Action_Cavity_1p1D(TotH_psi, CavPosition, CavH, Psi_1, Psi_2, Psi_3, Write_results)
+  SUBROUTINE MolecCav_Action_Cavity_1p1D(TotH_psi, CavPosition, CavH, Psi_1, Psi_2, Psi_3, Debug_local)
     USE QDUtil_m
     USE Cavity_mode_m
     USE Operator_1D_m
@@ -179,7 +181,7 @@ MODULE Total_hamiltonian_m
     real(kind=Rkind),    intent(in)    :: Psi_1(:,:)                           ! cf. below for meaning
     real(kind=Rkind),    intent(in)    :: Psi_2(:,:)                           ! cf. below for meaning
     real(kind=Rkind),    intent(in)    :: Psi_3(:,:)                           ! cf. below for meaning
-    logical,             intent(in)    :: Write_results
+    logical,             intent(in)    :: Debug_local
 
     real(kind=Rkind), allocatable      :: Intermediary(:,:)
     integer                            :: Nb_C, i_M
@@ -193,10 +195,10 @@ MODULE Total_hamiltonian_m
     Nb_C = Size(TotH_psi,2)
     
     TotH_psi(:,:) = Psi_1(:,:)
-    IF (Write_results .AND. Nb_C <= 10) THEN
+    IF (Debug_local .AND. Nb_C <= 10) THEN
       WRITE(out_unit,*)
       CALL Write_Mat(TotH_psi, out_unit, Nb_C, info="[MatHxCavIdentity]_psi")
-    ELSE IF (Write_results .AND. Nb_C > 10) THEN
+    ELSE IF (Debug_local .AND. Nb_C > 10) THEN
       WRITE(out_unit,*)
       CALL Write_Mat(TotH_psi(1:10,1:10), out_unit, 10, info="[MatHxCavIdentity]_psi(10:10sliced)")
     END IF
@@ -206,19 +208,19 @@ MODULE Total_hamiltonian_m
     DO i_M = 1, Size(TotH_psi,1)
       CALL Action_Operator_1D(Intermediary(i_M,:), CavH, Psi_2(i_M,:))
     END DO
-    IF (Write_results .AND. Nb_C <= 10) THEN
+    IF (Debug_local .AND. Nb_C <= 10) THEN
       WRITE(out_unit,*)
       CALL Write_Mat(Intermediary, out_unit, Nb_C, info="[MatIdentityxCavH]_psi")
-    ELSE IF (Write_results .AND. Nb_C > 10) THEN
+    ELSE IF (Debug_local .AND. Nb_C > 10) THEN
       WRITE(out_unit,*)
       CALL Write_Mat(Intermediary(1:10,1:10), out_unit, 10, info="[MatIdentityxCavH]_psi(10:10sliced)")
     END IF
 
     TotH_psi(:,:) = TotH_psi(:,:) + Intermediary(:,:) 
-    IF (Write_results .AND. Nb_C <= 10) THEN
+    IF (Debug_local .AND. Nb_C <= 10) THEN
       WRITE(out_unit,*)
       CALL Write_Mat(TotH_psi, out_unit, Nb_C, info="[MatH+CavH]_psi")
-    ELSE IF (Write_results .AND. Nb_C > 10) THEN
+    ELSE IF (Debug_local .AND. Nb_C > 10) THEN
       WRITE(out_unit,*)
       CALL Write_Mat(TotH_psi(1:10,1:10), out_unit, 10, info="[MatH+CavH]_psi(10:10sliced)")
     END IF
@@ -227,21 +229,23 @@ MODULE Total_hamiltonian_m
     DO i_M = 1, Size(TotH_psi,1)
       CALL Action_Operator_1D(Intermediary(i_M,:), CavPosition, Psi_3(i_M,:))
     END DO
-    IF (Write_results .AND. Nb_C <= 10) THEN
+    IF (Debug_local .AND. Nb_C <= 10) THEN
       WRITE(out_unit,*)
       CALL Write_Mat(Intermediary, out_unit, Nb_C, info="[Mat_dipolar_momentxCavPosition]_psi")
-    ELSE IF (Write_results .AND. Nb_C > 10) THEN
+    ELSE IF (Debug_local .AND. Nb_C > 10) THEN
       WRITE(out_unit,*)
       CALL Write_Mat(Intermediary(1:10,1:10), out_unit, 10, info="[Mat_dipolar_momentxCavPosition]_psi(10:10sliced)")
     END IF
 
     TotH_psi(:,:) = TotH_psi(:,:) + CavH%lambda * CavH%w * Intermediary(:,:)
-    IF (Write_results .AND. Nb_C <= 10) THEN
+    IF (Debug_local .AND. Nb_C <= 10) THEN
       WRITE(out_unit,*)
       CALL Write_Mat(TotH_psi, out_unit, Nb_C, info="TotH_psi")
-    ELSE IF (Write_results .AND. Nb_C > 10) THEN
+      WRITE(out_unit,*) "---------------End computing the action of the total Hamiltonian over the 1p1D system---------------"
+    ELSE IF (Debug_local .AND. Nb_C > 10) THEN
       WRITE(out_unit,*)
       CALL Write_Mat(TotH_psi(1:10,1:10), out_unit, 10, info="TotH_psi(10:10sliced)")
+      WRITE(out_unit,*) "---------------End computing the action of the total Hamiltonian over the 1p1D system---------------"
     END IF
 
   END SUBROUTINE MolecCav_Action_Cavity_1p1D

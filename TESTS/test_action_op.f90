@@ -8,7 +8,7 @@ PROGRAM test_action_op
   IMPLICIT NONE
 
 
-  logical                       :: Debug = .TRUE.
+  logical                       :: Debug = .FALSE.
 
   TYPE(Cavity_mode_t)           :: Mode                                                            ! The well construction of the Operator's matrices is assumed checked by the dedicated test, so hard-coded references matrices are not needed here
 
@@ -24,7 +24,7 @@ PROGRAM test_action_op
   TYPE(Operator_1D_t)           :: x_band_3_4
   TYPE(Operator_1D_t)           :: x_dense_3_4
 
-  TYPE(Operator_1D_t)           :: N_diag                                                     ! Nomenclature : N_<shape>
+  TYPE(Operator_1D_t)           :: N_diag                                                          ! Nomenclature : N_<shape>
   TYPE(Operator_1D_t)           :: N_dense
 
   real(kind=Rkind)              :: b_0(3) = [ONE, ZERO, ZERO]                                      ! three vectors of the HO basis set |0>, |1>, |2> 

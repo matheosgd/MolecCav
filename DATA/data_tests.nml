@@ -2,8 +2,16 @@
 !ND = 1        !Number of dimensions = number of cavity modes coupled with the molecule
 !/
 !
-&HO_1
+&HO_1         ! /!\ DO NOT CHANGE THAT NAME for the subroutine being able to read the nml /!\
 D = 1         !Label of the basis/HO/mode/dimension
+Nb = 6        !Number of basis vectors associated with the HO D
+w = 1         !Eigenpulsation associated with the HO D
+m = 1         !Mass associated with the HO D
+lambda = 1    !Strength parameter of the coupling between the mode D and the molecule
+/
+
+&HO_1         ! /!\ DO NOT CHANGE THAT NAME for the subroutine being able to read the nml /!\
+D = 2         !Label of the basis/HO/mode/dimension
 Nb = 6        !Number of basis vectors associated with the HO D
 w = 1         !Eigenpulsation associated with the HO D
 m = 1         !Mass associated with the HO D

@@ -71,8 +71,8 @@ OBJ_LIB=(${MODULES_LIB[@]/%/.o})
 LIB="libMolecCav"
 LIBA="$LIB.a"
 
-TESTS=("test_algebra" "test_cavity_mode") # "test_construct_op" "test_action_op")
-SRC_TESTS=(${TESTS[@]/%/.f90})                                                 # parenthesis must be added here to make bash know that the nex var is also an array
+TESTS=("test_algebra" "test_cavity_mode" "test_construct_op" "test_action_op" "test_total_hamiltonian")
+SRC_TESTS=(${TESTS[@]/%/.f90})                                                 # parenthesis must be added here to make bash know that the next var is also an array
 OBJ_TESTS=(${TESTS[@]/%/.o})                                                   
 EXE_TESTS=(${TESTS[@]/%/.exe})  
 
@@ -187,8 +187,12 @@ Build_tests()
 	$FFC -o ${EXE_TESTS[0]}  $FFLAGS ${TESTS_OBJ_FILES[0]} $LIBA $EXTLib
 	$FFC -c -o ${TESTS_OBJ_FILES[1]} $FFLAGS ${TESTS_SRC_FILES[1]}
 	$FFC -o ${EXE_TESTS[1]}  $FFLAGS ${TESTS_OBJ_FILES[1]} $LIBA $EXTLib
-#	$FFC -c -o ${TESTS_OBJ_FILES[2]} $FFLAGS ${TESTS_SRC_FILES[2]}
-#	$FFC -o ${EXE_TESTS[2]}  $FFLAGS ${TESTS_OBJ_FILES[2]} $LIBA $EXTLib
+	$FFC -c -o ${TESTS_OBJ_FILES[2]} $FFLAGS ${TESTS_SRC_FILES[2]}
+	$FFC -o ${EXE_TESTS[2]}  $FFLAGS ${TESTS_OBJ_FILES[2]} $LIBA $EXTLib
+	$FFC -c -o ${TESTS_OBJ_FILES[3]} $FFLAGS ${TESTS_SRC_FILES[3]}
+	$FFC -o ${EXE_TESTS[3]}  $FFLAGS ${TESTS_OBJ_FILES[3]} $LIBA $EXTLib
+	$FFC -c -o ${TESTS_OBJ_FILES[4]} $FFLAGS ${TESTS_SRC_FILES[4]}
+	$FFC -o ${EXE_TESTS[4]}  $FFLAGS ${TESTS_OBJ_FILES[4]} $LIBA $EXTLib
 
   for file in ${TESTS_OBJ_FILES[@]}
   do
@@ -419,9 +423,7 @@ case "$command" in
 	rm -f $OBJ_DIR/*.o
 	rm -f test*.exe
   rm -f $EXE_MAIN
-	rm -f $OUTPUT_DIR/test_cavity_mode.log
-	rm -f $OUTPUT_DIR/test_construct_op.log
-  rm -f $OUTPUT_DIR/test_action_op.log
+	rm -f $OUTPUT_DIR/test_*.log
 	rm -f $OUTPUT_DIR/$OUT_MAIN
 	Claim "Done cleaning objects, executables, and tests outputs"
   echo "################################################################################"
@@ -505,8 +507,10 @@ case "$command" in
 	Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_cavity_mode.log)"
 	./test_construct_op.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_construct_op.log
 	Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_construct_op.log)"
-#	./test_action_op.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_action_op.log
-#	Claim "$(grep "Test" "$OUTPUT_DIR/"test_action_op.log)"
+	./test_action_op.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_action_op.log
+	Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_action_op.log)"
+	./test_total_hamiltonian.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_total_hamiltonian.log
+	Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_total_hamiltonian.log)"
 	Claim "Done Tests"
 
   echo "################################################################################"

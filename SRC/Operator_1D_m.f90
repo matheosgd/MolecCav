@@ -20,7 +20,7 @@ MODULE Operator_1D_m
 
   PUBLIC Operator_1D_t, Construct_Operator_1D, Action_Operator_1D, Average_value_operator_1D, & 
        !& MolecCav_Action_operator_2D, MolecCav_Average_value_operator_2D, &
-       & Write_Operator_1D
+       & Debug_localerator_1D
 
   INTERFACE Construct_Operator_1D
     MODULE PROCEDURE MolecCav_Construct_Operator_1D
@@ -29,10 +29,10 @@ MODULE Operator_1D_m
     MODULE PROCEDURE MolecCav_Action_Operator_1D
   END INTERFACE
   INTERFACE Average_value_operator_1D
-  MODULE PROCEDURE MolecCav_Average_value_operator_1D
+    MODULE PROCEDURE MolecCav_Average_value_operator_1D
   END INTERFACE
-  INTERFACE Write_Operator_1D
-  MODULE PROCEDURE MolecCav_Write_Operator_1D
+  INTERFACE Debug_localerator_1D
+    MODULE PROCEDURE MolecCav_Debug_localerator_1D
   END INTERFACE
     
 
@@ -50,15 +50,15 @@ MODULE Operator_1D_m
     TYPE(Cavity_mode_t), intent(in)    :: Mode                                 ! the HO/Cavity mode which the operator is relative to
     logical, optional,   intent(in)    :: Debug
 
-    logical                            :: Write_op = .FALSE.
+    logical                            :: Debug_local = .FALSE.
 
     !-----------------------------Debugging options----------------------------
-    IF (PRESENT(Debug)) Write_op = Debug
-    IF (Write_op) THEN
+    IF (PRESENT(Debug)) Debug_local = Debug
+    IF (Debug_local) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "-------------------Arguments of MolecCav_Construct_Operator_1D------------------"
       WRITE(out_unit,*) "The <<Operator>> argument :"
-      CALL Write_Operator_1D(Operator)
+      CALL Debug_localerator_1D(Operator)
       WRITE(out_unit,*) "The <<Operator_type>> argument : ", Operator_type
       IF (present(Dense)) WRITE(out_unit,*) "Dense :", Dense
       WRITE(out_unit,*) "The <<Mode>> argument : ", Mode
@@ -92,10 +92,10 @@ MODULE Operator_1D_m
 
     END SELECT
 
-    IF (Write_op) THEN
+    IF (Debug_local) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "-------------Operator constructed by MolecCav_Construct_Operator_1D-------------"
-      CALL Write_Operator_1D(Operator)
+      CALL Debug_localerator_1D(Operator)
       WRITE(out_unit,*) "-----------End operator constructed by MolecCav_Construct_Operator_1D-----------"
       WRITE(out_unit,*)
     END IF
@@ -353,19 +353,18 @@ MODULE Operator_1D_m
   END SUBROUTINE MolecCav_Average_value_operator_1D
 
 
-  SUBROUTINE MolecCav_Write_Operator_1D(Operator)
+  SUBROUTINE MolecCav_Debug_localerator_1D(Operator)
     TYPE(Operator_1D_t), intent(in) :: Operator
 
     WRITE(out_unit,*) "---------------------------WRITING THE OPERATOR TYPE---------------------------"
     CALL Write_cavity_mode(Operator%Cavity_mode_t)
-    WRITE(out_unit,*) "----------------------------the operator parameters----------------------------"
     IF (ALLOCATED(Operator%Operator_type)) THEN
-      WRITE(out_unit,*) "____________________________________________________________________________________________________"
+      WRITE(out_unit,*) "_______________________________________the operator parameters______________________________________"
       WRITE(out_unit,*) "|The operator's nature <<Operator_type>> information do is allocated, and is |", Operator%Operator_type
       FLUSH(out_unit)
       WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
     ELSE 
-      WRITE(out_unit,*) "_____________________________________________________________________________"
+      WRITE(out_unit,*) "___________________________the operator parameters___________________________"
       WRITE(out_unit,*) "|The operator's nature <<Operator_type>> information is NOT allocated.       |"
       FLUSH(out_unit)
       WRITE(out_unit,*) "|____________________________________________________________________________|___&
@@ -380,8 +379,7 @@ MODULE Operator_1D_m
     FLUSH(out_unit)
     WRITE(out_unit,*) "|____________________________________________________________________________|_____&
                       &_______________________"
-    WRITE(out_unit,*) "-------------------------the operator's representations-------------------------"
-    WRITE(out_unit,*) "_____________________________________________________________________________"
+    WRITE(out_unit,*) "________________________the operator's representations_______________________"
     IF (ALLOCATED(Operator%Diag_val_R)) THEN                                   ! we assume that the code is supposed to be used only allocating one of the matrices of each Operator_t object
       WRITE(out_unit,*) "|The operator's Diagonal matrix representation has been used, and is         |"
       WRITE(out_unit,*) "|____________________________________________________________________________|"
@@ -421,7 +419,7 @@ MODULE Operator_1D_m
     WRITE(out_unit,*) "-----------------------------END WRITE OPERATOR TYPE----------------------------"
     FLUSH(out_unit)
 
-  END SUBROUTINE MolecCav_Write_Operator_1D
+  END SUBROUTINE MolecCav_Debug_localerator_1D
 
 
 END MODULE
