@@ -136,17 +136,19 @@ $(info ***********************************************************************)
 .PHONY: ut UT
 # the ".PHONY <string1> <string2> <...>" make command indicates to make that the provided string are neither files nor directories and allows to use them...
 # ... as key-words, ex: as command-line commands
-UT ut: test_algebra.exe test_cavity_mode.exe test_construct_op.exe test_action_op.exe test_total_hamiltonian.exe
-	./test_algebra.exe > $(OUTPUT_DIR)/test_algebra.log
-	./test_cavity_mode.exe < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_cavity_mode.log
-	./test_construct_op.exe < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_construct_op.log
-	./test_action_op.exe < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_action_op.log
-	./test_total_hamiltonian.exe < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_total_hamiltonian.log
+UT ut: test_algebra.exe test_cavity_mode.exe test_construct_op_1D.exe test_action_op_1D.exe test_action_total_H_1p1D.exe test_construct_total_H_1p1D.exe
+	./test_algebra.exe                                             > $(OUTPUT_DIR)/test_algebra.log
+	./test_cavity_mode.exe            < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_cavity_mode.log
+	./test_construct_op_1D.exe        < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_construct_op_1D.log
+	./test_action_op_1D.exe           < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_action_op_1D.log
+	./test_action_total_H_1p1D.exe    < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_action_total_H_1p1D.log
+	./test_construct_total_H_1p1D.exe < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_construct_total_H_1p1D.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_algebra.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_cavity_mode.log
-	grep "Number of error(s)" $(OUTPUT_DIR)/test_construct_op.log
-	grep "Number of error(s)" $(OUTPUT_DIR)/test_action_op.log
-	grep "Number of error(s)" $(OUTPUT_DIR)/test_total_hamiltonian.log
+	grep "Number of error(s)" $(OUTPUT_DIR)/test_construct_op_1D.log
+	grep "Number of error(s)" $(OUTPUT_DIR)/test_action_op_1D.log
+	grep "Number of error(s)" $(OUTPUT_DIR)/test_action_total_H_1p1D.log
+	grep "Number of error(s)" $(OUTPUT_DIR)/test_construct_total_H_1p1D.log
 	@echo "Done Tests"
 # here is the actual definition of the command. It is declared as "UT" OR "ut" to make it cass-insensitive (both can be used to call it). NB: UT = Utility Test
 # the first line instruction is understood by Make as "see these files". It will search the make file for where they are defined i.e. for their...
@@ -176,7 +178,7 @@ app APP App: $(MAIN).exe
 # this command will compile the library (create the .o and .mod files) and the tests (create the .o and .exe files) and create the static library .a file...
 # ... BUT not execute anything !
 .PHONY: all
-all: $(LIBA) test_algebra.exe test_cavity_mode.exe test_construct_op.exe test_action_op.exe test_total_hamiltonian.exe $(MAIN).exe
+all: $(LIBA) test_algebra.exe test_cavity_mode.exe test_construct_op_1D.exe test_action_op_1D.exe test_action_total_H_1p1D.exe test_construct_total_H_1p1D.exe $(MAIN).exe
 # Recall : LIBA = libMolecCav
 # this instruction is understood by Make as "see these files". It will search the make file for where they are defined i.e. for their dependancies, and...
 # ... create them as they are defined if they are too old. 
@@ -248,7 +250,7 @@ cleanall : clean
 #==================Definition of the files to be created by Make==================
 #====================1. the main executable (the APP/ program)====================
 #=================================================================================
-$(MAIN).exe                    : $(OBJ_DIR)/$(MAIN).o $(LIBA)
+$(MAIN).exe                              : $(OBJ_DIR)/$(MAIN).o $(LIBA)
 	$(FFC) -o $(MAIN).exe $(FFLAGS) $(OBJ_DIR)/$(MAIN).o $(LIBA) $(EXTLib)
 # this syntax define a file in Make : it shows its dependancies and then the compilation instructions
 # the first line "<the file defined here> : <list of the files it depends on>" provides the dependancies. If Make has to treat this file, it will compare...
@@ -257,7 +259,7 @@ $(MAIN).exe                    : $(OBJ_DIR)/$(MAIN).o $(LIBA)
 # the following lines are thus the creation instructions. They are usually compilation instruction but not necessarily
 # /!\ they have to be indented with a TABULATION and not with spaces /!\.
 
-$(OBJ_DIR)/$(MAIN).o           : $(MAIN_DIR)/$(MAIN).f90
+$(OBJ_DIR)/$(MAIN).o                     : $(MAIN_DIR)/$(MAIN).f90
 	$(FFC) -c -o $(OBJ_DIR)/$(MAIN).o $(FFLAGS) $(MAIN_DIR)/$(MAIN).f90
 
 
@@ -265,40 +267,47 @@ $(OBJ_DIR)/$(MAIN).o           : $(MAIN_DIR)/$(MAIN).f90
 #==================Definition of the files to be created by Make==================
 #========================2. the tests (the TESTS/ programs)=======================
 #=================================================================================
-test_algebra.exe          : $(OBJ_DIR)/test_algebra.o $(LIBA)
+test_algebra.exe                         : $(OBJ_DIR)/test_algebra.o $(LIBA)
 	$(FFC) -o test_algebra.exe  $(FFLAGS) $(OBJ_DIR)/test_algebra.o $(LIBA) $(EXTLib)
 
-$(OBJ_DIR)/test_algebra.o : $(TESTS_DIR)/test_algebra.f90
+$(OBJ_DIR)/test_algebra.o                : $(TESTS_DIR)/test_algebra.f90
 	$(FFC) -c -o $(OBJ_DIR)/test_algebra.o $(FFLAGS) $(TESTS_DIR)/test_algebra.f90
 
-test_cavity_mode.exe           : $(OBJ_DIR)/test_cavity_mode.o $(LIBA)
+test_cavity_mode.exe                     : $(OBJ_DIR)/test_cavity_mode.o $(LIBA)
 	$(FFC) -o test_cavity_mode.exe  $(FFLAGS) $(OBJ_DIR)/test_cavity_mode.o $(LIBA) $(EXTLib)
 # N.B. contrary to the next instruction, -o does mean here "link these object files into an executable one" (gfortran argument syntax)
 # N.B. Question : je ne suis pas de pourquoi FFLAGS est nécéssaire pour le linking en .exe puisque je crois que les .mod ne sont pas utiles pour cette étape ?
 # Recall: "FFLAGS also provides the path towards the .mod files : "-J$(MOD_DIR) $(EXTMod)"
 
-$(OBJ_DIR)/test_cavity_mode.o  : $(TESTS_DIR)/test_cavity_mode.f90
+$(OBJ_DIR)/test_cavity_mode.o            : $(TESTS_DIR)/test_cavity_mode.f90
 	$(FFC) -c -o $(OBJ_DIR)/test_cavity_mode.o $(FFLAGS) $(TESTS_DIR)/test_cavity_mode.f90
 # "-c" is the compilation and can take also as an argument "-o" which here does not mean "link into executable" but allows to choose the name of the thereby...
 #... created object files. Here the path where they have to be stored (OBJ/obj) is added as a prefix to the name 
 
-test_construct_op.exe               : $(OBJ_DIR)/test_construct_op.o $(LIBA)
-	$(FFC) -o test_construct_op.exe  $(FFLAGS) $(OBJ_DIR)/test_construct_op.o $(LIBA) $(EXTLib)
+test_construct_op_1D.exe                 : $(OBJ_DIR)/test_construct_op_1D.o $(LIBA)
+	$(FFC) -o test_construct_op_1D.exe  $(FFLAGS) $(OBJ_DIR)/test_construct_op_1D.o $(LIBA) $(EXTLib)
 
-$(OBJ_DIR)/test_construct_op.o      : $(TESTS_DIR)/test_construct_op.f90
-	$(FFC) -c -o $(OBJ_DIR)/test_construct_op.o $(FFLAGS) $(TESTS_DIR)/test_construct_op.f90
+$(OBJ_DIR)/test_construct_op_1D.o        : $(TESTS_DIR)/test_construct_op_1D.f90
+	$(FFC) -c -o $(OBJ_DIR)/test_construct_op_1D.o $(FFLAGS) $(TESTS_DIR)/test_construct_op_1D.f90
 
-test_action_op.exe                  : $(OBJ_DIR)/test_action_op.o $(LIBA)
-	$(FFC) -o test_action_op.exe  $(FFLAGS) $(OBJ_DIR)/test_action_op.o $(LIBA) $(EXTLib)
+test_action_op_1D.exe                    : $(OBJ_DIR)/test_action_op_1D.o $(LIBA)
+	$(FFC) -o test_action_op_1D.exe  $(FFLAGS) $(OBJ_DIR)/test_action_op_1D.o $(LIBA) $(EXTLib)
 
-$(OBJ_DIR)/test_action_op.o         : $(TESTS_DIR)/test_action_op.f90
-	$(FFC) -c -o $(OBJ_DIR)/test_action_op.o $(FFLAGS) $(TESTS_DIR)/test_action_op.f90
+$(OBJ_DIR)/test_action_op_1D.o           : $(TESTS_DIR)/test_action_op_1D.f90
+	$(FFC) -c -o $(OBJ_DIR)/test_action_op_1D.o $(FFLAGS) $(TESTS_DIR)/test_action_op_1D.f90
 
-test_total_hamiltonian.exe          : $(OBJ_DIR)/test_total_hamiltonian.o $(LIBA)
-	$(FFC) -o test_total_hamiltonian.exe  $(FFLAGS) $(OBJ_DIR)/test_total_hamiltonian.o $(LIBA) $(EXTLib)
+test_action_total_H_1p1D.exe             : $(OBJ_DIR)/test_action_total_H_1p1D.o $(LIBA)
+	$(FFC) -o test_action_total_H_1p1D.exe  $(FFLAGS) $(OBJ_DIR)/test_action_total_H_1p1D.o $(LIBA) $(EXTLib)
 
-$(OBJ_DIR)/test_total_hamiltonian.o : $(TESTS_DIR)/test_total_hamiltonian.f90
-	$(FFC) -c -o $(OBJ_DIR)/test_total_hamiltonian.o $(FFLAGS) $(TESTS_DIR)/test_total_hamiltonian.f90
+$(OBJ_DIR)/test_action_total_H_1p1D.o    : $(TESTS_DIR)/test_action_total_H_1p1D.f90
+	$(FFC) -c -o $(OBJ_DIR)/test_action_total_H_1p1D.o $(FFLAGS) $(TESTS_DIR)/test_action_total_H_1p1D.f90
+
+test_construct_total_H_1p1D.exe          : $(OBJ_DIR)/test_construct_total_H_1p1D.o $(LIBA)
+	$(FFC) -o test_construct_total_H_1p1D.exe  $(FFLAGS) $(OBJ_DIR)/test_construct_total_H_1p1D.o $(LIBA) $(EXTLib)
+
+$(OBJ_DIR)/test_construct_total_H_1p1D.o : $(TESTS_DIR)/test_construct_total_H_1p1D.f90
+	$(FFC) -c -o $(OBJ_DIR)/test_construct_total_H_1p1D.o $(FFLAGS) $(TESTS_DIR)/test_construct_total_H_1p1D.f90
+
 
 #=================================================================================
 #==================Definition of the files to be created by Make==================
@@ -342,9 +351,9 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.f90
 # ... specify that one module needs another one
 $(OBJ_DIR)/test_algebra.o           : $(LIBA)
 $(OBJ_DIR)/test_cavity_mode.o       : $(LIBA)
-$(OBJ_DIR)/test_construct_op.o      : $(LIBA)
-$(OBJ_DIR)/test_action_op.o         : $(LIBA)
-$(OBJ_DIR)/test_total_hamiltonian.o : $(LIBA)
+$(OBJ_DIR)/test_construct_op_1D.o      : $(LIBA)
+$(OBJ_DIR)/test_action_op_1D.o         : $(LIBA)
+$(OBJ_DIR)/test_action_total_H_1p1D.o : $(LIBA)
 
 $(OBJ_DIR)/Operator_1D_m.o          : $(OBJ_DIR)/Algebra_m.o 
 $(OBJ_DIR)/Operator_1D_m.o          : $(OBJ_DIR)/Cavity_mode_m.o 

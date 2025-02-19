@@ -1,4 +1,4 @@
-PROGRAM test_action_op
+PROGRAM test_action_total_H_1p1D
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m
     USE QDUtil_Test_m
@@ -38,8 +38,8 @@ PROGRAM test_action_op
     real(kind=Rkind)              :: totH_psi_1p1D(3,2)                                            ! the resulting vector from the action of a 1D operator upon Psi_1D
     real(kind=Rkind)              :: totH_psi_1p1D_ana(3,2)                                        ! the analytical action = hard-coded reference for comparison
   
-    TYPE(test_t)                  :: test_tot_ham
-    logical                       :: error_tot_ham = .FALSE.
+    TYPE(test_t)                  :: test_act_tot_H
+    logical                       :: error_act_tot_H = .FALSE.
   
     !IF (Debug) THEN
     !  WRITE(out_unit,*)
@@ -50,7 +50,7 @@ PROGRAM test_action_op
   
   
     !--------------------------------------Test initialization-------------------------------------
-    CALL Initialize_Test(test_tot_ham, test_name="OUT/test_file_tot_ham")
+    CALL Initialize_Test(test_act_tot_H, test_name="OUT/test_file_act_tot_H_1p1D")
     
   
     !----------------------------------Wavefunction initialization---------------------------------
@@ -138,38 +138,38 @@ PROGRAM test_action_op
       !------------------------------------Testing the H actions-----------------------------------
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_0, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_0, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_0")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_0")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_1, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_1, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_1")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_1")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_2, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_2, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_2")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_2")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_3, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_3, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_3")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_3")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_4, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_4, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_4")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_4")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_5, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_5, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_5")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_5")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, Psi_1p1D, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, Psi_1p1D, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_Psi_1p1D")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_Psi_1p1D")
     
 
     !----------------totH_{1p1D_(w_M=1)_(m_M=1)_(w_C=1)_(Coeff_\mu=1)_(lambda=1/2)}----------------
@@ -181,38 +181,38 @@ PROGRAM test_action_op
       !------------------------------------Testing the H actions-----------------------------------
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_0, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_0, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_0")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_0")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_1, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_1, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_1")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_1")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_2, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_2, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_2")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_2")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_3, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_3, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_3")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_3")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_4, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_4, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_4")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_4")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_5, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_5, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_5")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_5")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, Psi_1p1D, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, Psi_1p1D, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_Psi_1p1D")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_Psi_1p1D")
     
 
     !------------totH_{1p1D_(w_M=3*\sqrt(2))_(m_M=1)_(w_C=1)_(Coeff_\mu=1)_(lambda=1/2)}-----------
@@ -231,38 +231,38 @@ PROGRAM test_action_op
       !------------------------------------Testing the H actions-----------------------------------
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_0, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_0, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_0")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_0")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_1, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_1, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_1")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_1")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_2, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_2, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_2")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_2")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_3, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_3, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_3")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_3")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_4, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_4, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_4")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_4")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_5, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_5, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_5")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_5")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, Psi_1p1D, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, Psi_1p1D, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_Psi_1p1D")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_Psi_1p1D")
     
 
     !----------totH_{1p1D_(w_M=3*\sqrt(2))_(m_M=m(HF))_(w_C=1)_(Coeff_\mu=1)_(lambda=1/2)}---------
@@ -281,38 +281,38 @@ PROGRAM test_action_op
       !------------------------------------Testing the H actions-----------------------------------
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_0, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_0, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_0")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_0")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_1, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_1, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_1")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_1")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_2, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_2, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_2")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_2")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_3, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_3, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_3")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_3")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_4, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_4, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_4")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_4")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_5, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_5, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_5")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_5")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, Psi_1p1D, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, Psi_1p1D, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_Psi_1p1D")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_Psi_1p1D")
     
 
     !------totH_{1p1D_(w_M=3*\sqrt(2))_(m_M=m(HF))_(w_C=\sqrt(2))_(Coeff_\mu=1)_(lambda=1/2)}------
@@ -330,38 +330,38 @@ PROGRAM test_action_op
       !------------------------------------Testing the H actions-----------------------------------
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_0, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_0, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_0")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_0")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_1, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_1, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_1")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_1")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_2, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_2, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_2")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_2")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_3, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_3, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_3")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_3")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_4, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_4, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_4")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_4")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_5, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_5, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_5")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_5")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, Psi_1p1D, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, Psi_1p1D, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_Psi_1p1D")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_Psi_1p1D")
     
 
     !-----totH_{1p1D_(w_M=3*\sqrt(2))_(m_M=m(HF))_(w_C=\sqrt(2))_(Coeff_\mu=\pi)_(lambda=1/2)}-----
@@ -377,41 +377,41 @@ PROGRAM test_action_op
       !------------------------------------Testing the H actions-----------------------------------
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_0, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_0, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_0")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_0")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_1, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_1, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_1")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_1")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_2, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_2, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_2")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_2")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_3, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_3, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_3")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_3")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_4, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_4, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_4")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_4")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_5, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, b_5, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_b_5")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_b_5")
     
     CALL Action_total_hamiltonian_1p1D(totH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, Psi_1p1D, Debug=Debug)
     CALL Construct_ref_matrix(totH_psi_1p1D_ana, Matter_DOF, Cavity_mode, Coeff_dipole_moment, Psi_1p1D, Debug_opt=Debug)
-    CALL Equal_R_R_matrix(error_tot_ham, totH_psi_1p1D_ana, totH_psi_1p1D)
-    CALL Logical_Test(test_tot_ham, error_tot_ham, test2=.FALSE., info="totH_Psi_1p1D")
+    CALL Equal_R_R_matrix(error_act_tot_H, totH_psi_1p1D_ana, totH_psi_1p1D)
+    CALL Logical_Test(test_act_tot_H, error_act_tot_H, test2=.FALSE., info="totH_Psi_1p1D")
     
 
-    CALL Finalize_Test(test_tot_ham)
+    CALL Finalize_Test(test_act_tot_H)
     
     
     CONTAINS

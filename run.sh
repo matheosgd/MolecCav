@@ -71,7 +71,7 @@ OBJ_LIB=(${MODULES_LIB[@]/%/.o})
 LIB="libMolecCav"
 LIBA="$LIB.a"
 
-TESTS=("test_algebra" "test_cavity_mode" "test_construct_op" "test_action_op" "test_total_hamiltonian")
+TESTS=("test_algebra" "test_cavity_mode" "test_construct_op_1D" "test_action_op_1D" "test_action_total_H_1p1D" "test_construct_total_H_1p1D")
 SRC_TESTS=(${TESTS[@]/%/.f90})                                                 # parenthesis must be added here to make bash know that the next var is also an array
 OBJ_TESTS=(${TESTS[@]/%/.o})                                                   
 EXE_TESTS=(${TESTS[@]/%/.exe})  
@@ -193,6 +193,8 @@ Build_tests()
 	$FFC -o ${EXE_TESTS[3]}  $FFLAGS ${TESTS_OBJ_FILES[3]} $LIBA $EXTLib
 	$FFC -c -o ${TESTS_OBJ_FILES[4]} $FFLAGS ${TESTS_SRC_FILES[4]}
 	$FFC -o ${EXE_TESTS[4]}  $FFLAGS ${TESTS_OBJ_FILES[4]} $LIBA $EXTLib
+	$FFC -c -o ${TESTS_OBJ_FILES[5]} $FFLAGS ${TESTS_SRC_FILES[5]}
+	$FFC -o ${EXE_TESTS[5]}  $FFLAGS ${TESTS_OBJ_FILES[5]} $LIBA $EXTLib
 
   for file in ${TESTS_OBJ_FILES[@]}
   do
@@ -505,12 +507,14 @@ case "$command" in
   Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_file_normalztn.log)"
 	./test_cavity_mode.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_cavity_mode.log
 	Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_cavity_mode.log)"
-	./test_construct_op.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_construct_op.log
-	Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_construct_op.log)"
-	./test_action_op.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_action_op.log
-	Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_action_op.log)"
-	./test_total_hamiltonian.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_total_hamiltonian.log
-	Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_total_hamiltonian.log)"
+	./test_construct_op_1D.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_construct_op_1D.log
+	Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_construct_op_1D.log)"
+	./test_action_op_1D.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_action_op_1D.log
+	Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_action_op_1D.log)"
+	./test_action_total_H_1p1D.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_action_total_H_1p1D.log
+	Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_action_total_H_1p1D.log)"
+	./test_construct_total_H_1p1D.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_construct_total_H_1p1D.log
+	Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_construct_total_H_1p1D.log)"
 	Claim "Done Tests"
 
   echo "################################################################################"

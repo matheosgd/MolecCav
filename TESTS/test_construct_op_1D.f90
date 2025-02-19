@@ -1,4 +1,4 @@
-PROGRAM test_construct_op
+PROGRAM test_construct_op_1D
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
   USE QDUtil_m
   USE QDUtil_Test_m
@@ -45,7 +45,7 @@ PROGRAM test_construct_op
 
 
   !-----------------------------Test initialization----------------------------
-  CALL Initialize_Test(test_construct, test_name="OUT/test_file_cnstrct_op")
+  CALL Initialize_Test(test_construct, test_name="OUT/test_file_cnstrct_op_1D")
   IF (Debug) THEN
     WRITE(out_unit,*)
     WRITE(out_unit,*) "--------------Cavity mode constructed by MolecCav_Read_cavity_mode--------------"

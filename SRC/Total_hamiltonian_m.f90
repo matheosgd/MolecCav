@@ -6,7 +6,7 @@ MODULE Total_hamiltonian_m
   
   PRIVATE
 
-  PUBLIC Action_total_hamiltonian_1p1D, Construct_H_tot, Mapping_WF_2DTO1D, Average_value_H_tot
+  PUBLIC Action_total_hamiltonian_1p1D, Construct_total_hamiltonian_1p1D, Mapping_WF_2DTO1D, Average_value_H_tot
 
   INTERFACE Action_total_hamiltonian_1p1D
     MODULE PROCEDURE MolecCav_Action_total_hamiltonian_1p1D_old, MolecCav_Action_total_hamiltonian_1p1D
@@ -20,8 +20,8 @@ MODULE Total_hamiltonian_m
   INTERFACE Action_matter_dipolar_moment_1p1D
     MODULE PROCEDURE MolecCav_Action_matter_dipolar_moment_1p1D
   END INTERFACE
-  INTERFACE Construct_H_tot
-  MODULE PROCEDURE MolecCav_Construct_H_tot
+  INTERFACE Construct_total_hamiltonian_1p1D
+  MODULE PROCEDURE MolecCav_Construct_total_hamiltonian_1p1D
   END INTERFACE
   INTERFACE Mapping_WF_2DTO1D
   MODULE PROCEDURE MolecCav_Mapping_WF_2DTO1D
@@ -340,7 +340,7 @@ MODULE Total_hamiltonian_m
   END SUBROUTINE MolecCav_Action_matter_dipolar_moment_1p1D
 
 
-  SUBROUTINE MolecCav_Construct_H_tot(H_tot, Nb_M, Nb_C, MatH_psi, &
+  SUBROUTINE MolecCav_Construct_total_hamiltonian_1p1D(H_tot, Nb_M, Nb_C, MatH_psi, &
                                     & CavH, CavPosition, &
                                     & Mat_dipolar_moment, &
                                     & Mode)
@@ -394,7 +394,7 @@ MODULE Total_hamiltonian_m
       END DO
     END DO
 
-  END SUBROUTINE MolecCav_Construct_H_tot
+  END SUBROUTINE MolecCav_Construct_total_hamiltonian_1p1D
 
 
   SUBROUTINE MolecCav_Mapping_WF_2DTO1D(Psi_1D, Psi_2D)

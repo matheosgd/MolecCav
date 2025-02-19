@@ -1,4 +1,4 @@
-PROGRAM test_action_op
+PROGRAM test_action_op_1D
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
   USE QDUtil_m
   USE QDUtil_Test_m
@@ -50,7 +50,7 @@ PROGRAM test_action_op
 
 
   !-----------------------------Test initialization----------------------------
-  CALL Initialize_Test(test_action, test_name="OUT/test_file_actn_op")
+  CALL Initialize_Test(test_action, test_name="OUT/test_file_actn_op_1D")
   
 
   !-------------------------Wavefunction initialization------------------------
