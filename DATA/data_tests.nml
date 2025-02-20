@@ -8,6 +8,7 @@ Nb = 6        !Number of basis vectors associated with the HO D
 w = 1         !Eigenpulsation associated with the HO D
 m = 1         !Mass associated with the HO D
 lambda = 1    !Strength parameter of the coupling between the mode D and the molecule
+eq_pos = 0    !Equilibrium position of the HO
 /
 
 &HO_1         ! /!\ DO NOT CHANGE THAT NAME for the subroutine being able to read the nml /!\
@@ -16,4 +17,5 @@ Nb = 6        !Number of basis vectors associated with the HO D
 w = 1         !Eigenpulsation associated with the HO D
 m = 1         !Mass associated with the HO D
 lambda = 1    !Strength parameter of the coupling between the mode D and the molecule
+eq_pos = 0    !Equilibrium position of the HO
 /

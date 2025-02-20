@@ -1,15 +1,44 @@
+!==================================================================================================
+!==================================================================================================
+!This file is part of MolecCav.
+!
+!==================================================================================================
+! MIT License
+!
+! Copyright (c) 2025 Mathéo Segaud
+!
+! Permission is hereby granted, free of charge, to any person obtaining a copy
+! of this software and associated documentation files (the "Software"), to deal
+! in the Software without restriction, including without limitation the rights
+! to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+! copies of the Software, and to permit persons to whom the Software is
+! furnished to do so, subject to the following conditions:
+!
+! The above copyright notice and this permission notice shall be included in all
+! copies or substantial portions of the Software.
+!
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+! IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+! SOFTWARE.
+!==================================================================================================
+!==================================================================================================
 MODULE Cavity_mode_m
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
   USE QDUtil_m                                                                 ! gives Rkind=real64; out_unit=OUTPUT_UNIT; INPUT_UNIT=in_unit; EYE=i and other numbers; TO_LOWERCASE; TO_UPPERCASE;... We thereby use ZERO instead of 0.0_real64
   IMPLICIT NONE
 
 
-  TYPE :: Cavity_mode_t                                                     ! MC = MolecCav NB: everything is initialized at values that are not supposed to make it possible of the cavity mode lecture/creation have successfully been executed
+  TYPE :: Cavity_mode_t                                                        ! MC = MolecCav NB: everything is initialized at values that are not supposed to make it possible of the cavity mode lecture/creation have successfully been executed
     integer          :: D      = 0                                             ! label of the HO/mode/dimension/associated basis set
     integer          :: Nb     = 1                                             ! number of basis vectors associated with the HO D
     real(kind=Rkind) :: w      = ZERO                                          ! eigenpulsation associated with the HO D
     real(kind=Rkind) :: m      = ZERO                                          ! mass associated with the HO D
-    real(kind=Rkind) :: lambda = ZERO                                          ! strength parameter of the coupling between the mode D and the molecule
+    real(kind=Rkind) :: lambda = -ONE                                          ! strength parameter of the coupling between the mode D and the molecule
+    real(kind=Rkind) :: eq_pos = -ONE                                          ! equilibrium position of the HO
   END TYPE
 
 
@@ -32,17 +61,18 @@ MODULE Cavity_mode_m
     integer,                intent(in)    :: nio
 
     integer                               :: D, Nb, err_io                     ! label of the basis/HO/mode/dimension, its number of basis vectors, and an error control variable
-    real(kind=Rkind)                      :: w, m, lambda                      ! eigenpulsation, mass, and molecule-coupling strength associated with this HO
+    real(kind=Rkind)                      :: w, m, lambda, eq_pos              ! eigenpulsation, mass, molecule-coupling strength, and equilibrium position associated with this HO
     logical, parameter                    :: Debug = .FALSE.
 
-    NAMELIST /HO_1/ D, Nb, w, m, lambda                                        ! declare the nml HO_1 and specify the parameter's list to be found within
+    NAMELIST /HO_1/ D, Nb, w, m, lambda, eq_pos                                ! declare the nml HO_1 and specify the parameter's list to be found within
 
     !----------------------Initialization to default values--------------------
     D      = 0
     Nb     = 1
     w      = ZERO
     m      = ZERO
-    lambda = ZERO
+    lambda = -ONE
+    eq_pos = -ONE
  
     !------------------------------Reading of the nml--------------------------
     WRITE(out_unit,*) 
@@ -84,6 +114,7 @@ MODULE Cavity_mode_m
     Mode%w      = w
     Mode%m      = m
     Mode%lambda = lambda
+    Mode%eq_pos = eq_pos
 
     WRITE(out_unit,*) 
     WRITE(out_unit,*) '********************************************************************************'
@@ -113,6 +144,8 @@ MODULE Cavity_mode_m
     WRITE(out_unit,*) "|Mass of the associated HO Mode%m                                            | ", Mode%m
     WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
     WRITE(out_unit,*) "|Coupling strength between the matter and this cavity mode Mode%lambda       | ", Mode%lambda
+    WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
+    WRITE(out_unit,*) "|Equilibrium position of this cavity mode's HO Mode%eq_pos                   | ", Mode%eq_pos
     WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
     FLUSH(out_unit)
 

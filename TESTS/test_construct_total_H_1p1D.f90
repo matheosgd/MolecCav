@@ -1,3 +1,31 @@
+!==================================================================================================
+!==================================================================================================
+!This file is part of MolecCav.
+!
+!==================================================================================================
+! MIT License
+!
+! Copyright (c) 2025 Mathéo Segaud
+!
+! Permission is hereby granted, free of charge, to any person obtaining a copy
+! of this software and associated documentation files (the "Software"), to deal
+! in the Software without restriction, including without limitation the rights
+! to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+! copies of the Software, and to permit persons to whom the Software is
+! furnished to do so, subject to the following conditions:
+!
+! The above copyright notice and this permission notice shall be included in all
+! copies or substantial portions of the Software.
+!
+! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+! IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+! AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+! SOFTWARE.
+!==================================================================================================
+!==================================================================================================
 PROGRAM test_construct_total_H_1p1D
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
   USE QDUtil_m
@@ -9,7 +37,7 @@ PROGRAM test_construct_total_H_1p1D
   IMPLICIT NONE
   
   
-  logical             :: Debug = .FALSE.
+  logical             :: Debug = .TRUE.
   
   TYPE(Cavity_mode_t) :: Matter_DOF                                                                ! DOF = the only Degree Of Freedom of the matter part of the system consider so far
   TYPE(Cavity_mode_t) :: Cavity_mode                                                               ! The well construction of the Operator's matrices is assumed checked by the dedicated test, so hard-coded references matrices are not needed here
@@ -20,89 +48,17 @@ PROGRAM test_construct_total_H_1p1D
   real(kind=Rkind)    :: Coeff_dipole_moment                                                       ! variation coefficient of the dipole moment with the matter DOF
   TYPE(Operator_1D_t) :: MatH                                                                      ! Hamiltonian operator of the matter subsystem
     
-!  real(kind=Rkind)    :: b_0(3,2)                                                                  ! six vectors of the HO basis set |00>, |10>, |20>, |01>, |11>, |21> 
-!  real(kind=Rkind)    :: b_1(3,2)
-!  real(kind=Rkind)    :: b_2(3,2)
-!  real(kind=Rkind)    :: b_3(3,2)
-!  real(kind=Rkind)    :: b_4(3,2)
-!  real(kind=Rkind)    :: b_5(3,2)
-
   real(kind=Rkind)    :: TotH(6,6)                                                                 ! size : NBxNB; NB = Nb_M*Nb_C (tensor product of the basis sets)
   real(kind=Rkind)    :: TotH_ana(6,6)                                                             ! the analytical matrix = hard-coded reference for comparison
-
-  !real(kind=Rkind)    :: Coeff_0 = ONE
-  !real(kind=Rkind)    :: Coeff_1 = HALF
-  !real(kind=Rkind)    :: Coeff_2 = THREE
-  !real(kind=Rkind)    :: Coeff_3 = TEN
-  !real(kind=Rkind)    :: Coeff_4 = SEVEN
-  !real(kind=Rkind)    :: Coeff_5 = ONETENTH
-  !real(kind=Rkind)    :: Coeffs(0:5)                                                               ! /!\ the indexes are here renamed to match the indexes of the basis vectors and coefficients ! the elements starts from 0 to 5 and not from 1 to 6 !!! /!\
-  !real(kind=Rkind)    :: Psi_1p1D(3,2)                                                             ! an any vector representing the excitation state/wavefunction of the HO = a linear combination of the basis functions /!\ Not normalized yet !
-  !real(kind=Rkind)    :: Norm                                                                      ! SQRT(Coeff_0**2 + Coeff_1**2 + COeff_2**2)
-  !real(kind=Rkind)    :: TotH_psi_1p1D(3,2)                                                        ! the resulting vector from the action of a 1D operator upon Psi_1D
-  !real(kind=Rkind)    :: TotH_psi_1p1D_ana(3,2)                                                    ! the analytical action = hard-coded reference for comparison
   
   TYPE(test_t)        :: test_cnstrct_tot_H
   logical             :: error_cnstrct_tot_H = .FALSE.
-  
-  !IF (Debug) THEN
-  !  WRITE(out_unit,*)
-  !  WRITE(out_unit,*); WRITE(out_unit,*) "--------------Cavity mode constructed by MolecCav_Read_cavity_mode--------------"
-  !  CALL Write_cavity_mode(Mode)
-  !  WRITE(out_unit,*); WRITE(out_unit,*) "------------End Cavity mode constructed by MolecCav_Read_cavity_mode------------"
-  !END IF
-  
+    
   
   !--------------------------------------Test initialization-------------------------------------
   CALL Initialize_Test(test_cnstrct_tot_H, test_name="OUT/test_file_cnstrct_tot_H_1p1D")
   
   
-  !----------------------------------Wavefunction initialization---------------------------------
-!  b_5(:,1) = [ZERO, ZERO, ZERO]; b_5(:,2) = [ZERO, ZERO, ZERO]
-
-!  b_0 = b_5
-!  b_0(1,1) = ONE
-!  b_1 = b_5
-!  b_1(2,1) = ONE
-!  b_2 = b_5
-!  b_2(3,1) = ONE
-!  b_3 = b_5
-!  b_3(1,2) = ONE
-!  b_4 = b_5
-!  b_4(2,2) = ONE
-
-!  b_5(3,2) = ONE
-  
-  !Coeffs = [Coeff_0, Coeff_1, Coeff_2, Coeff_3, Coeff_4, Coeff_5]                ! /!\ the indexes are here renamed to match the indexes of the basis vectors and coefficients ! the elements starts from 0 to 5 and not from 1 to 6 !!! /!\
-
-  !Psi_1p1D = Coeffs(0)*b_0 + Coeffs(1)*b_1 + Coeffs(2)*b_2 + Coeffs(3)*b_3 + Coeffs(4)*b_4 + Coeffs(5)*b_5
-  
-!  IF (Debug) THEN
-!    WRITE(out_unit,*)
-!    WRITE(out_unit,*); WRITE(out_unit,*) "---------------Basis vectors of the [Matter x Cavity] 1p1D system---------------"
-!    CALL Write_Mat(b_0, out_unit, Size(b_0, dim=2), info="b_0"); WRITE(out_unit,*)
-!    CALL Write_Mat(b_1, out_unit, Size(b_0, dim=2), info="b_1"); WRITE(out_unit,*)
-!    CALL Write_Mat(b_2, out_unit, Size(b_0, dim=2), info="b_2"); WRITE(out_unit,*)
-!    CALL Write_Mat(b_3, out_unit, Size(b_0, dim=2), info="b_3"); WRITE(out_unit,*)
-!    CALL Write_Mat(b_4, out_unit, Size(b_0, dim=2), info="b_4"); WRITE(out_unit,*)
-!    CALL Write_Mat(b_5, out_unit, Size(b_0, dim=2), info="b_5"); WRITE(out_unit,*)
-!    WRITE(out_unit,*); WRITE(out_unit,*) "-------------End basis vectors of the [Matter x Cavity] 1p1D system-------------"
-    !WRITE(out_unit,*); WRITE(out_unit,*) "----------------The any linear combination of the basis functions---------------"
-    !CALL Write_Mat(Psi_1p1D, out_unit, Size(Psi_1p1D, dim=2), info="Psi_1p1D(not normalized)")
-    !WRITE(out_unit,*); WRITE(out_unit,*) "------------------------End of the any linear combination-----------------------"
-!  END IF
-
-  !CALL Norm_of(Norm, Psi_1p1D)
-  !CALL Normalize(Psi_1p1D)
-  !IF (Debug) THEN
-  !  WRITE(out_unit,*)
-  !  WRITE(out_unit,*); WRITE(out_unit,*) "----------------The any linear combination of the basis functions---------------"
-  !  CALL Write_Mat(Psi_1p1D, out_unit, Size(Psi_1p1D, dim=2), info="Psi_1p1D(normalized)")
-  !  WRITE(out_unit,*) "Before normalization, its norm was " // TO_string(Norm)
-  !  WRITE(out_unit,*); WRITE(out_unit,*) "------------------------End of the any linear combination-----------------------"
-  !END IF
-  
-    
   !----------------------------------Cavity mode initialization----------------------------------
   CALL Read_cavity_mode(Matter_DOF, nio=in_unit)
   Matter_DOF%Nb = 3

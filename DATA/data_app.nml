@@ -8,6 +8,7 @@ Nb = 7           !Number of basis vectors associated with the HO D
 w = 1.7           !Eigenpulsation associated with the HO D (maybe HF molecule : 0.005866505831680149)
 m = 1744.60504565 !Mass associated with the HO D
 lambda = 1.0      !Strength parameter of the coupling between the mode D and the molecule
+eq_pos = 0        !Equilibrium position of the HO
 /
 
 &HO_1             !The Cavity
@@ -16,4 +17,5 @@ Nb = 6
 w = 1.5
 m = 1.0
 lambda = 1.0
+eq_pos = 0
 /
