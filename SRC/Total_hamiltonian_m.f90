@@ -410,8 +410,11 @@ MODULE Total_hamiltonian_m
     END IF
 
     NB = Size(TotH, dim=1)
-    IF (NB /= Size(TotH, 2) .OR. NB /= Nb_M*Nb_C) THEN
+    IF (NB /= Size(TotH, dim=2) .OR. NB /= Nb_M*Nb_C) THEN
       WRITE(out_unit,*) "The TotH matrix seems badly initialized, please check allocation."
+      WRITE(out_unit,*) "Size(TotH, dim=1) = "//TO_string(NB)//" = NB"
+      WRITE(out_unit,*) "Size(TotH, dim=2) = "//TO_string(Size(TotH, dim=2))
+      WRITE(out_unit,*) "Nb_M*Nb_C = "//TO_string(Nb_M)//"*"//TO_string(Nb_C)//" = "//TO_string(Nb_M*Nb_C)
       STOP "The TotH matrix seems badly initialized, please check allocation."
     END IF
 
