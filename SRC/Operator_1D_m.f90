@@ -20,7 +20,7 @@ MODULE Operator_1D_m
 
   PUBLIC Operator_1D_t, Construct_Operator_1D, Action_Operator_1D, Average_value_operator_1D, & 
        !& MolecCav_Action_operator_2D, MolecCav_Average_value_operator_2D, &
-       & Debug_localerator_1D
+       & Write_operator_1D
 
   INTERFACE Construct_Operator_1D
     MODULE PROCEDURE MolecCav_Construct_Operator_1D
@@ -31,8 +31,8 @@ MODULE Operator_1D_m
   INTERFACE Average_value_operator_1D
     MODULE PROCEDURE MolecCav_Average_value_operator_1D
   END INTERFACE
-  INTERFACE Debug_localerator_1D
-    MODULE PROCEDURE MolecCav_Debug_localerator_1D
+  INTERFACE Write_operator_1D
+    MODULE PROCEDURE MolecCav_Write_operator_1D
   END INTERFACE
     
 
@@ -58,7 +58,7 @@ MODULE Operator_1D_m
       WRITE(out_unit,*)
       WRITE(out_unit,*) "-------------------Arguments of MolecCav_Construct_Operator_1D------------------"
       WRITE(out_unit,*) "The <<Operator>> argument :"
-      CALL Debug_localerator_1D(Operator)
+      CALL Write_operator_1D(Operator)
       WRITE(out_unit,*) "The <<Operator_type>> argument : ", Operator_type
       IF (present(Dense)) WRITE(out_unit,*) "Dense :", Dense
       WRITE(out_unit,*) "The <<Mode>> argument : ", Mode
@@ -95,7 +95,7 @@ MODULE Operator_1D_m
     IF (Debug_local) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "-------------Operator constructed by MolecCav_Construct_Operator_1D-------------"
-      CALL Debug_localerator_1D(Operator)
+      CALL Write_operator_1D(Operator)
       WRITE(out_unit,*) "-----------End operator constructed by MolecCav_Construct_Operator_1D-----------"
       WRITE(out_unit,*)
     END IF
@@ -353,7 +353,7 @@ MODULE Operator_1D_m
   END SUBROUTINE MolecCav_Average_value_operator_1D
 
 
-  SUBROUTINE MolecCav_Debug_localerator_1D(Operator)
+  SUBROUTINE MolecCav_Write_operator_1D(Operator)
     TYPE(Operator_1D_t), intent(in) :: Operator
 
     WRITE(out_unit,*) "---------------------------WRITING THE OPERATOR TYPE---------------------------"
@@ -419,7 +419,7 @@ MODULE Operator_1D_m
     WRITE(out_unit,*) "-----------------------------END WRITE OPERATOR TYPE----------------------------"
     FLUSH(out_unit)
 
-  END SUBROUTINE MolecCav_Debug_localerator_1D
+  END SUBROUTINE MolecCav_Write_operator_1D
 
 
 END MODULE

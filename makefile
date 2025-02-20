@@ -137,7 +137,7 @@ $(info ***********************************************************************)
 # the ".PHONY <string1> <string2> <...>" make command indicates to make that the provided string are neither files nor directories and allows to use them...
 # ... as key-words, ex: as command-line commands
 UT ut: test_algebra.exe test_cavity_mode.exe test_construct_op_1D.exe test_action_op_1D.exe test_action_total_H_1p1D.exe test_construct_total_H_1p1D.exe
-	./test_algebra.exe                                             > $(OUTPUT_DIR)/test_algebra.log
+	./test_algebra.exe                                      > $(OUTPUT_DIR)/test_algebra.log
 	./test_cavity_mode.exe            < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_cavity_mode.log
 	./test_construct_op_1D.exe        < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_construct_op_1D.log
 	./test_action_op_1D.exe           < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_action_op_1D.log

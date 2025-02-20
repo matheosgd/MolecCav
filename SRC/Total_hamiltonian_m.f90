@@ -21,7 +21,7 @@ MODULE Total_hamiltonian_m
     MODULE PROCEDURE MolecCav_Action_matter_dipolar_moment_1p1D
   END INTERFACE
   INTERFACE Construct_total_hamiltonian_1p1D
-  MODULE PROCEDURE MolecCav_Construct_total_hamiltonian_1p1D
+  MODULE PROCEDURE MolecCav_Construct_total_hamiltonian_1p1D, MolecCav_Construct_total_hamiltonian_1p1D_old
   END INTERFACE
   INTERFACE Mapping_WF_2DTO1D
   MODULE PROCEDURE MolecCav_Mapping_WF_2DTO1D
@@ -340,10 +340,93 @@ MODULE Total_hamiltonian_m
   END SUBROUTINE MolecCav_Action_matter_dipolar_moment_1p1D
 
 
-  SUBROUTINE MolecCav_Construct_total_hamiltonian_1p1D(H_tot, Nb_M, Nb_C, MatH_psi, &
-                                    & CavH, CavPosition, &
-                                    & Mat_dipolar_moment, &
-                                    & Mode)
+  SUBROUTINE MolecCav_Construct_total_hamiltonian_1p1D(TotH, CavPosition, CavH, Mat_dipolar_moment, MatH, Debug)
+    USE QDUtil_m
+    USE Cavity_mode_m
+    USE Operator_1D_m
+    IMPLICIT NONE
+
+    real(kind=Rkind),    intent(inout) :: TotH(:,:)                                                ! already allocated !
+    TYPE(Operator_1D_t), intent(in)    :: CavPosition
+    TYPE(Operator_1D_t), intent(in)    :: CavH
+    TYPE(Operator_1D_t), intent(in)    :: Mat_dipolar_moment                                       ! \hat{\mu}_{M}(R) = Cte.\hat{R} according to hypothesis
+    TYPE(Operator_1D_t), intent(in)    :: MatH
+    logical, optional,   intent(in)    :: Debug
+   
+    real(kind=Rkind), allocatable      :: Phi(:,:), TotH_phi(:,:)
+    integer                            :: Nb_M, Nb_C, i_M, i_C, j_M, j_C, NB, I, J
+    logical                            :: Debug_local = .FALSE.
+
+    IF (PRESENT(Debug)) Debug_local = Debug
+
+    IF (ALLOCATED(MatH%Diag_val_R)) THEN
+      Nb_M = Size(MatH%Diag_val_R)
+    ELSE IF (ALLOCATED(MatH%Dense_val_R)) THEN
+      Nb_M = Size(MatH%Dense_val_R, dim=1)
+    ELSE 
+      WRITE(out_unit,*) "The matter Hamiltonian does not seem to have been initialized (matrices not allocated)."
+      STOP "The matter Hamiltonian does not seem to have been initialized (matrices not allocated)."
+    END IF
+
+    IF (ALLOCATED(CavH%Diag_val_R)) THEN
+      Nb_C = Size(CavH%Diag_val_R)
+    ELSE IF (ALLOCATED(CavH%Dense_val_R)) THEN
+      Nb_C = Size(CavH%Dense_val_R, dim=1)
+    ELSE 
+      WRITE(out_unit,*) "The matter Hamiltonian does not seem to have been initialized (matrices not allocated)."
+      STOP "The matter Hamiltonian does not seem to have been initialized (matrices not allocated)."
+    END IF
+
+    NB = Size(TotH, dim=1)
+    IF (NB /= Size(TotH, 2) .OR. NB /= Nb_M*Nb_C) THEN
+      WRITE(out_unit,*) "The TotH matrix seems badly initialized, please check allocation."
+      STOP "The TotH matrix seems badly initialized, please check allocation."
+    END IF
+
+    TotH(:,:) = ZERO
+    ALLOCATE(Phi(Nb_M, Nb_C))
+    ALLOCATE(TotH_phi(Nb_M, Nb_C))
+
+    J = 0
+    DO j_C = 1, Nb_C
+      DO j_M = 1, Nb_M
+        J = J + 1
+
+        Phi = ZERO
+        Phi(j_M, j_C) = ONE
+
+        TotH_phi = ZERO
+        CALL Action_total_hamiltonian_1p1D(TotH_phi, CavPosition, CavH, Mat_dipolar_moment, MatH, Phi, Debug=Debug_local)
+          
+        I = 0
+        DO i_C = 1, Nb_C
+          DO i_M = 1, Nb_M
+            I = I + 1
+            TotH(I,J) = TotH_phi(i_M, i_C)
+          END DO
+        END DO
+      END DO
+    END DO
+
+    IF (Debug_local .AND. NB <= 10) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "------------------------------The total Hamiltonian matrix constructed------------------------------"
+      WRITE(out_unit,*) "w_M = "//TO_string(MatH%w)//"; w_c = "//TO_string(CavH%w)//"; lambda_C = "//TO_string(CavH%lambda)
+      CALL Write_Mat(TotH, out_unit, Size(TotH, dim=2), info="TotH")
+      WRITE(out_unit,*) "---------------------------------End of the total Hamiltonian matrix--------------------------------"
+    ELSE IF (Debug_local .AND. NB > 10) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "------------------------------The total Hamiltonian matrix constructed------------------------------"
+      WRITE(out_unit,*) "w_M = "//TO_string(MatH%w)//"; w_c = "//TO_string(CavH%w)//"; lambda_C = "//TO_string(CavH%lambda)
+      CALL Write_Mat(TotH(1:10,1:10), out_unit, 10, info="TotH(10:10sliced)")
+      WRITE(out_unit,*) "---------------------------------End of the total Hamiltonian matrix--------------------------------"
+    END IF
+
+  END SUBROUTINE MolecCav_Construct_total_hamiltonian_1p1D
+
+
+  SUBROUTINE MolecCav_Construct_total_hamiltonian_1p1D_old(H_tot, Nb_M, Nb_C, MatH_psi, CavH, CavPosition, &
+                                                          &Mat_dipolar_moment, Mode)
     USE QDUtil_m
     USE Cavity_mode_m
     USE Operator_1D_m
@@ -394,7 +477,7 @@ MODULE Total_hamiltonian_m
       END DO
     END DO
 
-  END SUBROUTINE MolecCav_Construct_total_hamiltonian_1p1D
+  END SUBROUTINE MolecCav_Construct_total_hamiltonian_1p1D_old
 
 
   SUBROUTINE MolecCav_Mapping_WF_2DTO1D(Psi_1D, Psi_2D)
