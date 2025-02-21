@@ -49,13 +49,13 @@ MODULE Total_hamiltonian_m
     MODULE PROCEDURE MolecCav_Action_matter_dipolar_moment_1p1D
   END INTERFACE
   INTERFACE Construct_total_hamiltonian_1p1D
-  MODULE PROCEDURE MolecCav_Construct_total_hamiltonian_1p1D, MolecCav_Construct_total_hamiltonian_1p1D_old
+    MODULE PROCEDURE MolecCav_Construct_total_hamiltonian_1p1D, MolecCav_Construct_total_hamiltonian_1p1D_old
   END INTERFACE
   INTERFACE Mapping_WF_2DTO1D
-  MODULE PROCEDURE MolecCav_Mapping_WF_2DTO1D
+    MODULE PROCEDURE MolecCav_Mapping_WF_2DTO1D
   END INTERFACE
   INTERFACE Average_value_H_tot
-  MODULE PROCEDURE MolecCav_Average_value_H_tot
+    MODULE PROCEDURE MolecCav_Average_value_H_tot
   END INTERFACE
     
 
@@ -515,17 +515,21 @@ MODULE Total_hamiltonian_m
   END SUBROUTINE MolecCav_Construct_total_hamiltonian_1p1D_old
 
 
-  SUBROUTINE MolecCav_Mapping_WF_2DTO1D(Psi_1D, Psi_2D)
+  SUBROUTINE MolecCav_Mapping_WF_2DTO1D(Psi_1D, Psi_2D, Debug)
     USE QDUtil_m
     IMPLICIT NONE
 
-    real(kind=Rkind), intent(inout)    :: Psi_1D(:)
-    real(kind=Rkind), intent(in)       :: Psi_2D(:,:)
+    real(kind=Rkind),  intent(inout) :: Psi_1D(:)
+    real(kind=Rkind),  intent(in)    :: Psi_2D(:,:)
+    logical, optional, intent(in)    :: Debug
 
-    integer                            :: Nb_M, Nb_C, i_M, i_C, NB, I
+    logical                          :: Debug_local = .FALSE.
+    integer                          :: Nb_M, Nb_C, i_M, i_C, NB, I
 
-    Nb_M   = Size(Psi_2D,1)
-    Nb_C   = Size(Psi_2D,2)
+    IF (PRESENT(Debug)) Debug_local = Debug
+
+    Nb_M   = Size(Psi_2D, dim=1)
+    Nb_C   = Size(Psi_2D, dim=2)
     NB     = Size(Psi_1D)
     I      = 0
     Psi_1D = ZERO
@@ -534,12 +538,20 @@ MODULE Total_hamiltonian_m
       STOP "Wrong size of the matrices"
     END IF
 
-    DO i_M = 1, Nb_M
-      DO i_C = 1, Nb_C
+    DO i_C = 1, Nb_C
+      DO i_M = 1, Nb_M
         I = I + 1
         Psi_1D(I) = Psi_2D(i_M, i_C)
       END DO
     END DO
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "The non-tensor producted WF Psi_2D"
+      CALL Write_Mat(Psi_2D, out_unit, Nb_C, info="Psi_2D")
+      WRITE(out_unit,*) "The tensor producted (mapped) WF Psi_1D"
+      CALL Write_Vec(Psi_1D, out_unit, 1, info="Psi_1D")
+    END IF 
 
   END SUBROUTINE MolecCav_Mapping_WF_2DTO1D
 

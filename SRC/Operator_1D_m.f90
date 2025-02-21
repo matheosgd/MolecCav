@@ -125,7 +125,6 @@ MODULE Operator_1D_m
       WRITE(out_unit,*) "-------------Operator constructed by MolecCav_Construct_Operator_1D-------------"
       CALL Write_operator_1D(Operator)
       WRITE(out_unit,*) "-----------End operator constructed by MolecCav_Construct_Operator_1D-----------"
-      WRITE(out_unit,*)
     END IF
 
   END SUBROUTINE MolecCav_Construct_Operator_1D

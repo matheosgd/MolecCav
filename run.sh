@@ -64,14 +64,14 @@ FFC="gfortran"                                                                 #
 FFLAGS="-Og -g -fbacktrace -fcheck=all -fwhole-file -fcheck=pointer -Wuninitialized -finit-real=nan -finit-integer=nan -fopenmp"
                                                                                # some useful options for the compiler
 
-MODULES_LIB=("Cavity_mode_m" "Operator_1D_m" "Total_hamiltonian_m" "Algebra_m" "Operator_2D_m")
+MODULES_LIB=("Cavity_mode_m" "Operator_1D_m" "Total_hamiltonian_m" "Algebra_m" "Operator_2D_m" "Psi_analysis_m")
 SRC_LIB=(${MODULES_LIB[@]/%/.f90})
 OBJ_LIB=(${MODULES_LIB[@]/%/.o})
 
 LIB="libMolecCav"
 LIBA="$LIB.a"
 
-TESTS=("test_algebra" "test_cavity_mode" "test_construct_op_1D" "test_action_op_1D" "test_action_total_H_1p1D" "test_construct_total_H_1p1D")
+TESTS=("test_algebra" "test_cavity_mode" "test_construct_op_1D" "test_action_op_1D" "test_action_total_H_1p1D" "test_construct_total_H_1p1D" "test_mapping")
 SRC_TESTS=(${TESTS[@]/%/.f90})                                                 # parenthesis must be added here to make bash know that the next var is also an array
 OBJ_TESTS=(${TESTS[@]/%/.o})                                                   
 EXE_TESTS=(${TESTS[@]/%/.exe})  
@@ -159,7 +159,8 @@ Build_obj_lib()
                                                                                          # SRC_FILES[2] = OBJ/obj/Algebra.f90
   $FFC -c -o ${OBJ[2]} $FFLAGS ${SRC_FILES[2]}                                           # OBJ[2] = OBJ/obj/Total_hamiltonian_m.o
                                                                                          # SRC_FILES[2] = OBJ/obj/Total_hamiltonian_m.f90
-
+  $FFC -c -o ${OBJ[5]} $FFLAGS ${SRC_FILES[5]}                                           # OBJ[2] = OBJ/obj/Total_hamiltonian_m.o
+                                                                                         # SRC_FILES[2] = OBJ/obj/Total_hamiltonian_m.f90
   for file in ${OBJ[@]}
   do
     Claim "Done $file"
@@ -195,6 +196,8 @@ Build_tests()
 	$FFC -o ${EXE_TESTS[4]}  $FFLAGS ${TESTS_OBJ_FILES[4]} $LIBA $EXTLib
 	$FFC -c -o ${TESTS_OBJ_FILES[5]} $FFLAGS ${TESTS_SRC_FILES[5]}
 	$FFC -o ${EXE_TESTS[5]}  $FFLAGS ${TESTS_OBJ_FILES[5]} $LIBA $EXTLib
+	$FFC -c -o ${TESTS_OBJ_FILES[6]} $FFLAGS ${TESTS_SRC_FILES[6]}
+	$FFC -o ${EXE_TESTS[6]}  $FFLAGS ${TESTS_OBJ_FILES[6]} $LIBA $EXTLib
 
   for file in ${TESTS_OBJ_FILES[@]}
   do
@@ -515,6 +518,8 @@ case "$command" in
 	Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_action_total_H_1p1D.log)"
 	./test_construct_total_H_1p1D.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_construct_total_H_1p1D.log
 	Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_construct_total_H_1p1D.log)"
+	./test_mapping.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_mapping.log
+	Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_mapping.log)"
 	Claim "Done Tests"
 
   echo "################################################################################"

@@ -33,6 +33,7 @@ PROGRAM App_MolecCav
   USE Operator_1D_m
   USE Operator_2D_m
   USE Total_hamiltonian_m
+  USE Psi_analysis_m
   IMPLICIT NONE
 
 
@@ -51,12 +52,13 @@ PROGRAM App_MolecCav
   TYPE(Operator_1D_t)           :: Cav1N
 
   !--------------------------------Wavefunctions-------------------------------
-  real(kind=Rkind), allocatable :: Psi_1p1D(:,:)                               ! The total system (matter-cavity) wavefunction. Size Nb_M*Nb_C. |Psi_1p1D> = |Molecule_WF>.TENSOR.|Cavity_WF> 
+  real(kind=Rkind), allocatable :: Psi_1p1D(:,:)                               ! the total system (matter-cavity) wavefunction. Size Nb_M*Nb_C. |Psi_1p1D> = |Molecule_WF>.TENSOR.|Cavity_WF> 
   real(kind=Rkind), allocatable :: Psi_1D_mapped(:)
   real(kind=Rkind), allocatable :: CavPsi(:)
 
   !------------------------------Total Hamiltonian-----------------------------
-  real(kind=Rkind), allocatable :: TotH(:,:)                               
+  real(kind=Rkind), allocatable :: TotH(:,:)
+  real(kind=Rkind)              :: MWH(2,2)                                    ! the mass-weighted Hessian matrix of the total, 1p1D, coupled system [matter x cavity] in harmonic approximation of the matter                     
 
   !-----------------------------------Results----------------------------------
   real(kind=Rkind)              :: Average
@@ -64,9 +66,13 @@ PROGRAM App_MolecCav
   real(kind=Rkind), allocatable :: Result_psi_1p1D(:,:)
   real(kind=Rkind), allocatable :: REigval(:)
   real(kind=Rkind), allocatable :: REigvec(:,:)
+  real(kind=Rkind), allocatable :: Mol1Weights(:)
+  real(kind=Rkind), allocatable :: Cav1Weights(:)
+  real(kind=Rkind)              :: Normal_modes(2)                             ! VP of the MWH
+  real(kind=Rkind)              :: Normal_coordinates(2,2)                     ! \overrightarrow{VP} pf the MWH
 
   !----------------------------------Utilities---------------------------------
-  integer                       :: i, NB
+  integer                       :: i, Nb_M, Nb_C, NB
   logical, parameter            :: Debug = .TRUE.
 
 
@@ -131,7 +137,9 @@ PROGRAM App_MolecCav
                            & Debug=Debug)
   FLUSH(out_unit)
 
-  NB = Molecule_1%Nb * Cavity_mode_1%Nb
+  Nb_M = Molecule_1%Nb
+  Nb_C = Cavity_mode_1%Nb
+  NB   = Molecule_1%Nb * Cavity_mode_1%Nb
 
     !----------------------------Total Wavefunctions---------------------------
   WRITE(out_unit,*); WRITE(out_unit,*) "  ----------------------------Total Wavefunctions---------------------------"
@@ -141,12 +149,12 @@ PROGRAM App_MolecCav
     Psi_1p1D(i,i) = i
   END DO
 
-  IF (Debug .AND. NB <= 10) THEN
+  IF (Debug .AND. Nb_C <= 10) THEN
     WRITE(out_unit,*) "Not normalized Psi_1p1D total wavefunction"
     CALL Write_Mat(Psi_1p1D, out_unit, Cavity_mode_1%Nb, info="NN Psi_1p1D")
-  ELSE IF (Debug .AND. NB > 10) THEN
+  ELSE IF (Debug .AND. Nb_C > 10) THEN
     WRITE(out_unit,*); WRITE(out_unit,*) "Not normalized Psi_1p1D total wavefunction (10:10 slicing)"
-    CALL Write_Mat(Psi_1p1D(1:10,1:10), out_unit, 10, info="NN Psi_1p1D (sliced)")
+    CALL Write_Mat(Psi_1p1D(1:MIN(Nb_M,10),1:10), out_unit, 10, info="NN Psi_1p1D (sliced)")
   END IF 
 
   ALLOCATE(Psi_1D_mapped(Molecule_1%Nb * Cavity_mode_1%Nb))
@@ -161,16 +169,16 @@ PROGRAM App_MolecCav
   END IF 
 
   CALL Normalize(Psi_1p1D)
-  IF (NB < 10) THEN
+  IF (Nb_C <= 10) THEN
     WRITE(out_unit,*); WRITE(out_unit,*) "Normalized Psi_1p1D wavefunction"
     CALL Write_Mat(Psi_1p1D, out_unit, Cavity_mode_1%Nb, info="Psi_1p1D")
   ELSE 
     WRITE(out_unit,*); WRITE(out_unit,*) "Normalized Psi_1p1D wavefunction (10:10 slicing)"
-    CALL Write_Mat(Psi_1p1D(1:10,1:10), out_unit, Cavity_mode_1%Nb, info="Psi_1p1D (sliced)")
+    CALL Write_Mat(Psi_1p1D(1:MIN(Nb_M,10),1:10), out_unit, Cavity_mode_1%Nb, info="Psi_1p1D (sliced)")
   END IF 
 
   CALL Normalize(Psi_1D_mapped)
-  IF (NB < 10) THEN
+  IF (NB <= 10) THEN
     WRITE(out_unit,*); WRITE(out_unit,*) "Normalized Psi_1D_mapped"
     CALL Write_Vec(Psi_1D_mapped, out_unit, 1, info="Psi_1D_mapped")
   ELSE
@@ -187,12 +195,12 @@ PROGRAM App_MolecCav
   ALLOCATE(Result_psi_1p1D(Molecule_1%Nb, Cavity_mode_1%Nb))
 
   CALL MolecCav_Action_operator_2D(Result_psi_1p1D, Cav1N, Psi_1p1D)           ! /!\ do not trust so much this subroutine elsewhere than here (has not been refined yet)
-  IF (Debug .AND. NB <= 10) THEN
+  IF (Debug .AND. Nb_C <= 10) THEN
     WRITE(out_unit,*) "Action of Nb photon operator over Psi_1p1D (for the first method) :"
     CALL Write_Mat(Result_psi_1p1D, out_unit, Cavity_mode_1%Nb, info="N_psi_1p1D")
-  ELSE IF (Debug .AND. NB > 10) THEN
+  ELSE IF (Debug .AND. Nb_C > 10) THEN
     WRITE(out_unit,*) "Action of Nb photon operator over Psi_1p1D (for the first method) (1:10,1:10 slicing) :"
-    CALL Write_Mat(Result_psi_1p1D(1:10,1:10), out_unit, Cavity_mode_1%Nb, info="N_psi_1p1D (sliced)")
+    CALL Write_Mat(Result_psi_1p1D(1:MIN(Nb_M,10),1:10), out_unit, Cavity_mode_1%Nb, info="N_psi_1p1D (sliced)")
   END IF 
 
   CALL Scalar_product(Average, Result_psi_1p1D, Psi_1p1D)
@@ -210,11 +218,22 @@ PROGRAM App_MolecCav
   CavPsi    = ZERO
   CavPsi(1) = ONE
   CavPsi(2) = ONE                                                              ! \ket{Psi} = \ket{0} + \ket{1}
-  IF (Debug) WRITE(out_unit,*) 'Not normalized cavity mode WF (1D)'
-  IF (Debug) CALL Write_Vec(CavPsi, out_unit, 1, info="NN CavPsi")
+  IF (Debug .AND. Size(CavPsi) <= 10) THEN
+    WRITE(out_unit,*) 'Not normalized cavity mode WF (1D)'
+    CALL Write_Vec(CavPsi, out_unit, 1, info="NN CavPsi")
+  ELSE IF (Debug .AND. Size(CavPsi) > 10) THEN
+    WRITE(out_unit,*) 'Not normalized cavity mode WF (1D) (1:10 slicing)'
+    CALL Write_Vec(CavPsi(1:10), out_unit, 1, info="NN CavPsi (sliced)")
+  END IF
+
   CALL Normalize(CavPsi)
-  WRITE(out_unit,*) 'Normalized cavity mode WF (1D) (N.B. \frac{1}{\sqrt{2}} = 0.7071067811865475)'
-  CALL Write_Vec(CavPsi, out_unit, 1, info="CavPsi")
+  IF (Debug .AND. Size(CavPsi) <= 10) THEN
+    WRITE(out_unit,*) 'Normalized cavity mode WF (1D) (N.B. \frac{1}{\sqrt{2}} = 0.7071067811865475)'
+    CALL Write_Vec(CavPsi, out_unit, 1, info="CavPsi")
+  ELSE IF (Debug .AND. Size(CavPsi) > 10) THEN
+    WRITE(out_unit,*) 'Normalized cavity mode WF (1D) (1:10 slicing) (N.B. \frac{1}{\sqrt{2}} = 0.7071067811865475)'
+    CALL Write_Vec(CavPsi(1:10), out_unit, 1, info="CavPsi (sliced)")
+  END IF
 
   ALLOCATE(Result_psi_1D(Cavity_mode_1%Nb))
   CALL Action_Operator_1D(Result_psi_1D, Cav1N, CavPsi)
@@ -235,12 +254,12 @@ PROGRAM App_MolecCav
   !----------------An experiment on the total Hamiltonian action---------------
   WRITE(out_unit,*); WRITE(out_unit,*) "----------------An experiment on the total Hamiltonian action---------------"
 
-  IF (Debug .AND. NB <= 10) THEN
+  IF (Debug .AND. Nb_C <= 10) THEN
     WRITE(out_unit,*); WRITE(out_unit,*) "Psi_1p1D"
     CALL Write_Mat(Psi_1p1D, out_unit, Cavity_mode_1%Nb)
-  ELSE IF (Debug .AND. NB > 10) THEN
+  ELSE IF (Debug .AND. Nb_C > 10) THEN
     WRITE(out_unit,*); WRITE(out_unit,*) "Psi_1p1D (1:10,1:10 slicing)"
-    CALL Write_Mat(Psi_1p1D(1:10,1:10), out_unit, Cavity_mode_1%Nb, info="Psi_1p1D (sliced)")
+    CALL Write_Mat(Psi_1p1D(1:MIN(Nb_M,10),1:10), out_unit, Cavity_mode_1%Nb, info="Psi_1p1D (sliced)")
   END IF
   FLUSH(out_unit) 
 
@@ -251,12 +270,12 @@ PROGRAM App_MolecCav
   CALL Action_total_hamiltonian_1p1D(Result_psi_1p1D, Cav1Position, Cav1H, Mol1_dipolar_moment, Mol1H, Psi_1p1D, Debug=debug)
   Cavity_mode_1%lambda = ONE;  Cav1H%lambda = ONE
 
-  IF (NB <= 10) THEN
+  IF (Nb_C <= 10) THEN
     WRITE(out_unit,*); WRITE(out_unit,*) "Action of the uncoupled total Hamiltonian over Psi_1p1D"
     CALL Write_Mat(Result_psi_1p1D, out_unit, Cavity_mode_1%Nb, info="TotH_psi_1p1D")
-  ELSE IF (NB > 10) THEN
+  ELSE IF (Nb_C > 10) THEN
     WRITE(out_unit,*); WRITE(out_unit,*) "Action of the uncoupled total Hamiltonian over Psi_1p1D (1:10,1:10 slicing)"
-    CALL Write_Mat(Result_psi_1p1D(1:10,1:10), out_unit, Cavity_mode_1%Nb, info="TotH_psi_1p1D (sliced)")
+    CALL Write_Mat(Result_psi_1p1D(1:MIN(Nb_M,10),1:10), out_unit, Cavity_mode_1%Nb, info="TotH_psi_1p1D (sliced)")
   END IF
   FLUSH(out_unit) 
 
@@ -297,6 +316,34 @@ PROGRAM App_MolecCav
 
   DEALLOCATE(TotH); DEALLOCATE(REigval); DEALLOCATE(REigvec)
 
+    !--Construction of the 1p1D uncoupled system Mass-weighted Hessian matrix--
+  WRITE(out_unit,*); WRITE(out_unit,*) "--Construction of the 1p1D uncoupled system Mass-weighted Hessian matrix--"
+  Cavity_mode_1%lambda = ZERO; Cav1H%lambda = ZERO                                                 ! /!\ the action tot H procedure uses Cav1H%lambda as coupling strenght parameter
+  MWH(1,1) = Cavity_mode_1%w**2
+  MWH(2,2) = Molecule_1%w**2
+  MWH(1,2) = Cavity_mode_1%lambda*Cte_dipole_moment / SQRT(Molecule_1%m)
+  MWH(2,1) = MWH(1,2)
+  Cavity_mode_1%lambda = ONE; Cav1H%lambda = ONE                                                   ! /!\ the action tot H procedure uses Cav1H%lambda as coupling strenght parameter
+
+  IF (Debug) THEN
+    CALL Write_Mat(MWH, out_unit, Size(MWH, dim=2), info="MWH")
+  END IF
+
+  CALL diagonalization(MWH, Normal_modes, Normal_coordinates)
+  CALL Write_Vec(Normal_modes, out_unit, Size(Normal_modes), info="Normal modes")
+  CALL Write_Mat(Normal_coordinates, out_unit, Size(Normal_coordinates, dim=2), info="Normal coordniates")
+
+  WRITE(out_unit,*)
+  DO i = 1, Size(Normal_modes)
+    IF (Normal_modes(i) >= 0) THEN
+      WRITE(out_unit,*) TO_string(i)//"^{th} Normal coordinate has positive squared frequency, lead&
+                       &ing to w_"//TO_string(i)//" = "//TO_string(SQRT(Normal_modes(i)))
+    ELSE
+      WRITE(out_unit,*) TO_string(i)//"^{th} Normal coordinate has NEGATIVE squared frequency, lead&
+      &ing to w_"//TO_string(i)//" = "//TO_string(EYE*SQRT(-Normal_modes(i)))
+    END IF
+  END DO
+
   !-------Construction of the Total Hamiltonian matrix with CM-couplings-------
   WRITE(out_unit,*); WRITE(out_unit,*) "-------Construction of the Total Hamiltonian matrix with CM-couplings-------"
 
@@ -311,7 +358,8 @@ PROGRAM App_MolecCav
     CALL Write_Mat(TotH(1:10,1:10), out_unit, 10, info="TotH (sliced)")
   END IF
 
-  CALL Write_Mat(TotH, out_unit, Size(TotH), info="TotH")
+!  WRITE(out_unit,*); CALL Write_Mat(TotH(1:150, 1:150), out_unit, Size(TotH), info="TotH(1:150)")
+
     !----------------------Computation of some observables---------------------
 
 !  CALL Average_value_TotH(Average, TotH, Psi_1D_mapped)
@@ -336,5 +384,41 @@ PROGRAM App_MolecCav
 
   DEALLOCATE(TotH); DEALLOCATE(REigval); DEALLOCATE(REigvec)
 
+  !-----Construction of the 1p1D total system Mass-weighted Hessian matrix-----
+  WRITE(out_unit,*); WRITE(out_unit,*) "-----Construction of the 1p1D total system Mass-weighted Hessian matrix-----"
+  Cavity_mode_1%lambda = 50*ONE; Cav1H%lambda = 50*ONE                                             ! /!\ the action tot H procedure uses Cav1H%lambda as coupling strenght parameter
+  MWH(1,1) = Cavity_mode_1%w**2
+  MWH(2,2) = Molecule_1%w**2
+  MWH(1,2) = Cavity_mode_1%lambda*Cte_dipole_moment / SQRT(Molecule_1%m)
+  MWH(2,1) = MWH(1,2)
+  Cavity_mode_1%lambda = ONE; Cav1H%lambda = ONE                                                   ! /!\ the action tot H procedure uses Cav1H%lambda as coupling strenght parameter
+
+  IF (Debug) THEN
+    CALL Write_Mat(MWH, out_unit, Size(MWH, dim=2), info="MWH")
+  END IF
+
+  CALL diagonalization(MWH, Normal_modes, Normal_coordinates)
+  CALL Write_Vec(Normal_modes, out_unit, Size(Normal_modes), info="Normal modes")
+  CALL Write_Mat(Normal_coordinates, out_unit, Size(Normal_coordinates, dim=2), info="Normal coordniates")
+
+  WRITE(out_unit,*)
+  DO i = 1, Size(Normal_modes)
+    IF (Normal_modes(i) >= 0) THEN
+      WRITE(out_unit,*) TO_string(i)//"^{th} Normal coordinate has positive squared frequency, lead&
+                       &ing to w_"//TO_string(i)//" = "//TO_string(SQRT(Normal_modes(i)))
+    ELSE
+      WRITE(out_unit,*) TO_string(i)//"^{th} Normal coordinate has NEGATIVE squared frequency, lead&
+      &ing to w_"//TO_string(i)//" = "//TO_string(EYE*SQRT(-Normal_modes(i)))
+    END IF
+  END DO
+
+  !-------------------An experiment on the Psi_1p1D analysis-------------------
+  ALLOCATE(Mol1Weights(Nb_M))
+  ALLOCATE(Cav1Weights(Nb_C))
+
+  CALL Reduced_density_psi_1p1D_R(Mol1Weights, Cav1Weights, Psi_1p1D, Debug=Debug)
+
+  DEALLOCATE(Mol1Weights); DEALLOCATE(Cav1Weights)
+  
 
 END PROGRAM

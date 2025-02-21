@@ -37,7 +37,7 @@ PROGRAM test_construct_total_H_1p1D
   IMPLICIT NONE
   
   
-  logical             :: Debug = .TRUE.
+  logical             :: Debug = .FALSE.
   
   TYPE(Cavity_mode_t) :: Matter_DOF                                                                ! DOF = the only Degree Of Freedom of the matter part of the system consider so far
   TYPE(Cavity_mode_t) :: Cavity_mode                                                               ! The well construction of the Operator's matrices is assumed checked by the dedicated test, so hard-coded references matrices are not needed here
@@ -59,7 +59,7 @@ PROGRAM test_construct_total_H_1p1D
   CALL Initialize_Test(test_cnstrct_tot_H, test_name="OUT/test_file_cnstrct_tot_H_1p1D")
   
   
-  !----------------------------------Cavity mode initialization----------------------------------
+  !-------------------------------------System initialization------------------------------------
   CALL Read_cavity_mode(Matter_DOF, nio=in_unit)
   Matter_DOF%Nb = 3
   IF (Debug) THEN
