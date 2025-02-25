@@ -31,6 +31,7 @@ PROGRAM test_mapping
   USE QDUtil_m
   USE QDUtil_Test_m
   USE Algebra_m
+  USE ND_indexes_m
   USE Cavity_mode_m
   USE Operator_1D_m
   USE Total_hamiltonian_m
@@ -159,7 +160,7 @@ PROGRAM test_mapping
   END IF
 
     !-----------------------------------operators initialization-----------------------------------
-  CALL Construct_Operator_1D(Mat_dipolar_moment, "Position",    Mode=DOF_1,  Debug=Debug)     ! hypothesis : \mu(q) = \frac{\partial\mu}{\partial q}*\q ; \frac{\partial\mu}{\partial q} = Coeff_dip_momt
+  CALL Construct_Operator_1D(Mat_dipolar_moment, "Position",    Mode=DOF_1,  Debug=Debug)          ! hypothesis : \mu(q) = \frac{\partial\mu}{\partial q}*\q ; \frac{\partial\mu}{\partial q} = Coeff_dip_momt
   Mat_dipolar_moment%Band_val_R = Coeff_dipole_moment*Mat_dipolar_moment%Band_val_R                ! => \hat{\mu} = Coeff_dip_momt*\hat{q}
   CALL Construct_Operator_1D(MatH,               "Hamiltonian", Mode=DOF_1,  Debug=Debug)
   CALL Construct_Operator_1D(CavPosition,        "Position",    Mode=DOF_2, Debug=Debug)

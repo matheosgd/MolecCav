@@ -64,7 +64,7 @@ FFC="gfortran"                                                                 #
 FFLAGS="-Og -g -fbacktrace -fcheck=all -fwhole-file -fcheck=pointer -Wuninitialized -finit-real=nan -finit-integer=nan -fopenmp"
                                                                                # some useful options for the compiler
 
-MODULES_LIB=("Cavity_mode_m" "Operator_1D_m" "Total_hamiltonian_m" "Algebra_m" "Operator_2D_m" "Psi_analysis_m")
+MODULES_LIB=("Cavity_mode_m" "Operator_1D_m" "Total_hamiltonian_m" "Algebra_m" "Operator_2D_m" "Psi_analysis_m" "ND_indexes_m")
 SRC_LIB=(${MODULES_LIB[@]/%/.f90})
 OBJ_LIB=(${MODULES_LIB[@]/%/.o})
 
@@ -159,6 +159,8 @@ Build_obj_lib()
                                                                                          # SRC_FILES[2] = OBJ/obj/Algebra.f90
   $FFC -c -o ${OBJ[2]} $FFLAGS ${SRC_FILES[2]}                                           # OBJ[2] = OBJ/obj/Total_hamiltonian_m.o
                                                                                          # SRC_FILES[2] = OBJ/obj/Total_hamiltonian_m.f90
+  $FFC -c -o ${OBJ[6]} $FFLAGS ${SRC_FILES[6]}                                           # OBJ[2] = OBJ/obj/Total_hamiltonian_m.o         |/!\ ND_indexes has to be compiled /!\
+                                                                                         # SRC_FILES[2] = OBJ/obj/Total_hamiltonian_m.f90 |/!\ before Psi_analysis (used in) /!\
   $FFC -c -o ${OBJ[5]} $FFLAGS ${SRC_FILES[5]}                                           # OBJ[2] = OBJ/obj/Total_hamiltonian_m.o
                                                                                          # SRC_FILES[2] = OBJ/obj/Total_hamiltonian_m.f90
   for file in ${OBJ[@]}
@@ -425,6 +427,7 @@ case "$command" in
 #----------------------------2.1. The clean command----------------------------
 #------------------------------------------------------------------------------
 "clean") 
+  cd ~/MolecCav
 	rm -f $OBJ_DIR/*.o
 	rm -f test*.exe
   rm -f $EXE_MAIN

@@ -34,23 +34,24 @@ MODULE Psi_analysis_m
   
   PRIVATE
 
-  PUBLIC Reduced_density_psi_1p1D_R
+  PUBLIC Reduced_density_psi_2D_R
 
-  INTERFACE Reduced_density_psi_1p1D_R
-    MODULE PROCEDURE MolecCav_Reduced_density_psi_1p1D_R
+  INTERFACE Reduced_density_psi_2D_R
+    MODULE PROCEDURE MolecCav_Reduced_density_psi_2D_R
   END INTERFACE
     
 
   CONTAINS
   
     
-  SUBROUTINE MolecCav_Reduced_density_psi_1p1D_R(weight_dim_1, weight_dim_2, Psi_1p1D, Debug)
+  SUBROUTINE MolecCav_Reduced_density_psi_2D_R(weight_dim_1, weight_dim_2, Psi_2D, Debug)
     USE QDUtil_m
+    USE ND_indexes_m
     IMPLICIT NONE
 
     real(kind=Rkind),  intent(inout) :: weight_dim_1(:)                        ! already allocated !
     real(kind=Rkind),  intent(inout) :: weight_dim_2(:)                        ! already allocated !
-    real(kind=Rkind),  intent(in)    :: Psi_1p1D(:,:)                          ! already allocated !
+    real(kind=Rkind),  intent(in)    :: Psi_2D(:,:)                            ! already allocated !
     logical, optional, intent(in)    :: Debug
 
     logical                          :: Debug_local = .FALSE.
@@ -60,34 +61,34 @@ MODULE Psi_analysis_m
 
     IF (Debug_local) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "----------Computing the wavefunction Psi_1p1D's reduced density weights---------"
-      WRITE(out_unit,*) "The squared Psi_1p1D matrix to be summed :"
-      CALL Write_Mat(Psi_1p1D**2, out_unit, Size(Psi_1p1D), info="Psi_1p1D**2")
+      WRITE(out_unit,*) "----------Computing the wavefunction Psi_2D's reduced density weights---------"
+      WRITE(out_unit,*) "The squared Psi_2D matrix to be summed :"
+      CALL Write_Mat(Psi_2D**2, out_unit, Size(Psi_2D), info="Psi_2D**2")
       WRITE(out_unit,*)
     END IF
 
     weight_dim_1 = ZERO
     weight_dim_2 = ZERO
 
-    DO i = 1, MAX(Size(Psi_1p1D, dim=1), Size(Psi_1p1D, dim=2))
-      IF (i<=Size(Psi_1p1D, dim=1)) THEN
-        weight_dim_1(i) = SUM((Psi_1p1D(i,:))**2) ! sum over i_2
+    DO i = 1, MAX(Size(Psi_2D, dim=1), Size(Psi_2D, dim=2))
+      IF (i<=Size(Psi_2D, dim=1)) THEN
+        weight_dim_1(i) = SUM((Psi_2D(i,:))**2) ! sum over i_2
         IF (Debug_local) WRITE(out_unit,*) "weight_dim_1("//TO_string(i)//") = "//TO_string(weight_dim_1(i))
       END IF
-      IF (i<=Size(Psi_1p1D, dim=2)) THEN
-        weight_dim_2(i) = SUM((Psi_1p1D(:,i))**2) ! sum over i_1
+      IF (i<=Size(Psi_2D, dim=2)) THEN
+        weight_dim_2(i) = SUM((Psi_2D(:,i))**2) ! sum over i_1
         IF (Debug_local) WRITE(out_unit,*) "weight_dim_2("//TO_string(i)//") = "//TO_string(weight_dim_2(i))
       END IF
     END DO
 
     IF (Debug_local) THEN
       WRITE(out_unit,*)
-      CALL Write_Vec(weight_dim_1, out_unit, Size(Psi_1p1D, dim=1), info="weight_dim_1")
-      CALL Write_Vec(weight_dim_2, out_unit, Size(Psi_1p1D, dim=2), info="weight_dim_2")
-      WRITE(out_unit,*) "--------End computing the wavefunction Psi_1p1D's reduced density weights-------"
+      CALL Write_Vec(weight_dim_1, out_unit, Size(Psi_2D, dim=1), info="weight_dim_1")
+      CALL Write_Vec(weight_dim_2, out_unit, Size(Psi_2D, dim=2), info="weight_dim_2")
+      WRITE(out_unit,*) "--------End computing the wavefunction Psi_2D's reduced density weights-------"
     END IF
 
-    END SUBROUTINE MolecCav_Reduced_density_psi_1p1D_R
+    END SUBROUTINE MolecCav_Reduced_density_psi_2D_R
 
 
 END MODULE

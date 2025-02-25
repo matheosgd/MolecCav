@@ -33,6 +33,7 @@ PROGRAM App_MolecCav
   USE Operator_1D_m
   USE Operator_2D_m
   USE Total_hamiltonian_m
+  USE ND_indexes_m
   USE Psi_analysis_m
   IMPLICIT NONE
 
@@ -50,6 +51,10 @@ PROGRAM App_MolecCav
   TYPE(Operator_1D_t)           :: Cav1H                                       ! matrix of the one-dimensional harmonic Hamiltonian associated with HO D
   TYPE(Operator_1D_t)           :: Cav1Position
   TYPE(Operator_1D_t)           :: Cav1N
+
+  TYPE(Cavity_mode_t)           :: Cavity_mode_1_uncoupled
+  TYPE(Operator_1D_t)           :: Cav1H_uncloupled                            ! matrix of the one-dimensional harmonic Hamiltonian associated with HO D
+  TYPE(Operator_1D_t)           :: Cav1Position_uncoupled
 
   !--------------------------------Wavefunctions-------------------------------
   real(kind=Rkind), allocatable :: Psi_1p1D(:,:)                               ! the total system (matter-cavity) wavefunction. Size Nb_M*Nb_C. |Psi_1p1D> = |Molecule_WF>.TENSOR.|Cavity_WF> 
@@ -74,6 +79,7 @@ PROGRAM App_MolecCav
   !----------------------------------Utilities---------------------------------
   integer                       :: i, Nb_M, Nb_C, NB
   logical, parameter            :: Debug = .TRUE.
+  real(kind=Rkind)              :: Trace, Det
 
 
 !-----------------------------SYSTEM INITIALIZATION----------------------------
@@ -116,6 +122,7 @@ PROGRAM App_MolecCav
     !-----------------------------First cavity mode----------------------------
   WRITE(out_unit,*); WRITE(out_unit,*) "  -----------------------------First cavity mode----------------------------"
   CALL MolecCav_Read_cavity_mode(Mode=Cavity_mode_1, nio=in_unit)
+!  Cavity_mode_1%lambda = ONE
 
   WRITE(out_unit,*) "Cavity mode Hamiltonian :"
   CALL Construct_Operator_1D(Operator=Cav1H, &
@@ -140,6 +147,11 @@ PROGRAM App_MolecCav
   Nb_M = Molecule_1%Nb
   Nb_C = Cavity_mode_1%Nb
   NB   = Molecule_1%Nb * Cavity_mode_1%Nb
+
+  Cavity_mode_1_uncoupled = Cavity_mode_1
+  Cavity_mode_1_uncoupled%lambda = ZERO
+  CALL Construct_Operator_1D(Cav1H_uncloupled, "Hamiltonian", Mode=Cavity_mode_1_uncoupled, Debug=.FALSE.)
+  CALL Construct_Operator_1D(Cav1Position_uncoupled, "Position", Mode=Cavity_mode_1_uncoupled, Debug=.FALSE.)
 
     !----------------------------Total Wavefunctions---------------------------
   WRITE(out_unit,*); WRITE(out_unit,*) "  ----------------------------Total Wavefunctions---------------------------"
@@ -266,9 +278,8 @@ PROGRAM App_MolecCav
   ALLOCATE(Result_psi_1p1D(Molecule_1%Nb, Cavity_mode_1%Nb))
   Result_psi_1p1D(:,:) = ZERO
 
-  Cavity_mode_1%lambda = ZERO; Cav1H%lambda = ZERO                                                 ! /!\ the action tot H procedure uses Cav1H%lambda as coupling strenght parameter
-  CALL Action_total_hamiltonian_1p1D(Result_psi_1p1D, Cav1Position, Cav1H, Mol1_dipolar_moment, Mol1H, Psi_1p1D, Debug=debug)
-  Cavity_mode_1%lambda = ONE;  Cav1H%lambda = ONE
+  CALL Action_total_hamiltonian_1p1D(Result_psi_1p1D, Cav1Position_uncoupled, Cav1H_uncloupled, Mol&
+                                    &1_dipolar_moment, Mol1H, Psi_1p1D, Debug=debug)
 
   IF (Nb_C <= 10) THEN
     WRITE(out_unit,*); WRITE(out_unit,*) "Action of the uncoupled total Hamiltonian over Psi_1p1D"
@@ -285,9 +296,7 @@ PROGRAM App_MolecCav
   WRITE(out_unit,*); WRITE(out_unit,*) "-------Construction of a Total Hamiltonian matrix without CM-couplings------"
   ALLOCATE(TotH(NB, NB))
   
-  Cavity_mode_1%lambda = ZERO; Cav1H%lambda = ZERO                                                 ! /!\ the action tot H procedure uses Cav1H%lambda as coupling strenght parameter
-  CALL Construct_total_hamiltonian_1p1D(TotH, Cav1Position, Cav1H, Mol1_dipolar_moment, Mol1H, Debug=.FALSE.)
-  Cavity_mode_1%lambda = ONE;  Cav1H%lambda = ONE
+  CALL Construct_total_hamiltonian_1p1D(TotH, Cav1Position_uncoupled, Cav1H_uncloupled, Mol1_dipolar_moment, Mol1H, Debug=.FALSE.)
 
   IF (Debug .AND. NB <= 10) THEN
     WRITE(out_unit,*); WRITE(out_unit,*) "Total Hamiltonian 1p1D (lambda = 0, w_C /= w_M)"
@@ -304,7 +313,7 @@ PROGRAM App_MolecCav
 
   WRITE(out_unit,*); WRITE(out_unit,*) 'EIGENVALUES'
   IF (NB <= 10) CALL WRITE_Vec(Reigval, out_unit, 10, info = 'VP[Ha]')
-  IF (NB > 10)  CALL WRITE_Vec(Reigval(1:10), out_unit, 10, info = 'Ten first VP[Ha]')
+  IF (NB > 10)  CALL WRITE_Vec(Reigval(1:10), out_unit, 10, info = 'Ten_first_VP[Ha]')
 
   IF (Debug .AND. NB <= 10) THEN
     WRITE(out_unit,*); WRITE(out_unit,*) 'EIGENVECTORS'
@@ -318,12 +327,10 @@ PROGRAM App_MolecCav
 
     !--Construction of the 1p1D uncoupled system Mass-weighted Hessian matrix--
   WRITE(out_unit,*); WRITE(out_unit,*) "--Construction of the 1p1D uncoupled system Mass-weighted Hessian matrix--"
-  Cavity_mode_1%lambda = ZERO; Cav1H%lambda = ZERO                                                 ! /!\ the action tot H procedure uses Cav1H%lambda as coupling strenght parameter
-  MWH(1,1) = Cavity_mode_1%w**2
+  MWH(1,1) = Cavity_mode_1_uncoupled%w**2
   MWH(2,2) = Molecule_1%w**2
-  MWH(1,2) = Cavity_mode_1%lambda*Cte_dipole_moment / SQRT(Molecule_1%m)
+  MWH(1,2) = Cavity_mode_1_uncoupled%lambda*Cavity_mode_1%w*Cte_dipole_moment / SQRT(Molecule_1%m)
   MWH(2,1) = MWH(1,2)
-  Cavity_mode_1%lambda = ONE; Cav1H%lambda = ONE                                                   ! /!\ the action tot H procedure uses Cav1H%lambda as coupling strenght parameter
 
   IF (Debug) THEN
     CALL Write_Mat(MWH, out_unit, Size(MWH, dim=2), info="MWH")
@@ -343,6 +350,8 @@ PROGRAM App_MolecCav
       &ing to w_"//TO_string(i)//" = "//TO_string(EYE*SQRT(-Normal_modes(i)))
     END IF
   END DO
+  WRITE(out_unit,*) "Expected ZPE by half-sum of the total system eigenpulsations : "//TO_string( (&
+                   & SQRT(Normal_modes(1))+SQRT(Normal_modes(2)) )/2 )
 
   !-------Construction of the Total Hamiltonian matrix with CM-couplings-------
   WRITE(out_unit,*); WRITE(out_unit,*) "-------Construction of the Total Hamiltonian matrix with CM-couplings-------"
@@ -358,7 +367,7 @@ PROGRAM App_MolecCav
     CALL Write_Mat(TotH(1:10,1:10), out_unit, 10, info="TotH (sliced)")
   END IF
 
-!  WRITE(out_unit,*); CALL Write_Mat(TotH(1:150, 1:150), out_unit, Size(TotH), info="TotH(1:150)")
+!  WRITE(out_unit,*); CALL Write_Mat(TotH(1:NB, 1:NB), out_unit, Size(TotH), info="TotH(1:150)")
 
     !----------------------Computation of some observables---------------------
 
@@ -372,7 +381,7 @@ PROGRAM App_MolecCav
 
   WRITE(out_unit,*); WRITE(out_unit,*) 'EIGENVALUES'
   IF (NB <= 10) CALL WRITE_Vec(Reigval, out_unit, 10, info = 'VP[Ha]')
-  IF (NB > 10)  CALL WRITE_Vec(Reigval(1:10), out_unit, 10, info = 'Ten first VP[Ha]')
+  IF (NB > 10)  CALL WRITE_Vec(Reigval(1:10), out_unit, 10, info = 'Ten_first_VP[Ha]')
 
   IF (Debug .AND. NB <= 10) THEN
     WRITE(out_unit,*); WRITE(out_unit,*) 'EIGENVECTORS'
@@ -386,12 +395,10 @@ PROGRAM App_MolecCav
 
   !-----Construction of the 1p1D total system Mass-weighted Hessian matrix-----
   WRITE(out_unit,*); WRITE(out_unit,*) "-----Construction of the 1p1D total system Mass-weighted Hessian matrix-----"
-  Cavity_mode_1%lambda = 50*ONE; Cav1H%lambda = 50*ONE                                             ! /!\ the action tot H procedure uses Cav1H%lambda as coupling strenght parameter
   MWH(1,1) = Cavity_mode_1%w**2
   MWH(2,2) = Molecule_1%w**2
-  MWH(1,2) = Cavity_mode_1%lambda*Cte_dipole_moment / SQRT(Molecule_1%m)
+  MWH(1,2) = Cavity_mode_1%lambda*Cavity_mode_1%w*Cte_dipole_moment / SQRT(Molecule_1%m)
   MWH(2,1) = MWH(1,2)
-  Cavity_mode_1%lambda = ONE; Cav1H%lambda = ONE                                                   ! /!\ the action tot H procedure uses Cav1H%lambda as coupling strenght parameter
 
   IF (Debug) THEN
     CALL Write_Mat(MWH, out_unit, Size(MWH, dim=2), info="MWH")
@@ -411,12 +418,15 @@ PROGRAM App_MolecCav
       &ing to w_"//TO_string(i)//" = "//TO_string(EYE*SQRT(-Normal_modes(i)))
     END IF
   END DO
+  WRITE(out_unit,*) "Expected ZPE by half-sum of the total system eigenpulsations (from MWH): "//TO&
+                    &_string( ( SQRT(Normal_modes(1))+SQRT(Normal_modes(2)) )/2 )
 
+          
   !-------------------An experiment on the Psi_1p1D analysis-------------------
   ALLOCATE(Mol1Weights(Nb_M))
   ALLOCATE(Cav1Weights(Nb_C))
 
-  CALL Reduced_density_psi_1p1D_R(Mol1Weights, Cav1Weights, Psi_1p1D, Debug=Debug)
+  CALL Reduced_density_psi_2D_R(Mol1Weights, Cav1Weights, Psi_1p1D, Debug=Debug)
 
   DEALLOCATE(Mol1Weights); DEALLOCATE(Cav1Weights)
   
