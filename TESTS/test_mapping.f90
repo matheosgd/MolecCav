@@ -38,8 +38,9 @@ PROGRAM test_mapping
   IMPLICIT NONE
 
 
-  logical                       :: Debug = .TRUE.
-  
+  logical, parameter            :: Debug = .TRUE.
+  logical, parameter            :: Ease_visual_check = .FALSE.                                     ! takes (3,2) basis set instead of the data file one
+
   TYPE(Cavity_mode_t)           :: DOF_1                                                           ! DOF = the only Degree Of Freedom of the matter part of the system consider so far
   TYPE(Cavity_mode_t)           :: DOF_2                                                           ! The well construction of the Operator's matrices is assumed checked by the dedicated test, so hard-coded references matrices are not needed here
 
@@ -87,7 +88,6 @@ PROGRAM test_mapping
 
   TYPE(test_t)                  :: test_mapp
   logical                       :: error_mapp = .FALSE.
-
     
   
   !---------------------------------------Test initialization--------------------------------------
@@ -103,7 +103,7 @@ PROGRAM test_mapping
     CALL Write_cavity_mode(DOF_1)
     WRITE(out_unit,*) "------------End Cavity mode constructed by MolecCav_Read_cavity_mode------------"
   END IF
-  DOF_1%Nb = 3
+  IF (Ease_visual_check) DOF_1%Nb = 3
 
   CALL Read_cavity_mode(DOF_2, nio=in_unit)
   IF (Debug) THEN
@@ -112,7 +112,7 @@ PROGRAM test_mapping
     CALL Write_cavity_mode(DOF_2)
     WRITE(out_unit,*) "------------End Cavity mode constructed by MolecCav_Read_cavity_mode------------"
   END IF
-  DOF_2%Nb = 2
+  IF (Ease_visual_check) DOF_2%Nb = 2
 
   Nb_1 = DOF_1%Nb
   Nb_2 = DOF_2%Nb

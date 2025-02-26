@@ -59,8 +59,8 @@ PROGRAM test_cavity_mode
   CALL Logical_Test(test_cavity_init, error, test2=.FALSE., info="Cavity_mode_1%D = 0")
   IF (error .AND. Debug) WRITE(out_unit,*) 'Mode%D failed to initialize'
 
-  error = (Cavity_mode_1%Nb == 1)
-  CALL Logical_Test(test_cavity_init, error, test2=.FALSE., info="Cavity_mode_1%Nb == 1")
+  error = (Cavity_mode_1%Nb == 0)
+  CALL Logical_Test(test_cavity_init, error, test2=.FALSE., info="Cavity_mode_1%Nb == 0")
   IF (error .AND. Debug) WRITE(out_unit,*) 'Mode%Nb failed to initialize'
 
   error = (Cavity_mode_1%w == 0)

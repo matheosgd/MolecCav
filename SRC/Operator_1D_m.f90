@@ -180,7 +180,7 @@ MODULE Operator_1D_m
     WRITE(out_unit,*) '*******************************************************'
     WRITE(out_unit,*) '******* CONSTRUCTING THE POSITION OP OF THE HO ********'
 
-    IF (.NOT. Position_Op%Dense) THEN
+    IF ((.NOT. Position_Op%Dense) .AND. Position_Op%Nb > 1) THEN
       !----------Initialization of the characteristics of the operator---------
       Position_Op%Upper_bandwidth   = 1
       Position_Op%Lower_bandwidth   = 1
@@ -194,7 +194,15 @@ MODULE Operator_1D_m
       END DO
       Position_Op%Band_val_R = Position_Op%Band_val_R / SQRT(TWO * Position_Op%w * Position_Op%m)
         
-    ELSE
+    ELSE IF (.NOT. Position_Op%Dense) THEN
+            !---------------------Initialization to default values-------------------
+      ALLOCATE(Position_Op%Diag_val_R(Position_Op%Nb))
+      !------------------------Construction of the matrix----------------------
+      DO i = 1, Position_Op%Nb                                                             ! /!\ Fortran counts from 1 to Nb !!! /!\
+        Position_Op%Diag_val_R(i) = ZERO                                                   ! the position operator matrix has first value (i.e. only value in the Nb = 0 case) 0 
+      END DO
+
+    ELSE 
       !---------------------Initialization to default values-------------------
       ALLOCATE(Position_Op%Dense_val_R(Position_Op%Nb, Position_Op%Nb))
       Position_Op%Dense_val_R = ZERO

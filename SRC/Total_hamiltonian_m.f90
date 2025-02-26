@@ -288,16 +288,16 @@ MODULE Total_hamiltonian_m
     USE Operator_1D_m
     IMPLICIT NONE
 
-    real(kind=Rkind), intent(inout)    :: TotH_psi(:,:)                 ! already allocated !
-    real(kind=Rkind), intent(in)       :: MatH_psi(:,:)     ! size Nb_M*Nb_C. |H_MatterPsi(:,i_C)> = H_Matter|Psi(:,i_C)>
+    real(kind=Rkind), intent(inout)    :: TotH_psi(:,:)                        ! already allocated !
+    real(kind=Rkind), intent(in)       :: MatH_psi(:,:)                        ! size Nb_M*Nb_C. |H_MatterPsi(:,i_C)> = H_Matter|Psi(:,i_C)>
     TYPE(Operator_1D_t), intent(in)    :: CavH
     TYPE(Operator_1D_t), intent(in)    :: CavPosition
-    TYPE(Operator_1D_t), intent(in)    :: Mat_dipolar_moment                ! \hat{\mu}_{M}(R) = Cte.\hat{R} selon hypothèses
-    real(kind=Rkind), intent(in)       :: Psi(:,:)                       ! size Nb_M*Nb_C
-    !real(kind=Rkind), intent(in)       :: lambda_cavity_mode, w_cavity_mode    ! coupling strenght and eigenpulsation
+    TYPE(Operator_1D_t), intent(in)    :: Mat_dipolar_moment                   ! \hat{\mu}_{M}(R) = Cte.\hat{R} selon hypothèses
+    real(kind=Rkind), intent(in)       :: Psi(:,:)                             ! size Nb_M*Nb_C
+    !real(kind=Rkind), intent(in)       :: lambda_cavity_mode, w_cavity_mode   ! coupling strenght and eigenpulsation
     TYPE(Cavity_mode_t), intent(in)    :: Mode
 
-    real(kind=Rkind), allocatable      :: CavHPsi(:)    ! only one line of Psi
+    real(kind=Rkind), allocatable      :: CavHPsi(:)                           ! only one line of Psi
     real(kind=Rkind), allocatable      :: Intermediary(:,:)
     real(kind=Rkind), allocatable      :: Matter_cavity_coupling_hamiltonian_1DPsi(:,:) ! only one line of Psi
     integer                            :: Nb_M, Nb_C, i_M, i_C

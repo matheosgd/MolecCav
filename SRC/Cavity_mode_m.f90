@@ -34,7 +34,7 @@ MODULE Cavity_mode_m
 
   TYPE :: Cavity_mode_t                                                        ! MC = MolecCav NB: everything is initialized at values that are not supposed to make it possible of the cavity mode lecture/creation have successfully been executed
     integer          :: D      = 0                                             ! label of the HO/mode/dimension/associated basis set
-    integer          :: Nb     = 1                                             ! number of basis vectors associated with the HO D
+    integer          :: Nb     = 0                                             ! number of basis vectors associated with the HO D
     real(kind=Rkind) :: w      = ZERO                                          ! eigenpulsation associated with the HO D
     real(kind=Rkind) :: m      = ZERO                                          ! mass associated with the HO D
     real(kind=Rkind) :: lambda = -ONE                                          ! strength parameter of the coupling between the mode D and the molecule
@@ -108,6 +108,13 @@ MODULE Cavity_mode_m
 
     END IF
 
+    IF (Nb == 0) THEN
+      WRITE(out_unit,*) "The number of basis vector associated to any HO CANNOT be 0 (what are are you going to study if there is&
+                       & no system ???). Please check the data file '.nml'"
+      STOP "The number of basis vector associated to any HO CANNOT be 0 (what are are you going to study if there is&
+                       & no system ???). Please check the data file '.nml'"
+    END IF
+    
     !---------------Construction of the Cavity_mode_t type object-----------
     Mode%D      = D
     Mode%Nb     = Nb

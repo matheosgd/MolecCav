@@ -57,31 +57,31 @@ MODULE Mapping_m
     logical, optional, intent(in)    :: Debug
 
     logical                          :: Debug_local = .FALSE.
-    integer                          :: Nb_M, Nb_C, i_M, i_C, NB, I
+    integer                          :: Nb_1, Nb_2, i_1, i_2, NB, I
 
     IF (PRESENT(Debug)) Debug_local = Debug
 
-    Nb_M   = Size(Psi_2D, dim=1)
-    Nb_C   = Size(Psi_2D, dim=2)
+    Nb_1   = Size(Psi_2D, dim=1)
+    Nb_2   = Size(Psi_2D, dim=2)
     NB     = Size(Psi_1D)
     I      = 0
     Psi_1D = ZERO
 
-    IF (Nb_M*Nb_C /= NB) THEN
+    IF (Nb_1*Nb_2 /= NB) THEN
       STOP "Wrong size of the matrices"
     END IF
 
-    DO i_C = 1, Nb_C
-      DO i_M = 1, Nb_M
+    DO i_2 = 1, Nb_2
+      DO i_1 = 1, Nb_1
         I = I + 1
-        Psi_1D(I) = Psi_2D(i_M, i_C)
+        Psi_1D(I) = Psi_2D(i_1, i_2)
       END DO
     END DO
 
     IF (Debug_local) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "The non-tensor producted WF Psi_2D"
-      CALL Write_Mat(Psi_2D, out_unit, Nb_C, info="Psi_2D")
+      CALL Write_Mat(Psi_2D, out_unit, Nb_2, info="Psi_2D")
       WRITE(out_unit,*) "                     ||"
       WRITE(out_unit,*) "                     \/"
       WRITE(out_unit,*) "The tensor producted (mapped) WF Psi_1D"

@@ -269,52 +269,58 @@ $(OBJ_DIR)/$(MAIN).o                     : $(MAIN_DIR)/$(MAIN).f90
 #==================Definition of the files to be created by Make==================
 #========================2. the tests (the TESTS/ programs)=======================
 #=================================================================================
-test_algebra.exe                         : $(OBJ_DIR)/test_algebra.o $(LIBA)
-	$(FFC) -o test_algebra.exe  $(FFLAGS) $(OBJ_DIR)/test_algebra.o $(LIBA) $(EXTLib)
+%.exe          : $(OBJ_DIR)/%.o
+	$(FFC) -o $@ $(FFLAGS) $< $(LIBA) $(EXTLib)
 
-$(OBJ_DIR)/test_algebra.o                : $(TESTS_DIR)/test_algebra.f90
-	$(FFC) -c -o $(OBJ_DIR)/test_algebra.o $(FFLAGS) $(TESTS_DIR)/test_algebra.f90
+$(OBJ_DIR)/%.o : $(TESTS_DIR)/%.f90
+	$(FFC) -c -o $@ $(FFLAGS) $<
 
-test_cavity_mode.exe                     : $(OBJ_DIR)/test_cavity_mode.o $(LIBA)
-	$(FFC) -o test_cavity_mode.exe  $(FFLAGS) $(OBJ_DIR)/test_cavity_mode.o $(LIBA) $(EXTLib)
+#test_algebra.exe                         : $(OBJ_DIR)/test_algebra.o $(LIBA)
+#	$(FFC) -o test_algebra.exe  $(FFLAGS) $(OBJ_DIR)/test_algebra.o $(LIBA) $(EXTLib)
+
+#$(OBJ_DIR)/test_algebra.o                : $(TESTS_DIR)/test_algebra.f90
+#	$(FFC) -c -o $(OBJ_DIR)/test_algebra.o $(FFLAGS) $(TESTS_DIR)/test_algebra.f90
+
+#test_cavity_mode.exe                     : $(OBJ_DIR)/test_cavity_mode.o $(LIBA)
+#	$(FFC) -o test_cavity_mode.exe  $(FFLAGS) $(OBJ_DIR)/test_cavity_mode.o $(LIBA) $(EXTLib)
 # N.B. contrary to the next instruction, -o does mean here "link these object files into an executable one" (gfortran argument syntax)
 # N.B. Question : je ne suis pas de pourquoi FFLAGS est nécéssaire pour le linking en .exe puisque je crois que les .mod ne sont pas utiles pour cette étape ?
 # Recall: "FFLAGS also provides the path towards the .mod files : "-J$(MOD_DIR) $(EXTMod)"
 
-$(OBJ_DIR)/test_cavity_mode.o            : $(TESTS_DIR)/test_cavity_mode.f90
-	$(FFC) -c -o $(OBJ_DIR)/test_cavity_mode.o $(FFLAGS) $(TESTS_DIR)/test_cavity_mode.f90
+#$(OBJ_DIR)/test_cavity_mode.o            : $(TESTS_DIR)/test_cavity_mode.f90
+#	$(FFC) -c -o $(OBJ_DIR)/test_cavity_mode.o $(FFLAGS) $(TESTS_DIR)/test_cavity_mode.f90
 # "-c" is the compilation and can take also as an argument "-o" which here does not mean "link into executable" but allows to choose the name of the thereby...
 #... created object files. Here the path where they have to be stored (OBJ/obj) is added as a prefix to the name 
 
-test_construct_op_1D.exe                 : $(OBJ_DIR)/test_construct_op_1D.o $(LIBA)
-	$(FFC) -o test_construct_op_1D.exe  $(FFLAGS) $(OBJ_DIR)/test_construct_op_1D.o $(LIBA) $(EXTLib)
+#test_construct_op_1D.exe                 : $(OBJ_DIR)/test_construct_op_1D.o $(LIBA)
+#	$(FFC) -o test_construct_op_1D.exe  $(FFLAGS) $(OBJ_DIR)/test_construct_op_1D.o $(LIBA) $(EXTLib)
 
-$(OBJ_DIR)/test_construct_op_1D.o        : $(TESTS_DIR)/test_construct_op_1D.f90
-	$(FFC) -c -o $(OBJ_DIR)/test_construct_op_1D.o $(FFLAGS) $(TESTS_DIR)/test_construct_op_1D.f90
+#$(OBJ_DIR)/test_construct_op_1D.o        : $(TESTS_DIR)/test_construct_op_1D.f90
+#	$(FFC) -c -o $(OBJ_DIR)/test_construct_op_1D.o $(FFLAGS) $(TESTS_DIR)/test_construct_op_1D.f90
 
-test_action_op_1D.exe                    : $(OBJ_DIR)/test_action_op_1D.o $(LIBA)
-	$(FFC) -o test_action_op_1D.exe  $(FFLAGS) $(OBJ_DIR)/test_action_op_1D.o $(LIBA) $(EXTLib)
+#test_action_op_1D.exe                    : $(OBJ_DIR)/test_action_op_1D.o $(LIBA)
+#	$(FFC) -o test_action_op_1D.exe  $(FFLAGS) $(OBJ_DIR)/test_action_op_1D.o $(LIBA) $(EXTLib)
 
-$(OBJ_DIR)/test_action_op_1D.o           : $(TESTS_DIR)/test_action_op_1D.f90
-	$(FFC) -c -o $(OBJ_DIR)/test_action_op_1D.o $(FFLAGS) $(TESTS_DIR)/test_action_op_1D.f90
+#$(OBJ_DIR)/test_action_op_1D.o           : $(TESTS_DIR)/test_action_op_1D.f90
+#	$(FFC) -c -o $(OBJ_DIR)/test_action_op_1D.o $(FFLAGS) $(TESTS_DIR)/test_action_op_1D.f90
 
-test_action_total_H_1p1D.exe             : $(OBJ_DIR)/test_action_total_H_1p1D.o $(LIBA)
-	$(FFC) -o test_action_total_H_1p1D.exe  $(FFLAGS) $(OBJ_DIR)/test_action_total_H_1p1D.o $(LIBA) $(EXTLib)
+#test_action_total_H_1p1D.exe             : $(OBJ_DIR)/test_action_total_H_1p1D.o $(LIBA)
+#	$(FFC) -o test_action_total_H_1p1D.exe  $(FFLAGS) $(OBJ_DIR)/test_action_total_H_1p1D.o $(LIBA) $(EXTLib)
 
-$(OBJ_DIR)/test_action_total_H_1p1D.o    : $(TESTS_DIR)/test_action_total_H_1p1D.f90
-	$(FFC) -c -o $(OBJ_DIR)/test_action_total_H_1p1D.o $(FFLAGS) $(TESTS_DIR)/test_action_total_H_1p1D.f90
+#$(OBJ_DIR)/test_action_total_H_1p1D.o    : $(TESTS_DIR)/test_action_total_H_1p1D.f90
+#	$(FFC) -c -o $(OBJ_DIR)/test_action_total_H_1p1D.o $(FFLAGS) $(TESTS_DIR)/test_action_total_H_1p1D.f90
 
-test_construct_total_H_1p1D.exe          : $(OBJ_DIR)/test_construct_total_H_1p1D.o $(LIBA)
-	$(FFC) -o test_construct_total_H_1p1D.exe  $(FFLAGS) $(OBJ_DIR)/test_construct_total_H_1p1D.o $(LIBA) $(EXTLib)
+#test_construct_total_H_1p1D.exe          : $(OBJ_DIR)/test_construct_total_H_1p1D.o $(LIBA)
+#	$(FFC) -o test_construct_total_H_1p1D.exe  $(FFLAGS) $(OBJ_DIR)/test_construct_total_H_1p1D.o $(LIBA) $(EXTLib)
 
-$(OBJ_DIR)/test_construct_total_H_1p1D.o : $(TESTS_DIR)/test_construct_total_H_1p1D.f90
-	$(FFC) -c -o $(OBJ_DIR)/test_construct_total_H_1p1D.o $(FFLAGS) $(TESTS_DIR)/test_construct_total_H_1p1D.f90
+#$(OBJ_DIR)/test_construct_total_H_1p1D.o : $(TESTS_DIR)/test_construct_total_H_1p1D.f90
+#	$(FFC) -c -o $(OBJ_DIR)/test_construct_total_H_1p1D.o $(FFLAGS) $(TESTS_DIR)/test_construct_total_H_1p1D.f90
 
-test_mapping.exe                         : $(OBJ_DIR)/test_mapping.o $(LIBA)
-	$(FFC) -o test_mapping.exe  $(FFLAGS) $(OBJ_DIR)/test_mapping.o $(LIBA) $(EXTLib)
+#test_mapping.exe                         : $(OBJ_DIR)/test_mapping.o $(LIBA)
+#	$(FFC) -o test_mapping.exe  $(FFLAGS) $(OBJ_DIR)/test_mapping.o $(LIBA) $(EXTLib)
 
-$(OBJ_DIR)/test_mapping.o                : $(TESTS_DIR)/test_mapping.f90
-	$(FFC) -c -o $(OBJ_DIR)/test_mapping.o $(FFLAGS) $(TESTS_DIR)/test_mapping.f90
+#$(OBJ_DIR)/test_mapping.o                : $(TESTS_DIR)/test_mapping.f90
+#	$(FFC) -c -o $(OBJ_DIR)/test_mapping.o $(FFLAGS) $(TESTS_DIR)/test_mapping.f90
 
 
 #=================================================================================
@@ -322,8 +328,9 @@ $(OBJ_DIR)/test_mapping.o                : $(TESTS_DIR)/test_mapping.f90
 #=========================3. the library (the SRC modules)========================
 #==============================3.1. The object files==============================
 #=================================================================================
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.f90
-	$(FFC) $(FFLAGS) -o $@ -c $<
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.f90
+#	$(FFC) $(FFLAGS) -o $@ -c $< (in the order we are used to :)
+	$(FFC) -c -o $@ $(FFLAGS) $<
 
 #$(OBJ_DIR)/Cavity_mode_m.o  : $(SRC_DIR)/Cavity_mode_m.f90
 #	$(FFC) -c -o $(OBJ_DIR)/Cavity_mode_m.o $(FFLAGS) $(SRC_DIR)/Cavity_mode_m.f90

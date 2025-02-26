@@ -116,7 +116,10 @@ PROGRAM App_MolecCav
 
   Mol1_dipolar_moment%Band_val_R = Mol1_dipolar_moment%Band_val_R*Cte_dipole_moment ! /!\ so that the matrix already contains the intensity constant of the dipolar moment with the position of the matter (cf. manual for formulas)
     
-  IF (Debug) CALL Write_Mat(Mol1_dipolar_moment%Band_val_R, out_unit, 3, info="Mol1_dipolar_moment")
+  IF (Debug .AND. ALLOCATED(Mol1_dipolar_moment%Diag_val_R)) CALL Write_Vec(Mol1_dipolar_moment%Diag_val_R, out_unit, 3, info="Mo&
+                                                                           &l1_dipolar_moment")
+  IF (Debug .AND. ALLOCATED(Mol1_dipolar_moment%Band_val_R)) CALL Write_Mat(Mol1_dipolar_moment%Band_val_R, out_unit, 3, info="Mo&
+                                                                           &l1_dipolar_moment")
   FLUSH(out_unit)
 
     !-----------------------------First cavity mode----------------------------
@@ -224,12 +227,17 @@ PROGRAM App_MolecCav
   DEALLOCATE(Result_psi_1p1D)
 
   !-----------------------An experiment on the Nb_photons----------------------
-  WRITE(out_unit,*); WRITE(out_unit,*) "-----------------------An experiment on the Nb_photons----------------------"
+  WRITE(out_unit,*); WRITE(out_unit,*) "-------------------------An experiment on the Nb_photons------------------------"
+  IF (Nb_C == 1) THEN
+    WRITE(out_unit,*) "############## WARNING ############# WARNING ############# WARNING #############" 
+    WRITE(out_unit,*) " This test is NOT likely to return the expected outcome when Nb_C = 1 is chosen "
+    WRITE(out_unit,*) "############## WARNING ############# WARNING ############# WARNING #############"
+  END IF 
 
   ALLOCATE(CavPsi(Cavity_mode_1%Nb))
   CavPsi    = ZERO
   CavPsi(1) = ONE
-  CavPsi(2) = ONE                                                              ! \ket{Psi} = \ket{0} + \ket{1}
+  IF (Nb_C > 1) CavPsi(2) = ONE                                                              ! \ket{Psi} = \ket{0} + \ket{1}
   IF (Debug .AND. Size(CavPsi) <= 10) THEN
     WRITE(out_unit,*) 'Not normalized cavity mode WF (1D)'
     CALL Write_Vec(CavPsi, out_unit, 1, info="NN CavPsi")
