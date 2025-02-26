@@ -108,7 +108,7 @@ FFLAGS   += -J$(MOD_DIR) $(EXTMod)
 # to these optional aguments are added : "-J" which indicates the DIRECTORY (and not all the path of the .mod files) where to STORE the .mod files of the...
 # ...lib. after compilation (at the contrary of "-I" which indicates where to FIND the needed ones); and the path towards the .mod files of the external...
 # ...library(ies).
-SRCFILES = Algebra_m.f90 ND_indexes_m.f90 Cavity_mode_m.f90 Operator_1D_m.f90 Operator_2D_m.f90 Total_hamiltonian_m.f90 Psi_analysis_m.f90
+SRCFILES = Algebra_m.f90 ND_indexes_m.f90 Mapping_m.f90 Cavity_mode_m.f90 Operator_1D_m.f90 Operator_2D_m.f90 Total_hamiltonian_m.f90 Psi_analysis_m.f90
 # the list of all the .f90 source files OF THE LIBRARY (only the modules, not the test/app programs) to be compiled
 OBJ0     = ${SRCFILES:.f90=.o}
 # this syntax looks like a list slicing in python : change the .f90 string of the var to .o : it allows to change the extension of the file from .f90 to .o
@@ -180,7 +180,7 @@ app APP App: $(MAIN).exe
 # this command will compile the library (create the .o and .mod files) and the tests (create the .o and .exe files) and create the static library .a file...
 # ... BUT not execute anything !
 .PHONY: all
-all: $(LIBA) test_algebra.exe test_cavity_mode.exe test_construct_op_1D.exe test_action_op_1D.exe test_action_total_H_1p1D.exe test_construct_total_H_1p1D.exe $(MAIN).exe
+all: $(LIBA) test_algebra.exe test_cavity_mode.exe test_construct_op_1D.exe test_action_op_1D.exe test_action_total_H_1p1D.exe test_construct_total_H_1p1D.exe test_mapping.exe $(MAIN).exe
 # Recall : LIBA = libMolecCav
 # this instruction is understood by Make as "see these files". It will search the make file for where they are defined i.e. for their dependancies, and...
 # ... create them as they are defined if they are too old. 
@@ -371,7 +371,8 @@ $(OBJ_DIR)/Operator_2D_m.o            : $(OBJ_DIR)/Cavity_mode_m.o
 $(OBJ_DIR)/Operator_2D_m.o            : $(OBJ_DIR)/Operator_1D_m.o 
 $(OBJ_DIR)/Total_hamiltonian_m.o      : $(OBJ_DIR)/Cavity_mode_m.o 
 $(OBJ_DIR)/Total_hamiltonian_m.o      : $(OBJ_DIR)/Operator_1D_m.o 
-$(OBJ_DIR)/Psi_analysis_m.o           : $(OBJ_DIR)/ND_indexes_m.o 
+$(OBJ_DIR)/Psi_analysis_m.o           : $(OBJ_DIR)/Mapping_m.o
+$(OBJ_DIR)/Mapping_m.o                : $(OBJ_DIR)/ND_indexes_m.o
 
 $(OBJ_DIR)/$(MAIN).o                  : $(LIBA)
 

@@ -31,7 +31,7 @@ PROGRAM test_mapping
   USE QDUtil_m
   USE QDUtil_Test_m
   USE Algebra_m
-  USE ND_indexes_m
+  USE Mapping_m
   USE Cavity_mode_m
   USE Operator_1D_m
   USE Total_hamiltonian_m
@@ -57,6 +57,14 @@ PROGRAM test_mapping
   real(kind=Rkind)              :: Coeff_21 = ONETENTH
   real(kind=Rkind)              :: Coeffs(0:5)                                                     ! /!\ the indexes are here renamed to match the indexes of the basis vectors and coefficients ! the elements starts from 0 to 5 and not from 1 to 6 !!! /!\
   real(kind=Rkind), allocatable :: Psi_2D(:,:)                                                     ! an any vector representing the excitation state/wavefunction of the HO = a linear combination of the basis functions /!\ Not normalized yet !
+
+  real(kind=Rkind), allocatable :: b_00_2D_bis(:,:)                                                    ! six vectors of the HO basis set |00>, |10>, |20>, |01>, |11>, |21> 
+  real(kind=Rkind), allocatable :: b_01_2D_bis(:,:)
+  real(kind=Rkind), allocatable :: b_10_2D_bis(:,:)
+  real(kind=Rkind), allocatable :: b_11_2D_bis(:,:)
+  real(kind=Rkind), allocatable :: b_20_2D_bis(:,:)
+  real(kind=Rkind), allocatable :: b_21_2D_bis(:,:)
+  real(kind=Rkind), allocatable :: Psi_2D_bis(:,:)                                                     ! an any vector representing the excitation state/wavefunction of the HO = a linear combination of the basis functions /!\ Not normalized yet !
 
   real(kind=Rkind), allocatable :: b_00_1D(:)                                                      ! six vectors of the HO basis set |00>, |10>, |20>, |01>, |11>, |21> 
   real(kind=Rkind), allocatable :: b_01_1D(:)
@@ -147,7 +155,7 @@ PROGRAM test_mapping
       CALL Write_Mat(b_21_2D, out_unit, Size(b_00_2D, dim=2), info="b_21_2D"); WRITE(out_unit,*)
       WRITE(out_unit,*); WRITE(out_unit,*) "-------------End basis vectors of the [DOF_1 x DOF_2] 2D system-------------"
       WRITE(out_unit,*); WRITE(out_unit,*) "----------------The any linear combination of the basis functions---------------"
-      CALL Write_Mat(Psi_2D, out_unit, Size(Psi_2D, dim=2), info="Psi_2D(not normalized)")
+      CALL Write_Mat(Psi_2D, out_unit, Size(Psi_2D, dim=2), info="Psi_2D(NOT normalized)")
       WRITE(out_unit,*); WRITE(out_unit,*) "------------------------End of the any linear combination-----------------------"
   END IF
 
@@ -169,39 +177,115 @@ PROGRAM test_mapping
   CALL Construct_total_hamiltonian_1p1D(TotH, CavPosition, CavH, Mat_dipolar_moment, MatH, Debug=.FALSE.)
 
 
-  !---------------------------------------Tests mapping 2D---------------------------------------
-  ALLOCATE(b_00_1D(NB))
-  ALLOCATE(b_01_1D(NB))
-  ALLOCATE(b_10_1D(NB))
-  ALLOCATE(b_11_1D(NB))
-  ALLOCATE(b_20_1D(NB))
-  ALLOCATE(b_21_1D(NB))
-  ALLOCATE(Psi_1D(NB))
-  
+  !------------------------------------------Tests mapping-----------------------------------------
   WRITE(out_unit,*)
   WRITE(out_unit,*) "------------------------------------------------b_00------------------------------------------------"
-  CALL Mapping_WF_2DTO1D(b_00_1D, b_00_2D, Debug)
+  ALLOCATE(b_00_1D(NB))
+  CALL Mapping_WF_2DTO1D(b_00_1D, b_00_2D, Debug=Debug)
+  ALLOCATE(b_00_2D_bis(Nb_1, Nb_2))
+  CALL Mapping_WF_1DTO2D(b_00_2D_bis, b_00_1D, Debug=Debug)
+  CALL Equal_R_R_matrix(error_mapp, b_00_2D_bis, b_00_2D)
+  CALL Logical_Test(test_mapp, error_mapp, test2=.FALSE., info="b_00_2D recovered ?")
+
   WRITE(out_unit,*)
   WRITE(out_unit,*) "------------------------------------------------b_01------------------------------------------------"
-  CALL Mapping_WF_2DTO1D(b_01_1D, b_01_2D, Debug)
+  ALLOCATE(b_01_1D(NB))
+  CALL Mapping_WF_2DTO1D(b_01_1D, b_01_2D, Debug=Debug)
+  ALLOCATE(b_01_2D_bis(Nb_1, Nb_2))
+  CALL Mapping_WF_1DTO2D(b_01_2D_bis, b_01_1D, Debug=Debug)
+  CALL Equal_R_R_matrix(error_mapp, b_01_2D_bis, b_01_2D)
+  CALL Logical_Test(test_mapp, error_mapp, test2=.FALSE., info="b_01_2D recovered ?")
+
   WRITE(out_unit,*)
   WRITE(out_unit,*) "------------------------------------------------b_10------------------------------------------------"
-  CALL Mapping_WF_2DTO1D(b_10_1D, b_10_2D, Debug)
+  ALLOCATE(b_10_1D(NB))
+  CALL Mapping_WF_2DTO1D(b_10_1D, b_10_2D, Debug=Debug)
+  ALLOCATE(b_10_2D_bis(Nb_1, Nb_2))
+  CALL Mapping_WF_1DTO2D(b_10_2D_bis, b_10_1D, Debug=Debug)
+  CALL Equal_R_R_matrix(error_mapp, b_10_2D_bis, b_10_2D)
+  CALL Logical_Test(test_mapp, error_mapp, test2=.FALSE., info="b_10_2D recovered ?")
+
   WRITE(out_unit,*)
   WRITE(out_unit,*) "------------------------------------------------b_11------------------------------------------------"
-  CALL Mapping_WF_2DTO1D(b_11_1D, b_11_2D, Debug)
+  ALLOCATE(b_11_1D(NB))
+  CALL Mapping_WF_2DTO1D(b_11_1D, b_11_2D, Debug=Debug)
+  ALLOCATE(b_11_2D_bis(Nb_1, Nb_2))
+  CALL Mapping_WF_1DTO2D(b_11_2D_bis, b_11_1D, Debug=Debug)
+  CALL Equal_R_R_matrix(error_mapp, b_11_2D_bis, b_11_2D)
+  CALL Logical_Test(test_mapp, error_mapp, test2=.FALSE., info="b_11_2D recovered ?")
+
   WRITE(out_unit,*)
   WRITE(out_unit,*) "------------------------------------------------b_20------------------------------------------------"
-  CALL Mapping_WF_2DTO1D(b_20_1D, b_20_2D, Debug)
+  ALLOCATE(b_20_1D(NB))
+  CALL Mapping_WF_2DTO1D(b_20_1D, b_20_2D, Debug=Debug)
+  ALLOCATE(b_20_2D_bis(Nb_1, Nb_2))
+  CALL Mapping_WF_1DTO2D(b_20_2D_bis, b_20_1D, Debug=Debug)
+  CALL Equal_R_R_matrix(error_mapp, b_20_2D_bis, b_20_2D)
+  CALL Logical_Test(test_mapp, error_mapp, test2=.FALSE., info="b_20_2D recovered ?")
+
   WRITE(out_unit,*)
   WRITE(out_unit,*) "------------------------------------------------b_21------------------------------------------------"
-  CALL Mapping_WF_2DTO1D(b_21_1D, b_21_2D, Debug)
+  ALLOCATE(b_21_1D(NB))
+  CALL Mapping_WF_2DTO1D(b_21_1D, b_21_2D, Debug=Debug)
+  ALLOCATE(b_21_2D_bis(Nb_1, Nb_2))
+  CALL Mapping_WF_1DTO2D(b_21_2D_bis, b_21_1D, Debug=Debug)
+  CALL Equal_R_R_matrix(error_mapp, b_21_2D_bis, b_21_2D)
+  CALL Logical_Test(test_mapp, error_mapp, test2=.FALSE., info="b_21_2D recovered ?")
+
   WRITE(out_unit,*)
   WRITE(out_unit,*) "-------------------------------------------------Psi------------------------------------------------"
-  CALL Mapping_WF_2DTO1D(Psi_1D, Psi_2D, Debug)
-
+  ALLOCATE(Psi_1D(NB))
+  CALL Mapping_WF_2DTO1D(Psi_1D, Psi_2D, Debug=Debug)
+  ALLOCATE(Psi_2D_bis(Nb_1, Nb_2 ))
+  CALL Mapping_WF_1DTO2D(Psi_2D_bis, Psi_1D, Debug=Debug)
+  CALL Equal_R_R_matrix(error_mapp, Psi_2D_bis, Psi_2D)
+  CALL Logical_Test(test_mapp, error_mapp, test2=.FALSE., info="Psi_2D recovered ?")
 
   CALL Finalize_Test(test_mapp)
 
   
+  CONTAINS
+
+
+  SUBROUTINE Equal_R_R_matrix(error, Rl_1, Rl_2)
+    USE QDUtil_m
+    IMPLICIT NONE 
+
+    logical,          intent(inout) :: error
+    real(kind=Rkind), intent(in)    :: Rl_1(:,:)
+    real(kind=Rkind), intent(in)    :: Rl_2(:,:)
+    
+    real(kind=Rkind), parameter     :: Threshold   = 1E-10_Rkind
+    logical, parameter              :: Debug_local = .FALSE.
+    integer                         :: Nb_1, Nb_2
+
+    Nb_1 = Size(Rl_1, dim=1)
+    Nb_2 = Size(Rl_2, dim=2)
+    IF (Nb_1 /= Size(Rl_2, dim=1) .OR. Nb_2 /= Size(Rl_2, dim=2)) THEN
+      WRITE(out_unit,*) "The two matrices must have same dimensions to compare them. Please, check initialization."
+      STOP "The two matrices must have same dimensions to compare them. Please, check initialization."
+    END IF 
+
+    IF (ANY(ABS(Rl_1 - Rl_2) > Threshold)) THEN
+      error = .TRUE.
+      IF (Debug_local) THEN
+        WRITE(out_unit,*) "The two matrices are not close enough to be considered equal :"
+        CALL Write_Mat(Rl_1, out_unit, Nb_2, info="R_1(:,:)")
+        CALL Write_Mat(Rl_2, out_unit, Nb_2, info="R_2(:,:)")
+        CALL Write_Mat(ABS(Rl_1 - Rl_2), out_unit, Nb_2, info="|R_1-R_2| = ")
+      END IF 
+
+    ELSE 
+      error = .FALSE.
+      IF (Debug_local) THEN
+        WRITE(out_unit,*) "The two matrices are close enough to be considered equal :"
+        CALL Write_Mat(Rl_1, out_unit, Nb_2, info="R_1(:,:)")
+        CALL Write_Mat(Rl_2, out_unit, Nb_2, info="R_2(:,:)")
+        CALL Write_Mat(ABS(Rl_1 - Rl_2), out_unit, Nb_2, info="|R_1-R_2| = ")
+      END IF
+    END IF 
+
+  END SUBROUTINE Equal_R_R_matrix
+
+
 END PROGRAM

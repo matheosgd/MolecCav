@@ -46,7 +46,7 @@ MODULE Psi_analysis_m
     
   SUBROUTINE MolecCav_Reduced_density_psi_2D_R(weight_dim_1, weight_dim_2, Psi_2D, Debug)
     USE QDUtil_m
-    USE ND_indexes_m
+    USE Mapping_m
     IMPLICIT NONE
 
     real(kind=Rkind),  intent(inout) :: weight_dim_1(:)                        ! already allocated !

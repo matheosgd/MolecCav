@@ -64,7 +64,7 @@ FFC="gfortran"                                                                 #
 FFLAGS="-Og -g -fbacktrace -fcheck=all -fwhole-file -fcheck=pointer -Wuninitialized -finit-real=nan -finit-integer=nan -fopenmp"
                                                                                # some useful options for the compiler
 
-MODULES_LIB=("Cavity_mode_m" "Operator_1D_m" "Total_hamiltonian_m" "Algebra_m" "Operator_2D_m" "Psi_analysis_m" "ND_indexes_m")
+MODULES_LIB=("Cavity_mode_m" "Operator_1D_m" "Total_hamiltonian_m" "Algebra_m" "Operator_2D_m" "Psi_analysis_m" "ND_indexes_m" "Mapping_m")
 SRC_LIB=(${MODULES_LIB[@]/%/.f90})
 OBJ_LIB=(${MODULES_LIB[@]/%/.o})
 
@@ -151,18 +151,20 @@ Build_obj_lib()
   cd ~/MolecCav
  	$FFC -c -o ${OBJ[0]} $FFLAGS ${SRC_FILES[0]}                                           # OBJ[0] = OBJ/obj/Cavity_mode_m.o 
                                                                                          # SRC_FILES[0] = OBJ/obj/Cavity_mode_m.f90
-  $FFC -c -o ${OBJ[3]} $FFLAGS ${SRC_FILES[3]}                                           # OBJ[2] = OBJ/obj/Algebra_m.o
-                                                                                         # SRC_FILES[2] = OBJ/obj/Algebra_m.f90    |/!\ Algebra has to be compiled         /!\
-  $FFC -c -o ${OBJ[1]} $FFLAGS ${SRC_FILES[1]}                                           # OBJ[1] = OBJ/obj/Cavity_mode_m.o        |/!\ before operator_1d (used in op_1d) /!\
-                                                                                         # SRC_FILES[1] = OBJ/obj/Cavity_mode_m.f90
-  $FFC -c -o ${OBJ[4]} $FFLAGS ${SRC_FILES[4]}                                           # OBJ[4] = OBJ/obj/Algebra.o
-                                                                                         # SRC_FILES[2] = OBJ/obj/Algebra.f90
+  $FFC -c -o ${OBJ[3]} $FFLAGS ${SRC_FILES[3]}                                           # OBJ[2] = OBJ/obj/Algebra_m.o            |/!\ Algebra has to be compiled         /!\
+                                                                                         # SRC_FILES[2] = OBJ/obj/Algebra_m.f90    |/!\ before operator_1d (used in op_1d) /!\         
+  $FFC -c -o ${OBJ[1]} $FFLAGS ${SRC_FILES[1]}                                           # OBJ[1] = OBJ/obj/Operator_1D.o          
+                                                                                         # SRC_FILES[1] = OBJ/obj/Operator_1D.f90
+  $FFC -c -o ${OBJ[4]} $FFLAGS ${SRC_FILES[4]}                                           # OBJ[4] = OBJ/obj/Operator_2D.o
+                                                                                         # SRC_FILES[2] = OBJ/obj/Operator_2D.f90
   $FFC -c -o ${OBJ[2]} $FFLAGS ${SRC_FILES[2]}                                           # OBJ[2] = OBJ/obj/Total_hamiltonian_m.o
                                                                                          # SRC_FILES[2] = OBJ/obj/Total_hamiltonian_m.f90
-  $FFC -c -o ${OBJ[6]} $FFLAGS ${SRC_FILES[6]}                                           # OBJ[2] = OBJ/obj/Total_hamiltonian_m.o         |/!\ ND_indexes has to be compiled /!\
-                                                                                         # SRC_FILES[2] = OBJ/obj/Total_hamiltonian_m.f90 |/!\ before Psi_analysis (used in) /!\
-  $FFC -c -o ${OBJ[5]} $FFLAGS ${SRC_FILES[5]}                                           # OBJ[2] = OBJ/obj/Total_hamiltonian_m.o
-                                                                                         # SRC_FILES[2] = OBJ/obj/Total_hamiltonian_m.f90
+  $FFC -c -o ${OBJ[6]} $FFLAGS ${SRC_FILES[6]}                                           # OBJ[2] = OBJ/obj/ND_indexes_m.o         |/!\ ND_indexes has to be compiled /!\
+                                                                                         # SRC_FILES[2] = OBJ/obj/ND_indexes_m.f90 |/!\ before Psi_analysis (used in) /!\
+  $FFC -c -o ${OBJ[7]} $FFLAGS ${SRC_FILES[7]}                                           # OBJ[2] = OBJ/obj/Mapping_m.o
+                                                                                         # SRC_FILES[2] = OBJ/obj/Mapping_m.f90
+  $FFC -c -o ${OBJ[5]} $FFLAGS ${SRC_FILES[5]}                                           # OBJ[2] = OBJ/obj/Psi_analysis_m.o
+                                                                                         # SRC_FILES[2] = OBJ/obj/Psi_analysis_m.f90
   for file in ${OBJ[@]}
   do
     Claim "Done $file"
@@ -558,4 +560,3 @@ case "$command" in
   echo "################################################################################"
   exit 1;;
 esac
-
