@@ -111,7 +111,7 @@ MODULE Cavity_mode_m
     IF (Nb == 0) THEN
       WRITE(out_unit,*) "The number of basis vector associated to any HO CANNOT be 0 (what are are you going to study if there is&
                        & no system ???). Please check the data file '.nml'"
-      STOP "The number of basis vector associated to any HO CANNOT be 0 (what are are you going to study if there is&
+      STOP "### The number of basis vector associated to any HO CANNOT be 0 (what are are you going to study if there is&
                        & no system ???). Please check the data file '.nml'"
     END IF
     

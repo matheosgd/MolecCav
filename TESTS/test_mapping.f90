@@ -263,7 +263,7 @@ PROGRAM test_mapping
     Nb_2_local = Size(Rl_2, dim=2)
     IF (Nb_1_local /= Size(Rl_2, dim=1) .OR. Nb_2 /= Size(Rl_2, dim=2)) THEN
       WRITE(out_unit,*) "The two matrices must have same dimensions to compare them. Please, check initialization."
-      STOP "The two matrices must have same dimensions to compare them. Please, check initialization."
+      STOP "### The two matrices must have same dimensions to compare them. Please, check initialization."
     END IF 
 
     IF (ANY(ABS(Rl_1 - Rl_2) > Threshold)) THEN

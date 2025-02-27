@@ -68,7 +68,7 @@ MODULE Algebra_m
 
     IF (Norm < Threshold) THEN
       WRITE(out_unit,*) "Attempt to normalize matrix of norm ZERO"
-      STOP "Attempt to normalize matrix of norm ZERO"
+      STOP "### Attempt to normalize matrix of norm ZERO"
     ELSE 
       Psi(:,:) = Psi(:,:) / Norm
     END IF 
@@ -96,7 +96,7 @@ MODULE Algebra_m
 
     IF (Norm < Threshold) THEN
       WRITE(out_unit,*) "Attempt to normalize matrix of norm ZERO"
-      STOP "Attempt to normalize matrix of norm ZERO"
+      STOP "### Attempt to normalize matrix of norm ZERO"
     ELSE 
       Psi(:,:) = Psi(:,:) / Norm
     END IF 
@@ -124,7 +124,7 @@ MODULE Algebra_m
 
     IF (Norm < Threshold) THEN
       WRITE(out_unit,*) "Attempt to normalize matrix of norm ZERO"
-      STOP "Attempt to normalize matrix of norm ZERO"
+      STOP "### Attempt to normalize matrix of norm ZERO"
     ELSE 
       Psi(:) = Psi(:) / Norm
     END IF 
@@ -152,7 +152,7 @@ MODULE Algebra_m
 
     IF (Norm < Threshold) THEN
       WRITE(out_unit,*) "Attempt to normalize matrix of norm ZERO"
-      STOP "Attempt to normalize matrix of norm ZERO"
+      STOP "### Attempt to normalize matrix of norm ZERO"
     ELSE 
       Psi(:) = Psi(:) / Norm
     END IF 
@@ -235,7 +235,7 @@ MODULE Algebra_m
     Dim = Size(Psi_1, Dim=2)
     IF (Dim /= Size(Psi_2, Dim=2) .OR. Size(Psi_2, Dim=1) /= Size(Psi_2, Dim=1)) THEN
       WRITE(out_unit,*) "The matrices are expected to have same Dimensions for the scalar product."
-      STOP "The matrices are expected to have same Dimensions for the scalar product."
+      STOP "### The matrices are expected to have same Dimensions for the scalar product."
     END IF
     
     Sca_pdt = ZERO
@@ -265,7 +265,7 @@ MODULE Algebra_m
     Dim = Size(Psi_1, Dim=2)
     IF (Dim /= Size(Psi_2, Dim=2) .OR. Size(Psi_2, Dim=1) /= Size(Psi_2, Dim=1)) THEN
       WRITE(out_unit,*) "The matrices are expected to have same Dimensions for the scalar product."
-      STOP "The matrices are expected to have same Dimensions for the scalar product."
+      STOP "### The matrices are expected to have same Dimensions for the scalar product."
     END IF
     
     V1(1:Size(Psi_1)) => Psi_1(:,:) 
@@ -295,7 +295,7 @@ MODULE Algebra_m
     Dim = Size(Psi_1, Dim=2)
     IF (Dim /= Size(Psi_2, Dim=2) .OR. Size(Psi_2, Dim=1) /= Size(Psi_2, Dim=1)) THEN
       WRITE(out_unit,*) "The matrices are expected to have same Dimensions for the scalar product."
-      STOP "The matrices are expected to have same Dimensions for the scalar product."
+      STOP "### The matrices are expected to have same Dimensions for the scalar product."
     END IF
 
     Sca_pdt = ZERO
@@ -323,7 +323,7 @@ MODULE Algebra_m
     Dim = Size(Psi_1)
     IF (Dim /= Size(Psi_2)) THEN
       WRITE(out_unit,*) "The matrices are expected to have same Dimensions for the scalar product."
-      STOP "The matrices are expected to have same Dimensions for the scalar product."
+      STOP "### The matrices are expected to have same Dimensions for the scalar product."
     END IF
 
     Sca_pdt = DOT_PRODUCT(Psi_1, Psi_2)
@@ -347,7 +347,7 @@ MODULE Algebra_m
     Dim = Size(Psi_1)
     IF (Dim /= Size(Psi_2)) THEN
       WRITE(out_unit,*) "The matrices are expected to have same Dimensions for the scalar product."
-      STOP "The matrices are expected to have same Dimensions for the scalar product."
+      STOP "### The matrices are expected to have same Dimensions for the scalar product."
     END IF
 
     Sca_pdt = DOT_PRODUCT(Psi_1, Psi_2)

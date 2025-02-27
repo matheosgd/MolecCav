@@ -116,7 +116,7 @@ MODULE Operator_1D_m
 
       CASE DEFAULT
         WRITE(out_unit,*) "No Operator type recognized, please verify the input of Construct_Operator_1D subroutine"
-        STOP "No Operator type recognized, please verify the input of Construct_Operator_1D subroutine"
+        STOP "### No Operator type recognized, please verify the input of Construct_Operator_1D subroutine"
 
     END SELECT
 
@@ -270,14 +270,14 @@ MODULE Operator_1D_m
     IF (Operator%Nb /= Size(Psi)) THEN
       WRITE(out_unit,*) "The dimensions of the Operator's matrix representation does not match the operand Psi's vector&
                        & size. Please check initialization."
-      STOP "The dimensions of the Operator's matrix representation does not match the operand Psi's vector size. Please& 
+      STOP "### The dimensions of the Operator's matrix representation does not match the operand Psi's vector size. Please& 
                        & check initialization."
     END IF 
 
     IF (Operator%Nb /= Size(Op_psi)) THEN
       WRITE(out_unit,*) "The dimensions of the Operator's matrix representation does not match the resulting Op_psi vector's& 
                        & size. Please check initialization."
-      STOP "The dimensions of the Operator's matrix representation does not match the resulting Op_psi vector's size. Please& 
+      STOP "### The dimensions of the Operator's matrix representation does not match the resulting Op_psi vector's size. Please& 
                        & check initialization."
     END IF 
 
@@ -293,7 +293,7 @@ MODULE Operator_1D_m
 
     ELSE
       WRITE(out_unit,*) "None of this operator's matrices are allocated. Please check its initalization."
-      STOP "None of this operator's matrices are allocated. Please check its initalization."
+      STOP "### None of this operator's matrices are allocated. Please check its initalization."
     
     END IF
 
@@ -343,12 +343,12 @@ MODULE Operator_1D_m
     IF (Nb /= Operator%Nb) THEN
       WRITE(out_unit,*) "The size of the operator's matrix Band_val_R does not match the size of the &
           & resulting vector Op_psi. Please check their initialization."
-      STOP "The size of the operator's matrix Band_val_R does not match the size of the &
+      STOP "### The size of the operator's matrix Band_val_R does not match the size of the &
           & resulting vector Op_psi. Please check their initialization."
     ELSE IF (Nb /= Size(Psi)) THEN
       WRITE(out_unit,*) "The size of the resulting vector Op_psi does not match the size of the operand & 
           & vector Psi. Please check their initialization."
-      STOP "The size of the resulting vector Op_psi does not match the size of the operand & 
+      STOP "### The size of the resulting vector Op_psi does not match the size of the operand & 
           & vector Psi. Please check their initialization."
     END IF
 

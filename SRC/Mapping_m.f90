@@ -68,7 +68,7 @@ MODULE Mapping_m
     Psi_1D = ZERO
 
     IF (Nb_1*Nb_2 /= NB) THEN
-      STOP "Wrong size of the matrices"
+      STOP "### Wrong size of the matrices"
     END IF
 
     DO i_2 = 1, Nb_2
@@ -113,7 +113,7 @@ MODULE Mapping_m
     IF (Size(Psi_1D) /= PRODUCT(Ranks_sizes)) THEN
       WRITE(out_unit,*) "Wrong size of the matrices : Size(Psi_2D, dim=1)*...*Size(Psi_2D, dim=rank(psi_2d)) = "//TO_string(Size(&
                         &Psi_2D, dim=1))//"*"//TO_string(Size(Psi_2D, dim=2))//" /= Size(Psi_1D) = "//TO_string(Size(Psi_1D))
-      STOP "Wrong size of the matrices. cf. output file for more information."
+      STOP "### Wrong size of the matrices. cf. output file for more information."
     END IF
 
     IF (PRESENT(Starting_indexes)) THEN

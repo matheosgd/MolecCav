@@ -470,8 +470,10 @@ PROGRAM test_algebra
 
     Nb_1 = Size(Rl_1)
     IF (Nb_1 /= Size(Rl_2)) THEN
+      WRITE(out_unit,*)
       WRITE(out_unit,*) "The two vectors must have same dimensions to compare them. Please, check initialization."
-      STOP "The two vectors must have same dimensions to compare them. Please, check initialization."
+      WRITE(out_unit,*) "Size(Rl_1) = "//TO_string(Size(Rl_1))//"; Size(Rl_2) = "//TO_string(Size(Rl_2))
+      STOP "### The two vectors must have same dimensions to compare them. Please, check initialization."
     END IF 
 
     IF (ANY(ABS(Rl_1 - Rl_2) > Threshold)) THEN
@@ -512,7 +514,7 @@ PROGRAM test_algebra
     Nb_1 = Size(Cmplx_1)
     IF (Nb_1 /= Size(Cmplx_2)) THEN
       WRITE(out_unit,*) "The two vectors must have same dimensions to compare them. Please, check initialization."
-      STOP "The two vectors must have same dimensions to compare them. Please, check initialization."
+      STOP "### The two vectors must have same dimensions to compare them. Please, check initialization."
     END IF 
   
     ALLOCATE(Difference(Nb_1))
@@ -575,7 +577,7 @@ PROGRAM test_algebra
     Nb_2 = Size(Rl_2, dim=2)
     IF (Nb_1 /= Size(Rl_2, dim=1) .OR. Nb_2 /= Size(Rl_2, dim=2)) THEN
       WRITE(out_unit,*) "The two matrices must have same dimensions to compare them. Please, check initialization."
-      STOP "The two matrices must have same dimensions to compare them. Please, check initialization."
+      STOP "### The two matrices must have same dimensions to compare them. Please, check initialization."
     END IF 
 
     IF (ANY(ABS(Rl_1 - Rl_2) > Threshold)) THEN
@@ -617,7 +619,7 @@ PROGRAM test_algebra
     Nb_2 = Size(Cmplx_2, dim=2)
     IF (Nb_1 /= Size(Cmplx_2, dim=1) .OR. Nb_2 /= Size(Cmplx_2, dim=2)) THEN
       WRITE(out_unit,*) "The two matrices must have same dimensions to compare them. Please, check initialization."
-      STOP "The two matrices must have same dimensions to compare them. Please, check initialization."
+      STOP "### The two matrices must have same dimensions to compare them. Please, check initialization."
     END IF 
   
     ALLOCATE(Difference(Nb_1, Nb_2))

@@ -100,35 +100,35 @@ MODULE Total_hamiltonian_m
     IF (Nb_M /= Size(TotH_psi,1) .OR. Nb_C /= Size(TotH_psi,2)) THEN
       WRITE(out_unit,*) "The dimensions of the operand Psi's matrix does not match the resulting TotH_psi matrix's& 
                        & size. Please check initialization."
-      STOP "The dimensions of the operand Psi's matrix does not match the resulting TotH_psi matrix's size. Please&
+      STOP "### The dimensions of the operand Psi's matrix does not match the resulting TotH_psi matrix's size. Please&
                        & check initialization."
     END IF 
 
     IF (Nb_M /= MatH%Nb) THEN
       WRITE(out_unit,*) "The dimensions of the operand Psi's matrix does not match the dimensions of the Operator &
                        &MatH's matrix representation. Please check initialization."
-      STOP "The dimensions of the operand Psi's matrix does not match the dimensions of the Operator MatH's matrix&
+      STOP "### The dimensions of the operand Psi's matrix does not match the dimensions of the Operator MatH's matrix&
                        & representation. Please check initialization."
     END IF 
 
     IF (Nb_M /= Mat_dipolar_moment%Nb) THEN
       WRITE(out_unit,*) "The dimensions of the operand Psi's matrix does not match the dimensions of the Operator &
                        &Mat_dipolar_moment's matrix representation. Please check initialization."
-      STOP "The dimensions of the operand Psi's matrix does not match the dimensions of the Operator Mat_dipolar_m&
+      STOP "### The dimensions of the operand Psi's matrix does not match the dimensions of the Operator Mat_dipolar_m&
                        &oment's matrix representation. Please check initialization."
     END IF 
 
     IF (Nb_C /= CavH%Nb) THEN
       WRITE(out_unit,*) "The dimensions of the operand Psi's matrix does not match the dimensions of the Operator &
                        &CavH's matrix representation. Please check initialization."
-      STOP "The dimensions of the operand Psi's matrix does not match the dimensions of the Operator CavH's matrix&
+      STOP "### The dimensions of the operand Psi's matrix does not match the dimensions of the Operator CavH's matrix&
                        & representation. Please check initialization."
     END IF 
 
     IF (Nb_C /= CavPosition%Nb) THEN
       WRITE(out_unit,*) "The dimensions of the operand Psi's matrix does not match the dimensions of the Operator &
                        &CavPosition's matrix representation. Please check initialization."
-      STOP "The dimensions of the operand Psi's matrix does not match the dimensions of the Operator CavPosition's&
+      STOP "### The dimensions of the operand Psi's matrix does not match the dimensions of the Operator CavPosition's&
                        & matrix representation. Please check initialization."
     END IF 
 
@@ -357,7 +357,7 @@ MODULE Total_hamiltonian_m
     Nb_C = Size(Mat_dipolar_moment_psi, 2)
 
     IF (Size(Psi, 1) /= Size(Mat_dipolar_moment_psi, 1) .OR. Size(Psi, 2) /= Nb_C) THEN
-      STOP "The size of Psi does not match the size of Mat_dipolar_moment_psi"
+      STOP "### The size of Psi does not match the size of Mat_dipolar_moment_psi"
     END IF
 
     DO i_C = 1, Nb_C
@@ -394,7 +394,7 @@ MODULE Total_hamiltonian_m
       Nb_M = Size(MatH%Dense_val_R, dim=1)
     ELSE 
       WRITE(out_unit,*) "The matter Hamiltonian does not seem to have been initialized (matrices not allocated)."
-      STOP "The matter Hamiltonian does not seem to have been initialized (matrices not allocated)."
+      STOP "### The matter Hamiltonian does not seem to have been initialized (matrices not allocated)."
     END IF
 
     IF (ALLOCATED(CavH%Diag_val_R)) THEN
@@ -403,7 +403,7 @@ MODULE Total_hamiltonian_m
       Nb_C = Size(CavH%Dense_val_R, dim=1)
     ELSE 
       WRITE(out_unit,*) "The matter Hamiltonian does not seem to have been initialized (matrices not allocated)."
-      STOP "The matter Hamiltonian does not seem to have been initialized (matrices not allocated)."
+      STOP "### The matter Hamiltonian does not seem to have been initialized (matrices not allocated)."
     END IF
 
     NB = Size(TotH, dim=1)
@@ -412,7 +412,7 @@ MODULE Total_hamiltonian_m
       WRITE(out_unit,*) "Size(TotH, dim=1) = "//TO_string(NB)//" = NB"
       WRITE(out_unit,*) "Size(TotH, dim=2) = "//TO_string(Size(TotH, dim=2))
       WRITE(out_unit,*) "Nb_M*Nb_C = "//TO_string(Nb_M)//"*"//TO_string(Nb_C)//" = "//TO_string(Nb_M*Nb_C)
-      STOP "The TotH matrix seems badly initialized, please check allocation."
+      STOP "### The TotH matrix seems badly initialized, please check allocation."
     END IF
 
     TotH(:,:) = ZERO
@@ -484,7 +484,7 @@ MODULE Total_hamiltonian_m
     ALLOCATE(Psi_result(Nb_M, Nb_C))
 
     IF (NB /= Size(H_tot, 2) .OR. NB /= Nb_M*Nb_C) THEN
-      STOP "wrong allocation of the H_tot matrix"
+      STOP "### wrong allocation of the H_tot matrix"
     END IF
 
     DO j_M = 1, Nb_M

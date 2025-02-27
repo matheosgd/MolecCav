@@ -76,6 +76,7 @@ PROGRAM test_normal_modes_1p1D
 
   !----------------------------------Utilities---------------------------------
   integer                       :: Nb_M, Nb_C, NB, i
+  real(kind=Rkind)              :: TotE, w_1, w_2
 
   TYPE(test_t)                  :: test_nrml_mdes
   logical                       :: error_nrml_mdes = .FALSE.
@@ -237,10 +238,79 @@ PROGRAM test_normal_modes_1p1D
     CALL WRITE_Mat(Reigvec(1:10,1:10), out_unit, 6, info = 'Ten first Eigenvectors (1:10 slicing)')
   END IF 
 
-  !-----Construction of the 1p1D total system Mass-weighted Hessian matrix-----
+    !-----Construction of the 1p1D total system Mass-weighted Hessian matrix-----
   CALL Compute_normal_modes(Normal_modes, Normal_coordinates, MWH, Molecule_1, Cavity_mode_1, Cte_dipole_moment)
 
   
+  !----------------------------Testing the eigenstates---------------------------
+    ! Are the eigenpulsations of the total system's normal modes (w_1, w_2) i.e. the sqrt of the MWH's Eigenvalues equal to the eigenpulsations of the two separated subsystems, when lambda = 0 ?
+  CALL Equal_R_R_vector(error_nrml_mdes, SQRT(Normal_modes_uncoupled), [MIN(Molecule_1%w, Cavity_mode_1%w), MAX(Molecule_1%w, Cav&
+                                                                       &ity_mode_1%w)])
+  CALL Logical_Test(test_nrml_mdes, error_nrml_mdes, test2=.FALSE., info="Uncloupled system: NM' MWH =?= eigenpulsations")
+
+    ! Are the energies of the eigenstates of the total system i.e. the Eigenvalues of TotH(:,:) matching the Energies computed with the analytical expression from the eigenpulsations of the total system's normal modes (w_1, w_2) ?
+    ! TotE(i_1, i_2) = \barh.w_1(i_1 + 1/2) + \barh.w_2(i_2 + 1/2)
+      ! Without coupling :
+  TotE = Total_Eigenenergy_1p1D(0,0,SQRT(Normal_modes_uncoupled(1)),SQRT(Normal_modes_uncoupled(2)))
+  CALL Equal_R_R_scalar(error_nrml_mdes, TotE, REigval_uncoupled(1))
+  CALL Logical_Test(test_nrml_mdes, error_nrml_mdes, test2=.FALSE., info="Uncoupled system TotE")
+  IF (error_nrml_mdes .AND. Debug) THEN 
+    WRITE(out_unit,*) "Total_Eigenenergy_1p1D(0,0) = "//TO_string(TotE)//"; E_{00} = "//TO_string(REigval_uncoupled(1))
+  END IF 
+
+  TotE = Total_Eigenenergy_1p1D(1,0,SQRT(Normal_modes_uncoupled(1)),SQRT(Normal_modes_uncoupled(2)))
+  CALL Equal_R_R_scalar(error_nrml_mdes, TotE, REigval_uncoupled(2))
+  CALL Logical_Test(test_nrml_mdes, error_nrml_mdes, test2=.FALSE., info="Uncoupled system TotE")
+  IF (error_nrml_mdes .AND. Debug) THEN 
+    WRITE(out_unit,*) "Total_Eigenenergy_1p1D(1,0) = "//TO_string(TotE)//"; E_{10} = "//TO_string(REigval_uncoupled(2))
+  END IF 
+
+  TotE = Total_Eigenenergy_1p1D(0,1,SQRT(Normal_modes_uncoupled(1)),SQRT(Normal_modes_uncoupled(2)))
+  CALL Equal_R_R_scalar(error_nrml_mdes, TotE, REigval_uncoupled(3))
+  CALL Logical_Test(test_nrml_mdes, error_nrml_mdes, test2=.FALSE., info="Uncoupled system TotE")
+  IF (error_nrml_mdes .AND. Debug) THEN 
+    WRITE(out_unit,*) "Total_Eigenenergy_1p1D(0,1) = "//TO_string(TotE)//"; E_{01} = "//TO_string(REigval_uncoupled(3))
+  END IF 
+
+      ! With coupling :
+  TotE = Total_Eigenenergy_1p1D(0,0,SQRT(Normal_modes(1)),SQRT(Normal_modes(2)))
+  CALL Equal_R_R_scalar(error_nrml_mdes, TotE, REigval(1))
+  CALL Logical_Test(test_nrml_mdes, error_nrml_mdes, test2=.FALSE., info="Coupled system TotE")
+  IF (error_nrml_mdes .AND. Debug) THEN 
+    WRITE(out_unit,*) "Total_Eigenenergy_1p1D(0,0) = "//TO_string(TotE)//"; E_{00} = "//TO_string(REigval(1))
+  END IF 
+
+  TotE = Total_Eigenenergy_1p1D(1,0,SQRT(Normal_modes(1)),SQRT(Normal_modes(2)))
+  CALL Equal_R_R_scalar(error_nrml_mdes, TotE, REigval(2))
+  CALL Logical_Test(test_nrml_mdes, error_nrml_mdes, test2=.FALSE., info="Coupled system TotE")
+  IF (error_nrml_mdes .AND. Debug) THEN 
+    WRITE(out_unit,*) "Total_Eigenenergy_1p1D(1,0) = "//TO_string(TotE)//"; E_{10} = "//TO_string(REigval(2))
+  END IF 
+
+  TotE = Total_Eigenenergy_1p1D(0,1,SQRT(Normal_modes(1)),SQRT(Normal_modes(2)))
+  CALL Equal_R_R_scalar(error_nrml_mdes, TotE, REigval(3))
+  CALL Logical_Test(test_nrml_mdes, error_nrml_mdes, test2=.FALSE., info="Coupled system TotE")
+  IF (error_nrml_mdes .AND. Debug) THEN 
+    WRITE(out_unit,*) "Total_Eigenenergy_1p1D(0,1) = "//TO_string(TotE)//"; E_{01} = "//TO_string(REigval(3))
+  END IF 
+    
+    ! Are the eigenpulsations of the total system's normal modes (w_1, w_2) computed analytically from the Eigenvalues of TotH(:,:) matching the eigenpulsation computed from the sqrt of the MWH's Eigenvalues:
+    ! w_1 = TotE(1,0) - TotE(0,0) = E_1 - E_0; w_2 = TotE(0,1) - TotE(0,0) = E_2 - E_0 
+  w_1 = REigval(2) - REigval(1)
+  CALL Equal_R_R_scalar(error_nrml_mdes, w_1, SQRT(Normal_modes(1)))
+  CALL Logical_Test(test_nrml_mdes, error_nrml_mdes, test2=.FALSE., info="E_1 - E_0 =?= w_1")
+  IF (error_nrml_mdes .AND. Debug) THEN 
+    WRITE(out_unit,*) "E_1 - E_0 = "//TO_string(w_1)//"; w_1 = "//TO_string(SQRT(Normal_modes(1)))
+  END IF 
+
+  w_2 = REigval(3) - REigval(1)
+  CALL Equal_R_R_scalar(error_nrml_mdes, w_2, SQRT(Normal_modes(2)))
+  CALL Logical_Test(test_nrml_mdes, error_nrml_mdes, test2=.FALSE., info="E_2 - E_0 =?= w_2")
+  IF (error_nrml_mdes .AND. Debug) THEN 
+    WRITE(out_unit,*) "E_2 - E_0 = "//TO_string(w_1)//"; w_2 = "//TO_string(SQRT(Normal_modes(2)))
+  END IF 
+
+
   CALL Finalize_Test(test_nrml_mdes)
 
 
@@ -290,45 +360,86 @@ PROGRAM test_normal_modes_1p1D
   END SUBROUTINE Compute_normal_modes
 
 
-  SUBROUTINE Equal_R_R_matrix(error, Rl_1, Rl_2)
+  FUNCTION Total_Eigenenergy_1p1D(i_1, i_2, w_1, w_2) RESULT(TotE_local)
+    USE QDUtil_m
+    USE Cavity_mode_m
+    IMPLICIT NONE
+ 
+    real(kind=Rkind)    :: TotE_local
+    integer,          intent(in) :: i_1
+    integer,          intent(in) :: i_2
+    real(kind=Rkind), intent(in) :: w_1
+    real(kind=Rkind), intent(in) :: w_2
+
+    TotE = w_1*(REAL(i_1, kind=Rkind) + HALF) + w_2*(REAL(i_2, kind=Rkind) +  HALF)
+
+  END FUNCTION Total_Eigenenergy_1p1D
+
+
+  SUBROUTINE Equal_R_R_scalar(error, Rl_1, Rl_2)
     USE QDUtil_m
     IMPLICIT NONE 
 
     logical,          intent(inout) :: error
-    real(kind=Rkind), intent(in)    :: Rl_1(:,:)
-    real(kind=Rkind), intent(in)    :: Rl_2(:,:)
+    real(kind=Rkind), intent(in)    :: Rl_1
+    real(kind=Rkind), intent(in)    :: Rl_2
     
     real(kind=Rkind), parameter     :: Threshold   = 1E-10_Rkind
     logical, parameter              :: Debug_local = .FALSE.
-    integer                         :: Nb_1, Nb_2
 
-    Nb_1 = Size(Rl_1, dim=1)
-    Nb_2 = Size(Rl_2, dim=2)
-    IF (Nb_1 /= Size(Rl_2, dim=1) .OR. Nb_2 /= Size(Rl_2, dim=2)) THEN
-      WRITE(out_unit,*) "The two matrices must have same dimensions to compare them. Please, check initialization."
-      STOP "The two matrices must have same dimensions to compare them. Please, check initialization."
+    IF (ABS(Rl_1 - Rl_2) > Threshold) THEN
+      error = .TRUE.
+      IF (Debug_local) WRITE(out_unit,*) "The two numbers are not close enough to be considered equ&
+                                         &al : R_1 =", Rl_1, "R_2 =", Rl_2, "|R_1-R_2| = ", ABS(Rl_1 - Rl_2)
+    ELSE 
+      error = .FALSE.
+      IF (Debug_local) WRITE(out_unit,*) "The two numbers are close enough to be considered equal :&
+                                         & R_1 =", Rl_1, "R_2 =", Rl_2, "|R_1-R_2| = ", ABS(Rl_1 - Rl_2)
+    END IF
+
+  END SUBROUTINE Equal_R_R_scalar
+  
+
+  SUBROUTINE Equal_R_R_vector(error, Rl_1, Rl_2)
+    USE QDUtil_m
+    IMPLICIT NONE 
+
+    logical,          intent(inout) :: error
+    real(kind=Rkind), intent(in)    :: Rl_1(:)
+    real(kind=Rkind), intent(in)    :: Rl_2(:)
+    
+    real(kind=Rkind), parameter     :: Threshold   = 1E-10_Rkind
+    logical, parameter              :: Debug_local = .FALSE.
+    integer                         :: Nb_1
+
+    Nb_1 = Size(Rl_1)
+    IF (Nb_1 /= Size(Rl_2)) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "The two vectors must have same dimensions to compare them. Please, check initialization."
+      WRITE(out_unit,*) "Size(Rl_1) = "//TO_string(Size(Rl_1))//"; Size(Rl_2) = "//TO_string(Size(Rl_2))
+      STOP "### The two vectors must have same dimensions to compare them. Please, check initialization."
     END IF 
 
     IF (ANY(ABS(Rl_1 - Rl_2) > Threshold)) THEN
       error = .TRUE.
       IF (Debug_local) THEN
-        WRITE(out_unit,*) "The two matrices are not close enough to be considered equal :"
-        CALL Write_Mat(Rl_1, out_unit, Nb_2, info="R_1(:,:)")
-        CALL Write_Mat(Rl_2, out_unit, Nb_2, info="R_2(:,:)")
-        CALL Write_Mat(ABS(Rl_1 - Rl_2), out_unit, Nb_2, info="|R_1-R_2| = ")
+        WRITE(out_unit,*) "The two vectors are not close enough to be considered equal :"
+        CALL Write_Vec(Rl_1, out_unit, Nb_1, info="R_1(:)")
+        CALL Write_Vec(Rl_2, out_unit, Nb_1, info="R_2(:)")
+        CALL Write_Vec(ABS(Rl_1 - Rl_2), out_unit, Nb_1, info="|R_1-R_2| = ")
       END IF 
 
     ELSE 
       error = .FALSE.
       IF (Debug_local) THEN
-        WRITE(out_unit,*) "The two matrices are close enough to be considered equal :"
-        CALL Write_Mat(Rl_1, out_unit, Nb_2, info="R_1(:,:)")
-        CALL Write_Mat(Rl_2, out_unit, Nb_2, info="R_2(:,:)")
-        CALL Write_Mat(ABS(Rl_1 - Rl_2), out_unit, Nb_2, info="|R_1-R_2| = ")
+        WRITE(out_unit,*) "The two vectors are close enough to be considered equal :"
+        CALL Write_Vec(Rl_1, out_unit, Nb_1, info="R_1(:)")
+        CALL Write_Vec(Rl_2, out_unit, Nb_1, info="R_2(:)")
+        CALL Write_Vec(ABS(Rl_1 - Rl_2), out_unit, Nb_1, info="|R_1-R_2| = ")
       END IF
     END IF 
 
-  END SUBROUTINE Equal_R_R_matrix
+  END SUBROUTINE Equal_R_R_vector
 
 
 END PROGRAM

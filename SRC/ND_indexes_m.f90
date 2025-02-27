@@ -42,7 +42,8 @@ MODULE ND_indexes_m
 
   PRIVATE
 
-  PUBLIC ND_indexes_t, Initialize_ND_indexes, Initialize_List_indexes, Increment_indexes, Deallocate_ND_indexes, Write_ND_indexes
+  PUBLIC ND_indexes_t, Initialize_ND_indexes, Initialize_List_indexes, Increment_indexes, Deallocate_ND_indexes, Write_ND_indexes, &
+  &MolecCav_Initialize_List_indexes_new
 
   INTERFACE Initialize_ND_indexes
     MODULE PROCEDURE MolecCav_Initialize_ND_indexes
@@ -62,6 +63,18 @@ MODULE ND_indexes_m
     
 
   CONTAINS
+
+  
+  FUNCTION MolecCav_Initialize_List_indexes_new(ND_indexes) RESULT(List_indexes)
+    USE QDUtil_m
+    IMPLICIT NONE 
+
+    integer                        :: List_indexes(:)                                         ! the current values of the indexes for each dimension
+    TYPE(ND_indexes_t), intent(in) :: ND_indexes
+
+    List_indexes = ND_indexes%Starting_indexes
+
+  END FUNCTION MolecCav_Initialize_List_indexes_new
 
 
   SUBROUTINE MolecCav_Initialize_ND_indexes(ND_indexes, Ranks_sizes, Starting_indexes, Debug)
@@ -87,7 +100,7 @@ MODULE ND_indexes_m
     IF (PRESENT(Starting_indexes) .AND. Size(Starting_indexes) /= Size(Ranks_sizes)) THEN
       WRITE(out_unit,*) "The sizes of the optional argument Starting_index ("//TO_string(Size(Starting_indexes))//") and of the D&
                         &im_sizes argument ("//TO_string(Size(Ranks_sizes))//") do not match. Please check the arguments."
-      STOP "The sizes of the Starting_index and the Ranks_sizes arguments do not match. cf. output file for more information."
+      STOP "### The sizes of the Starting_index and the Ranks_sizes arguments do not match. cf. output file for more information."
     ELSE IF (PRESENT(Starting_indexes) .AND. Size(Starting_indexes) == Size(Ranks_sizes)) THEN
       ALLOCATE(ND_indexes%Starting_indexes(Size(Ranks_sizes)))
       ND_indexes%Starting_indexes = Starting_indexes
@@ -135,7 +148,7 @@ MODULE ND_indexes_m
 !    IF (Size(List_indexes) /= Size(ND_indexes%Starting_indexes)) THEN                             ! meaningless since Starting_indexes is built of size N_dim 
 !      WRITE(out_unit,*) "The size of the indexes list ("//TO_string(Size(List_indexes))//") and the size of the starting values o&
 !                        &f these indexes ("//TO_string(Size(ND_indexes%Starting_indexes))//") does not match"
-!      STOP "The size of the List_indexes and of the Starting_values does not match. cf. output file for more information."
+!      STOP "### The size of the List_indexes and of the Starting_values does not match. cf. output file for more information."
 !    ELSE
     List_indexes = ND_indexes%Starting_indexes
 !    END IF
@@ -143,7 +156,7 @@ MODULE ND_indexes_m
     IF (Debug_local) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "------------ND_indexes constructed by MolecCav_Initialize_ND_indexes------------"
-      CALL Write_ND_indexes(ND_indexes)
+      CALL Write_Vec(List_indexes, out_unit, Size(List_indexes), info="List_indexes")
       WRITE(out_unit,*) "----------End ND_indexes constructed by MolecCav_Initialize_ND_indexes----------"
       WRITE(out_unit,*) 
       WRITE(out_unit,*) '**************************** LIST_INDEXES INITIALIZED **************************'

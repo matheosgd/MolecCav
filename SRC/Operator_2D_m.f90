@@ -65,7 +65,7 @@ MODULE Operator_2D_m
     
     IF (Nb_M /= Size(Op_psi, 1) .OR. Nb_C /= Size(Op_psi, 2)) THEN
       WRITE(out_unit,*) "The size of the operand Psi's vector does not match the size of the resulting vector Op_psi."
-      STOP "The size of the operand Psi's vector does not match the size of the resulting vector Op_psi."
+      STOP "### The size of the operand Psi's vector does not match the size of the resulting vector Op_psi."
     END IF
 
     DO i_M = 1, Nb_M
