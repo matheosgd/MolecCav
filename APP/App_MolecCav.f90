@@ -71,19 +71,18 @@ PROGRAM App_MolecCav
   real(kind=Rkind), allocatable :: Result_psi_1p1D(:,:)
   real(kind=Rkind), allocatable :: REigval(:)
   real(kind=Rkind), allocatable :: REigvec(:,:)
-  real(kind=Rkind), allocatable :: Mol1Weights(:)
-  real(kind=Rkind), allocatable :: Cav1Weights(:)
   real(kind=Rkind)              :: Normal_modes(2)                             ! VP of the MWH
   real(kind=Rkind)              :: Normal_coordinates(2,2)                     ! \overrightarrow{VP} pf the MWH
+  real(kind=Rkind), allocatable :: Mol1Weights(:)
+  real(kind=Rkind), allocatable :: Cav1Weights(:)
 
   !----------------------------------Utilities---------------------------------
   integer                       :: i, Nb_M, Nb_C, NB
   logical, parameter            :: Debug = .TRUE.
-  real(kind=Rkind)              :: Trace, Det
 
 
-!-----------------------------SYSTEM INITIALIZATION----------------------------
-  !-------------Diatomic molecule in a harmonic electonic potential------------
+  !-----------------------------SYSTEM INITIALIZATION----------------------------
+    !-------------Diatomic molecule in a harmonic electonic potential------------
   WRITE(out_unit,*) "-----------------------------SYSTEM INITIALIZATION----------------------------"
   WRITE(out_unit,*) "  -------------Diatomic molecule in a harmonic electonic potential------------"
   CALL MolecCav_Read_cavity_mode(Mode=Molecule_1, nio=in_unit)
@@ -117,9 +116,9 @@ PROGRAM App_MolecCav
   Mol1_dipolar_moment%Band_val_R = Mol1_dipolar_moment%Band_val_R*Cte_dipole_moment ! /!\ so that the matrix already contains the intensity constant of the dipolar moment with the position of the matter (cf. manual for formulas)
     
   IF (Debug .AND. ALLOCATED(Mol1_dipolar_moment%Diag_val_R)) CALL Write_Vec(Mol1_dipolar_moment%Diag_val_R, out_unit, 3, info="Mo&
-                                                                           &l1_dipolar_moment")
-  IF (Debug .AND. ALLOCATED(Mol1_dipolar_moment%Band_val_R)) CALL Write_Mat(Mol1_dipolar_moment%Band_val_R, out_unit, 3, info="Mo&
-                                                                           &l1_dipolar_moment")
+                                                            &l1_dipolar_moment")
+  IF (Debug .AND. (ALLOCATED(Mol1_dipolar_moment%Band_val_R) .OR. ALLOCATED(Mol1_dipolar_moment%Dense_val_R))) CALL Write_Mat(Mol&
+                                                            &1_dipolar_moment%Band_val_R, out_unit, 3, info="Mol1_dipolar_moment")
   FLUSH(out_unit)
 
     !-----------------------------First cavity mode----------------------------
@@ -361,6 +360,7 @@ PROGRAM App_MolecCav
   WRITE(out_unit,*) "Expected ZPE by half-sum of the total system eigenpulsations : "//TO_string( (&
                    & SQRT(Normal_modes(1))+SQRT(Normal_modes(2)) )/2 )
 
+                   
   !-------Construction of the Total Hamiltonian matrix with CM-couplings-------
   WRITE(out_unit,*); WRITE(out_unit,*) "-------Construction of the Total Hamiltonian matrix with CM-couplings-------"
 

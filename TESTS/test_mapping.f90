@@ -125,19 +125,19 @@ PROGRAM test_mapping
   ALLOCATE(b_11_2D(Nb_1, Nb_2))
   ALLOCATE(b_20_2D(Nb_1, Nb_2))
   ALLOCATE(b_21_2D(Nb_1, Nb_2))
-  ALLOCATE(Psi_2D(Nb_1, Nb_2))
+  ALLOCATE(Psi_2D(Nb_1,  Nb_2))
 
-  b_00_2D = ZERO
+  b_00_2D      = ZERO
   b_00_2D(1,1) = ONE
-  b_01_2D = ZERO
+  b_01_2D      = ZERO
   b_01_2D(1,2) = ONE
-  b_10_2D = ZERO
+  b_10_2D      = ZERO
   b_10_2D(2,1) = ONE
-  b_11_2D = ZERO
+  b_11_2D      = ZERO
   b_11_2D(2,2) = ONE
-  b_20_2D = ZERO
+  b_20_2D      = ZERO
   b_20_2D(3,1) = ONE
-  b_21_2D = ZERO
+  b_21_2D      = ZERO
   b_21_2D(3,2) = ONE
   
   Coeffs = [Coeff_00, Coeff_01, Coeff_10, Coeff_11, Coeff_20, Coeff_21]                            ! /!\ the indexes are here renamed to match the indexes of the basis vectors and coefficients ! the elements starts from 0 to 5 and not from 1 to 6 !!! /!\
@@ -257,11 +257,11 @@ PROGRAM test_mapping
     
     real(kind=Rkind), parameter     :: Threshold   = 1E-10_Rkind
     logical, parameter              :: Debug_local = .FALSE.
-    integer                         :: Nb_1, Nb_2
+    integer                         :: Nb_1_local, Nb_2_local
 
-    Nb_1 = Size(Rl_1, dim=1)
-    Nb_2 = Size(Rl_2, dim=2)
-    IF (Nb_1 /= Size(Rl_2, dim=1) .OR. Nb_2 /= Size(Rl_2, dim=2)) THEN
+    Nb_1_local = Size(Rl_1, dim=1)
+    Nb_2_local = Size(Rl_2, dim=2)
+    IF (Nb_1_local /= Size(Rl_2, dim=1) .OR. Nb_2 /= Size(Rl_2, dim=2)) THEN
       WRITE(out_unit,*) "The two matrices must have same dimensions to compare them. Please, check initialization."
       STOP "The two matrices must have same dimensions to compare them. Please, check initialization."
     END IF 
