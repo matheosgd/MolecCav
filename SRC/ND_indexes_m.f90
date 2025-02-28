@@ -35,20 +35,22 @@ MODULE ND_indexes_m
   TYPE :: ND_indexes_t
     integer              :: N_dim               = 0                                                ! number of dimensions of the tensor
     integer, allocatable :: Starting_indexes(:)                                                    ! the labelling of the basis vectors may starts from 0 or 1
-    integer, allocatable :: Ranks_sizes(:)                                                           ! the basis set size for each dimension of the tensor /!\ NOT THE INDEX OF THE LAST BASIS VECTOR !!! /!\
+    integer, allocatable :: Ranks_sizes(:)                                                         ! the basis set size for each dimension of the tensor /!\ NOT THE INDEX OF THE LAST BASIS VECTOR !!! /!\
     integer              :: NB                  = 0                                                ! dimension of the tensor producted vector = product(Ranks_sizes)
   END TYPE
   
 
   PRIVATE
 
-  PUBLIC ND_indexes_t, Initialize_ND_indexes, Initialize_List_indexes, Increment_indexes, Deallocate_ND_indexes, Write_ND_indexes, &
-  &MolecCav_Initialize_List_indexes_new
+  PUBLIC ND_indexes_t, Initialize_ND_indexes, Increment_indexes, Deallocate_ND_indexes, Write_ND_indexes, Initialize_List_indexes
 
   INTERFACE Initialize_ND_indexes
     MODULE PROCEDURE MolecCav_Initialize_ND_indexes
   END INTERFACE
-  INTERFACE Initialize_List_indexes 
+  INTERFACE Initialize_List_indexes_old
+    MODULE PROCEDURE MolecCav_Initialize_List_indexes_old
+  END INTERFACE
+  INTERFACE Initialize_List_indexes
     MODULE PROCEDURE MolecCav_Initialize_List_indexes
   END INTERFACE
   INTERFACE Increment_indexes
@@ -65,24 +67,12 @@ MODULE ND_indexes_m
   CONTAINS
 
   
-  FUNCTION MolecCav_Initialize_List_indexes_new(ND_indexes) RESULT(List_indexes)
-    USE QDUtil_m
-    IMPLICIT NONE 
-
-    integer                        :: List_indexes(:)                                         ! the current values of the indexes for each dimension
-    TYPE(ND_indexes_t), intent(in) :: ND_indexes
-
-    List_indexes = ND_indexes%Starting_indexes
-
-  END FUNCTION MolecCav_Initialize_List_indexes_new
-
-
   SUBROUTINE MolecCav_Initialize_ND_indexes(ND_indexes, Ranks_sizes, Starting_indexes, Debug)
     USE QDUtil_m
     IMPLICIT NONE 
 
     TYPE(ND_indexes_t), intent(inout) :: ND_indexes
-    integer,            intent(in)    :: Ranks_sizes(:)                                              ! the basis set size for each dimension of the tensor
+    integer,            intent(in)    :: Ranks_sizes(:)                                            ! the basis set size for each dimension of the tensor
     integer, optional,  intent(in)    :: Starting_indexes(:)                                       ! the labelling of the basis vectors may starts from 0 or 1 each
     logical, optional,  intent(in)    :: Debug
 
@@ -109,11 +99,11 @@ MODULE ND_indexes_m
       ND_indexes%Starting_indexes = 1                                                              ! as a default arbitrary choice, the labelling of the basis vectors starts as the Fortran convention i.e. from 1
     END IF
 
-    ND_indexes%N_dim = Size(Ranks_sizes)
+    ND_indexes%N_dim       = Size(Ranks_sizes)
     ALLOCATE(ND_indexes%Ranks_sizes(ND_indexes%N_dim))
 
-    ND_indexes%Ranks_sizes  = Ranks_sizes
-    ND_indexes%NB           = PRODUCT(ND_indexes%Ranks_sizes)
+    ND_indexes%Ranks_sizes = Ranks_sizes
+    ND_indexes%NB          = PRODUCT(ND_indexes%Ranks_sizes)
 
     IF (Debug_local) THEN
       WRITE(out_unit,*)
@@ -128,7 +118,19 @@ MODULE ND_indexes_m
   END SUBROUTINE MolecCav_Initialize_ND_indexes
 
 
-  SUBROUTINE MolecCav_Initialize_List_indexes(List_indexes, ND_indexes)
+  FUNCTION MolecCav_Initialize_List_indexes(ND_indexes) RESULT(List_indexes)
+    USE QDUtil_m
+    IMPLICIT NONE 
+
+    integer, allocatable           :: List_indexes(:)                                         ! the current values of the indexes for each dimension
+    TYPE(ND_indexes_t), intent(in) :: ND_indexes
+
+    List_indexes = ND_indexes%Starting_indexes                                                ! dynamic allocattion : allows to call the function for any allocatable object, already allocated or not, and even for a tabular not declared allocatable it seems
+
+  END FUNCTION MolecCav_Initialize_List_indexes
+
+
+  SUBROUTINE MolecCav_Initialize_List_indexes_old(List_indexes, ND_indexes)
     USE QDUtil_m
     IMPLICIT NONE 
 
@@ -155,15 +157,15 @@ MODULE ND_indexes_m
 
     IF (Debug_local) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "------------ND_indexes constructed by MolecCav_Initialize_ND_indexes------------"
+      WRITE(out_unit,*) "----------List_indexes constructed by MolecCav_Initialize_List_indexes----------"
       CALL Write_Vec(List_indexes, out_unit, Size(List_indexes), info="List_indexes")
-      WRITE(out_unit,*) "----------End ND_indexes constructed by MolecCav_Initialize_ND_indexes----------"
+      WRITE(out_unit,*) "--------End List_indexes constructed by MolecCav_Initialize_List_indexes--------"
       WRITE(out_unit,*) 
       WRITE(out_unit,*) '**************************** LIST_INDEXES INITIALIZED **************************'
       WRITE(out_unit,*) '********************************************************************************'      
     END IF
       
-  END SUBROUTINE MolecCav_Initialize_List_indexes
+  END SUBROUTINE MolecCav_Initialize_List_indexes_old
 
 
   SUBROUTINE MolecCav_Increment_indexes(Continue_loop, List_indexes, ND_indexes, Debug)
@@ -185,9 +187,10 @@ MODULE ND_indexes_m
     Continue_loop = .TRUE.
     i = 1                                                                                         ! we chosed first i from 0 to N using the index N-i in the loop and the final test i==N (so looping on dim=N then N-1 ... up to 1), but we are forced to loop in the other sens since the construct TotH has to loop on i_M first then i_C, and so does mappping 2DTO1D
 
+    IF (Debug_local) WRITE(out_unit,*)
     DO WHILE (Continue_loop)
       List_indexes(i) = List_indexes(i) + 1
-      IF (Debug_local) CALL Write_Vec(List_indexes, out_unit, N, info="incremented List_indexes")
+      IF (Debug_local) CALL Write_Vec(List_indexes, out_unit, N, info="-> incremented List_indexes")
 
       IF (List_indexes(i) > ND_indexes%Ranks_sizes(i)) THEN                               ! i<N <=> N-i>0 (when overcome the last dimension, i is still incremented => N-i goes to 0 at the last iteration)
         List_indexes(i) = ND_indexes%Starting_indexes(i)
@@ -252,7 +255,7 @@ MODULE ND_indexes_m
     FLUSH(out_unit)
     IF (ALLOCATED(ND_indexes%Ranks_sizes)) THEN
       WRITE(out_unit,*) "|The list of the basis set size of each of these dimensions do is allocated..| "
-      WRITE(out_unit,*) "|... and is initialized as (ND_indexes%Ranks_sizes)                            | "
+      WRITE(out_unit,*) "|... and is initialized as (ND_indexes%Ranks_sizes)                          | "
       WRITE(out_unit,*) "|____________________________________________________________________________| "
       CALL Write_Vec(ND_indexes%Ranks_sizes, out_unit, Size(ND_indexes%Ranks_sizes), info="ND_indexes%Ranks_sizes")
       FLUSH(out_unit)

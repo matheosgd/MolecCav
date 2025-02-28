@@ -71,7 +71,7 @@ OBJ_LIB=(${MODULES_LIB[@]/%/.o})
 LIB="libMolecCav"
 LIBA="$LIB.a"
 
-TESTS=("test_algebra" "test_cavity_mode" "test_construct_op_1D" "test_action_op_1D" "test_action_total_H_1p1D" "test_construct_total_H_1p1D" "test_mapping")
+TESTS=("test_algebra" "test_cavity_mode" "test_construct_op_1D" "test_action_op_1D" "test_action_total_H_1p1D" "test_construct_total_H_1p1D" "test_normal_modes_1p1D" "test_ND_indexes" "test_mapping")
 SRC_TESTS=(${TESTS[@]/%/.f90})                                                 # parenthesis must be added here to make bash know that the next var is also an array
 OBJ_TESTS=(${TESTS[@]/%/.o})                                                   
 EXE_TESTS=(${TESTS[@]/%/.exe})  
@@ -189,19 +189,23 @@ Build_lib()
 Build_tests()
 {
 	$FFC -c -o ${TESTS_OBJ_FILES[0]} $FFLAGS ${TESTS_SRC_FILES[0]}               #it turned out -JOBJ/obj is enough and do not need -IOBJ/obj in addition
-	$FFC -o ${EXE_TESTS[0]}  $FFLAGS ${TESTS_OBJ_FILES[0]} $LIBA $EXTLib
+	$FFC -o ${EXE_TESTS[0]} $FFLAGS ${TESTS_OBJ_FILES[0]} $LIBA $EXTLib
 	$FFC -c -o ${TESTS_OBJ_FILES[1]} $FFLAGS ${TESTS_SRC_FILES[1]}
-	$FFC -o ${EXE_TESTS[1]}  $FFLAGS ${TESTS_OBJ_FILES[1]} $LIBA $EXTLib
+	$FFC -o ${EXE_TESTS[1]} $FFLAGS ${TESTS_OBJ_FILES[1]} $LIBA $EXTLib
 	$FFC -c -o ${TESTS_OBJ_FILES[2]} $FFLAGS ${TESTS_SRC_FILES[2]}
-	$FFC -o ${EXE_TESTS[2]}  $FFLAGS ${TESTS_OBJ_FILES[2]} $LIBA $EXTLib
+	$FFC -o ${EXE_TESTS[2]} $FFLAGS ${TESTS_OBJ_FILES[2]} $LIBA $EXTLib
 	$FFC -c -o ${TESTS_OBJ_FILES[3]} $FFLAGS ${TESTS_SRC_FILES[3]}
-	$FFC -o ${EXE_TESTS[3]}  $FFLAGS ${TESTS_OBJ_FILES[3]} $LIBA $EXTLib
+	$FFC -o ${EXE_TESTS[3]} $FFLAGS ${TESTS_OBJ_FILES[3]} $LIBA $EXTLib
 	$FFC -c -o ${TESTS_OBJ_FILES[4]} $FFLAGS ${TESTS_SRC_FILES[4]}
-	$FFC -o ${EXE_TESTS[4]}  $FFLAGS ${TESTS_OBJ_FILES[4]} $LIBA $EXTLib
+	$FFC -o ${EXE_TESTS[4]} $FFLAGS ${TESTS_OBJ_FILES[4]} $LIBA $EXTLib
 	$FFC -c -o ${TESTS_OBJ_FILES[5]} $FFLAGS ${TESTS_SRC_FILES[5]}
-	$FFC -o ${EXE_TESTS[5]}  $FFLAGS ${TESTS_OBJ_FILES[5]} $LIBA $EXTLib
+	$FFC -o ${EXE_TESTS[5]} $FFLAGS ${TESTS_OBJ_FILES[5]} $LIBA $EXTLib
 	$FFC -c -o ${TESTS_OBJ_FILES[6]} $FFLAGS ${TESTS_SRC_FILES[6]}
-	$FFC -o ${EXE_TESTS[6]}  $FFLAGS ${TESTS_OBJ_FILES[6]} $LIBA $EXTLib
+	$FFC -o ${EXE_TESTS[6]} $FFLAGS ${TESTS_OBJ_FILES[6]} $LIBA $EXTLib
+	$FFC -c -o ${TESTS_OBJ_FILES[7]} $FFLAGS ${TESTS_SRC_FILES[7]}
+	$FFC -o ${EXE_TESTS[7]} $FFLAGS ${TESTS_OBJ_FILES[7]} $LIBA $EXTLib
+	$FFC -c -o ${TESTS_OBJ_FILES[8]} $FFLAGS ${TESTS_SRC_FILES[8]}
+	$FFC -o ${EXE_TESTS[8]} $FFLAGS ${TESTS_OBJ_FILES[8]} $LIBA $EXTLib
 
   for file in ${TESTS_OBJ_FILES[@]}
   do
@@ -523,6 +527,10 @@ case "$command" in
 	Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_action_total_H_1p1D.log)"
 	./test_construct_total_H_1p1D.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_construct_total_H_1p1D.log
 	Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_construct_total_H_1p1D.log)"
+	./test_normal_modes_1p1D.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_normal_modes_1p1D.log
+	Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_normal_modes_1p1D.log)"
+	./test_ND_indexes.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_ND_indexes.log
+	Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_ND_indexes.log)"
 	./test_mapping.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_mapping.log
 	Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_mapping.log)"
 	Claim "Done Tests"

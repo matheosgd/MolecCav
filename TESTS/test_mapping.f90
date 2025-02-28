@@ -261,7 +261,7 @@ PROGRAM test_mapping
 
     Nb_1_local = Size(Rl_1, dim=1)
     Nb_2_local = Size(Rl_2, dim=2)
-    IF (Nb_1_local /= Size(Rl_2, dim=1) .OR. Nb_2 /= Size(Rl_2, dim=2)) THEN
+    IF (Nb_1_local /= Size(Rl_2, dim=1) .OR. Nb_2_local /= Size(Rl_2, dim=2)) THEN
       WRITE(out_unit,*) "The two matrices must have same dimensions to compare them. Please, check initialization."
       STOP "### The two matrices must have same dimensions to compare them. Please, check initialization."
     END IF 
@@ -270,18 +270,18 @@ PROGRAM test_mapping
       error = .TRUE.
       IF (Debug_local) THEN
         WRITE(out_unit,*) "The two matrices are not close enough to be considered equal :"
-        CALL Write_Mat(Rl_1, out_unit, Nb_2, info="R_1(:,:)")
-        CALL Write_Mat(Rl_2, out_unit, Nb_2, info="R_2(:,:)")
-        CALL Write_Mat(ABS(Rl_1 - Rl_2), out_unit, Nb_2, info="|R_1-R_2| = ")
+        CALL Write_Mat(Rl_1, out_unit, Nb_2_local, info="R_1(:,:)")
+        CALL Write_Mat(Rl_2, out_unit, Nb_2_local, info="R_2(:,:)")
+        CALL Write_Mat(ABS(Rl_1 - Rl_2), out_unit, Nb_2_local, info="|R_1-R_2| = ")
       END IF 
 
     ELSE 
       error = .FALSE.
       IF (Debug_local) THEN
         WRITE(out_unit,*) "The two matrices are close enough to be considered equal :"
-        CALL Write_Mat(Rl_1, out_unit, Nb_2, info="R_1(:,:)")
-        CALL Write_Mat(Rl_2, out_unit, Nb_2, info="R_2(:,:)")
-        CALL Write_Mat(ABS(Rl_1 - Rl_2), out_unit, Nb_2, info="|R_1-R_2| = ")
+        CALL Write_Mat(Rl_1, out_unit, Nb_2_local, info="R_1(:,:)")
+        CALL Write_Mat(Rl_2, out_unit, Nb_2_local, info="R_2(:,:)")
+        CALL Write_Mat(ABS(Rl_1 - Rl_2), out_unit, Nb_2_local, info="|R_1-R_2| = ")
       END IF
     END IF 
 

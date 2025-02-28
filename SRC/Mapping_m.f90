@@ -121,7 +121,7 @@ MODULE Mapping_m
     ELSE 
       CALL Initialize_ND_indexes(ND_indexes, Ranks_sizes, Debug=Debug)
     END IF
-    CALL Initialize_List_indexes(List_indexes, ND_indexes)
+    List_indexes = Initialize_List_indexes(ND_indexes)
     I      = 0
     Psi_2D = ZERO
 
@@ -145,7 +145,11 @@ MODULE Mapping_m
         CALL Write_Vec(ND_indexes%Ranks_sizes, out_unit, Size(ND_indexes%Ranks_sizes), info="Ranks_sizes")
       END IF
 
-      I = I + 1; IF (Debug_local) WRITE(out_unit,*) "Looping "//TO_string(I)//" -> I = "//TO_string(I)
+      I = I + 1
+      IF (Debug_local) WRITE(out_unit,*)
+      IF (Debug_local) WRITE(out_unit,*) "Looping "//TO_string(I)//" -> I = "//TO_string(I)//" :"
+
+
       IF (I>ND_indexes%NB) THEN
         WRITE(out_unit,*) "I should not be greater that NB !"
         STOP              "I should not be greater that NB !"
@@ -155,7 +159,7 @@ MODULE Mapping_m
       IF (Debug_local) CALL Write_Mat(Psi_2D, out_unit, Ranks_sizes(2), info="Psi_2D")
 
       CALL Increment_indexes(Continue_loop, List_indexes, ND_indexes, Debug=Debug_local)
-      IF (Debug_local) WRITE(out_unit,*) "Continue_loop : "//TO_string(Continue_loop)
+      IF (Debug_local) WRITE(out_unit,*) " -> Continue_loop : "//TO_string(Continue_loop)
     END DO
 
     IF (Debug_local) THEN
