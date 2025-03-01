@@ -82,7 +82,7 @@ PROGRAM test_ND_indexes
       END DO 
     END DO 
   END DO 
-  Table_indexes_ref(1,2) = 10
+!  Table_indexes_ref(1,2) = 10
 
 
   !----------------------------------------Tests ND_indexes----------------------------------------
