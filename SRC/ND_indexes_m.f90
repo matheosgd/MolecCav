@@ -35,6 +35,7 @@ MODULE ND_indexes_m
   TYPE :: ND_indexes_t
     integer              :: N_dim               = 0                                                ! number of dimensions of the tensor
     integer, allocatable :: Starting_indexes(:)                                                    ! the labelling of the basis vectors may starts from 0 or 1
+    integer              :: Begin_right         = 0 ! 0=FALSE; 1=TRUE                              ! one can either iterate/increment from the first index (leftmost) => Begin_right=FALSE=0 or from the last one (rightmost) => Befin_right=TRUE=1
     integer, allocatable :: Ranks_sizes(:)                                                         ! the basis set size for each dimension of the tensor /!\ NOT THE INDEX OF THE LAST BASIS VECTOR !!! /!\
     integer              :: NB                  = 0                                                ! dimension of the tensor producted vector = product(Ranks_sizes)
   END TYPE
@@ -67,13 +68,14 @@ MODULE ND_indexes_m
   CONTAINS
 
   
-  SUBROUTINE MolecCav_Initialize_ND_indexes(ND_indexes, Ranks_sizes, Starting_indexes, Debug)
+  SUBROUTINE MolecCav_Initialize_ND_indexes(ND_indexes, Ranks_sizes, Starting_indexes, Begin_right, Debug)
     USE QDUtil_m
     IMPLICIT NONE 
 
     TYPE(ND_indexes_t), intent(inout) :: ND_indexes
     integer,            intent(in)    :: Ranks_sizes(:)                                            ! the basis set size for each dimension of the tensor
     integer, optional,  intent(in)    :: Starting_indexes(:)                                       ! the labelling of the basis vectors may starts from 0 or 1 each
+    integer, optional,  intent(in)    :: Begin_right
     logical, optional,  intent(in)    :: Debug
 
     logical                           :: Debug_local = .FALSE.
@@ -99,9 +101,9 @@ MODULE ND_indexes_m
       ND_indexes%Starting_indexes = 1                                                              ! as a default arbitrary choice, the labelling of the basis vectors starts as the Fortran convention i.e. from 1
     END IF
 
+    IF (PRESENT(Begin_right)) ND_indexes%Begin_right = Begin_right
     ND_indexes%N_dim       = Size(Ranks_sizes)
     ALLOCATE(ND_indexes%Ranks_sizes(ND_indexes%N_dim))
-
     ND_indexes%Ranks_sizes = Ranks_sizes
     ND_indexes%NB          = PRODUCT(ND_indexes%Ranks_sizes)
 
@@ -122,10 +124,15 @@ MODULE ND_indexes_m
     USE QDUtil_m
     IMPLICIT NONE 
 
-    integer, allocatable           :: List_indexes(:)                                         ! the current values of the indexes for each dimension
+    integer, allocatable           :: List_indexes(:)                                              ! the current values of the indexes for each dimension
     TYPE(ND_indexes_t), intent(in) :: ND_indexes
 
-    List_indexes = ND_indexes%Starting_indexes                                                ! dynamic allocattion : allows to call the function for any allocatable object, already allocated or not, and even for a tabular not declared allocatable it seems
+    integer                        :: Zero_index
+
+    List_indexes = ND_indexes%Starting_indexes                                                     ! dynamic allocattion : allows to call the function for any allocatable object, already allocated or not, and even for a tabular not declared allocatable it seems
+
+    Zero_index = 1 + ND_indexes%Begin_right*(ND_indexes%N_dim-1)
+    List_indexes(Zero_index) = List_indexes(Zero_index) - 1                                        ! to prepare the initial point I = 0 (state before first loop)
 
   END FUNCTION MolecCav_Initialize_List_indexes
 
@@ -185,17 +192,22 @@ MODULE ND_indexes_m
 
     N = ND_indexes%N_dim
     Continue_loop = .TRUE.
-    i = 1                                                                                         ! we chosed first i from 0 to N using the index N-i in the loop and the final test i==N (so looping on dim=N then N-1 ... up to 1), but we are forced to loop in the other sens since the construct TotH has to loop on i_M first then i_C, and so does mappping 2DTO1D
+    i = 1 + ND_indexes%Begin_right*(N-1)                                                           ! we chosed first i from 0 to N using the index N-i in the loop and the final test i==N (so looping on dim=N then N-1 ... up to 1), but we are forced to loop in the other sens since the construct TotH has to loop on i_M first then i_C, and so does mappping 2DTO1D
 
     IF (Debug_local) WRITE(out_unit,*)
     DO WHILE (Continue_loop)
       List_indexes(i) = List_indexes(i) + 1
       IF (Debug_local) CALL Write_Vec(List_indexes, out_unit, N, info="-> incremented List_indexes")
 
-      IF (List_indexes(i) > ND_indexes%Ranks_sizes(i)) THEN                               ! i<N <=> N-i>0 (when overcome the last dimension, i is still incremented => N-i goes to 0 at the last iteration)
+      IF (List_indexes(i) > ND_indexes%Ranks_sizes(i)) THEN                                        ! i<N <=> N-i>0 (when overcome the last dimension, i is still incremented => N-i goes to 0 at the last iteration)
         List_indexes(i) = ND_indexes%Starting_indexes(i)
-        i = i + 1
-        IF (ALL(List_indexes == ND_indexes%Starting_indexes) .AND. i==N+1) Continue_loop = .FALSE.
+        i = i + 1 - 2*ND_indexes%Begin_right
+        IF (ALL(List_indexes == ND_indexes%Starting_indexes) .AND. i==(N+1 - (N+1)*ND_indexes%Begin_right)) THEN
+          CALL Write_Vec(List_indexes, out_unit, N, info="-> incremented List_indexes")
+          List_indexes = ND_indexes%Ranks_sizes
+          Continue_loop = .FALSE.
+          CALL Write_Vec(List_indexes, out_unit, N, info="-> final List_indexes")
+        END IF
       ELSE 
         EXIT
       END IF

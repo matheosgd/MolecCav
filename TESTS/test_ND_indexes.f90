@@ -40,16 +40,18 @@ PROGRAM test_ND_indexes
   !-----------------------------The indexes objects----------------------------
   integer, allocatable          :: Starting_indexes(:)
   integer                       :: Ranks_sizes(3) = [3,5,4]
+  integer                       :: Begin_right = 1 !<=>TRUE
   TYPE(ND_indexes_t)            :: ND_indexes
 
   integer, allocatable          :: List_indexes(:)
   
   !-----------------------------------Results----------------------------------
   integer, allocatable          :: Table_indexes(:,:)                          ! indexes history through incrementation
-  integer, allocatable          :: Table_indexes_ref(:,:)
+  integer, allocatable          :: Table_indexes_ref_left(:,:)
+  integer, allocatable          :: Table_indexes_ref_right(:,:)
 
   !----------------------------------Utilities---------------------------------
-  integer                       :: N_dim, NB, I, i_1, i_2, i_3
+  integer                       :: N_dim, NB, I_ref, i_1, i_2, i_3, I_loop
   logical                       :: Continue_loop = .TRUE.
   
   TYPE(test_t)                  :: test_ND_ind
@@ -66,23 +68,36 @@ PROGRAM test_ND_indexes
   Starting_indexes = 1
   IF (Debug) WRITE(out_unit,*) "Starting_indexes", Starting_indexes
 
-  CALL Initialize_ND_indexes(ND_indexes, Ranks_sizes, Starting_indexes=Starting_indexes, Debug=Debug)
+  CALL Initialize_ND_indexes(ND_indexes, Ranks_sizes, Starting_indexes=Starting_indexes, Begin_right=Begin_right, Debug=Debug)
 
+  I_loop = 0
   List_indexes = Initialize_List_indexes(ND_indexes)
   IF (Debug) WRITE(out_unit,*)
   IF (Debug) WRITE(out_unit,*) "List_indexes", List_indexes
 
-  ALLOCATE(Table_indexes_ref(ND_indexes%N_dim, ND_indexes%NB))
-  I = 0
-  DO i_3 = 1, Ranks_sizes(3)
+  ALLOCATE(Table_indexes_ref_right(ND_indexes%N_dim, ND_indexes%NB))
+  I_ref = 0
+  DO i_1 = 1, Ranks_sizes(1)
     DO i_2 = 1, Ranks_sizes(2)
-      DO i_1 = 1, Ranks_sizes(1)
-        I = I + 1
-        Table_indexes_ref(:,I) = [i_1, i_2, i_3]
+      DO i_3 = 1, Ranks_sizes(3)
+        I_ref = I_ref + 1
+        Table_indexes_ref_right(:,I_ref) = [i_1, i_2, i_3]
       END DO 
     END DO 
   END DO 
-!  Table_indexes_ref(1,2) = 10
+!  Table_indexes_ref_right(1,2) = 10
+
+  ALLOCATE(Table_indexes_ref_left(ND_indexes%N_dim, ND_indexes%NB))
+  I_ref = 0
+  DO i_3 = 1, Ranks_sizes(3)
+    DO i_2 = 1, Ranks_sizes(2)
+      DO i_1 = 1, Ranks_sizes(1)
+        I_ref = I_ref + 1
+        Table_indexes_ref_left(:,I_ref) = [i_1, i_2, i_3]
+      END DO 
+    END DO 
+  END DO 
+!  Table_indexes_ref_left(1,2) = 10
 
 
   !----------------------------------------Tests ND_indexes----------------------------------------
@@ -120,6 +135,14 @@ PROGRAM test_ND_indexes
     CALL Write_Vec(ND_indexes%Ranks_sizes, out_unit, Size(Ranks_sizes), info="ND_indexes%Ranks_sizes")
   END IF
 
+  CALL Logical_Test(test_ND_ind, (ND_indexes%Begin_right == 0), test2=.FALSE., info="initialization ND_indexes%Begin_right")
+  IF ((ND_indexes%Begin_right == 0) .AND. Debug) THEN
+    WRITE(out_unit,*)
+    WRITE(out_unit,*) "Begin_right = ", Begin_right
+    WRITE(out_unit,*)
+    WRITE(out_unit,*) "ND_indexes%Begin_right = ", ND_indexes%Begin_right
+  END IF
+
   CALL Equal_I_I_scalar(error_ND_ind, PRODUCT(Ranks_sizes), ND_indexes%NB)
   CALL Logical_Test(test_ND_ind, error_ND_ind, test2=.FALSE., info="initialization ND_indexes%NB")
   IF (error_ND_ind .AND. Debug) THEN
@@ -127,7 +150,7 @@ PROGRAM test_ND_indexes
     WRITE(out_unit,*) "N_dim = "//TO_string(PRODUCT(Ranks_sizes))//"; ND_indexes%N_dim = "//TO_string(ND_indexes%NB)
   END IF
 
-  CALL Equal_I_I_vector(error_ND_ind, List_indexes, [(1, i = 1, N_dim)])
+  CALL Equal_I_I_vector(error_ND_ind, List_indexes, [(1, i_ref = 1, N_dim-1), 0])
   CALL Logical_Test(test_ND_ind, error_ND_ind, test2=.FALSE., info="List_indexes well initialized ?")
   IF (error_ND_ind .AND. Debug) THEN
     WRITE(out_unit,*)
@@ -135,45 +158,91 @@ PROGRAM test_ND_indexes
   END IF    
 
 
-    !---------------------------------The ND_indexes incrementation--------------------------------
+    !-----------------------------The ND_indexes incrementation (right)----------------------------
   ALLOCATE(Table_indexes(ND_indexes%N_dim, ND_indexes%NB))
 
-  I = 0
-  
   Continue_loop = .TRUE.
   DO WHILE (Continue_loop)
     IF (Debug) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "After looping "//TO_string(I)//" : I = "//TO_string(I)//"; NB = "//TO_string(ND_indexes%NB)
+      WRITE(out_unit,*) "After looping "//TO_string(I_loop)//" : I = "//TO_string(I_loop)//"; NB = "//TO_string(ND_indexes%NB)
       CALL Write_Vec(List_indexes,           out_unit, Size(List_indexes),           info="List_indexes")
       CALL Write_Vec(ND_indexes%Ranks_sizes, out_unit, Size(ND_indexes%Ranks_sizes), info="Ranks_sizes")
     END IF
 
-    I = I + 1      
-    IF (Debug) WRITE(out_unit,*)
-    IF (Debug) WRITE(out_unit,*) "Looping "//TO_string(I)//" -> I = "//TO_string(I)//" :"
-    IF (I>ND_indexes%NB) THEN
-      WRITE(out_unit,*) "I should not be greater that NB !"
-      STOP              "I should not be greater that NB !"
-    END IF
-
-    Table_indexes(:,I) = List_indexes
-      
     CALL Increment_indexes(Continue_loop, List_indexes, ND_indexes, Debug=Debug)
     IF (Debug) WRITE(out_unit,*) " -> Continue_loop : "//TO_string(Continue_loop)
+
+    IF (Continue_loop) THEN
+      I_loop = I_loop + 1      
+      IF (Debug) WRITE(out_unit,*)
+      IF (Debug) WRITE(out_unit,*) "Looping "//TO_string(I_loop)//" -> I = "//TO_string(I_loop)//" :"
+    END IF
+
+    IF (I_loop>ND_indexes%NB) THEN                                                                                               ! have to test that AFTER calling increment because increment exits the loop if I>NB (avoid error here) and this test is only to prevent the NEXT instruction from out-of-bound array acces
+      WRITE(out_unit,*) "I should not be greater that NB !"
+      STOP          "### I should not be greater that NB !"
+    END IF
+    Table_indexes(:,I_loop) = List_indexes
+
   END DO
 
-  CALL Equal_I_I_matrix(error_ND_ind, Table_indexes_ref, Table_indexes)
+  CALL Equal_I_I_matrix(error_ND_ind, Table_indexes_ref_right, Table_indexes)
   CALL Logical_Test(test_ND_ind, error_ND_ind, test2=.FALSE., info="indexes history through incrementation")
   IF (error_ND_ind .AND. Debug) THEN
     WRITE(out_unit,*)
     CALL Write_Mat(Table_indexes, out_unit, 10, info="Table_indexes")
     WRITE(out_unit,*)
-    CALL Write_Mat(Table_indexes_ref, out_unit, 10, info="Table_indexes_ref")
+    CALL Write_Mat(Table_indexes_ref_right, out_unit, 10, info="Table_indexes_ref_left")
   END IF
 
 
-    !----------------------------------The ND_indexes deallocation---------------------------------
+    !-----------------------------The ND_indexes incrementation (left)----------------------------
+  ND_indexes%Begin_right = 0 !<=>FALSE
+!  ALLOCATE(Table_indexes(ND_indexes%N_dim, ND_indexes%NB))
+
+  I_loop = 0
+  List_indexes = Initialize_List_indexes(ND_indexes)
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) WRITE(out_unit,*) "List_indexes", List_indexes
+
+  Continue_loop = .TRUE.
+  DO WHILE (Continue_loop)
+    IF (Debug) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "After looping "//TO_string(I_loop)//" : I = "//TO_string(I_loop)//"; NB = "//TO_string(ND_indexes%NB)
+      CALL Write_Vec(List_indexes,           out_unit, Size(List_indexes),           info="List_indexes")
+      CALL Write_Vec(ND_indexes%Ranks_sizes, out_unit, Size(ND_indexes%Ranks_sizes), info="Ranks_sizes")
+    END IF
+
+    CALL Increment_indexes(Continue_loop, List_indexes, ND_indexes, Debug=Debug)
+    IF (Debug) WRITE(out_unit,*) " -> Continue_loop : "//TO_string(Continue_loop)
+
+    IF (Continue_loop) THEN
+      I_loop = I_loop + 1      
+      IF (Debug) WRITE(out_unit,*)
+      IF (Debug) WRITE(out_unit,*) "Looping "//TO_string(I_loop)//" -> I = "//TO_string(I_loop)//" :"
+    END IF
+
+    IF (I_loop>ND_indexes%NB) THEN                                                                                               ! have to test that AFTER calling increment because increment exits the loop if I>NB (avoid error here) and this test is only to prevent the NEXT instruction from out-of-bound array acces
+      WRITE(out_unit,*) "I should not be greater that NB !"
+      STOP          "### I should not be greater that NB !"
+    END IF
+    Table_indexes(:,I_loop) = List_indexes
+
+  END DO
+
+  CALL Equal_I_I_matrix(error_ND_ind, Table_indexes_ref_left, Table_indexes)
+  CALL Logical_Test(test_ND_ind, error_ND_ind, test2=.FALSE., info="indexes history through incrementation")
+  IF (error_ND_ind .AND. Debug) THEN
+    WRITE(out_unit,*)
+    CALL Write_Mat(Table_indexes, out_unit, 10, info="Table_indexes")
+    WRITE(out_unit,*)
+    CALL Write_Mat(Table_indexes_ref_left, out_unit, 10, info="Table_indexes_ref_left")
+  END IF
+
+
+  !----------------------------------The ND_indexes deallocation---------------------------------
   CALL Deallocate_ND_indexes(ND_indexes)
   IF (Debug) CALL Write_ND_indexes(ND_indexes)
 
