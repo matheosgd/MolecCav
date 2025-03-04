@@ -399,7 +399,7 @@ PROGRAM App_MolecCav
     CALL WRITE_Mat(Reigvec(1:10,1:10), out_unit, 6, info = 'Ten first Eigenvectors (1:10 slicing)')
   END IF 
 
-  DEALLOCATE(TotH); DEALLOCATE(REigval); DEALLOCATE(REigvec)
+  DEALLOCATE(TotH)!; DEALLOCATE(REigval); DEALLOCATE(REigvec)
 
   !-----Construction of the 1p1D total system Mass-weighted Hessian matrix-----
   WRITE(out_unit,*); WRITE(out_unit,*) "-----Construction of the 1p1D total system Mass-weighted Hessian matrix-----"
@@ -437,6 +437,9 @@ PROGRAM App_MolecCav
   CALL Reduced_density_psi_2D_R(Mol1Weights, Cav1Weights, Psi_1p1D, Debug=Debug)
 
   DEALLOCATE(Mol1Weights); DEALLOCATE(Cav1Weights)
-  
+  !-------------------just a plot-------------------
+  WRITE(out_unit,*) "Matter", [(Mol1H%w*i, i = 1,3)]
+  CALL Write_Vec(REigval, out_unit, Size(REigval), info="Total")
+  WRITE(out_unit,*) "Cavity", [(Cav1H%w*i, i = 1,3)]
 
 END PROGRAM

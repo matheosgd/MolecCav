@@ -5,7 +5,7 @@
 &HO_1             !The diatomic molecule
 D = 1             !Label of the basis/HO/mode/dimension
 Nb = 9            !Number of basis vectors associated with the HO D
-w = 1.7           !Eigenpulsation associated with the HO D (maybe HF molecule : 0.005866505831680149)
+w = 0.0058665     !1.7           !Eigenpulsation associated with the HO D (maybe HF molecule : 0.005866505831680149)
 m = 1744.60504565 !Mass associated with the HO D
 lambda = 1.0      !Strength parameter of the coupling between the mode D and the molecule
 eq_pos = 0        !Equilibrium position of the HO
@@ -14,8 +14,8 @@ eq_pos = 0        !Equilibrium position of the HO
 &HO_1             !The Cavity
 D = 2
 Nb = 10
-w = 1.5
+w = 0.0068665
 m = 1.0
-lambda = 1.0
+lambda = 0.1
 eq_pos = 0
 /
