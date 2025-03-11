@@ -101,7 +101,7 @@ EXTMod     = -I$(QDMOD_DIR)
 #==================Definition of other useful names in variables==================
 #=========================3. For the gfortran compilation=========================
 #=================================================================================
-FFLAGS   = -fopenmp#-Og -g -fbacktrace -fcheck=all -fwhole-file -fcheck=pointer -Wuninitialized -finit-real=nan -finit-integer=nan
+FFLAGS   = -Og -g -fbacktrace -fcheck=all -fwhole-file -fcheck=pointer -Wuninitialized -finit-real=nan -finit-integer=nan -fopenmp
 # some useful optional arguments of the gfortran compilation command
 FFLAGS   += -J$(MOD_DIR) $(EXTMod)
 # "+=" works the same way as in python, C, etc
