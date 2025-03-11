@@ -443,13 +443,13 @@ MODULE Total_hamiltonian_m
     IF (Debug_local .AND. NB <= 10) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "------------------------------The total Hamiltonian matrix constructed------------------------------"
-      WRITE(out_unit,*) "w_M = "//TO_string(MatH%w)//"; w_c = "//TO_string(CavH%w)//"; lambda_C = "//TO_string(CavH%lambda)
+      WRITE(out_unit,*) "w_M = "//TO_string(MatH%w)//"; w_C = "//TO_string(CavH%w)//"; lambda_C = "//TO_string(CavH%lambda)
       CALL Write_Mat(TotH, out_unit, Size(TotH, dim=2), info="TotH")
       WRITE(out_unit,*) "---------------------------------End of the total Hamiltonian matrix--------------------------------"
     ELSE IF (Debug_local .AND. NB > 10) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "------------------------------The total Hamiltonian matrix constructed------------------------------"
-      WRITE(out_unit,*) "w_M = "//TO_string(MatH%w)//"; w_c = "//TO_string(CavH%w)//"; lambda_C = "//TO_string(CavH%lambda)
+      WRITE(out_unit,*) "w_M = "//TO_string(MatH%w)//"; w_C = "//TO_string(CavH%w)//"; lambda_C = "//TO_string(CavH%lambda)
       CALL Write_Mat(TotH(1:10,1:10), out_unit, 10, info="TotH(10:10sliced)")
       WRITE(out_unit,*) "---------------------------------End of the total Hamiltonian matrix--------------------------------"
     END IF

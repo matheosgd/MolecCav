@@ -360,7 +360,7 @@ PROGRAM test_normal_modes_1p1D
   END SUBROUTINE Compute_normal_modes
 
 
-  FUNCTION Total_Eigenenergy_1p1D(i_1, i_2, w_1, w_2) RESULT(TotE_local)
+  FUNCTION Total_Eigenenergy_1p1D(i_1, i_2, w_1_local, w_2_local) RESULT(TotE_local)
     USE QDUtil_m
     USE Cavity_mode_m
     IMPLICIT NONE
@@ -368,10 +368,10 @@ PROGRAM test_normal_modes_1p1D
     real(kind=Rkind)    :: TotE_local
     integer,          intent(in) :: i_1
     integer,          intent(in) :: i_2
-    real(kind=Rkind), intent(in) :: w_1
-    real(kind=Rkind), intent(in) :: w_2
+    real(kind=Rkind), intent(in) :: w_1_local
+    real(kind=Rkind), intent(in) :: w_2_local
 
-    TotE = w_1*(REAL(i_1, kind=Rkind) + HALF) + w_2*(REAL(i_2, kind=Rkind) +  HALF)
+    TotE = w_1_local*(REAL(i_1, kind=Rkind) + HALF) + w_2_local*(REAL(i_2, kind=Rkind) +  HALF)
 
   END FUNCTION Total_Eigenenergy_1p1D
 

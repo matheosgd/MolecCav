@@ -79,7 +79,12 @@ PROGRAM App_MolecCav
   !----------------------------------Utilities---------------------------------
   integer                       :: i, Nb_M, Nb_C, NB
   logical, parameter            :: Debug = .TRUE.
-
+  !---------------------------------Time tests---------------------------------
+  TYPE(Operator_1D_t)           :: Mol1H_dense                                       ! matrix of the one-dimensional harmonic Hamiltonian associated with HO D
+  TYPE(Operator_1D_t)           :: Mol1_dipolar_moment_dense
+  TYPE(Operator_1D_t)           :: Cav1H_dense                                       ! matrix of the one-dimensional harmonic Hamiltonian associated with HO D
+  TYPE(Operator_1D_t)           :: Cav1Position_dense
+  real(kind=Rkind), allocatable :: TotH_dense(:,:)
 
   !-----------------------------SYSTEM INITIALIZATION----------------------------
     !-------------Diatomic molecule in a harmonic electonic potential------------
@@ -113,7 +118,10 @@ PROGRAM App_MolecCav
                            & Mode=Molecule_1, &
                            & Debug=.FALSE.)
 
-  Mol1_dipolar_moment%Band_val_R = Mol1_dipolar_moment%Band_val_R*Cte_dipole_moment ! /!\ so that the matrix already contains the intensity constant of the dipolar moment with the position of the matter (cf. manual for formulas)
+  IF (ALLOCATED(Mol1_dipolar_moment_dense%Dense_val_R)) Mol1_dipolar_moment_dense%Dense_val_R = Mol1_dipolar_moment_dense%Dense_&
+  &val_R*Cte_dipole_moment ! /!\ so that the matrix already contains the intensity constant of the dipolar moment with the position of the matter (cf. manual for formulas)
+  IF (ALLOCATED(Mol1_dipolar_moment_dense%Band_val_R))  Mol1_dipolar_moment_dense%Band_val_R  = Mol1_dipolar_moment_dense%Band_v&
+  &al_R*Cte_dipole_moment ! /!\ so that the matrix already contains the intensity constant of the dipolar moment with the position of the matter (cf. manual for formulas)
     
   IF (Debug .AND. ALLOCATED(Mol1_dipolar_moment%Diag_val_R)) CALL Write_Vec(Mol1_dipolar_moment%Diag_val_R, out_unit, 3, info="Mo&
                                                             &l1_dipolar_moment")
@@ -270,35 +278,6 @@ PROGRAM App_MolecCav
   
   DEALLOCATE(Result_psi_1D); DEALLOCATE(CavPsi)
 
-  !----------------An experiment on the total Hamiltonian action---------------
-  WRITE(out_unit,*); WRITE(out_unit,*) "----------------An experiment on the total Hamiltonian action---------------"
-
-  IF (Debug .AND. Nb_C <= 10) THEN
-    WRITE(out_unit,*); WRITE(out_unit,*) "Psi_1p1D"
-    CALL Write_Mat(Psi_1p1D, out_unit, Cavity_mode_1%Nb)
-  ELSE IF (Debug .AND. Nb_C > 10) THEN
-    WRITE(out_unit,*); WRITE(out_unit,*) "Psi_1p1D (1:10,1:10 slicing)"
-    CALL Write_Mat(Psi_1p1D(1:MIN(Nb_M,10),1:10), out_unit, Cavity_mode_1%Nb, info="Psi_1p1D (sliced)")
-  END IF
-  FLUSH(out_unit) 
-
-  ALLOCATE(Result_psi_1p1D(Molecule_1%Nb, Cavity_mode_1%Nb))
-  Result_psi_1p1D(:,:) = ZERO
-
-  CALL Action_total_hamiltonian_1p1D(Result_psi_1p1D, Cav1Position_uncoupled, Cav1H_uncloupled, Mol&
-                                    &1_dipolar_moment, Mol1H, Psi_1p1D, Debug=debug)
-
-  IF (Nb_C <= 10) THEN
-    WRITE(out_unit,*); WRITE(out_unit,*) "Action of the uncoupled total Hamiltonian over Psi_1p1D"
-    CALL Write_Mat(Result_psi_1p1D, out_unit, Cavity_mode_1%Nb, info="TotH_psi_1p1D")
-  ELSE IF (Nb_C > 10) THEN
-    WRITE(out_unit,*); WRITE(out_unit,*) "Action of the uncoupled total Hamiltonian over Psi_1p1D (1:10,1:10 slicing)"
-    CALL Write_Mat(Result_psi_1p1D(1:MIN(Nb_M,10),1:10), out_unit, Cavity_mode_1%Nb, info="TotH_psi_1p1D (sliced)")
-  END IF
-  FLUSH(out_unit) 
-
-  DEALLOCATE(Result_psi_1p1D)
-
   !-------Construction of a Total Hamiltonian matrix without CM-couplings------
   WRITE(out_unit,*); WRITE(out_unit,*) "-------Construction of a Total Hamiltonian matrix without CM-couplings------"
   ALLOCATE(TotH(NB, NB))
@@ -399,7 +378,7 @@ PROGRAM App_MolecCav
     CALL WRITE_Mat(Reigvec(1:10,1:10), out_unit, 6, info = 'Ten first Eigenvectors (1:10 slicing)')
   END IF 
 
-  DEALLOCATE(TotH)!; DEALLOCATE(REigval); DEALLOCATE(REigvec)
+  DEALLOCATE(TotH); DEALLOCATE(REigval); DEALLOCATE(REigvec)
 
   !-----Construction of the 1p1D total system Mass-weighted Hessian matrix-----
   WRITE(out_unit,*); WRITE(out_unit,*) "-----Construction of the 1p1D total system Mass-weighted Hessian matrix-----"
@@ -438,8 +417,48 @@ PROGRAM App_MolecCav
 
   DEALLOCATE(Mol1Weights); DEALLOCATE(Cav1Weights)
   !-------------------just a plot-------------------
-  WRITE(out_unit,*) "Matter", [(Mol1H%w*i, i = 1,3)]
-  CALL Write_Vec(REigval, out_unit, Size(REigval), info="Total")
-  WRITE(out_unit,*) "Cavity", [(Cav1H%w*i, i = 1,3)]
+!  WRITE(out_unit,*) "Matter", [(Mol1H%w*i, i = 1,3)]
+!  CALL Write_Vec(REigval, out_unit, Size(REigval), info="Total")
+!  WRITE(out_unit,*) "Cavity", [(Cav1H%w*i, i = 1,3)]
+  !-------------------just a time test-------------------
+  WRITE(out_unit,*) "-----------------------TIME TEST-----------------------------"
+  CALL time_perso("dense")
+  WRITE(out_unit,*) "Molecular Hamiltonian :"
+  CALL Construct_Operator_1D(Operator=Mol1H_dense, &
+                           & operator_type="Hamiltonian", &
+                           &Dense=.TRUE., &
+                           & Mode=Molecule_1, &
+                           & Debug=.TRUE.)
+    
+  WRITE(out_unit,*) "Molecular Dipole moment :"
+  CALL Construct_Operator_1D(Operator=Mol1_dipolar_moment_dense, &
+                           & operator_type="Position", &                       ! initialized as a position operator because of approximation over its expression (cf. readme.md or manual)
+                           & Dense=.TRUE., &                                  !/!\ if initialize as dense MUST change two lines below : Mol1_dipolar_moment%Dense_val_R /!\
+                           & Mode=Molecule_1, &
+                           & Debug=.FALSE.)
+
+  IF (ALLOCATED(Mol1_dipolar_moment_dense%Dense_val_R)) Mol1_dipolar_moment_dense%Dense_val_R = Mol1_dipolar_moment_dense%Dense_&
+  &val_R*Cte_dipole_moment ! /!\ so that the matrix already contains the intensity constant of the dipolar moment with the position of the matter (cf. manual for formulas)
+  IF (ALLOCATED(Mol1_dipolar_moment_dense%Band_val_R))  Mol1_dipolar_moment_dense%Band_val_R  = Mol1_dipolar_moment_dense%Band_v&
+  &al_R*Cte_dipole_moment ! /!\ so that the matrix already contains the intensity constant of the dipolar moment with the position of the matter (cf. manual for formulas)
+
+  WRITE(out_unit,*) "Cavity mode Hamiltonian :"
+  CALL Construct_Operator_1D(Operator=Cav1H_dense, &
+                           & operator_type="Hamiltonian", &
+                           & Dense=.TRUE., &
+                           & Mode=Cavity_mode_1, &
+                           & Debug=.FALSE.)
+
+  WRITE(out_unit,*) "Cavity mode Position :"
+  CALL Construct_Operator_1D(Operator=Cav1Position_dense, &
+                           & operator_type="Position", &
+                           & Dense=.TRUE., &
+                           & Mode=Cavity_mode_1, &
+                           & Debug=.FALSE.)
+
+  ALLOCATE(TotH_dense(NB,NB))
+  CALL Construct_total_hamiltonian_1p1D(TotH_dense, Cav1Position_dense, Cav1H_dense, Mol1_dipolar_moment_dense, Mol1H_dense)
+  CALL time_perso("dense")
+    
 
 END PROGRAM
