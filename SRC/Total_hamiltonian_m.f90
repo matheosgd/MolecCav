@@ -34,25 +34,25 @@ MODULE Total_hamiltonian_m
   
   PRIVATE
 
-  PUBLIC Action_total_hamiltonian_1p1D, Construct_total_hamiltonian_1p1D, Average_value_H_tot
+  PUBLIC Action_total_hamiltonian_1p1D, Construct_total_hamiltonian_1p1D, Average_value_H_tot, Transition_intensity_R
 
   INTERFACE Action_total_hamiltonian_1p1D
-    MODULE PROCEDURE MolecCav_Action_total_hamiltonian_1p1D_old, MolecCav_Action_total_hamiltonian_1p1D
+    MODULE PROCEDURE MolecCav_Action_total_hamiltonian_1p1D
   END INTERFACE
-  INTERFACE Action_Matter_1p1D
-    MODULE PROCEDURE MolecCav_Action_Matter_1p1D
+  INTERFACE Action_matter_1p1D
+    MODULE PROCEDURE MolecCav_Action_matter_1p1D
   END INTERFACE
-  INTERFACE Action_Cavity_1p1D
-    MODULE PROCEDURE MolecCav_Action_Cavity_1p1D
-  END INTERFACE
-  INTERFACE Action_matter_dipolar_moment_1p1D
-    MODULE PROCEDURE MolecCav_Action_matter_dipolar_moment_1p1D
+  INTERFACE Action_cavity_1p1D
+    MODULE PROCEDURE MolecCav_Action_cavity_1p1D
   END INTERFACE
   INTERFACE Construct_total_hamiltonian_1p1D
-    MODULE PROCEDURE MolecCav_Construct_total_hamiltonian_1p1D, MolecCav_Construct_total_hamiltonian_1p1D_old
+    MODULE PROCEDURE MolecCav_Construct_total_hamiltonian_1p1D
   END INTERFACE
   INTERFACE Average_value_H_tot
     MODULE PROCEDURE MolecCav_Average_value_H_tot
+  END INTERFACE
+  INTERFACE Transition_intensity_R
+    MODULE PROCEDURE MolecCav_Transition_intensity_R
   END INTERFACE
     
 
@@ -133,7 +133,7 @@ MODULE Total_hamiltonian_m
     END IF 
 
     !--------------------------------Computation-------------------------------
-    CALL Action_Matter_1p1D(Psi_1, Psi_2, Psi_3, Mat_dipolar_moment, MatH, Psi)
+    CALL Action_matter_1p1D(Psi_1, Psi_2, Psi_3, Mat_dipolar_moment, MatH, Psi)
 
     IF (Debug_local .AND. Nb_C <= 10) THEN
       WRITE(out_unit,*)
@@ -157,12 +157,12 @@ MODULE Total_hamiltonian_m
       CALL Write_Mat(Psi_3(1:10,1:10), out_unit, 10, info="Psi_3(10:10sliced)")
     END IF
 
-    CALL Action_Cavity_1p1D(TotH_psi, CavPosition, CavH, Psi_1, Psi_2, Psi_3, Debug_local)
+    CALL Action_cavity_1p1D(TotH_psi, CavPosition, CavH, Psi_1, Psi_2, Psi_3, Debug_local)
 
   END SUBROUTINE MolecCav_Action_total_hamiltonian_1p1D
   
 
-  SUBROUTINE MolecCav_Action_Matter_1p1D(Psi_1, Psi_2, Psi_3, Mat_dipolar_moment, MatH, Psi)
+  SUBROUTINE MolecCav_Action_matter_1p1D(Psi_1, Psi_2, Psi_3, Mat_dipolar_moment, MatH, Psi)
     USE QDUtil_m
     USE Cavity_mode_m
     USE Operator_1D_m
@@ -193,12 +193,10 @@ MODULE Total_hamiltonian_m
       CALL Action_Operator_1D(Psi_3(:,i_C), Mat_dipolar_moment, Psi(:,i_C))
     END DO
 
-    !CALL Action_matter_dipolar_moment_1p1D(Psi_3, Mat_dipolar_moment, Psi)
-
-  END SUBROUTINE MolecCav_Action_Matter_1p1D
+  END SUBROUTINE MolecCav_Action_matter_1p1D
 
   
-  SUBROUTINE MolecCav_Action_Cavity_1p1D(TotH_psi, CavPosition, CavH, Psi_1, Psi_2, Psi_3, Debug_local)
+  SUBROUTINE MolecCav_Action_cavity_1p1D(TotH_psi, CavPosition, CavH, Psi_1, Psi_2, Psi_3, Debug_local)
     USE QDUtil_m
     USE Cavity_mode_m
     USE Operator_1D_m
@@ -277,96 +275,7 @@ MODULE Total_hamiltonian_m
       WRITE(out_unit,*) "---------------End computing the action of the total Hamiltonian over the 1p1D system---------------"
     END IF
 
-  END SUBROUTINE MolecCav_Action_Cavity_1p1D
-
-  
-  SUBROUTINE MolecCav_Action_total_hamiltonian_1p1D_old(TotH_psi, MatH_psi, &
-                                                      & CavH, CavPosition,  &
-                                                      & Mat_dipolar_moment, Psi, Mode)
-    USE QDUtil_m
-    USE Cavity_mode_m
-    USE Operator_1D_m
-    IMPLICIT NONE
-
-    real(kind=Rkind), intent(inout)    :: TotH_psi(:,:)                        ! already allocated !
-    real(kind=Rkind), intent(in)       :: MatH_psi(:,:)                        ! size Nb_M*Nb_C. |H_MatterPsi(:,i_C)> = H_Matter|Psi(:,i_C)>
-    TYPE(Operator_1D_t), intent(in)    :: CavH
-    TYPE(Operator_1D_t), intent(in)    :: CavPosition
-    TYPE(Operator_1D_t), intent(in)    :: Mat_dipolar_moment                   ! \hat{\mu}_{M}(R) = Cte.\hat{R} selon hypothèses
-    real(kind=Rkind), intent(in)       :: Psi(:,:)                             ! size Nb_M*Nb_C
-    !real(kind=Rkind), intent(in)       :: lambda_cavity_mode, w_cavity_mode   ! coupling strenght and eigenpulsation
-    TYPE(Cavity_mode_t), intent(in)    :: Mode
-
-    real(kind=Rkind), allocatable      :: CavHPsi(:)                           ! only one line of Psi
-    real(kind=Rkind), allocatable      :: Intermediary(:,:)
-    real(kind=Rkind), allocatable      :: Matter_cavity_coupling_hamiltonian_1DPsi(:,:) ! only one line of Psi
-    integer                            :: Nb_M, Nb_C, i_M, i_C
-  
-    Nb_M     = Size(Psi, 1)
-    Nb_C     = Size(Psi, 2)
-
-    TotH_psi = ZERO
-
-    !-----------H_tot = H_Matter + H_Cavity + H_MatterCavityCoupling-----------
-    !----------H_Matter|Psi> = H_Matter(Psi) already known---------
-    TotH_psi = MatH_psi
-  
-    !-----------H_Cavity|Psi> = H_Cavity(Psi) to compute-----------
-    ALLOCATE(CavHPsi(Nb_C))
-    DO i_M = 1, Nb_M
-      CALL Action_Operator_1D(CavHPsi, &
-                                     & CavH, &
-                                     & Psi(i_M,:))
-      TotH_psi(i_M,:) = TotH_psi(i_M,:) + CavHPsi(:)
-    END DO
-
-    !---------------------H_MatterCavityCoupling|Psi>--------------------
-    !------------------------H_CavityCoupling(Psi)-----------------------
-    ALLOCATE(Intermediary(Nb_M,Nb_C))
-    Intermediary = ZERO
-    DO i_M = 1, Nb_M
-      CALL Action_Operator_1D(Intermediary(i_M,:), &
-                                     & CavPosition, &
-                                     & Psi(i_M,:))
-    END DO
-    Intermediary = Mode%lambda*Mode%w*Intermediary
-
-    !---------H_MatterCoupling(Intermediary) = Cte.pos_op of the matter--------
-    ALLOCATE(Matter_cavity_coupling_hamiltonian_1DPsi(Nb_M,Nb_C))
-    CALL MolecCav_Action_matter_dipolar_moment_1p1D(Matter_cavity_coupling_hamiltonian_1DPsi, &
-                                                & Mat_dipolar_moment, &
-                                                & Intermediary)                ! the matter_dipolar_moment is assumed to already contains its intensity constant (\frac{d\mu}{dq}) within its matrix /!\
-                                            
-    !-----------------------------H_tot = summation----------------------------
-    TotH_psi = TotH_psi + Matter_cavity_coupling_hamiltonian_1DPsi
-
-  END SUBROUTINE MolecCav_Action_total_hamiltonian_1p1D_old
-  
-
-  SUBROUTINE MolecCav_Action_matter_dipolar_moment_1p1D(Mat_dipolar_moment_psi, Mat_dipolar_moment, Psi) ! /!\ only for the app i.e. for a diatomic molecule with the approximation of a linear dip. mom. with the matter position /!\
-    USE QDUtil_m
-    USE Operator_1D_m
-    IMPLICIT NONE
-
-    real(kind=Rkind),       intent(inout) :: Mat_dipolar_moment_psi(:,:)
-    TYPE(Operator_1D_t),    intent(in)    :: Mat_dipolar_moment             ! supposed to contains the constant (\frac{d\mu}{dq}) within its matrix
-    real(kind=Rkind),       intent(in)    :: Psi(:,:)
-
-    integer                               :: Nb_C, i_C 
-
-    Nb_C = Size(Mat_dipolar_moment_psi, 2)
-
-    IF (Size(Psi, 1) /= Size(Mat_dipolar_moment_psi, 1) .OR. Size(Psi, 2) /= Nb_C) THEN
-      STOP "### The size of Psi does not match the size of Mat_dipolar_moment_psi"
-    END IF
-
-    DO i_C = 1, Nb_C
-      CALL Action_Operator_1D(Mat_dipolar_moment_psi(:,i_C), &                    ! just a matricial product vector by vector to abide by the arguments constraints of the subroutine (i think we could replace by matmul(matter_dip_mom), Psi_argu)
-                                     & Mat_dipolar_moment, &
-                                     & Psi(:,i_C))
-    END DO
-
-  END SUBROUTINE MolecCav_Action_matter_dipolar_moment_1p1D
+  END SUBROUTINE MolecCav_Action_cavity_1p1D
 
 
   SUBROUTINE MolecCav_Construct_total_hamiltonian_1p1D(TotH, CavPosition, CavH, Mat_dipolar_moment, MatH, Debug)
@@ -457,61 +366,6 @@ MODULE Total_hamiltonian_m
   END SUBROUTINE MolecCav_Construct_total_hamiltonian_1p1D
 
 
-  SUBROUTINE MolecCav_Construct_total_hamiltonian_1p1D_old(H_tot, Nb_M, Nb_C, MatH_psi, CavH, CavPosition, &
-                                                          &Mat_dipolar_moment, Mode)
-    USE QDUtil_m
-    USE Cavity_mode_m
-    USE Operator_1D_m
-    IMPLICIT NONE
-
-    real(kind=Rkind),    intent(inout) :: H_tot(:,:)
-    integer,             intent(in)    :: Nb_M, Nb_C
-    real(kind=Rkind),    intent(in)    :: MatH_psi(:,:)     ! size Nb_M*Nb_C. |H_MatterPsi(:,i_C)> = H_Matter|Psi(:,i_C)>
-    TYPE(Operator_1D_t), intent(in)    :: CavH
-    TYPE(Operator_1D_t), intent(in)    :: CavPosition
-    TYPE(Operator_1D_t), intent(in)    :: Mat_dipolar_moment                ! \hat{\mu}_{M}(R) = Cte.\hat{R} selon hypothèses
-    !real(kind=Rkind),    intent(in)    :: lambda_cavity_mode, w_cavity_mode    ! coupling strenght and eigenpulsation
-    TYPE(Cavity_mode_t), intent(in)    :: Mode
-
-
-    real(kind=Rkind), allocatable      :: Psi_basis(:,:), Psi_result(:,:)
-    integer                            :: NB, I, J, j_M, j_C, i_M, i_C
-
-    J = 0
-    NB = Size(H_tot, 1)
-    H_tot(:,:) = ZERO
-    ALLOCATE(Psi_basis(Nb_M, Nb_C))
-    ALLOCATE(Psi_result(Nb_M, Nb_C))
-
-    IF (NB /= Size(H_tot, 2) .OR. NB /= Nb_M*Nb_C) THEN
-      STOP "### wrong allocation of the H_tot matrix"
-    END IF
-
-    DO j_M = 1, Nb_M
-      DO j_C = 1, Nb_C
-        J = J + 1
-        I = 0
-        Psi_basis = ZERO
-        Psi_basis(j_M, j_C) = ONE
-        Psi_result = ZERO
-
-        CALL Action_total_hamiltonian_1p1D(Psi_result, MatH_psi, &
-                                                  & CavH, CavPosition, &
-                                                  & Mat_dipolar_moment, &
-                                                  & Psi_basis, Mode)
-          
-        DO i_M = 1, Nb_M
-          DO i_C = 1, Nb_C
-            I = I + 1
-            H_tot(I,J) = Psi_result(i_M, i_C)
-          END DO
-        END DO
-      END DO
-    END DO
-
-  END SUBROUTINE MolecCav_Construct_total_hamiltonian_1p1D_old
-
-
   SUBROUTINE MolecCav_Average_value_H_tot(Value, H_tot, Psi)   ! /!\ FOR NOW EVERYTHING IS REAL /!\ compute the resulting vector Psi_result(:) from the action of the operator of the cavity mode on the photon state vector Psi(:) written in the Eigenbasis of H_ho
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     USE QDUtil_m
@@ -524,6 +378,63 @@ MODULE Total_hamiltonian_m
     Value = DOT_PRODUCT(Psi, MATMUL(H_tot, Psi)) 
   
   END SUBROUTINE MolecCav_Average_value_H_tot
+  
+
+  SUBROUTINE MolecCav_Transition_intensity_R(Intensity, InitPsi, MatDipMomt, FinPsi, Rank_size1, Rank_size2)   ! /!\ FOR NOW DESIGNED FOR 1p1D
+    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
+    USE QDUtil_m
+    USE Algebra_m
+    USE Mapping_m
+    USE Operator_1D_m
+    IMPLICIT NONE
+  
+    real(kind=Rkind),    intent(inout) :: Intensity
+    real(kind=Rkind),    intent(in)    :: InitPsi(:)                                                                                ! 1p1D so far !
+    TYPE(Operator_1D_t), intent(in)    :: MatDipMomt
+    real(kind=Rkind),    intent(in)    :: FinPsi(:)
+
+    integer,             intent(in)    :: Rank_size1
+    integer,             intent(in)    :: Rank_size2
+
+    real(kind=Rkind), allocatable      :: InitPsi_1p1D(:,:)
+    real(kind=Rkind), allocatable      :: FinPsi_1p1D(:,:)
+    real(kind=Rkind), allocatable      :: Intermediary(:,:)  
+    integer                            :: Nb_M, Nb_C, i_C
+    logical, parameter                 :: Debug = .FALSE.
+
+    Nb_M = Rank_size1
+    Nb_C = Rank_size2
+
+    IF (Nb_M*Nb_C /= Size(InitPsi, dim=1)) THEN
+      WRITE(out_unit,*) "Unconsistent arguments of Transition intensity : InitPsi dimensions do not match the provided Rank_sizes"
+      WRITE(out_unit,*) "Rank_size1 = "//TO_string(Nb_M)//";  Rank_size2 = "//TO_string(Nb_C)//"; Size(InitPsi, dim=1) = "//TO_st&
+                        &ring(Size(InitPsi, dim=1))
+      WRITE(out_unit,*) "Please check arguments"
+      STOP "### Unconsistent arguments of Transition intensity"
+    END IF
+    IF (Nb_M*Nb_C /= Size(FinPsi, dim=1)) THEN
+      WRITE(out_unit,*) "Unconsistent arguments of Transition intensity : InitPsi dimensions do not match the provided Rank_sizes"
+      WRITE(out_unit,*) "Rank_size1 = "//TO_string(Nb_M)//";  Rank_size2 = "//TO_string(Nb_C)//"; Size(InitPsi, dim=1) = "//TO_st&
+                        &ring(Size(FinPsi, dim=1))
+      WRITE(out_unit,*) "Please check arguments"
+      STOP "### Unconsistent arguments of Transition intensity"
+    END IF
+
+    ALLOCATE(InitPsi_1p1D(Nb_M, Nb_C))
+    ALLOCATE(FinPsi_1p1D(Nb_M, Nb_C))
+    ALLOCATE(Intermediary(Nb_M, Nb_C))
+
+    CALL Mapping_WF_1DTO2D(FinPsi_1p1D,  FinPsi,  Debug=Debug)
+    CALL Mapping_WF_1DTO2D(InitPsi_1p1D, InitPsi, Debug=Debug)
+
+    DO i_C = 1, Nb_C
+      CALL Action_Operator_1D(Intermediary(:,i_C), MatDipMomt, FinPsi_1p1D(:,i_C))
+    END DO
+    CALL Scalar_product(Intensity, InitPsi_1p1D, FinPsi_1p1D)
+
+    Intensity = ABS(Intensity)**2
+  
+  END SUBROUTINE MolecCav_Transition_intensity_R
   
 
 END MODULE

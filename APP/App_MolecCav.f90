@@ -71,6 +71,7 @@ PROGRAM App_MolecCav
   real(kind=Rkind), allocatable :: Result_psi_1p1D(:,:)
   real(kind=Rkind), allocatable :: REigval(:)
   real(kind=Rkind), allocatable :: REigvec(:,:)
+  real(kind=Rkind)              :: Intensity
   real(kind=Rkind)              :: Normal_modes(2)                             ! VP of the MWH
   real(kind=Rkind)              :: Normal_coordinates(2,2)                     ! \overrightarrow{VP} pf the MWH
   real(kind=Rkind), allocatable :: Mol1Weights(:)
@@ -78,7 +79,7 @@ PROGRAM App_MolecCav
 
   !----------------------------------Utilities---------------------------------
   integer                       :: i, Nb_M, Nb_C, NB
-  logical, parameter            :: Debug = .TRUE.
+  logical, parameter            :: Debug = .FALSE.
   !---------------------------------Time tests---------------------------------
   TYPE(Operator_1D_t)           :: Mol1H_dense                                       ! matrix of the one-dimensional harmonic Hamiltonian associated with HO D
   TYPE(Operator_1D_t)           :: Mol1_dipolar_moment_dense
@@ -378,6 +379,11 @@ PROGRAM App_MolecCav
     CALL WRITE_Mat(Reigvec(1:10,1:10), out_unit, 6, info = 'Ten first Eigenvectors (1:10 slicing)')
   END IF 
 
+  DO I = 2, 5
+    CALL Transition_intensity_R(Intensity, REigvec(:,1), Mol1_dipolar_moment, REigvec(:,I), Nb_M, Nb_C)
+    WRITE(out_unit,*) "Transition G.S. --> \overrightarrow{VP}_"//TO_string(I)//" = "//TO_string(Intensity)
+  END DO
+
   DEALLOCATE(TotH); DEALLOCATE(REigval); DEALLOCATE(REigvec)
 
   !-----Construction of the 1p1D total system Mass-weighted Hessian matrix-----
@@ -408,7 +414,7 @@ PROGRAM App_MolecCav
   WRITE(out_unit,*) "Expected ZPE by half-sum of the total system eigenpulsations (from MWH): "//TO&
                     &_string( ( SQRT(Normal_modes(1))+SQRT(Normal_modes(2)) )/2 )
 
-          
+                    
   !-------------------An experiment on the Psi_1p1D analysis-------------------
   ALLOCATE(Mol1Weights(Nb_M))
   ALLOCATE(Cav1Weights(Nb_C))
@@ -459,6 +465,6 @@ PROGRAM App_MolecCav
   ALLOCATE(TotH_dense(NB,NB))
   CALL Construct_total_hamiltonian_1p1D(TotH_dense, Cav1Position_dense, Cav1H_dense, Mol1_dipolar_moment_dense, Mol1H_dense)
   CALL time_perso("dense")
-    
+
 
 END PROGRAM

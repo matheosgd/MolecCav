@@ -203,10 +203,10 @@ MODULE ND_indexes_m
         List_indexes(i) = ND_indexes%Starting_indexes(i)
         i = i + 1 - 2*ND_indexes%Begin_right
         IF (ALL(List_indexes == ND_indexes%Starting_indexes) .AND. i==(N+1 - (N+1)*ND_indexes%Begin_right)) THEN
-          CALL Write_Vec(List_indexes, out_unit, N, info="-> incremented List_indexes")
+          IF (Debug_local) CALL Write_Vec(List_indexes, out_unit, N, info="-> incremented List_indexes")
           List_indexes = ND_indexes%Ranks_sizes
           Continue_loop = .FALSE.
-          CALL Write_Vec(List_indexes, out_unit, N, info="-> final List_indexes")
+          IF (Debug_local) CALL Write_Vec(List_indexes, out_unit, N, info="-> final List_indexes")
         END IF
       ELSE 
         EXIT
@@ -222,7 +222,7 @@ MODULE ND_indexes_m
 
     TYPE(ND_indexes_t) :: ND_indexes
 
-    logical, parameter :: Debug_local = .TRUE.
+    logical, parameter :: Debug_local = .FALSE.
 
     IF (Debug_local) THEN
       WRITE(out_unit,*)
@@ -237,7 +237,7 @@ MODULE ND_indexes_m
       WRITE(out_unit,*)
       WRITE(out_unit,*) "------------------------The deallocated ND_indexes object-----------------------"
       CALL Write_ND_indexes(ND_indexes)
-      WRITE(out_unit,*) "----------------End Deallocating the following ND_indexes object----------------"
+      WRITE(out_unit,*) "----------------End Deallocating the previous ND_indexes object---------------"
     END IF
 
   END SUBROUTINE MolecCav_Deallocate_ND_indexes

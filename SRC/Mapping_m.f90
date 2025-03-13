@@ -117,9 +117,9 @@ MODULE Mapping_m
     END IF
 
     IF (PRESENT(Starting_indexes)) THEN
-      CALL Initialize_ND_indexes(ND_indexes, Ranks_sizes, Starting_indexes=Starting_indexes, Debug=Debug)
+      CALL Initialize_ND_indexes(ND_indexes, Ranks_sizes, Starting_indexes=Starting_indexes, Debug=Debug_local)
     ELSE 
-      CALL Initialize_ND_indexes(ND_indexes, Ranks_sizes, Debug=Debug)
+      CALL Initialize_ND_indexes(ND_indexes, Ranks_sizes, Debug=Debug_local)
     END IF
     List_indexes = Initialize_List_indexes(ND_indexes)
     I      = 0
