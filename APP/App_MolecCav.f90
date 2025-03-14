@@ -71,14 +71,14 @@ PROGRAM App_MolecCav
   real(kind=Rkind), allocatable :: Result_psi_1p1D(:,:)
   real(kind=Rkind), allocatable :: REigval(:)
   real(kind=Rkind), allocatable :: REigvec(:,:)
-  real(kind=Rkind)              :: Intensity
+  real(kind=Rkind), allocatable :: Intensity(:,:)
   real(kind=Rkind)              :: Normal_modes(2)                             ! VP of the MWH
   real(kind=Rkind)              :: Normal_coordinates(2,2)                     ! \overrightarrow{VP} pf the MWH
   real(kind=Rkind), allocatable :: Mol1Weights(:)
   real(kind=Rkind), allocatable :: Cav1Weights(:)
 
   !----------------------------------Utilities---------------------------------
-  integer                       :: i, Nb_M, Nb_C, NB
+  integer                       :: i, Nb_M, Nb_C, NB, N
   logical, parameter            :: Debug = .FALSE.
   !---------------------------------Time tests---------------------------------
   TYPE(Operator_1D_t)           :: Mol1H_dense                                       ! matrix of the one-dimensional harmonic Hamiltonian associated with HO D
@@ -237,9 +237,11 @@ PROGRAM App_MolecCav
   !-----------------------An experiment on the Nb_photons----------------------
   WRITE(out_unit,*); WRITE(out_unit,*) "-------------------------An experiment on the Nb_photons------------------------"
   IF (Nb_C == 1) THEN
-    WRITE(out_unit,*) "############## WARNING ############# WARNING ############# WARNING #############" 
-    WRITE(out_unit,*) " This test is NOT likely to return the expected outcome when Nb_C = 1 is chosen "
-    WRITE(out_unit,*) "############## WARNING ############# WARNING ############# WARNING #############"
+    WRITE(out_unit,*) "########################## WARNING ########################## WARNING ########################## WARNING #&
+                      &########################"
+    WRITE(out_unit,*) "                          This test is NOT likely to return the expected outcome when Nb_C = 1 is chosen "
+    WRITE(out_unit,*) "########################## WARNING ########################## WARNING ########################## WARNING #&
+                      &########################"
   END IF 
 
   ALLOCATE(CavPsi(Cavity_mode_1%Nb))
@@ -288,7 +290,7 @@ PROGRAM App_MolecCav
   IF (Debug .AND. NB <= 10) THEN
     WRITE(out_unit,*); WRITE(out_unit,*) "Total Hamiltonian 1p1D (lambda = 0, w_C /= w_M)"
     CALL Write_Mat(TotH, out_unit, NB, info="TotH")
-  ELSE 
+  ELSE IF (Debug .AND. NB > 10) THEN
     WRITE(out_unit,*); WRITE(out_unit,*) "Total Hamiltonian 1p1D (lambda = 0, w_C /= w_M) (10:10 slicing)"
     CALL Write_Mat(TotH(1:10,1:10), out_unit, 10, info="TotH (sliced)")
   END IF
@@ -299,8 +301,8 @@ PROGRAM App_MolecCav
   CALL diagonalization(TotH, REigval, Reigvec)
 
   WRITE(out_unit,*); WRITE(out_unit,*) 'EIGENVALUES'
-  IF (NB <= 10) CALL WRITE_Vec(Reigval, out_unit, 10, info = 'VP[Ha]')
-  IF (NB > 10)  CALL WRITE_Vec(Reigval(1:10), out_unit, 10, info = 'Ten_first_VP[Ha]')
+  IF (NB <= 10) CALL WRITE_Vec(Reigval, out_unit, 10, info = 'VP_TotH[Ha]')
+  IF (NB > 10)  CALL WRITE_Vec(Reigval(1:10), out_unit, 10, info = 'Ten_first_VP_TotH[Ha]')
 
   IF (Debug .AND. NB <= 10) THEN
     WRITE(out_unit,*); WRITE(out_unit,*) 'EIGENVECTORS'
@@ -368,8 +370,8 @@ PROGRAM App_MolecCav
   CALL diagonalization(TotH, REigval, Reigvec)
 
   WRITE(out_unit,*); WRITE(out_unit,*) 'EIGENVALUES'
-  IF (NB <= 10) CALL WRITE_Vec(Reigval, out_unit, 10, info = 'VP[Ha]')
-  IF (NB > 10)  CALL WRITE_Vec(Reigval(1:10), out_unit, 10, info = 'Ten_first_VP[Ha]')
+  IF (NB <= 10) CALL WRITE_Vec(Reigval, out_unit, 10, info = 'VP_TotH[Ha]')
+  IF (NB > 10)  CALL WRITE_Vec(Reigval(1:10), out_unit, 10, info = 'Ten_first_VP_TotH[Ha]')
 
   IF (Debug .AND. NB <= 10) THEN
     WRITE(out_unit,*); WRITE(out_unit,*) 'EIGENVECTORS'
@@ -379,10 +381,10 @@ PROGRAM App_MolecCav
     CALL WRITE_Mat(Reigvec(1:10,1:10), out_unit, 6, info = 'Ten first Eigenvectors (1:10 slicing)')
   END IF 
 
-  DO I = 2, 5
-    CALL Transition_intensity_R(Intensity, REigvec(:,1), Mol1_dipolar_moment, REigvec(:,I), Nb_M, Nb_C)
-    WRITE(out_unit,*) "Transition G.S. --> \overrightarrow{VP}_"//TO_string(I)//" = "//TO_string(Intensity)
-  END DO
+  N=Nb/4
+  !ALLOCATE(Intensity(N,N))
+
+  !CALL Transition_intensity_matrix(Intensity, Mol1_dipolar_moment, REigvec, Nb_states=N, Debug=.TRUE.)
 
   DEALLOCATE(TotH); DEALLOCATE(REigval); DEALLOCATE(REigvec)
 

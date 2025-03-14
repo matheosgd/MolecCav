@@ -244,9 +244,6 @@ MODULE Algebra_m
       Sca_pdt = Sca_pdt + DOT_PRODUCT(Psi_1(:,i_2), Psi_2(:,i_2))
     END DO
 
-    IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Psi_1 |  Psi_2 >  =", Sca_pdt, &
-                               & "supposed to get 79 the 10/02/2025"
-
   END SUBROUTINE MolecCav_Scalar_product_2D_real
 
 
