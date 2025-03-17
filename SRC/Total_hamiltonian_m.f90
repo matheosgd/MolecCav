@@ -34,8 +34,8 @@ MODULE Total_hamiltonian_m
   
   PRIVATE
 
-  PUBLIC Action_total_hamiltonian_1p1D, Construct_total_hamiltonian_1p1D, Average_value_H_tot, Transition_intensity_matrix, Trans&
-        &ition_intensity 
+  PUBLIC Action_total_hamiltonian_1p1D, Construct_total_hamiltonian_1p1D, Average_value_H_tot, Transition_intensity, Initialize_t&
+        &ransition_matrix, Compute_transition_matrix
 
   INTERFACE Action_total_hamiltonian_1p1D
     MODULE PROCEDURE MolecCav_Action_total_hamiltonian_1p1D
@@ -55,8 +55,11 @@ MODULE Total_hamiltonian_m
   INTERFACE Transition_intensity
     MODULE PROCEDURE MolecCav_Transition_intensity
   END INTERFACE
-  INTERFACE Transition_intensity_matrix
-    MODULE PROCEDURE MolecCav_Transition_intensity_matrix
+  INTERFACE Initialize_transition_matrix
+    MODULE PROCEDURE MolecCav_Initialize_transition_matrix
+  END INTERFACE
+  INTERFACE Compute_transition_matrix
+    MODULE PROCEDURE MolecCav_Compute_transition_matrix
   END INTERFACE
     
 
@@ -453,11 +456,9 @@ MODULE Total_hamiltonian_m
   END SUBROUTINE MolecCav_Transition_intensity
   
 
-  SUBROUTINE MolecCav_Transition_intensity_matrix(Intensity, MatDipMomt, REigvec, Energy_threshold, REigval, Nb_states, Debug)   ! /!\ FOR NOW DESIGNED FOR 1p1D
+  SUBROUTINE MolecCav_Initialize_transition_matrix(Intensity, MatDipMomt, REigvec, Energy_threshold, REigval, Nb_states, Debug)   ! /!\ FOR NOW DESIGNED FOR 1p1D
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     USE QDUtil_m
-    USE Algebra_m
-    USE Mapping_m
     USE Operator_1D_m
     IMPLICIT NONE
   
@@ -469,15 +470,13 @@ MODULE Total_hamiltonian_m
     integer,          optional,    intent(in)    :: Nb_states
     logical,          optional,    intent(in)    :: Debug
 
-    real(kind=Rkind), allocatable      :: InitPsi_1p1D(:,:)
-    real(kind=Rkind), allocatable      :: FinPsi_1p1D(:,:)
-    real(kind=Rkind), allocatable      :: Intermediary(:,:)  
-    integer                            :: Nb_M, Nb_C, i_C, N, I, J
-    logical                            :: Debug_local = .FALSE.
+    integer                                      :: N, I
+    logical                                      :: Debug_local = .FALSE.
 
     IF (PRESENT(Debug)) Debug_local = Debug
 
     IF (MOD(Size(REigvec, dim=1),MatDipMomt%Nb) /= 0) THEN
+      WRITE(out_unit,*)
       WRITE(out_unit,*) "Unconsistent arguments of Transition intensity : NB /= Nb_M*Integer"
       WRITE(out_unit,*) "NB = "//TO_string(Size(REigvec, dim=1))//";  Nb_M = "//TO_string(MatDipMomt%Nb)
       WRITE(out_unit,*) "Please check arguments"
@@ -485,6 +484,7 @@ MODULE Total_hamiltonian_m
     END IF
 
     IF (PRESENT(Energy_threshold) .AND. .NOT. PRESENT(REigval)) THEN
+      WRITE(out_unit,*)
       WRITE(out_unit,*) "The list of the total Hamiltonian Eigenenergies (REigval) is expected when the selection criterion is en&
                         &ergy-based (Energy_threshold provided). Please check the arguments."
       STOP "### Missing REigval argument in Transition_intensity_matrix"
@@ -501,6 +501,7 @@ MODULE Total_hamiltonian_m
       N = Nb_states
 
     ELSE IF ((.NOT. PRESENT(Energy_threshold)) .AND. (.NOT. PRESENT(Nb_states))) THEN
+      WRITE(out_unit,*)
       WRITE(out_unit,*) "########################## WARNING ########################## WARNING ########################## WARNING&
                        & #########################"
       WRITE(out_unit,*) "               No criterion provided to select the states with which the transition intensities have to &
@@ -509,15 +510,49 @@ MODULE Total_hamiltonian_m
       WRITE(out_unit,*) "########################## WARNING ########################## WARNING ########################## WARNING&
                        & #########################"
       N = Size(REigval, dim=1)
-
     END IF 
-
-    Nb_M = MatDipMomt%Nb
-    Nb_C = Size(REigvec, dim=1)/Nb_M
 
     ALLOCATE(Intensity(N, N))
     Intensity = ZERO
+    
+    IF (Debug_local) WRITE(out_unit,*)
+    IF (Debug_local) CALL Write_Mat(Intensity, out_unit, Size(Intensity), info="Initialized intensity matrix")
+    
+  END SUBROUTINE MolecCav_Initialize_transition_matrix
+  
 
+  SUBROUTINE MolecCav_Compute_transition_matrix(Intensity, MatDipMomt, REigvec, Debug)   ! /!\ FOR NOW DESIGNED FOR 1p1D
+    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
+    USE QDUtil_m
+    USE Operator_1D_m
+    IMPLICIT NONE
+  
+    real(kind=Rkind),           intent(inout) :: Intensity(:,:)
+    TYPE(Operator_1D_t),        intent(in)    :: MatDipMomt
+    real(kind=Rkind),           intent(in)    :: REigvec(:,:)
+    logical,          optional, intent(in)    :: Debug
+
+    real(kind=Rkind), allocatable      :: InitPsi_1p1D(:,:)
+    real(kind=Rkind), allocatable      :: FinPsi_1p1D(:,:)
+    real(kind=Rkind), allocatable      :: Intermediary(:,:)  
+    integer                            :: Nb_M, Nb_C, i_C, N, I, J
+    logical                            :: Debug_local = .FALSE.
+
+    IF (PRESENT(Debug)) Debug_local = Debug
+
+    IF (MOD(Size(REigvec, dim=1),MatDipMomt%Nb) /= 0) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "Unconsistent arguments of Transition intensity : NB /= Nb_M*Integer"
+      WRITE(out_unit,*) "NB = "//TO_string(Size(REigvec, dim=1))//";  Nb_M = "//TO_string(MatDipMomt%Nb)
+      WRITE(out_unit,*) "Please check arguments"
+      STOP "### Unconsistent arguments of Transition_intensity_matrix"
+    END IF
+
+    N    = Size(Intensity, dim=1)
+    Nb_M = MatDipMomt%Nb             !will be ND_indexes soon
+    Nb_C = Size(REigvec, dim=1)/Nb_M
+
+    IF (Debug_local) WRITE(out_unit,*)
     DO I = 1, N
       DO J =  1, N
         CALL Transition_intensity(Intensity(I,J), REigvec(:,I), MatDipMomt, REigvec(:,J), Nb_M, Nb_C)
@@ -526,8 +561,10 @@ MODULE Total_hamiltonian_m
       END DO
     END DO 
     
+    IF (Debug_local) WRITE(out_unit,*)
     IF (Debug_local) CALL Write_Mat(Intensity, out_unit, Size(Intensity), info="Intensity matrix")
-  END SUBROUTINE MolecCav_Transition_intensity_matrix
+    
+  END SUBROUTINE MolecCav_Compute_transition_matrix
   
 
 END MODULE

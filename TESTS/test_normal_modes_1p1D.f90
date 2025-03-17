@@ -82,7 +82,7 @@ PROGRAM test_normal_modes_1p1D
   logical                       :: error_nrml_mdes = .FALSE.
 
   !---------------------------------------Test initialization--------------------------------------
-  CALL Initialize_Test(test_nrml_mdes, test_name="OUT/test_nrml_mdes")
+  CALL Initialize_Test(test_nrml_mdes, test_name="OUT/test_file_nrml_mdes_1p1D")
 
   !----------------------------SYSTEM INITIALIZATION---------------------------
     !------------Diatomic molecule in a harmonic electonic potential-----------

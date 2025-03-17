@@ -381,10 +381,8 @@ PROGRAM App_MolecCav
     CALL WRITE_Mat(Reigvec(1:10,1:10), out_unit, 6, info = 'Ten first Eigenvectors (1:10 slicing)')
   END IF 
 
-  N=Nb/4
-  !ALLOCATE(Intensity(N,N))
-
-  !CALL Transition_intensity_matrix(Intensity, Mol1_dipolar_moment, REigvec, Nb_states=N, Debug=.TRUE.)
+  CALL Initialize_transition_matrix(Intensity, Mol1_dipolar_moment, REigvec, Nb_states=NB/10, Debug=.TRUE.)
+  CALL Compute_transition_matrix(Intensity, Mol1_dipolar_moment, REigvec, Debug=.TRUE.)
 
   DEALLOCATE(TotH); DEALLOCATE(REigval); DEALLOCATE(REigvec)
 
