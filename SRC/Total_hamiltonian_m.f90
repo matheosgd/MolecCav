@@ -38,13 +38,13 @@ MODULE Total_hamiltonian_m
         &ransition_matrix, Compute_transition_matrix
 
   INTERFACE Action_total_hamiltonian_1p1D
-    MODULE PROCEDURE MolecCav_Action_total_hamiltonian_1p1D
+    MODULE PROCEDURE MolecCav_Action_total_hamiltonian_1p1D, MolecCav_Action_total_hamiltonian_1p1D_R1
   END INTERFACE
   INTERFACE Action_matter_1p1D
-    MODULE PROCEDURE MolecCav_Action_matter_1p1D
+    MODULE PROCEDURE MolecCav_Action_matter_1p1D, MolecCav_Action_matter_1p1D_R1
   END INTERFACE
   INTERFACE Action_cavity_1p1D
-    MODULE PROCEDURE MolecCav_Action_cavity_1p1D
+    MODULE PROCEDURE MolecCav_Action_cavity_1p1D, MolecCav_Action_cavity_1p1D_R1
   END INTERFACE
   INTERFACE Construct_total_hamiltonian_1p1D
     MODULE PROCEDURE MolecCav_Construct_total_hamiltonian_1p1D
@@ -285,6 +285,245 @@ MODULE Total_hamiltonian_m
   END SUBROUTINE MolecCav_Action_cavity_1p1D
 
 
+  SUBROUTINE MolecCav_Action_total_hamiltonian_1p1D_R1(TotH_psi, CavPosition, CavH, MatDipMomt, MatH, Psi, Debug)
+    USE QDUtil_m
+    USE Cavity_mode_m
+    USE Operator_1D_m
+    IMPLICIT NONE
+
+    real(kind=Rkind),    intent(inout) :: TotH_psi(:)                          ! already allocated !
+    TYPE(Operator_1D_t), intent(in)    :: CavPosition                          ! position operator associated to the cavity mode
+    TYPE(Operator_1D_t), intent(in)    :: CavH                                 ! Hamiltonian associated to the cavity mode
+    TYPE(Operator_1D_t), intent(in)    :: MatDipMomt                           ! dipolar moment operator associated to the matter mode. \hat{\mu}_{M}(R) = Cte.\hat{R} selon hypothèses
+    TYPE(Operator_1D_t), intent(in)    :: MatH                                 ! Hamiltonian associated to the matter mode
+    real(kind=Rkind),    intent(in)    :: Psi(:)                               ! size Nb_M*Nb_C
+    logical, optional,   intent(in)    :: Debug
+
+    real(kind=Rkind), allocatable      :: Psi_1(:), Psi_2(:), Psi_3(:)         ! cf. below for meaning
+    integer                            :: Nb_M, Nb_C, NB
+    logical                            :: Debug_local = .TRUE.
+  
+    ! TotH_psi = [MatH x CavIdentity]_psi + [MatIdentity x CavH]_psi + lambda_C.w_C.[MatDipMomt x CavPosition]_psi
+    !          = [CavIdentity]_psi_1 + [CavH]_psi_2 + lambda_C.w_C.[CavPosition]_psi_3
+    !    Psi_1 = [MatH]_psi
+    !    Psi_2 = [MatIdentity]_psi
+    !    Psi_3 = [MatDipMomt]_psi
+
+    !------------------------------Initialization------------------------------
+    IF (PRESENT(Debug)) Debug_local = Debug
+    Nb_M     = MatH%Nb
+    Nb_C     = CavH%Nb
+    NB       = Size(Psi, dim=1)
+
+    ALLOCATE(Psi_1(NB))
+    ALLOCATE(Psi_2(NB))
+    ALLOCATE(Psi_3(NB))
+    Psi_1    = ZERO
+    Psi_2    = ZERO
+    Psi_3    = ZERO
+    TotH_psi = ZERO
+
+    !----------------------------Checking dimensions---------------------------
+    IF (NB /= Size(TotH_psi,dim=1)) THEN
+      WRITE(out_unit,*) "The dimension of the operand Psi's matrix does not match the resulting TotH_psi matrix's& 
+                       & size. Please check initialization."
+      STOP "### The dimension of the operand Psi's matrix does not match the resulting TotH_psi matrix's size. Please&
+                       & check initialization."
+    END IF 
+
+    IF (Nb_M*Nb_C /= NB) THEN
+      WRITE(out_unit,*) "The dimensions of the operand Psi's matrix and resulting TotH_psi's one do not match the dimensions of t&
+                        &he two subsystem's Hamiltonian's matrix representation. Please check initialization."
+      STOP "### The dimensions of the operand Psi's matrix and resulting TotH_psi's one do not match the dimensions of the two su&
+                        &bsystem's Hamiltonian's matrix representation. Please check initialization."
+    END IF 
+
+    IF (Nb_M /= MatDipMomt%Nb) THEN
+      WRITE(out_unit,*) "The dimensions of the operand Psi's matrix does not match the dimensions of the Operator &
+                       &MatDipMomt's matrix representation. Please check initialization."
+      STOP "### The dimensions of the operand Psi's matrix does not match the dimensions of the Operator Mat_dipolar_m&
+                       &oment's matrix representation. Please check initialization."
+    END IF 
+
+    IF (Nb_C /= CavPosition%Nb) THEN
+      WRITE(out_unit,*) "The dimensions of the operand Psi's matrix does not match the dimensions of the Operator &
+                       &CavPosition's matrix representation. Please check initialization."
+      STOP "### The dimensions of the operand Psi's matrix does not match the dimensions of the Operator CavPosition's&
+                       & matrix representation. Please check initialization."
+    END IF 
+
+    !--------------------------------Computation-------------------------------
+    CALL Action_matter_1p1D(Psi_1, Psi_2, Psi_3, MatDipMomt, MatH, Psi, Debug_local)
+
+    IF (Debug_local .AND. Nb_C <= 50) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "-----------------Computing the action of the total Hamiltonian over the 1p1D system-----------------"
+      CALL Write_Vec(Psi,   out_unit, 1, info="Psi")
+      WRITE(out_unit,*)
+      CALL Write_Vec(Psi_1, out_unit, 1, info="Psi_1")
+      WRITE(out_unit,*)
+      CALL Write_Vec(Psi_2, out_unit, 1, info="Psi_2")
+      WRITE(out_unit,*)
+      CALL Write_Vec(Psi_3, out_unit, 1, info="Psi_3")
+    ELSE IF (Debug_local .AND. Nb_C > 10) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "-----------------Computing the action of the total Hamiltonian over the 1p1D system-----------------"
+      CALL Write_Vec(Psi(1:10),   out_unit, 1, info="Psi(10sliced)")
+      WRITE(out_unit,*)
+      CALL Write_Vec(Psi_1(1:10), out_unit, 1, info="Psi_1(10sliced)")
+      WRITE(out_unit,*)
+      CALL Write_Vec(Psi_2(1:10), out_unit, 1, info="Psi_2(10sliced)")
+      WRITE(out_unit,*)
+      CALL Write_Vec(Psi_3(1:10), out_unit, 1, info="Psi_3(10sliced)")
+    END IF
+
+    CALL Action_cavity_1p1D(TotH_psi, CavPosition, CavH, Psi_1, Psi_2, Psi_3, Debug_local)
+
+  END SUBROUTINE MolecCav_Action_total_hamiltonian_1p1D_R1
+  
+
+  SUBROUTINE MolecCav_Action_matter_1p1D_R1(Psi_1, Psi_2, Psi_3, MatDipMomt, MatH, Psi, Debug_local)
+    USE QDUtil_m
+    USE Cavity_mode_m
+    USE Operator_1D_m
+    USE Mapping_m
+    IMPLICIT NONE
+
+    real(kind=Rkind),    intent(inout) :: Psi_1(:)                           ! cf. below for meaning
+    real(kind=Rkind),    intent(inout) :: Psi_2(:)                           ! cf. below for meaning
+    real(kind=Rkind),    intent(inout) :: Psi_3(:)                           ! cf. below for meaning
+    TYPE(Operator_1D_t), intent(in)    :: MatDipMomt                         ! dipolar moment operator associated to the matter mode. \hat{\mu}_{M}(R) = Cte.\hat{R} selon hypothèses
+    TYPE(Operator_1D_t), intent(in)    :: MatH                               ! Hamiltonian associated to the matter mode
+    real(kind=Rkind),    intent(in)    :: Psi(:)                             ! size Nb_M*Nb_C
+    logical,             intent(in)    :: Debug_local
+
+    integer                            :: i_C, Nb_C
+    real(kind=Rkind), allocatable      :: Psi_R2(:,:), Psi_1_R2(:,:), Psi_3_R2(:,:)
+  
+    ! TotH_psi = [MatH x CavIdentity]_psi + [MatIdentity x CavH]_psi + lambda_C.w_C.[MatDipMomt x CavPosition]_psi
+    !          = [CavIdentity]_psi_1 + [CavH]_psi_2 + lambda_C.w_C.[CavPosition]_psi_3
+    !    Psi_1 = [MatH]_psi
+    !    Psi_2 = [MatIdentity]_psi
+    !    Psi_3 = [MatDipMomt]_psi
+
+    Nb_C = Size(Psi, dim=1)/MatH%Nb
+
+    ALLOCATE(Psi_R2(MatH%Nb, Nb_C))
+    CALL Mapping_WF_1DTO2D(Psi_R2, Psi, Debug=Debug_local)
+    ALLOCATE(Psi_1_R2(MatH%Nb, Nb_C))
+    ALLOCATE(Psi_3_R2(MatH%Nb, Nb_C))
+    Psi_1_R2 = ZERO
+    Psi_3_R2 = ZERO
+
+    DO i_C = 1, Nb_C                                                   ! initialize Matter_hamiltonianSystem_WF by applying the matter hamiltonian to each column of the matrix of the total system WF Psi
+      CALL Action_Operator_1D(Psi_1_R2(:,i_C), MatH, Psi_R2(:,i_C))
+    END DO
+    
+    Psi_2(:) = Psi(:)
+
+    DO i_C = 1, Nb_C
+      CALL Action_Operator_1D(Psi_3_R2(:,i_C), MatDipMomt, Psi_R2(:,i_C))
+    END DO
+
+    CALL Mapping_WF_2DTO1D(Psi_1, Psi_1_R2)
+    CALL Mapping_WF_2DTO1D(Psi_3, Psi_3_R2)
+
+  END SUBROUTINE MolecCav_Action_matter_1p1D_R1
+
+  
+  SUBROUTINE MolecCav_Action_cavity_1p1D_R1(TotH_psi, CavPosition, CavH, Psi_1, Psi_2, Psi_3, Debug_local)
+    USE QDUtil_m
+    USE Cavity_mode_m
+    USE Operator_1D_m
+    USE Mapping_m
+    IMPLICIT NONE
+
+    real(kind=Rkind),    intent(inout) :: TotH_psi(:)                        ! already allocated !
+    TYPE(Operator_1D_t), intent(in)    :: CavPosition                          ! position operator associated to the cavity mode
+    TYPE(Operator_1D_t), intent(in)    :: CavH                                 ! Hamiltonian associated to the cavity mode
+    real(kind=Rkind),    intent(in)    :: Psi_1(:)                           ! cf. below for meaning
+    real(kind=Rkind),    intent(in)    :: Psi_2(:)                           ! cf. below for meaning
+    real(kind=Rkind),    intent(in)    :: Psi_3(:)                           ! cf. below for meaning
+    logical,             intent(in)    :: Debug_local
+
+    real(kind=Rkind), allocatable      :: Intermediary_R1(:)
+    integer                            :: Nb_C, Nb_M, i_M
+    real(kind=Rkind), allocatable      :: Psi_2_R2(:,:), Psi_3_R2(:,:), Intermediary_R2(:,:)
+
+    ! TotH_psi = [MatH x CavIdentity]_psi + [MatIdentity x CavH]_psi + lambda_C.w_C.[Mat_dipolar_moment x CavPosition]_psi
+    !          = [CavIdentity]_psi_1 + [CavH]_psi_2 + lambda_C.w_C.[CavPosition]_psi_3
+    !    Psi_1 = [MatH]_psi
+    !    Psi_2 = [MatIdentity]_psi
+    !    Psi_3 = [Mat_dipolar_moment]_psi
+
+    Nb_C = CavH%Nb
+    Nb_M = Size(Psi_1, dim=1)/Nb_C
+    
+    TotH_psi(:) = Psi_1(:)
+    IF (Debug_local .AND. Nb_C <= 50) THEN
+      WRITE(out_unit,*)
+      CALL Write_Vec(TotH_psi, out_unit, 1, info="[MatHxCavIdentity]_psi")
+    ELSE IF (Debug_local .AND. Nb_C > 10) THEN
+      WRITE(out_unit,*)
+      CALL Write_Vec(TotH_psi(1:10), out_unit, 1, info="[MatHxCavIdentity]_psi(10sliced)")
+    END IF
+
+    ALLOCATE(Intermediary_R2(Nb_M, Nb_C))
+    ALLOCATE(Psi_2_R2(Nb_M, Nb_C))
+    Intermediary_R2 = ZERO
+    Psi_2_R2        = ZERO
+    CALL Mapping_WF_1DTO2D(Psi_2_R2, Psi_2, Debug=Debug_local)
+    DO i_M = 1, Nb_M
+      CALL Action_Operator_1D(Intermediary_R2(i_M,:), CavH, Psi_2_R2(i_M,:))
+    END DO
+    IF (Debug_local .AND. Nb_C <= 50) THEN
+      WRITE(out_unit,*)
+      CALL Write_Mat(Intermediary_R2, out_unit, Nb_C, info="[MatIdentityxCavH]_psi")
+    ELSE IF (Debug_local .AND. Nb_C > 10) THEN
+      WRITE(out_unit,*)
+      CALL Write_Mat(Intermediary_R2(1:10,1:10), out_unit, 10, info="[MatIdentityxCavH]_psi(10:10sliced)")
+    END IF
+
+    ALLOCATE(Intermediary_R1(Nb_M*Nb_C))
+    CALL Mapping_WF_2DTO1D(Intermediary_R1, Intermediary_R2, Debug=Debug_local)
+    TotH_psi(:) = TotH_psi(:) + Intermediary_R1(:) 
+    IF (Debug_local .AND. Nb_C <= 50) THEN
+      WRITE(out_unit,*)
+      CALL Write_Vec(TotH_psi, out_unit, 1, info="[MatH+CavH]_psi")
+    ELSE IF (Debug_local .AND. Nb_C > 10) THEN
+      WRITE(out_unit,*)
+      CALL Write_Vec(TotH_psi(1:10), out_unit, 1, info="[MatH+CavH]_psi(10:10sliced)")
+    END IF
+
+    Intermediary_R2 = ZERO
+    ALLOCATE(Psi_3_R2(Nb_M, Nb_C))
+    CALL Mapping_WF_1DTO2D(Psi_3_R2, Psi_3)
+    DO i_M = 1, Nb_M
+      CALL Action_Operator_1D(Intermediary_R2(i_M,:), CavPosition, Psi_3_R2(i_M,:))
+    END DO
+    IF (Debug_local .AND. Nb_C <= 50) THEN
+      WRITE(out_unit,*)
+      CALL Write_Mat(Intermediary_R2, out_unit, Nb_C, info="[Mat_dipolar_momentxCavPosition]_psi")
+    ELSE IF (Debug_local .AND. Nb_C > 10) THEN
+      WRITE(out_unit,*)
+      CALL Write_Mat(Intermediary_R2(1:10,1:10), out_unit, 10, info="[Mat_dipolar_momentxCavPosition]_psi(10:10sliced)")
+    END IF
+
+    CALL Mapping_WF_2DTO1D(Intermediary_R1, Intermediary_R2, Debug=Debug_local)
+    TotH_psi(:) = TotH_psi(:) + CavH%lambda * CavH%w * Intermediary_R1(:)
+    IF (Debug_local .AND. Nb_C <= 50) THEN
+      WRITE(out_unit,*)
+      CALL Write_Vec(TotH_psi, out_unit, 1, info="TotH_psi")
+      WRITE(out_unit,*) "---------------End computing the action of the total Hamiltonian over the 1p1D system---------------"
+    ELSE IF (Debug_local .AND. Nb_C > 10) THEN
+      WRITE(out_unit,*)
+      CALL Write_Vec(TotH_psi(1:10), out_unit, 1, info="TotH_psi(10:10sliced)")
+      WRITE(out_unit,*) "---------------End computing the action of the total Hamiltonian over the 1p1D system---------------"
+    END IF
+
+  END SUBROUTINE MolecCav_Action_cavity_1p1D_R1
+
+
   SUBROUTINE MolecCav_Construct_total_hamiltonian_1p1D(TotH, CavPosition, CavH, Mat_dipolar_moment, MatH, Debug)
     USE QDUtil_m
     USE Cavity_mode_m
@@ -456,13 +695,13 @@ MODULE Total_hamiltonian_m
   END SUBROUTINE MolecCav_Transition_intensity
   
 
-  SUBROUTINE MolecCav_Initialize_transition_matrix(Intensity, MatDipMomt, REigvec, Energy_threshold, REigval, Nb_states, Debug)   ! /!\ FOR NOW DESIGNED FOR 1p1D
+  SUBROUTINE MolecCav_Initialize_transition_matrix(Intensities, MatDipMomt, REigvec, Energy_threshold, REigval, Nb_states, Debug)   ! /!\ FOR NOW DESIGNED FOR 1p1D
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     USE QDUtil_m
     USE Operator_1D_m
     IMPLICIT NONE
   
-    real(kind=Rkind), allocatable, intent(inout) :: Intensity(:,:)
+    real(kind=Rkind), allocatable, intent(inout) :: Intensities(:,:)
     TYPE(Operator_1D_t),           intent(in)    :: MatDipMomt
     real(kind=Rkind),              intent(in)    :: REigvec(:,:)
     real(kind=Rkind), optional,    intent(in)    :: REigval(:)
@@ -509,25 +748,30 @@ MODULE Total_hamiltonian_m
       WRITE(out_unit,*) "                                              All Eigenstates will thus be considered"
       WRITE(out_unit,*) "########################## WARNING ########################## WARNING ########################## WARNING&
                        & #########################"
-      N = Size(REigval, dim=1)
+      N = Size(REigvec, dim=1)
+      WRITE(out_unit,*) N
     END IF 
 
-    ALLOCATE(Intensity(N, N))
-    Intensity = ZERO
+    IF (Debug_local) WRITE(out_unit,*)
+    IF (Debug_local) WRITE(out_unit,*) TO_string(N)//" States will be taken into account to compute the transition intensities."
+
+    ALLOCATE(Intensities(N, N))
+    Intensities = ZERO
     
     IF (Debug_local) WRITE(out_unit,*)
-    IF (Debug_local) CALL Write_Mat(Intensity, out_unit, Size(Intensity), info="Initialized intensity matrix")
-    
+    IF (Debug_local) CALL Write_Mat(Intensities, out_unit, Size(Intensities), info="Initialized intensity matrix")
+    FLUSH(out_unit)
+
   END SUBROUTINE MolecCav_Initialize_transition_matrix
   
 
-  SUBROUTINE MolecCav_Compute_transition_matrix(Intensity, MatDipMomt, REigvec, Debug)   ! /!\ FOR NOW DESIGNED FOR 1p1D
+  SUBROUTINE MolecCav_Compute_transition_matrix(Intensities, MatDipMomt, REigvec, Debug)   ! /!\ FOR NOW DESIGNED FOR 1p1D
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     USE QDUtil_m
     USE Operator_1D_m
     IMPLICIT NONE
   
-    real(kind=Rkind),           intent(inout) :: Intensity(:,:)
+    real(kind=Rkind),           intent(inout) :: Intensities(:,:)
     TYPE(Operator_1D_t),        intent(in)    :: MatDipMomt
     real(kind=Rkind),           intent(in)    :: REigvec(:,:)
     logical,          optional, intent(in)    :: Debug
@@ -548,21 +792,21 @@ MODULE Total_hamiltonian_m
       STOP "### Unconsistent arguments of Transition_intensity_matrix"
     END IF
 
-    N    = Size(Intensity, dim=1)
+    N    = Size(Intensities, dim=1)
     Nb_M = MatDipMomt%Nb             !will be ND_indexes soon
     Nb_C = Size(REigvec, dim=1)/Nb_M
 
     IF (Debug_local) WRITE(out_unit,*)
     DO I = 1, N
       DO J =  1, N
-        CALL Transition_intensity(Intensity(I,J), REigvec(:,I), MatDipMomt, REigvec(:,J), Nb_M, Nb_C)
+        CALL Transition_intensity(Intensities(I,J), REigvec(:,I), MatDipMomt, REigvec(:,J), Nb_M, Nb_C)
         IF (Debug_local) WRITE(out_unit,*) "Transition \overrightarrow{VP}_"//TO_string(I)//" --> \overrightarrow{VP}_"//TO_strin&
-                                           &g(J)//" = "//TO_string(Intensity(I,J))
+                                           &g(J)//" = "//TO_string(Intensities(I,J))
       END DO
     END DO 
     
     IF (Debug_local) WRITE(out_unit,*)
-    IF (Debug_local) CALL Write_Mat(Intensity, out_unit, Size(Intensity), info="Intensity matrix")
+    IF (Debug_local) CALL Write_Mat(Intensities, out_unit, Size(Intensities), info="Intensities matrix")
     
   END SUBROUTINE MolecCav_Compute_transition_matrix
   

@@ -80,12 +80,12 @@ MODULE Mapping_m
 
     IF (Debug_local) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "The non-tensor producted WF Psi_2D"
-      CALL Write_Mat(Psi_2D, out_unit, Nb_2, info="Psi_2D")
+      WRITE(out_unit,*) "The non-tensor producted WF Psi_R2"
+      CALL Write_Mat(Psi_2D, out_unit, Nb_2, info="Psi_R2")
       WRITE(out_unit,*) "                     ||"
       WRITE(out_unit,*) "                     \/"
-      WRITE(out_unit,*) "The tensor producted (mapped) WF Psi_1D"
-      CALL Write_Vec(Psi_1D, out_unit, 1, info="Psi_1D")
+      WRITE(out_unit,*) "The tensor producted (mapped) WF Psi_R1"
+      CALL Write_Vec(Psi_1D, out_unit, 1, info="Psi_R1")
     END IF 
  
   END SUBROUTINE MolecCav_Mapping_WF_2DTO1D
@@ -163,12 +163,12 @@ MODULE Mapping_m
 
     IF (Debug_local) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "The tensor producted (mapped) WF Psi_1D"
-      CALL Write_Vec(Psi_1D, out_unit, 1, info="Psi_1D")
+      WRITE(out_unit,*) "The tensor producted (mapped) WF Psi_R1"
+      CALL Write_Vec(Psi_1D, out_unit, 1, info="Psi_R1")
       WRITE(out_unit,*) "                     ||"
       WRITE(out_unit,*) "                     \/"
-      WRITE(out_unit,*) "The non-tensor producted WF Psi_2D"
-      CALL Write_Mat(Psi_2D, out_unit, Ranks_sizes(2), info="Psi_2D")
+      WRITE(out_unit,*) "The non-tensor producted WF Psi_R2"
+      CALL Write_Mat(Psi_2D, out_unit, Ranks_sizes(2), info="Psi_R2")
     END IF 
 
     CALL Deallocate_ND_indexes(ND_indexes)

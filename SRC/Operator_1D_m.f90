@@ -395,7 +395,7 @@ MODULE Operator_1D_m
     CALL Write_cavity_mode(Operator%Cavity_mode_t)
     IF (ALLOCATED(Operator%Operator_type)) THEN
       WRITE(out_unit,*) "_______________________________________the operator parameters______________________________________"
-      WRITE(out_unit,*) "|The operator's nature <<Operator_type>> information do is allocated, and is |", Operator%Operator_type
+      WRITE(out_unit,*) "|The operator's nature <<Operator_type>> information do is allocated, and is | ", Operator%Operator_type
       FLUSH(out_unit)
       WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
     ELSE 

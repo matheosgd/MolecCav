@@ -57,9 +57,11 @@ PROGRAM test_transition_intensities
   !------------------------------------------------------------Results-----------------------------------------------------------
   real(kind=Rkind), allocatable :: REigval(:)
   real(kind=Rkind), allocatable :: REigvec(:,:)
+  real(kind=Rkind), allocatable :: Intensities1(:,:)
+  real(kind=Rkind), allocatable :: Intensities2(:,:)
 
   !-----------------------------------------------------------Utilities----------------------------------------------------------
-  integer                       :: Nb_M, Nb_C, NB, I
+  integer                       :: Nb_M, Nb_C, NB, I, N_min
 
   TYPE(test_t)                  :: test_trnstn_int
   logical                       :: error_trnstn_int = .FALSE.
@@ -171,77 +173,62 @@ PROGRAM test_transition_intensities
                                        &-----------------------------------------"
   WRITE(out_unit,*)
 
-  
+  CALL Initialize_transition_matrix(Intensities1, Mol1DipMomt, REigvec, Nb_states=NB/12, Debug=Debug)
+  CALL Compute_transition_matrix(Intensities1, Mol1DipMomt, REigvec, Debug=Debug)
+
+  CALL Initialize_transition_matrix(Intensities2, Mol1DipMomt, REigvec, Energy_threshold=0.020_Rkind, REigval=REigval, Debug=Debug)
+  CALL Compute_transition_matrix(Intensities2, Mol1DipMomt, REigvec, Debug=Debug)
+
+
+  !--------------------------------------------Testing the Transition intensity matrix-------------------------------------------
+  N_min = MIN(Size(Intensities1, dim=1), Size(Intensities2, dim=1))
+  CALL Equal_R_R_matrix(error_trnstn_int, Intensities1(1:N_min,1:N_min), Intensities2(1:N_min,1:N_min))
+  CALL Logical_Test(test_trnstn_int, error_trnstn_int, test2=.FALSE., info="Both selection methods give same result ?")
   CALL Finalize_Test(test_trnstn_int)
   
   
   CONTAINS
 
 
-  SUBROUTINE Equal_R_R_scalar(error, Rl_1, Rl_2)
+  SUBROUTINE Equal_R_R_matrix(error, Rl_1, Rl_2)
     USE QDUtil_m
     IMPLICIT NONE 
 
     logical,          intent(inout) :: error
-    real(kind=Rkind), intent(in)    :: Rl_1
-    real(kind=Rkind), intent(in)    :: Rl_2
+    real(kind=Rkind), intent(in)    :: Rl_1(:,:)
+    real(kind=Rkind), intent(in)    :: Rl_2(:,:)
     
     real(kind=Rkind), parameter     :: Threshold   = 1E-10_Rkind
     logical, parameter              :: Debug_local = .FALSE.
+    integer                         :: Nb_1, Nb_2
 
-    IF (ABS(Rl_1 - Rl_2) > Threshold) THEN
-      error = .TRUE.
-      IF (Debug_local) WRITE(out_unit,*) "The two numbers are not close enough to be considered equ&
-                                         &al : R_1 =", Rl_1, "R_2 =", Rl_2, "|R_1-R_2| = ", ABS(Rl_1 - Rl_2)
-    ELSE 
-      error = .FALSE.
-      IF (Debug_local) WRITE(out_unit,*) "The two numbers are close enough to be considered equal :&
-                                         & R_1 =", Rl_1, "R_2 =", Rl_2, "|R_1-R_2| = ", ABS(Rl_1 - Rl_2)
-    END IF
-
-  END SUBROUTINE Equal_R_R_scalar
-  
-
-  SUBROUTINE Equal_R_R_vector(error, Rl_1, Rl_2)
-    USE QDUtil_m
-    IMPLICIT NONE 
-
-    logical,          intent(inout) :: error
-    real(kind=Rkind), intent(in)    :: Rl_1(:)
-    real(kind=Rkind), intent(in)    :: Rl_2(:)
-    
-    real(kind=Rkind), parameter     :: Threshold   = 1E-10_Rkind
-    logical, parameter              :: Debug_local = .FALSE.
-    integer                         :: Nb_1
-
-    Nb_1 = Size(Rl_1)
-    IF (Nb_1 /= Size(Rl_2)) THEN
-      WRITE(out_unit,*)
-      WRITE(out_unit,*) "The two vectors must have same dimensions to compare them. Please, check initialization."
-      WRITE(out_unit,*) "Size(Rl_1) = "//TO_string(Size(Rl_1))//"; Size(Rl_2) = "//TO_string(Size(Rl_2))
-      STOP "### The two vectors must have same dimensions to compare them. Please, check initialization."
+    Nb_1 = Size(Rl_1, dim=1)
+    Nb_2 = Size(Rl_2, dim=2)
+    IF (Nb_1 /= Size(Rl_2, dim=1) .OR. Nb_2 /= Size(Rl_2, dim=2)) THEN
+      WRITE(out_unit,*) "The two matrices must have same dimensions to compare them. Please, check initialization."
+      STOP "### (Equal_R_R_matrix) The two matrices must have same dimensions to compare them. Please, check initialization."
     END IF 
 
     IF (ANY(ABS(Rl_1 - Rl_2) > Threshold)) THEN
       error = .TRUE.
       IF (Debug_local) THEN
-        WRITE(out_unit,*) "The two vectors are not close enough to be considered equal :"
-        CALL Write_Vec(Rl_1, out_unit, Nb_1, info="R_1(:)")
-        CALL Write_Vec(Rl_2, out_unit, Nb_1, info="R_2(:)")
-        CALL Write_Vec(ABS(Rl_1 - Rl_2), out_unit, Nb_1, info="|R_1-R_2| = ")
+        WRITE(out_unit,*) "The two matrices are not close enough to be considered equal :"
+        CALL Write_Mat(Rl_1, out_unit, Nb_2, info="R_1(:,:)")
+        CALL Write_Mat(Rl_2, out_unit, Nb_2, info="R_2(:,:)")
+        CALL Write_Mat(ABS(Rl_1 - Rl_2), out_unit, Nb_2, info="|R_1-R_2| = ")
       END IF 
 
     ELSE 
       error = .FALSE.
       IF (Debug_local) THEN
-        WRITE(out_unit,*) "The two vectors are close enough to be considered equal :"
-        CALL Write_Vec(Rl_1, out_unit, Nb_1, info="R_1(:)")
-        CALL Write_Vec(Rl_2, out_unit, Nb_1, info="R_2(:)")
-        CALL Write_Vec(ABS(Rl_1 - Rl_2), out_unit, Nb_1, info="|R_1-R_2| = ")
+        WRITE(out_unit,*) "The two matrices are close enough to be considered equal :"
+        CALL Write_Mat(Rl_1, out_unit, Nb_2, info="R_1(:,:)")
+        CALL Write_Mat(Rl_2, out_unit, Nb_2, info="R_2(:,:)")
+        CALL Write_Mat(ABS(Rl_1 - Rl_2), out_unit, Nb_2, info="|R_1-R_2| = ")
       END IF
     END IF 
 
-  END SUBROUTINE Equal_R_R_vector
+  END SUBROUTINE Equal_R_R_matrix
 
 
 END PROGRAM
