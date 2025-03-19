@@ -41,7 +41,7 @@ PROGRAM App_MolecCav
   IMPLICIT NONE
 
 
-  logical, parameter            :: Debug = .FALSE.
+  logical, parameter            :: Debug = .TRUE.
   integer, parameter            :: Verbose = 0
 
   !--------------------------------------Diatomic molecule in a harmonic electonic potential-------------------------------------
@@ -90,7 +90,8 @@ PROGRAM App_MolecCav
   real(kind=Rkind), allocatable :: Mol1Weights(:)
   real(kind=Rkind), allocatable :: Cav1Weights(:)
   real(kind=Rkind), allocatable :: TotH_bis(:,:)
-
+  real(kind=Rkind), allocatable :: REigval_bis(:)
+  real(kind=Rkind), allocatable :: REigvec_bis(:,:)
 
   !-----------------------------------------------------------Utilities----------------------------------------------------------
   integer                       :: i, Nb_M, Nb_C, NB, N
@@ -339,19 +340,19 @@ PROGRAM App_MolecCav
   CALL Construct_total_hamiltonian_1p1D(TotH, Cav1Position, Cav1H, Mol1DipMomt, Mol1H, Debug=.FALSE.)
   CALL time_perso("TotH constructed")
 
-  IF (Debug .AND. NB <= 50) THEN
+  IF (Debug .AND. NB <= 20) THEN
     WRITE(out_unit,*); WRITE(out_unit,*) "Total Hamiltonian 1p1D (lambda /= 0, w_C /= w_M)"
     CALL Write_Mat(TotH, out_unit, NB, info="TotH")
-  ELSE IF (Debug .AND. NB > 50) THEN
+  ELSE IF (Debug .AND. NB > 20) THEN
     WRITE(out_unit,*); WRITE(out_unit,*) "Total Hamiltonian 1p1D (lambda /= 0, w_C /= w_M) (50:50 slicing)"
-    CALL Write_Mat(TotH(1:50,1:50), out_unit, 50, info="TotH (sliced)")
+    CALL Write_Mat(TotH(1:20,1:20), out_unit, 20, info="TotH (sliced)")
   END IF
 
   IF (Verbose > 0 ) WRITE(out_unit,*)
   IF (Verbose > 0 ) CALL Write_Mat(TotH(1:NB, 1:NB), out_unit, Size(TotH), info="TotH(FULL)")
 
   ALLOCATE(TotH_bis(NB, NB))
-  CALL Construct_total_hamiltonian_1p1D_R1(TotH_bis, Cav1Position, Cav1H, Mol1DipMomt, Mol1H, Debug=.TRUE.)
+  CALL Construct_total_hamiltonian_1p1D_R1(TotH_bis, Cav1Position, Cav1H, Mol1DipMomt, Mol1H, Debug=.FALSE.)
     !-----------------------------------------------Computation of some observables----------------------------------------------
 !  CALL Average_value_TotH(Average, TotH, Psi_1p1D_R1)
 !  WRITE(out_unit,*) "Average E_tot = ", Average, "Ha"
@@ -364,16 +365,23 @@ PROGRAM App_MolecCav
   CALL time_perso("TotH diagonalized")
 
   WRITE(out_unit,*); WRITE(out_unit,*) 'EIGENVALUES'
-  IF (NB <= 10) CALL WRITE_Vec(REigval, out_unit, 10, info = 'VP_TotH[Ha]')
-  IF (NB > 10)  CALL WRITE_Vec(REigval(1:10), out_unit, 10, info = 'Ten_first_VP_TotH[Ha]')
+  IF (NB <= 20) CALL WRITE_Vec(REigval, out_unit, 10, info = 'VP_TotH[Ha]')
+  IF (NB > 20)  CALL WRITE_Vec(REigval(1:20), out_unit, 20, info = 'Twenty_first_VP_TotH[Ha]')
 
-  IF (Debug .AND. NB <= 10) THEN
+  IF (Debug .AND. NB <= 20) THEN
     WRITE(out_unit,*); WRITE(out_unit,*) 'EIGENVECTORS'
     CALL WRITE_Mat(REigvec, out_unit, 6, info = 'Eigenvectors')
   ELSE IF (Debug .AND. NB > 10) THEN
     WRITE(out_unit,*); WRITE(out_unit,*) 'EIGENVECTORS'
-    CALL WRITE_Mat(REigvec(1:10,1:10), out_unit, 6, info = 'Ten first Eigenvectors (1:10 slicing)')
+    CALL WRITE_Mat(REigvec(1:20,1:20), out_unit, 6, info = 'Twenty first Eigenvectors (1:10 slicing)')
   END IF 
+
+  ALLOCATE(REigval_bis(NB))
+  ALLOCATE(REigvec_bis(NB,NB))
+  CALL diagonalization(TotH_bis, REigval_bis, REigvec_bis)
+  WRITE(out_unit,*); WRITE(out_unit,*) 'EIGENVALUES'
+  IF (NB <= 20) CALL WRITE_Vec(REigval_bis, out_unit, 10, info = 'VP_TotH[Ha]')
+  IF (NB > 20)  CALL WRITE_Vec(REigval_bis(1:20), out_unit, 20, info = 'Twenty_first_VP_TotH[Ha]')
 
     !--------------------------------------------Computation of transition intensities-------------------------------------------
   CALL time_perso("Beginning to compute the transition intensities matrix")

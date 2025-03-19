@@ -686,29 +686,31 @@ MODULE Total_hamiltonian_m
       Phi_R1(J) = ONE
 
       TotH_phi_R1 = ZERO
-      CALL Action_total_hamiltonian_1p1D(TotH_phi_R1, CavPosition, CavH, MatDipMomt, MatH, Phi_R1, Debug=Debug_local)
-      CALL Mapping_WF_1DTO2D(TotH_phi_R2, TotH_phi_R1)  
+      CALL Action_total_hamiltonian_1p1D(TotH_phi_R1, CavPosition, CavH, MatDipMomt, MatH, Phi_R1, Debug=.FALSE.)
+!      CALL Mapping_WF_1DTO2D(TotH_phi_R2, TotH_phi_R1)  
       
-      I = 0
-      DO i_C = 1, Nb_C
-        DO i_M = 1, Nb_M
-          I = I + 1
-          TotH(I,J) = TotH_phi_R2(i_M, i_C)
+!      I = 0
+!      DO i_C = 1, Nb_C
+!        DO i_M = 1, Nb_M
+!          I = I + 1
+        DO I = 1, NB
+          TotH(I,J) = TotH_phi_R1(I)
+!          TotH(I,J) = TotH_phi_R2(i_M, i_C)
         END DO
-      END DO
+!      END DO
     END DO
 
-    IF (Debug_local .AND. NB <= 50) THEN
+    IF (Debug_local .AND. NB <= 20) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "------------------------------The total Hamiltonian matrix constructed------------------------------"
       WRITE(out_unit,*) "w_M = "//TO_string(MatH%w)//"; w_C = "//TO_string(CavH%w)//"; lambda_C = "//TO_string(CavH%lambda)
       CALL Write_Mat(TotH, out_unit, Size(TotH, dim=2), info="TotH")
       WRITE(out_unit,*) "---------------------------------End of the total Hamiltonian matrix--------------------------------"
-    ELSE IF (Debug_local .AND. NB > 50) THEN
+    ELSE IF (Debug_local .AND. NB > 20) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "------------------------------The total Hamiltonian matrix constructed------------------------------"
       WRITE(out_unit,*) "w_M = "//TO_string(MatH%w)//"; w_C = "//TO_string(CavH%w)//"; lambda_C = "//TO_string(CavH%lambda)
-      CALL Write_Mat(TotH(1:50,1:50), out_unit, 50, info="TotH(50:50sliced)")
+      CALL Write_Mat(TotH(1:20,1:20), out_unit, 20, info="TotH(20:20sliced)")
       WRITE(out_unit,*) "---------------------------------End of the total Hamiltonian matrix--------------------------------"
     END IF
 
