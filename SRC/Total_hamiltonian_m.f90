@@ -1,6 +1,6 @@
 !==================================================================================================
 !==================================================================================================
-!This file is part of MolecCav.
+! This file is part of MolecCav.
 !
 !==================================================================================================
 ! MIT License
@@ -25,6 +25,9 @@
 ! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ! SOFTWARE.
 !==================================================================================================
+! README :
+! to be written soon
+!==================================================================================================
 !==================================================================================================
 MODULE Total_hamiltonian_m
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
@@ -34,8 +37,8 @@ MODULE Total_hamiltonian_m
   
   PRIVATE
 
-  PUBLIC Action_total_hamiltonian_1p1D, Construct_total_hamiltonian_1p1D, Average_value_H_tot, Transition_intensity, Initialize_t&
-        &ransition_matrix, Compute_transition_matrix
+  PUBLIC Action_total_hamiltonian_1p1D, Construct_total_hamiltonian_1p1D, Average_value_H_tot, Initialize_transition_matrix, Comp&
+        &ute_transition_matrix, Construct_total_hamiltonian_1p1D_R1
 
   INTERFACE Action_total_hamiltonian_1p1D
     MODULE PROCEDURE MolecCav_Action_total_hamiltonian_1p1D, MolecCav_Action_total_hamiltonian_1p1D_R1
@@ -48,6 +51,9 @@ MODULE Total_hamiltonian_m
   END INTERFACE
   INTERFACE Construct_total_hamiltonian_1p1D
     MODULE PROCEDURE MolecCav_Construct_total_hamiltonian_1p1D
+  END INTERFACE
+  INTERFACE Construct_total_hamiltonian_1p1D_R1
+    MODULE PROCEDURE MolecCav_Construct_total_hamiltonian_1p1D_R1
   END INTERFACE
   INTERFACE Average_value_H_tot
     MODULE PROCEDURE MolecCav_Average_value_H_tot
@@ -66,7 +72,7 @@ MODULE Total_hamiltonian_m
   CONTAINS
   
     
-  SUBROUTINE MolecCav_Action_total_hamiltonian_1p1D(TotH_psi, CavPosition, CavH, Mat_dipolar_moment, MatH, Psi, Debug)
+  SUBROUTINE MolecCav_Action_total_hamiltonian_1p1D(TotH_psi, CavPosition, CavH, MatDipMomt, MatH, Psi, Debug)
     USE QDUtil_m
     USE Cavity_mode_m
     USE Operator_1D_m
@@ -75,7 +81,7 @@ MODULE Total_hamiltonian_m
     real(kind=Rkind),    intent(inout) :: TotH_psi(:,:)                        ! already allocated !
     TYPE(Operator_1D_t), intent(in)    :: CavPosition                          ! position operator associated to the cavity mode
     TYPE(Operator_1D_t), intent(in)    :: CavH                                 ! Hamiltonian associated to the cavity mode
-    TYPE(Operator_1D_t), intent(in)    :: Mat_dipolar_moment                   ! dipolar moment operator associated to the matter mode. \hat{\mu}_{M}(R) = Cte.\hat{R} selon hypothèses
+    TYPE(Operator_1D_t), intent(in)    :: MatDipMomt                   ! dipolar moment operator associated to the matter mode. \hat{\mu}_{M}(R) = Cte.\hat{R} selon hypothèses
     TYPE(Operator_1D_t), intent(in)    :: MatH                                 ! Hamiltonian associated to the matter mode
     real(kind=Rkind),    intent(in)    :: Psi(:,:)                             ! size Nb_M*Nb_C
     logical, optional,   intent(in)    :: Debug
@@ -84,11 +90,11 @@ MODULE Total_hamiltonian_m
     integer                            :: Nb_M, Nb_C
     logical                            :: Debug_local = .TRUE.
   
-    ! TotH_psi = [MatH x CavIdentity]_psi + [MatIdentity x CavH]_psi + lambda_C.w_C.[Mat_dipolar_moment x CavPosition]_psi
+    ! TotH_psi = [MatH x CavIdentity]_psi + [MatIdentity x CavH]_psi + lambda_C.w_C.[MatDipMomt x CavPosition]_psi
     !          = [CavIdentity]_psi_1 + [CavH]_psi_2 + lambda_C.w_C.[CavPosition]_psi_3
     !    Psi_1 = [MatH]_psi
     !    Psi_2 = [MatIdentity]_psi
-    !    Psi_3 = [Mat_dipolar_moment]_psi
+    !    Psi_3 = [MatDipMomt]_psi
 
     !------------------------------Initialization------------------------------
     IF (PRESENT(Debug)) Debug_local = Debug
@@ -118,9 +124,9 @@ MODULE Total_hamiltonian_m
                        & representation. Please check initialization."
     END IF 
 
-    IF (Nb_M /= Mat_dipolar_moment%Nb) THEN
+    IF (Nb_M /= MatDipMomt%Nb) THEN
       WRITE(out_unit,*) "The dimensions of the operand Psi's matrix does not match the dimensions of the Operator &
-                       &Mat_dipolar_moment's matrix representation. Please check initialization."
+                       &MatDipMomt's matrix representation. Please check initialization."
       STOP "### The dimensions of the operand Psi's matrix does not match the dimensions of the Operator Mat_dipolar_m&
                        &oment's matrix representation. Please check initialization."
     END IF 
@@ -140,7 +146,7 @@ MODULE Total_hamiltonian_m
     END IF 
 
     !--------------------------------Computation-------------------------------
-    CALL Action_matter_1p1D(Psi_1, Psi_2, Psi_3, Mat_dipolar_moment, MatH, Psi)
+    CALL Action_matter_1p1D(Psi_1, Psi_2, Psi_3, MatDipMomt, MatH, Psi)
 
     IF (Debug_local .AND. Nb_C <= 10) THEN
       WRITE(out_unit,*)
@@ -169,7 +175,7 @@ MODULE Total_hamiltonian_m
   END SUBROUTINE MolecCav_Action_total_hamiltonian_1p1D
   
 
-  SUBROUTINE MolecCav_Action_matter_1p1D(Psi_1, Psi_2, Psi_3, Mat_dipolar_moment, MatH, Psi)
+  SUBROUTINE MolecCav_Action_matter_1p1D(Psi_1, Psi_2, Psi_3, MatDipMomt, MatH, Psi)
     USE QDUtil_m
     USE Cavity_mode_m
     USE Operator_1D_m
@@ -178,17 +184,17 @@ MODULE Total_hamiltonian_m
     real(kind=Rkind),    intent(inout) :: Psi_1(:,:)                           ! cf. below for meaning
     real(kind=Rkind),    intent(inout) :: Psi_2(:,:)                           ! cf. below for meaning
     real(kind=Rkind),    intent(inout) :: Psi_3(:,:)                           ! cf. below for meaning
-    TYPE(Operator_1D_t), intent(in)    :: Mat_dipolar_moment                   ! dipolar moment operator associated to the matter mode. \hat{\mu}_{M}(R) = Cte.\hat{R} selon hypothèses
+    TYPE(Operator_1D_t), intent(in)    :: MatDipMomt                   ! dipolar moment operator associated to the matter mode. \hat{\mu}_{M}(R) = Cte.\hat{R} selon hypothèses
     TYPE(Operator_1D_t), intent(in)    :: MatH                                 ! Hamiltonian associated to the matter mode
     real(kind=Rkind),    intent(in)    :: Psi(:,:)                             ! size Nb_M*Nb_C
 
     integer                            :: i_C
   
-    ! TotH_psi = [MatH x CavIdentity]_psi + [MatIdentity x CavH]_psi + lambda_C.w_C.[Mat_dipolar_moment x CavPosition]_psi
+    ! TotH_psi = [MatH x CavIdentity]_psi + [MatIdentity x CavH]_psi + lambda_C.w_C.[MatDipMomt x CavPosition]_psi
     !          = [CavIdentity]_psi_1 + [CavH]_psi_2 + lambda_C.w_C.[CavPosition]_psi_3
     !    Psi_1 = [MatH]_psi
     !    Psi_2 = [MatIdentity]_psi
-    !    Psi_3 = [Mat_dipolar_moment]_psi
+    !    Psi_3 = [MatDipMomt]_psi
 
     DO i_C = 1, Size(Psi, 2)                                                   ! initialize Matter_hamiltonianSystem_WF by applying the matter hamiltonian to each column of the matrix of the total system WF Psi
       CALL Action_Operator_1D(Psi_1(:,i_C), MatH, Psi(:,i_C))
@@ -197,7 +203,7 @@ MODULE Total_hamiltonian_m
     Psi_2(:,:) = Psi(:,:)
 
     DO i_C = 1, Size(Psi, 2)
-      CALL Action_Operator_1D(Psi_3(:,i_C), Mat_dipolar_moment, Psi(:,i_C))
+      CALL Action_Operator_1D(Psi_3(:,i_C), MatDipMomt, Psi(:,i_C))
     END DO
 
   END SUBROUTINE MolecCav_Action_matter_1p1D
@@ -220,11 +226,11 @@ MODULE Total_hamiltonian_m
     real(kind=Rkind), allocatable      :: Intermediary(:,:)
     integer                            :: Nb_C, i_M
   
-    ! TotH_psi = [MatH x CavIdentity]_psi + [MatIdentity x CavH]_psi + lambda_C.w_C.[Mat_dipolar_moment x CavPosition]_psi
+    ! TotH_psi = [MatH x CavIdentity]_psi + [MatIdentity x CavH]_psi + lambda_C.w_C.[MatDipMomt x CavPosition]_psi
     !          = [CavIdentity]_psi_1 + [CavH]_psi_2 + lambda_C.w_C.[CavPosition]_psi_3
     !    Psi_1 = [MatH]_psi
     !    Psi_2 = [MatIdentity]_psi
-    !    Psi_3 = [Mat_dipolar_moment]_psi
+    !    Psi_3 = [MatDipMomt]_psi
 
     Nb_C = Size(TotH_psi,2)
     
@@ -265,10 +271,10 @@ MODULE Total_hamiltonian_m
     END DO
     IF (Debug_local .AND. Nb_C <= 10) THEN
       WRITE(out_unit,*)
-      CALL Write_Mat(Intermediary, out_unit, Nb_C, info="[Mat_dipolar_momentxCavPosition]_psi")
+      CALL Write_Mat(Intermediary, out_unit, Nb_C, info="[MatDipMomtxCavPosition]_psi")
     ELSE IF (Debug_local .AND. Nb_C > 10) THEN
       WRITE(out_unit,*)
-      CALL Write_Mat(Intermediary(1:10,1:10), out_unit, 10, info="[Mat_dipolar_momentxCavPosition]_psi(10:10sliced)")
+      CALL Write_Mat(Intermediary(1:10,1:10), out_unit, 10, info="[MatDipMomtxCavPosition]_psi(10:10sliced)")
     END IF
 
     TotH_psi(:,:) = TotH_psi(:,:) + CavH%lambda * CavH%w * Intermediary(:,:)
@@ -450,11 +456,11 @@ MODULE Total_hamiltonian_m
     integer                            :: Nb_C, Nb_M, i_M
     real(kind=Rkind), allocatable      :: Psi_2_R2(:,:), Psi_3_R2(:,:), Intermediary_R2(:,:)
 
-    ! TotH_psi = [MatH x CavIdentity]_psi + [MatIdentity x CavH]_psi + lambda_C.w_C.[Mat_dipolar_moment x CavPosition]_psi
+    ! TotH_psi = [MatH x CavIdentity]_psi + [MatIdentity x CavH]_psi + lambda_C.w_C.[MatDipMomt x CavPosition]_psi
     !          = [CavIdentity]_psi_1 + [CavH]_psi_2 + lambda_C.w_C.[CavPosition]_psi_3
     !    Psi_1 = [MatH]_psi
     !    Psi_2 = [MatIdentity]_psi
-    !    Psi_3 = [Mat_dipolar_moment]_psi
+    !    Psi_3 = [MatDipMomt]_psi
 
     Nb_C = CavH%Nb
     Nb_M = Size(Psi_1, dim=1)/Nb_C
@@ -503,10 +509,10 @@ MODULE Total_hamiltonian_m
     END DO
     IF (Debug_local .AND. Nb_C <= 50) THEN
       WRITE(out_unit,*)
-      CALL Write_Mat(Intermediary_R2, out_unit, Nb_C, info="[Mat_dipolar_momentxCavPosition]_psi")
+      CALL Write_Mat(Intermediary_R2, out_unit, Nb_C, info="[MatDipMomtxCavPosition]_psi")
     ELSE IF (Debug_local .AND. Nb_C > 10) THEN
       WRITE(out_unit,*)
-      CALL Write_Mat(Intermediary_R2(1:10,1:10), out_unit, 10, info="[Mat_dipolar_momentxCavPosition]_psi(10:10sliced)")
+      CALL Write_Mat(Intermediary_R2(1:10,1:10), out_unit, 10, info="[MatDipMomtxCavPosition]_psi(10:10sliced)")
     END IF
 
     CALL Mapping_WF_2DTO1D(Intermediary_R1, Intermediary_R2, Debug=Debug_local)
@@ -524,7 +530,7 @@ MODULE Total_hamiltonian_m
   END SUBROUTINE MolecCav_Action_cavity_1p1D_R1
 
 
-  SUBROUTINE MolecCav_Construct_total_hamiltonian_1p1D(TotH, CavPosition, CavH, Mat_dipolar_moment, MatH, Debug)
+  SUBROUTINE MolecCav_Construct_total_hamiltonian_1p1D(TotH, CavPosition, CavH, MatDipMomt, MatH, Debug)
     USE QDUtil_m
     USE Cavity_mode_m
     USE Operator_1D_m
@@ -533,7 +539,7 @@ MODULE Total_hamiltonian_m
     real(kind=Rkind),    intent(inout) :: TotH(:,:)                                                ! already allocated !
     TYPE(Operator_1D_t), intent(in)    :: CavPosition
     TYPE(Operator_1D_t), intent(in)    :: CavH
-    TYPE(Operator_1D_t), intent(in)    :: Mat_dipolar_moment                                       ! \hat{\mu}_{M}(R) = Cte.\hat{R} according to hypothesis
+    TYPE(Operator_1D_t), intent(in)    :: MatDipMomt                                       ! \hat{\mu}_{M}(R) = Cte.\hat{R} according to hypothesis
     TYPE(Operator_1D_t), intent(in)    :: MatH
     logical, optional,   intent(in)    :: Debug
    
@@ -583,7 +589,7 @@ MODULE Total_hamiltonian_m
         Phi(j_M, j_C) = ONE
 
         TotH_phi = ZERO
-        CALL Action_total_hamiltonian_1p1D(TotH_phi, CavPosition, CavH, Mat_dipolar_moment, MatH, Phi, Debug=Debug_local)
+        CALL Action_total_hamiltonian_1p1D(TotH_phi, CavPosition, CavH, MatDipMomt, MatH, Phi, Debug=Debug_local)
           
         I = 0
         DO i_C = 1, Nb_C
@@ -610,6 +616,103 @@ MODULE Total_hamiltonian_m
     END IF
 
   END SUBROUTINE MolecCav_Construct_total_hamiltonian_1p1D
+
+
+  SUBROUTINE MolecCav_Construct_total_hamiltonian_1p1D_R1(TotH, CavPosition, CavH, MatDipMomt, MatH, Debug)
+    USE QDUtil_m
+    USE Mapping_m
+    USE Cavity_mode_m
+    USE Operator_1D_m
+    IMPLICIT NONE
+
+    real(kind=Rkind),    intent(inout) :: TotH(:,:)                                                ! already allocated !
+    TYPE(Operator_1D_t), intent(in)    :: CavPosition
+    TYPE(Operator_1D_t), intent(in)    :: CavH
+    TYPE(Operator_1D_t), intent(in)    :: MatDipMomt                                       ! \hat{\mu}_{M}(R) = Cte.\hat{R} according to hypothesis
+    TYPE(Operator_1D_t), intent(in)    :: MatH
+    logical, optional,   intent(in)    :: Debug
+   
+    real(kind=Rkind), allocatable      :: Phi_R1(:), TotH_phi_R1(:)
+    real(kind=Rkind), allocatable      :: TotH_phi_R2(:,:)
+    integer                            :: Nb_M, Nb_C, i_M, i_C, j_M, j_C, NB, I, J
+    logical                            :: Debug_local = .FALSE.
+
+    IF (PRESENT(Debug)) Debug_local = Debug
+
+    IF (ALLOCATED(MatH%Diag_val_R)) THEN
+      Nb_M = Size(MatH%Diag_val_R)
+    ELSE IF (ALLOCATED(MatH%Dense_val_R)) THEN
+      Nb_M = Size(MatH%Dense_val_R, dim=1)
+    ELSE 
+      WRITE(out_unit,*) "The matter Hamiltonian does not seem to have been initialized (matrices not allocated)."
+      STOP "### The matter Hamiltonian does not seem to have been initialized (matrices not allocated)."
+    END IF
+
+    IF (ALLOCATED(CavH%Diag_val_R)) THEN
+      Nb_C = Size(CavH%Diag_val_R)
+    ELSE IF (ALLOCATED(CavH%Dense_val_R)) THEN
+      Nb_C = Size(CavH%Dense_val_R, dim=1)
+    ELSE 
+      WRITE(out_unit,*) "The matter Hamiltonian does not seem to have been initialized (matrices not allocated)."
+      STOP "### The matter Hamiltonian does not seem to have been initialized (matrices not allocated)."
+    END IF
+
+    IF (.NOT. ALLOCATED(MatDipMomt%Band_val_R) .AND. .NOT. ALLOCATED(MatDipMomt%Dense_val_R)) THEN
+      WRITE(out_unit,*) "The matter dipole moment operator does not seem to have been initialized (matrices not allocated)."
+      STOP "### The matter dipole moment operator does not seem to have been initialized (matrices not allocated)."
+    END IF
+
+    IF (.NOT. ALLOCATED(CavPosition%Band_val_R) .AND. .NOT. ALLOCATED(CavPosition%Dense_val_R)) THEN
+      WRITE(out_unit,*) "The cavity position operator does not seem to have been initialized (matrices not allocated)."
+      STOP "### The cavity position operator does not seem to have been initialized (matrices not allocated)."
+    END IF
+
+    NB = Size(TotH, dim=1)
+    IF (NB /= Size(TotH, dim=2) .OR. NB /= Nb_M*Nb_C) THEN
+      WRITE(out_unit,*) "The TotH matrix seems badly initialized, please check allocation."
+      WRITE(out_unit,*) "Size(TotH, dim=1) = "//TO_string(NB)//" = NB"
+      WRITE(out_unit,*) "Size(TotH, dim=2) = "//TO_string(Size(TotH, dim=2))
+      WRITE(out_unit,*) "Nb_M*Nb_C = "//TO_string(Nb_M)//"*"//TO_string(Nb_C)//" = "//TO_string(Nb_M*Nb_C)
+      STOP "### The TotH matrix seems badly initialized, please check allocation."
+    END IF
+
+    TotH(:,:) = ZERO
+    ALLOCATE(Phi_R1(NB))
+    ALLOCATE(TotH_phi_R1(NB))
+    ALLOCATE(TotH_phi_R2(Nb_M, Nb_C))
+
+    DO J = 1, NB
+      Phi_R1 = ZERO
+      Phi_R1(J) = ONE
+
+      TotH_phi_R1 = ZERO
+      CALL Action_total_hamiltonian_1p1D(TotH_phi_R1, CavPosition, CavH, MatDipMomt, MatH, Phi_R1, Debug=Debug_local)
+      CALL Mapping_WF_1DTO2D(TotH_phi_R2, TotH_phi_R1)  
+      
+      I = 0
+      DO i_C = 1, Nb_C
+        DO i_M = 1, Nb_M
+          I = I + 1
+          TotH(I,J) = TotH_phi_R2(i_M, i_C)
+        END DO
+      END DO
+    END DO
+
+    IF (Debug_local .AND. NB <= 50) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "------------------------------The total Hamiltonian matrix constructed------------------------------"
+      WRITE(out_unit,*) "w_M = "//TO_string(MatH%w)//"; w_C = "//TO_string(CavH%w)//"; lambda_C = "//TO_string(CavH%lambda)
+      CALL Write_Mat(TotH, out_unit, Size(TotH, dim=2), info="TotH")
+      WRITE(out_unit,*) "---------------------------------End of the total Hamiltonian matrix--------------------------------"
+    ELSE IF (Debug_local .AND. NB > 50) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "------------------------------The total Hamiltonian matrix constructed------------------------------"
+      WRITE(out_unit,*) "w_M = "//TO_string(MatH%w)//"; w_C = "//TO_string(CavH%w)//"; lambda_C = "//TO_string(CavH%lambda)
+      CALL Write_Mat(TotH(1:50,1:50), out_unit, 50, info="TotH(50:50sliced)")
+      WRITE(out_unit,*) "---------------------------------End of the total Hamiltonian matrix--------------------------------"
+    END IF
+
+  END SUBROUTINE MolecCav_Construct_total_hamiltonian_1p1D_R1
 
 
   SUBROUTINE MolecCav_Average_value_H_tot(Value, H_tot, Psi)   ! /!\ FOR NOW EVERYTHING IS REAL /!\ compute the resulting vector Psi_result(:) from the action of the operator of the cavity mode on the photon state vector Psi(:) written in the Eigenbasis of H_ho

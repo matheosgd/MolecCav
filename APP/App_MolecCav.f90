@@ -1,6 +1,6 @@
 !==================================================================================================
 !==================================================================================================
-!This file is part of MolecCav.
+! This file is part of MolecCav.
 !
 !==================================================================================================
 ! MIT License
@@ -24,6 +24,9 @@
 ! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 ! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ! SOFTWARE.
+!==================================================================================================
+! README:
+! to be written soon
 !==================================================================================================
 !==================================================================================================
 PROGRAM App_MolecCav
@@ -86,6 +89,8 @@ PROGRAM App_MolecCav
   real(kind=Rkind), allocatable :: Intensities(:,:)
   real(kind=Rkind), allocatable :: Mol1Weights(:)
   real(kind=Rkind), allocatable :: Cav1Weights(:)
+  real(kind=Rkind), allocatable :: TotH_bis(:,:)
+
 
   !-----------------------------------------------------------Utilities----------------------------------------------------------
   integer                       :: i, Nb_M, Nb_C, NB, N
@@ -334,17 +339,19 @@ PROGRAM App_MolecCav
   CALL Construct_total_hamiltonian_1p1D(TotH, Cav1Position, Cav1H, Mol1DipMomt, Mol1H, Debug=.FALSE.)
   CALL time_perso("TotH constructed")
 
-  IF (Debug .AND. NB <= 10) THEN
+  IF (Debug .AND. NB <= 50) THEN
     WRITE(out_unit,*); WRITE(out_unit,*) "Total Hamiltonian 1p1D (lambda /= 0, w_C /= w_M)"
     CALL Write_Mat(TotH, out_unit, NB, info="TotH")
-  ELSE IF (Debug .AND. NB > 10) THEN
-    WRITE(out_unit,*); WRITE(out_unit,*) "Total Hamiltonian 1p1D (lambda /= 0, w_C /= w_M) (10:10 slicing)"
-    CALL Write_Mat(TotH(1:10,1:10), out_unit, 10, info="TotH (sliced)")
+  ELSE IF (Debug .AND. NB > 50) THEN
+    WRITE(out_unit,*); WRITE(out_unit,*) "Total Hamiltonian 1p1D (lambda /= 0, w_C /= w_M) (50:50 slicing)"
+    CALL Write_Mat(TotH(1:50,1:50), out_unit, 50, info="TotH (sliced)")
   END IF
 
   IF (Verbose > 0 ) WRITE(out_unit,*)
   IF (Verbose > 0 ) CALL Write_Mat(TotH(1:NB, 1:NB), out_unit, Size(TotH), info="TotH(FULL)")
 
+  ALLOCATE(TotH_bis(NB, NB))
+  CALL Construct_total_hamiltonian_1p1D_R1(TotH_bis, Cav1Position, Cav1H, Mol1DipMomt, Mol1H, Debug=.TRUE.)
     !-----------------------------------------------Computation of some observables----------------------------------------------
 !  CALL Average_value_TotH(Average, TotH, Psi_1p1D_R1)
 !  WRITE(out_unit,*) "Average E_tot = ", Average, "Ha"
