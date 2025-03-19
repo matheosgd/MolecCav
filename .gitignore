@@ -7,4 +7,5 @@ OUT/*
 ARCH/*
 test_action_op.f90
 comp.log
-RESULTS/*
+RESULTS/*.png
+RESULTS/*.txt
