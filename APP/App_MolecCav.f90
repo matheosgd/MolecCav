@@ -379,7 +379,8 @@ PROGRAM App_MolecCav
   ALLOCATE(REigval_bis(NB))
   ALLOCATE(REigvec_bis(NB,NB))
   CALL diagonalization(TotH_bis, REigval_bis, REigvec_bis)
-  WRITE(out_unit,*); WRITE(out_unit,*) 'EIGENVALUES'
+  WRITE(out_unit,*); WRITE(out_unit,*) "Comparing with the rank-1 routine :"
+  WRITE(out_unit,*) 'EIGENVALUES'
   IF (NB <= 20) CALL WRITE_Vec(REigval_bis, out_unit, 10, info = 'VP_TotH[Ha]')
   IF (NB > 20)  CALL WRITE_Vec(REigval_bis(1:20), out_unit, 20, info = 'Twenty_first_VP_TotH[Ha]')
 
@@ -422,18 +423,22 @@ PROGRAM App_MolecCav
 
                     
   !-------------------------------------------An experiment on the Psi_1p1D_R2 analysis------------------------------------------
+  WRITE(out_unit,*); WRITE(out_unit,*) "-------------------------------------------An experiment on the Psi_1p1D_R2 analysis-----&
+                                       &-------------------------------------"
   ALLOCATE(Mol1Weights(Nb_M))
   ALLOCATE(Cav1Weights(Nb_C))
 
-  CALL Reduced_density_psi_R(Mol1Weights, Cav1Weights, Psi_1p1D_R2, Debug=.TRUE.)
+  CALL Reduced_density_psi(Mol1Weights, Cav1Weights, Psi_1p1D_R2, Debug=.TRUE.)
   WRITE(out_unit,*); CALL Write_Vec(Mol1Weights, out_unit, 1, info="Mol1Weights")
   WRITE(out_unit,*); CALL Write_Vec(Cav1Weights, out_unit, 1, info="Cav1Weights")
-  CALL Reduced_density_psi_R(Mol1Weights, Cav1Weights, Psi_1p1D_R1, Debug=.TRUE.)
+  CALL Reduced_density_psi(Mol1Weights, Cav1Weights, Psi_1p1D_R1, Debug=.TRUE.)
   WRITE(out_unit,*); CALL Write_Vec(Mol1Weights, out_unit, 1, info="Mol1Weights")
   WRITE(out_unit,*); CALL Write_Vec(Cav1Weights, out_unit, 1, info="Cav1Weights")
   DEALLOCATE(Mol1Weights); DEALLOCATE(Cav1Weights)
 
   !-----------------------------------------------An experiment on the TotH action-----------------------------------------------
+  WRITE(out_unit,*); WRITE(out_unit,*) "-----------------------------------------------An experiment on the TotH action----------&
+                                       &-------------------------------------"
   ALLOCATE(Result_psi_1p1D_R1(NB))
   ALLOCATE(Result_psi_1p1D_R2(Nb_M, Nb_C))
 !  CALL Write_Mat(Psi_1p1D_R2, out_unit, 10, info="Psi_R2")

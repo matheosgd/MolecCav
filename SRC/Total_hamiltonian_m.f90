@@ -693,10 +693,9 @@ MODULE Total_hamiltonian_m
 !      DO i_C = 1, Nb_C
 !        DO i_M = 1, Nb_M
 !          I = I + 1
-        DO I = 1, NB
-          TotH(I,J) = TotH_phi_R1(I)
+          TotH(:,J) = TotH_phi_R1(:)
 !          TotH(I,J) = TotH_phi_R2(i_M, i_C)
-        END DO
+!        END DO
 !      END DO
     END DO
 
@@ -898,7 +897,7 @@ MODULE Total_hamiltonian_m
     END IF
 
     N    = Size(Intensities, dim=1)
-    Nb_M = MatDipMomt%Nb             !will be ND_indexes soon
+    Nb_M = MatDipMomt%Nb             ! will be ND_indexes soon
     Nb_C = Size(REigvec, dim=1)/Nb_M
 
     IF (Debug_local) WRITE(out_unit,*)

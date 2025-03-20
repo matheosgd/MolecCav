@@ -34,9 +34,9 @@ MODULE Psi_analysis_m
   
   PRIVATE
 
-  PUBLIC Reduced_density_psi_R
+  PUBLIC Reduced_density_psi
 
-  INTERFACE Reduced_density_psi_R
+  INTERFACE Reduced_density_psi
     MODULE PROCEDURE MolecCav_Reduced_density_psi_R2_R, MolecCav_Reduced_density_psi_R1_R
   END INTERFACE
     
@@ -116,9 +116,9 @@ MODULE Psi_analysis_m
       END IF
     
       ALLOCATE(Psi_R2(Size(weight_dim_1, dim=1), Size(weight_dim_2, dim=1)))
-      CALL Mapping_WF_1DTO2D(Psi_R2, Psi_R1, Debug=Debug_local)
+      CALL Mapping_WF_1DTO2D(Psi_R2, Psi_R1, Debug=.FALSE.)
 
-      CALL Reduced_density_psi_R(weight_dim_1, weight_dim_2, Psi_R2, Debug=Debug_local)
+      CALL Reduced_density_psi(weight_dim_1, weight_dim_2, Psi_R2, Debug=Debug_local)
 
       IF (Debug_local) THEN
 !        WRITE(out_unit,*)
