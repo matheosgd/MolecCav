@@ -116,7 +116,7 @@ MODULE Psi_analysis_m
       END IF
     
       ALLOCATE(Psi_R2(Size(weight_dim_1, dim=1), Size(weight_dim_2, dim=1)))
-      CALL Mapping_WF_1DTO2D(Psi_R2, Psi_R1, Debug=.FALSE.)
+      CALL Mapping_WF_1DTO2D(Psi_R2, Psi_R1, Debug=.TRUE.)
 
       CALL Reduced_density_psi(weight_dim_1, weight_dim_2, Psi_R2, Debug=Debug_local)
 

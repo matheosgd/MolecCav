@@ -62,7 +62,7 @@ PROGRAM App_MolecCav
   TYPE(Operator_1D_t)           :: Cav1H_uncloupled                                                                              ! /!\ just need to change this one because Action TotH takes \lambda from the CavH
 
   !---------------------------------------------------------Wavefunctions--------------------------------------------------------
-  real(kind=Rkind), allocatable :: Psi_1p1D_R2(:,:)                                                                                 ! the total system (matter-cavity) wavefunction. Size Nb_M*Nb_C. |Psi_1p1D_R2> = |Molecule_WF>.TENSOR.|Cavity_WF> 
+  real(kind=Rkind), allocatable :: Psi_1p1D_R2(:,:)                                                                              ! the total system (matter-cavity) wavefunction. Size Nb_M*Nb_C. |Psi_1p1D_R2> = |Molecule_WF>.TENSOR.|Cavity_WF> 
   real(kind=Rkind), allocatable :: Psi_1p1D_R1(:)
   real(kind=Rkind), allocatable :: CavPsi(:)
 
@@ -337,7 +337,7 @@ PROGRAM App_MolecCav
   CALL time_perso("Beginning of time")
 
   ALLOCATE(TotH(NB, NB))
-  CALL Construct_total_hamiltonian_1p1D(TotH, Cav1Position, Cav1H, Mol1DipMomt, Mol1H, Debug=.FALSE.)
+  CALL Construct_total_hamiltonian_1p1D_R1(TotH, Cav1Position, Cav1H, Mol1DipMomt, Mol1H, Debug=.FALSE.)
   CALL time_perso("TotH constructed")
 
   IF (Debug .AND. NB <= 20) THEN
@@ -352,7 +352,7 @@ PROGRAM App_MolecCav
   IF (Verbose > 0 ) CALL Write_Mat(TotH(1:NB, 1:NB), out_unit, Size(TotH), info="TotH(FULL)")
 
   ALLOCATE(TotH_bis(NB, NB))
-  CALL Construct_total_hamiltonian_1p1D_R1(TotH_bis, Cav1Position, Cav1H, Mol1DipMomt, Mol1H, Debug=.FALSE.)
+  CALL Construct_total_hamiltonian_1p1D(TotH_bis, Cav1Position, Cav1H, Mol1DipMomt, Mol1H, Debug=.FALSE.)
     !-----------------------------------------------Computation of some observables----------------------------------------------
 !  CALL Average_value_TotH(Average, TotH, Psi_1p1D_R1)
 !  WRITE(out_unit,*) "Average E_tot = ", Average, "Ha"
@@ -379,7 +379,7 @@ PROGRAM App_MolecCav
   ALLOCATE(REigval_bis(NB))
   ALLOCATE(REigvec_bis(NB,NB))
   CALL diagonalization(TotH_bis, REigval_bis, REigvec_bis)
-  WRITE(out_unit,*); WRITE(out_unit,*) "Comparing with the rank-1 routine :"
+  WRITE(out_unit,*); WRITE(out_unit,*) "Comparing with the old rank-2 routine :"
   WRITE(out_unit,*) 'EIGENVALUES'
   IF (NB <= 20) CALL WRITE_Vec(REigval_bis, out_unit, 10, info = 'VP_TotH[Ha]')
   IF (NB > 20)  CALL WRITE_Vec(REigval_bis(1:20), out_unit, 20, info = 'Twenty_first_VP_TotH[Ha]')

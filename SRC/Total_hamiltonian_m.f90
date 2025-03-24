@@ -81,7 +81,7 @@ MODULE Total_hamiltonian_m
     real(kind=Rkind),    intent(inout) :: TotH_psi(:,:)                        ! already allocated !
     TYPE(Operator_1D_t), intent(in)    :: CavPosition                          ! position operator associated to the cavity mode
     TYPE(Operator_1D_t), intent(in)    :: CavH                                 ! Hamiltonian associated to the cavity mode
-    TYPE(Operator_1D_t), intent(in)    :: MatDipMomt                   ! dipolar moment operator associated to the matter mode. \hat{\mu}_{M}(R) = Cte.\hat{R} selon hypothèses
+    TYPE(Operator_1D_t), intent(in)    :: MatDipMomt                           ! dipolar moment operator associated to the matter mode. \hat{\mu}_{M}(R) = Cte.\hat{R} selon hypothèses
     TYPE(Operator_1D_t), intent(in)    :: MatH                                 ! Hamiltonian associated to the matter mode
     real(kind=Rkind),    intent(in)    :: Psi(:,:)                             ! size Nb_M*Nb_C
     logical, optional,   intent(in)    :: Debug
@@ -628,7 +628,7 @@ MODULE Total_hamiltonian_m
     real(kind=Rkind),    intent(inout) :: TotH(:,:)                                                ! already allocated !
     TYPE(Operator_1D_t), intent(in)    :: CavPosition
     TYPE(Operator_1D_t), intent(in)    :: CavH
-    TYPE(Operator_1D_t), intent(in)    :: MatDipMomt                                       ! \hat{\mu}_{M}(R) = Cte.\hat{R} according to hypothesis
+    TYPE(Operator_1D_t), intent(in)    :: MatDipMomt                                               ! \hat{\mu}_{M}(R) = Cte.\hat{R} according to hypothesis
     TYPE(Operator_1D_t), intent(in)    :: MatH
     logical, optional,   intent(in)    :: Debug
    
