@@ -415,7 +415,7 @@ MODULE Total_hamiltonian_m
     Nb_C = Size(Psi, dim=1)/MatH%Nb
 
     ALLOCATE(Psi_R2(MatH%Nb, Nb_C))
-    CALL Mapping_WF_1DTO2D(Psi_R2, Psi, Debug=Debug_local)
+    CALL Mapping_WF_R1TOR2(Psi_R2, Psi, Debug=Debug_local)
     ALLOCATE(Psi_1_R2(MatH%Nb, Nb_C))
     ALLOCATE(Psi_3_R2(MatH%Nb, Nb_C))
     Psi_1_R2 = ZERO
@@ -431,8 +431,8 @@ MODULE Total_hamiltonian_m
       CALL Action_Operator_1D(Psi_3_R2(:,i_C), MatDipMomt, Psi_R2(:,i_C))
     END DO
 
-    CALL Mapping_WF_2DTO1D(Psi_1, Psi_1_R2)
-    CALL Mapping_WF_2DTO1D(Psi_3, Psi_3_R2)
+    CALL Mapping_WF_R2TOR1(Psi_1, Psi_1_R2)
+    CALL Mapping_WF_R2TOR1(Psi_3, Psi_3_R2)
 
   END SUBROUTINE MolecCav_Action_matter_1p1D_R1
 
@@ -478,7 +478,7 @@ MODULE Total_hamiltonian_m
     ALLOCATE(Psi_2_R2(Nb_M, Nb_C))
     Intermediary_R2 = ZERO
     Psi_2_R2        = ZERO
-    CALL Mapping_WF_1DTO2D(Psi_2_R2, Psi_2, Debug=Debug_local)
+    CALL Mapping_WF_R1TOR2(Psi_2_R2, Psi_2, Debug=Debug_local)
     DO i_M = 1, Nb_M
       CALL Action_Operator_1D(Intermediary_R2(i_M,:), CavH, Psi_2_R2(i_M,:))
     END DO
@@ -491,7 +491,7 @@ MODULE Total_hamiltonian_m
     END IF
 
     ALLOCATE(Intermediary_R1(Nb_M*Nb_C))
-    CALL Mapping_WF_2DTO1D(Intermediary_R1, Intermediary_R2, Debug=Debug_local)
+    CALL Mapping_WF_R2TOR1(Intermediary_R1, Intermediary_R2, Debug=Debug_local)
     TotH_psi(:) = TotH_psi(:) + Intermediary_R1(:) 
     IF (Debug_local .AND. Nb_C <= 50) THEN
       WRITE(out_unit,*)
@@ -503,7 +503,7 @@ MODULE Total_hamiltonian_m
 
     Intermediary_R2 = ZERO
     ALLOCATE(Psi_3_R2(Nb_M, Nb_C))
-    CALL Mapping_WF_1DTO2D(Psi_3_R2, Psi_3)
+    CALL Mapping_WF_R1TOR2(Psi_3_R2, Psi_3)
     DO i_M = 1, Nb_M
       CALL Action_Operator_1D(Intermediary_R2(i_M,:), CavPosition, Psi_3_R2(i_M,:))
     END DO
@@ -515,7 +515,7 @@ MODULE Total_hamiltonian_m
       CALL Write_Mat(Intermediary_R2(1:10,1:10), out_unit, 10, info="[MatDipMomtxCavPosition]_psi(10:10sliced)")
     END IF
 
-    CALL Mapping_WF_2DTO1D(Intermediary_R1, Intermediary_R2, Debug=Debug_local)
+    CALL Mapping_WF_R2TOR1(Intermediary_R1, Intermediary_R2, Debug=Debug_local)
     TotH_psi(:) = TotH_psi(:) + CavH%lambda * CavH%w * Intermediary_R1(:)
     IF (Debug_local .AND. Nb_C <= 50) THEN
       WRITE(out_unit,*)
@@ -687,7 +687,7 @@ MODULE Total_hamiltonian_m
 
       TotH_phi_R1 = ZERO
       CALL Action_total_hamiltonian_1p1D(TotH_phi_R1, CavPosition, CavH, MatDipMomt, MatH, Phi_R1, Debug=.FALSE.)
-!      CALL Mapping_WF_1DTO2D(TotH_phi_R2, TotH_phi_R1)  
+!      CALL Mapping_WF_R1TOR2(TotH_phi_R2, TotH_phi_R1)  
       
 !      I = 0
 !      DO i_C = 1, Nb_C
@@ -780,8 +780,8 @@ MODULE Total_hamiltonian_m
     ALLOCATE(FinPsi_1p1D(Nb_M, Nb_C))
     ALLOCATE(Intermediary(Nb_M, Nb_C))
 
-    CALL Mapping_WF_1DTO2D(FinPsi_1p1D,  FinPsi,  Debug=Debug)
-    CALL Mapping_WF_1DTO2D(InitPsi_1p1D, InitPsi, Debug=Debug)
+    CALL Mapping_WF_R1TOR2(FinPsi_1p1D,  FinPsi,  Debug=Debug)
+    CALL Mapping_WF_R1TOR2(InitPsi_1p1D, InitPsi, Debug=Debug)
 
     IF (Debug) CALL Write_operator_1D(MatDipMomt)
 

@@ -45,7 +45,7 @@ PROGRAM test_algebra
 
   integer                          :: Coeff_1 = 1
   integer                          :: Coeff_2 = 1
-  integer                          :: Coeff_3 = 4                              ! for the linear combinations
+  integer                          :: Coeff_3 = 4                                                                                ! for the linear combinations
   real(kind=Rkind),    allocatable :: Any_R_1D(:)
   complex(kind=Rkind), allocatable :: Any_C_1D(:)
   real(kind=Rkind),    allocatable :: Any_R_2D(:,:)
@@ -56,10 +56,10 @@ PROGRAM test_algebra
   complex(kind=Rkind)              :: Sca_pdt_C
   real(kind=Rkind)                 :: Norm
 
-  real(kind=Rkind),    allocatable :: R_vec(:)                                 ! Buffer
-  real(kind=Rkind),    allocatable :: R_mat(:,:)                               ! Buffer
-  complex(kind=Rkind), allocatable :: C_vec(:)                                 ! Buffer
-  complex(kind=Rkind), allocatable :: C_mat(:,:)                               ! Buffer
+  real(kind=Rkind),    allocatable :: R_vec(:)                                                               ! Buffer
+  real(kind=Rkind),    allocatable :: R_mat(:,:)                                                             ! Buffer
+  complex(kind=Rkind), allocatable :: C_vec(:)                                                               ! Buffer
+  complex(kind=Rkind), allocatable :: C_mat(:,:)                                                             ! Buffer
 
   TYPE(test_t)                     :: test_sca_pdt
   TYPE(test_t)                     :: test_norm

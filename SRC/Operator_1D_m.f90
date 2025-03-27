@@ -365,7 +365,7 @@ MODULE Operator_1D_m
   END SUBROUTINE MolecCav_Action_Band_Operator_1D
   
 
-  SUBROUTINE MolecCav_Average_value_operator_1D(Value, Operator, Psi)   ! /!\ FOR NOW EVERYTHING IS REAL /!\ compute the resulting vector Psi_result(:) from the action of the operator of the cavity mode on the photon state vector Psi_argument(:) written in the Eigenbasis of H_ho
+  SUBROUTINE MolecCav_Average_value_operator_1D(Value, Operator, Psi)   ! /!\ FOR NOW EVERYTHING IS REAL /!\
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     USE QDUtil_m
     IMPLICIT NONE

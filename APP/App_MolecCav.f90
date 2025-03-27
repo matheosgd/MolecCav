@@ -32,6 +32,7 @@
 PROGRAM App_MolecCav
   USE QDUtil_m
   USE Algebra_m
+  USE ND_indexes_m
   USE Mapping_m
   USE Cavity_mode_m
   USE Operator_1D_m
@@ -92,9 +93,14 @@ PROGRAM App_MolecCav
   real(kind=Rkind), allocatable :: TotH_bis(:,:)
   real(kind=Rkind), allocatable :: REigval_bis(:)
   real(kind=Rkind), allocatable :: REigvec_bis(:,:)
+  real(kind=Rkind)              :: A(4,4)
+  real(kind=Rkind)              :: B(16)
 
   !-----------------------------------------------------------Utilities----------------------------------------------------------
-  integer                       :: i, Nb_M, Nb_C, NB, N
+  integer                       :: i, Nb_M, Nb_C, NB, N, j, k
+  TYPE(ND_indexes_t)            :: ND_indexes
+  integer                       :: Ranks_sizes(2), List_indexes(2)
+  logical                       :: Continue_loop = .TRUE.
 
 
   !-----------------------------------------------------SYSTEM INITIALIZATION----------------------------------------------------
@@ -164,7 +170,7 @@ PROGRAM App_MolecCav
   END IF 
 
   ALLOCATE(Psi_1p1D_R1(Molecule_1%Nb * Cavity_mode_1%Nb))
-  CALL Mapping_WF_2DTO1D(Psi_1p1D_R1, Psi_1p1D_R2)
+  CALL Mapping_WF_R2TOR1(Psi_1p1D_R1, Psi_1p1D_R2)
 
   IF (Debug .AND. NB <= 10) THEN
     WRITE(out_unit,*); WRITE(out_unit,*) "Not normalized Psi_1p1D_R1"
@@ -448,6 +454,31 @@ PROGRAM App_MolecCav
 !  CALL Write_Mat(Result_psi_1p1D_R2, out_unit, 10, info="Res_R2")
 !  CALL Write_Vec(Result_psi_1p1D_R1, out_unit, 1,  info="Res_R1")
   DEALLOCATE(Result_psi_1p1D_R2); DEALLOCATE(Result_psi_1p1D_R1)
+  !-------------------------------------------------An experiment on the matrices------------------------------------------------
+  WRITE(out_unit,*); WRITE(out_unit,*) "-------------------------------------------------An experiment on the matrices-----------&
+                                       &-------------------------------------"
+  i = 0
+  DO j = 1, 4
+    DO k = 1, 4
+      i = i + 1
+      A(k,j) = i
+    END DO 
+  END DO
+  CALL Write_Mat(A, out_unit, 4, info="A")
+  CALL Mapping_WF_R2TOR1(B, A)
+  CALL Write_Vec(B, out_unit, 1, info="B")
 
+  Ranks_sizes = [4,4]
+  CALL Initialize_ND_indexes(ND_indexes, Ranks_sizes)
+  List_indexes = Initialize_List_indexes(ND_indexes)
+  !CALL Write_ND_indexes(ND_indexes)
+  !CALL Write_Vec(List_indexes, out_unit, 4, info="List_indexes")
+
+  CALL Increment_indexes(Continue_loop, List_indexes, ND_indexes, Debug=Debug)
+  CALL Increment_indexes(Continue_loop, List_indexes, ND_indexes, Debug=Debug)
+  CALL Increment_indexes(Continue_loop, List_indexes, ND_indexes, Debug=Debug)
+  CALL Increment_indexes(Continue_loop, List_indexes, ND_indexes, Debug=Debug)
+  CALL Increment_indexes(Continue_loop, List_indexes, ND_indexes, Debug=Debug)
+  CALL Increment_indexes(Continue_loop, List_indexes, ND_indexes, Debug=Debug)
 
 END PROGRAM

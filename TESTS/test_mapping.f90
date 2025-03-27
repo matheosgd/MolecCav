@@ -181,63 +181,63 @@ PROGRAM test_mapping
   WRITE(out_unit,*)
   WRITE(out_unit,*) "------------------------------------------------b_00------------------------------------------------"
   ALLOCATE(b_00_1D(NB))
-  CALL Mapping_WF_2DTO1D(b_00_1D, b_00_2D, Debug=Debug)
+  CALL Mapping_WF_R2TOR1(b_00_1D, b_00_2D, Debug=Debug)
   ALLOCATE(b_00_2D_bis(Nb_1, Nb_2))
-  CALL Mapping_WF_1DTO2D(b_00_2D_bis, b_00_1D, Debug=Debug)
+  CALL Mapping_WF_R1TOR2(b_00_2D_bis, b_00_1D, Debug=Debug)
   CALL Equal_R_R_matrix(error_mapp, b_00_2D_bis, b_00_2D)
   CALL Logical_Test(test_mapp, error_mapp, test2=.FALSE., info="b_00_2D recovered ?")
 
   WRITE(out_unit,*)
   WRITE(out_unit,*) "------------------------------------------------b_01------------------------------------------------"
   ALLOCATE(b_01_1D(NB))
-  CALL Mapping_WF_2DTO1D(b_01_1D, b_01_2D, Debug=Debug)
+  CALL Mapping_WF_R2TOR1(b_01_1D, b_01_2D, Debug=Debug)
   ALLOCATE(b_01_2D_bis(Nb_1, Nb_2))
-  CALL Mapping_WF_1DTO2D(b_01_2D_bis, b_01_1D, Debug=Debug)
+  CALL Mapping_WF_R1TOR2(b_01_2D_bis, b_01_1D, Debug=Debug)
   CALL Equal_R_R_matrix(error_mapp, b_01_2D_bis, b_01_2D)
   CALL Logical_Test(test_mapp, error_mapp, test2=.FALSE., info="b_01_2D recovered ?")
 
   WRITE(out_unit,*)
   WRITE(out_unit,*) "------------------------------------------------b_10------------------------------------------------"
   ALLOCATE(b_10_1D(NB))
-  CALL Mapping_WF_2DTO1D(b_10_1D, b_10_2D, Debug=Debug)
+  CALL Mapping_WF_R2TOR1(b_10_1D, b_10_2D, Debug=Debug)
   ALLOCATE(b_10_2D_bis(Nb_1, Nb_2))
-  CALL Mapping_WF_1DTO2D(b_10_2D_bis, b_10_1D, Debug=Debug)
+  CALL Mapping_WF_R1TOR2(b_10_2D_bis, b_10_1D, Debug=Debug)
   CALL Equal_R_R_matrix(error_mapp, b_10_2D_bis, b_10_2D)
   CALL Logical_Test(test_mapp, error_mapp, test2=.FALSE., info="b_10_2D recovered ?")
 
   WRITE(out_unit,*)
   WRITE(out_unit,*) "------------------------------------------------b_11------------------------------------------------"
   ALLOCATE(b_11_1D(NB))
-  CALL Mapping_WF_2DTO1D(b_11_1D, b_11_2D, Debug=Debug)
+  CALL Mapping_WF_R2TOR1(b_11_1D, b_11_2D, Debug=Debug)
   ALLOCATE(b_11_2D_bis(Nb_1, Nb_2))
-  CALL Mapping_WF_1DTO2D(b_11_2D_bis, b_11_1D, Debug=Debug)
+  CALL Mapping_WF_R1TOR2(b_11_2D_bis, b_11_1D, Debug=Debug)
   CALL Equal_R_R_matrix(error_mapp, b_11_2D_bis, b_11_2D)
   CALL Logical_Test(test_mapp, error_mapp, test2=.FALSE., info="b_11_2D recovered ?")
 
   WRITE(out_unit,*)
   WRITE(out_unit,*) "------------------------------------------------b_20------------------------------------------------"
   ALLOCATE(b_20_1D(NB))
-  CALL Mapping_WF_2DTO1D(b_20_1D, b_20_2D, Debug=Debug)
+  CALL Mapping_WF_R2TOR1(b_20_1D, b_20_2D, Debug=Debug)
   ALLOCATE(b_20_2D_bis(Nb_1, Nb_2))
-  CALL Mapping_WF_1DTO2D(b_20_2D_bis, b_20_1D, Debug=Debug)
+  CALL Mapping_WF_R1TOR2(b_20_2D_bis, b_20_1D, Debug=Debug)
   CALL Equal_R_R_matrix(error_mapp, b_20_2D_bis, b_20_2D)
   CALL Logical_Test(test_mapp, error_mapp, test2=.FALSE., info="b_20_2D recovered ?")
 
   WRITE(out_unit,*)
   WRITE(out_unit,*) "------------------------------------------------b_21------------------------------------------------"
   ALLOCATE(b_21_1D(NB))
-  CALL Mapping_WF_2DTO1D(b_21_1D, b_21_2D, Debug=Debug)
+  CALL Mapping_WF_R2TOR1(b_21_1D, b_21_2D, Debug=Debug)
   ALLOCATE(b_21_2D_bis(Nb_1, Nb_2))
-  CALL Mapping_WF_1DTO2D(b_21_2D_bis, b_21_1D, Debug=Debug)
+  CALL Mapping_WF_R1TOR2(b_21_2D_bis, b_21_1D, Debug=Debug)
   CALL Equal_R_R_matrix(error_mapp, b_21_2D_bis, b_21_2D)
   CALL Logical_Test(test_mapp, error_mapp, test2=.FALSE., info="b_21_2D recovered ?")
 
   WRITE(out_unit,*)
   WRITE(out_unit,*) "-------------------------------------------------Psi------------------------------------------------"
   ALLOCATE(Psi_1D(NB))
-  CALL Mapping_WF_2DTO1D(Psi_1D, Psi_2D, Debug=Debug)
+  CALL Mapping_WF_R2TOR1(Psi_1D, Psi_2D, Debug=Debug)
   ALLOCATE(Psi_2D_bis(Nb_1, Nb_2 ))
-  CALL Mapping_WF_1DTO2D(Psi_2D_bis, Psi_1D, Debug=Debug)
+  CALL Mapping_WF_R1TOR2(Psi_2D_bis, Psi_1D, Debug=Debug)
   CALL Equal_R_R_matrix(error_mapp, Psi_2D_bis, Psi_2D)
   CALL Logical_Test(test_mapp, error_mapp, test2=.FALSE., info="Psi_2D recovered ?")
 
