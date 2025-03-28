@@ -434,9 +434,11 @@ PROGRAM App_MolecCav
   ALLOCATE(Mol1Weights(Nb_M))
   ALLOCATE(Cav1Weights(Nb_C))
 
+  WRITE(out_unit,*) "Psi_1p1D_R2 analysis"
   CALL Reduced_density_psi(Mol1Weights, Cav1Weights, Psi_1p1D_R2, Debug=.TRUE.)
   WRITE(out_unit,*); CALL Write_Vec(Mol1Weights, out_unit, 1, info="Mol1Weights")
   WRITE(out_unit,*); CALL Write_Vec(Cav1Weights, out_unit, 1, info="Cav1Weights")
+  WRITE(out_unit,*); WRITE(out_unit,*) "Psi_1p1D_R1 analysis"
   CALL Reduced_density_psi(Mol1Weights, Cav1Weights, Psi_1p1D_R1, Debug=.TRUE.)
   WRITE(out_unit,*); CALL Write_Vec(Mol1Weights, out_unit, 1, info="Mol1Weights")
   WRITE(out_unit,*); CALL Write_Vec(Cav1Weights, out_unit, 1, info="Cav1Weights")
