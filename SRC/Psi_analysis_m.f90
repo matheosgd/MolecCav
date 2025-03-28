@@ -96,46 +96,6 @@ MODULE Psi_analysis_m
   END SUBROUTINE MolecCav_Reduced_density_psi_1p1D_R2_real
 
 
-  SUBROUTINE MolecCav_Reduced_density_psi_1p1D_R1_real_old(weight_dim_1, weight_dim_2, Psi_R1, Debug)
-    USE QDUtil_m
-    USE Mapping_m
-    IMPLICIT NONE
-
-    real(kind=Rkind),  intent(inout) :: weight_dim_1(:)                                                                          ! already allocated !
-    real(kind=Rkind),  intent(inout) :: weight_dim_2(:)                                                                          ! already allocated !
-    real(kind=Rkind),  intent(in)    :: Psi_R1(:)                                                                                ! already allocated !
-    logical, optional, intent(in)    :: Debug
-
-    logical                          :: Debug_local = .FALSE.
-    integer                          :: i
-    real(kind=Rkind), allocatable    :: Psi_R2(:,:)
-
-    IF (PRESENT(Debug)) Debug_local = Debug
-  
-    IF (Debug_local) THEN
-      WRITE(out_unit,*)
-      WRITE(out_unit,*) "------------------------------------Computing the wavefunction Psi_R1's reduced density weights---------&
-                        &--------------------------"
-!        WRITE(out_unit,*) "The squared Psi_R1 matrix to be summed :"
-!        CALL Write_Vec(Psi_R1**2, out_unit, Size(Psi_R1), info="Psi_R1**2")
-      WRITE(out_unit,*)
-    END IF
-  
-    ALLOCATE(Psi_R2(Size(weight_dim_1, dim=1), Size(weight_dim_2, dim=1)))
-    CALL Mapping_WF_R1TOR2(Psi_R2, Psi_R1, Debug=.FALSE.)
-
-    CALL Reduced_density_psi(weight_dim_1, weight_dim_2, Psi_R2, Debug=Debug_local)
-
-    IF (Debug_local) THEN
-!        WRITE(out_unit,*)
-!        CALL Write_Vec(weight_dim_1, out_unit, Size(weight_dim_1, dim=1), info="weight_dim_1")
-!        CALL Write_Vec(weight_dim_2, out_unit, Size(weight_dim_2, dim=1), info="weight_dim_2")
-      WRITE(out_unit,*) "----------------------------------End computing the wavefunction Psi_R1's reduced density weights-------&
-                        &--------------------------"
-    END IF
-  
-  END SUBROUTINE MolecCav_Reduced_density_psi_1p1D_R1_real_old
-  
   SUBROUTINE MolecCav_Reduced_density_psi_1p1D_R1_real(weight_dim_1, weight_dim_2, Psi_R1, Debug)
     USE QDUtil_m
     USE ND_indexes_m
