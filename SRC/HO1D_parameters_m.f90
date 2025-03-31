@@ -26,7 +26,9 @@
 ! SOFTWARE.
 !==================================================================================================
 ! README :
-! The module to initialize the HO by reading its parameters from the namelist.    
+! The module to initialize the HO by reading its parameters from the namelist.  
+! Read_HO1D_parameters  : reads the namelist and initialize the type.
+! Write_HO1D_parameters : displays values of the type in the output.
 !==================================================================================================
 !==================================================================================================
 MODULE HO1D_parameters_m
@@ -54,28 +56,31 @@ MODULE HO1D_parameters_m
   CONTAINS
 
 
-  SUBROUTINE MolecCav_Read_HO1D_parameters(HO1D_para, nio, Verbose, Debug)                                                                       ! nio is the label of the file from which the values have to be drawn.
-    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
+  SUBROUTINE MolecCav_Read_HO1D_parameters(HO1D_para, nio, Verbose, Debug)                                                       ! nio is the label of the file from which the values have to be drawn.
+    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
+    USE QDUtil_m
     IMPLICIT NONE
     
     TYPE(HO1D_parameters_t), intent(inout) :: HO1D_para   
     integer,                 intent(in)    :: nio
-    integer,                 intent(in)    :: Verbose
-    logical,                 intent(in)    :: Debug
+    integer, optional,       intent(in)    :: Verbose
+    logical, optional,       intent(in)    :: Debug
 
-    integer                                :: Nb, err_io                                                                             ! the number of basis vectors of the HO, and an error control variable
-    real(kind=Rkind)                       :: w, m, eq_pos                                                                           ! eigenpulsation, mass, molecule-coupling strength, and equilibrium position associated with this HO
-    integer                                :: Verbose_local = 0                                                                      ! controls the level of information printing (result and calculations, not intermediary results which are related to Debug). From 20 to 24 at this layer
-    logical                                :: Debug_local   = .FALSE.                                                                ! controls the printing of intermediary results for checking and debugging
+    integer                                :: Nb, err_io                                                                         ! the number of basis vectors of the HO, and an error control variable
+    real(kind=Rkind)                       :: w, m, eq_pos                                                                       ! eigenpulsation, mass, molecule-coupling strength, and equilibrium position associated with this HO
+    integer                                :: Verbose_local = 20                                                                 ! controls the level of information printing (result and calculations, not intermediary results which are related to Debug). From 20 to 24 at this layer
+    logical                                :: Debug_local   = .FALSE.                                                            ! controls the printing of intermediary results for checking and debugging
 
+    NAMELIST /HO_1/ Nb, w, m, eq_pos                                                                                             ! declare the nml HO_1 and specify the parameter's list to be found within
+                                                                                                                                 !/!\ NAMELIST is a declaration statement. It cannot be placed between executable statements. It can only be used at the beginning of each unit before the first executable statement
+
+    !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) Verbose_local = Verbose
     IF (PRESENT(Debug))   Debug_local   = Debug
 
     IF (Verbose_local > 20) WRITE(out_unit,*) 
     IF (Verbose_local > 20) WRITE(out_unit,*) "-------------------------------------------------INITIALIZING THE HO1D PARAMETERS-&
                                               &------------------------------------------------"; FLUSH(out_unit)
-
-    NAMELIST /HO_1/ Nb, w, m, eq_pos                                                                                             ! declare the nml HO_1 and specify the parameter's list to be found within
 
     !----------------------------------------------Initialization to default values----------------------------------------------
     Nb     = 1
@@ -119,32 +124,36 @@ MODULE HO1D_parameters_m
     HO1D_para%m      = m
     HO1D_para%eq_pos = eq_pos
 
+    IF (Verbose_local > 21) THEN
+      IF (Verbose_local < 23) WRITE(out_unit,*)
+      WRITE(out_unit,*) "--- HO1D parameters constructed by MolecCav_Read_HO1D_parameters :"
+      CALL Write_HO1D_parameters(HO1D_para)
+      WRITE(out_unit,*) "--- End HO1D parameters constructed by MolecCav_Read_HO1D_parameters"
+    END IF
+
     IF (Verbose_local > 20) WRITE(out_unit,*) 
     IF (Verbose_local > 20) WRITE(out_unit,*) "-------------------------------------------------HO1D PARAMETERS INITIALIZED------&
                                               &-------------------------------------------"; FLUSH(out_unit)
-
-    IF (Verbose_local > 21) THEN
-      IF (Verbose_local < 23) WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- Cavity mode constructed by MolecCav_Read_HO1D_parameters :"
-      CALL Write_cavity_mode(HO1D_para)
-      WRITE(out_unit,*) "--- End Cavity mode constructed by MolecCav_Read_HO1D_parameters"
-    END IF
 
   END SUBROUTINE MolecCav_Read_HO1D_parameters
 
   
   SUBROUTINE MolecCav_Write_HO1D_parameters(HO1D_para)
+    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
+    USE QDUtil_m
+    IMPLICIT NONE 
+    
     TYPE(HO1D_parameters_t), intent(in) :: HO1D_para
 
     WRITE(out_unit,*) "_____________________________________The parameters of the 1D HO____________________________________"
-    WRITE(out_unit,*) "|Basis set size of the HO (HO1D_para%Nb)                                     | ", HO1D_para%Nb
+    WRITE(out_unit,*) "|Basis set size of the HO (HO1D_para%Nb)                                     | "//TO_string(HO1D_para%Nb)
     WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
-    WRITE(out_unit,*) "|Eigenpulsation of the HO (HO1D_para%w)                                      | ", HO1D_para%w
+    WRITE(out_unit,*) "|Eigenpulsation of the HO (HO1D_para%w)                                      | "//TO_string(HO1D_para%w)
     WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
-    WRITE(out_unit,*) "|Mass associated with the HO (HO1D_para%m)                                   | ", HO1D_para%m
+    WRITE(out_unit,*) "|Mass associated with the HO (HO1D_para%m)                                   | "//TO_string(HO1D_para%m)
     WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
-    WRITE(out_unit,*) "|Equilibrium position of the HO (HO1D_para%eq_pos)                           | ", HO1D_para%eq_pos
-    WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
+    WRITE(out_unit,*) "|Equilibrium position of the HO (HO1D_para%eq_pos)                           | "//TO_string(HO1D_para%eq_pos)
+    WRITE(out_unit,*) "|________________________________________End HO1D parameters_________________|______________________"
     FLUSH(out_unit)
 
   END SUBROUTINE MolecCav_Write_HO1D_parameters

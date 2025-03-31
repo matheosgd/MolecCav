@@ -177,36 +177,6 @@ MODULE ND_indexes_m
   END SUBROUTINE MolecCav_Increment_indexes
 
 
-  SUBROUTINE MolecCav_Deallocate_ND_indexes(ND_indexes)
-    USE QDUtil_m
-    IMPLICIT NONE 
-
-    TYPE(ND_indexes_t) :: ND_indexes
-
-    logical, parameter :: Debug_local = .FALSE.
-
-    IF (Debug_local) THEN
-      WRITE(out_unit,*)
-      WRITE(out_unit,*) "-------------------------------------------Deallocating the following ND_indexes object-----------------&
-                        &--------------------------"
-      CALL Write_ND_indexes(ND_indexes)
-    END IF
-
-    IF (ALLOCATED(ND_indexes%Ranks_sizes))      DEALLOCATE(ND_indexes%Ranks_sizes)
-    IF (ALLOCATED(ND_indexes%Starting_indexes)) DEALLOCATE(ND_indexes%Starting_indexes)
-
-    IF (Debug_local) THEN
-      WRITE(out_unit,*)
-      WRITE(out_unit,*) "-------------------------------------------------The deallocated ND_indexes object----------------------&
-                        &--------------------------"
-      CALL Write_ND_indexes(ND_indexes)
-      WRITE(out_unit,*) "------------------------------------------End Deallocating the previous ND_indexes object---------------&
-                        &--------------------------"
-    END IF
-
-  END SUBROUTINE MolecCav_Deallocate_ND_indexes
-
-
   SUBROUTINE MolecCav_Write_ND_indexes(ND_indexes)
     USE QDUtil_m
     IMPLICIT NONE
@@ -249,6 +219,36 @@ MODULE ND_indexes_m
     FLUSH(out_unit)
   
   END SUBROUTINE MolecCav_Write_ND_indexes
+
+
+  SUBROUTINE MolecCav_Deallocate_ND_indexes(ND_indexes)
+    USE QDUtil_m
+    IMPLICIT NONE 
+
+    TYPE(ND_indexes_t), intent(inout) :: ND_indexes
+
+    logical, parameter                :: Debug_local = .FALSE.
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "-------------------------------------------Deallocating the following ND_indexes object-----------------&
+                        &--------------------------"
+      CALL Write_ND_indexes(ND_indexes)
+    END IF
+
+    IF (ALLOCATED(ND_indexes%Ranks_sizes))      DEALLOCATE(ND_indexes%Ranks_sizes)
+    IF (ALLOCATED(ND_indexes%Starting_indexes)) DEALLOCATE(ND_indexes%Starting_indexes)
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "-------------------------------------------------The deallocated ND_indexes object----------------------&
+                        &--------------------------"
+      CALL Write_ND_indexes(ND_indexes)
+      WRITE(out_unit,*) "------------------------------------------End Deallocating the previous ND_indexes object---------------&
+                        &--------------------------"
+    END IF
+
+  END SUBROUTINE MolecCav_Deallocate_ND_indexes
 
 
 END MODULE

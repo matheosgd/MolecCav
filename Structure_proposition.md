@@ -200,16 +200,16 @@ MODULE HO1D_operator_m
     constructs the operator as before but using parameters of the HO1D_para object from the above derived type instead of the old Cavity_mode_t.  
   END SUB
 
-  SUBROUTINE Initialize_H_HO1D(Hamiltonian=Operator)  
-    constructs the H operator as before but using parameters of the HO1D object from the above derived type instead of the old Cavity_mode_t.  
+  SUBROUTINE Initialize_H_HO1D(Hamiltonian=Operator, HO1D_para)  
+    constructs the H operator as before but using parameters of the HO1D_para object from the above derived type instead of the old Cavity_mode_t.  
   END SUB
 
-  SUBROUTINE Initialize_x_HO1D(PosOp=Operator)  
-    constructs the x operator as before but using parameters of the HO1D object from the above derived type instead of the old Cavity_mode_t.  
+  SUBROUTINE Initialize_x_HO1D(PosOp=Operator, HO1D_para)  
+    constructs the x operator as before but using parameters of the HO1D_para object from the above derived type instead of the old Cavity_mode_t.  
   END SUB
 
-  SUBROUTINE Initialize_N_HO1D(NbQuanta=Operator)  
-    constructs the N operator as before but using parameters of the HO1D object from the above derived type instead of the old Cavity_mode_t.  
+  SUBROUTINE Initialize_N_HO1D(NbQuanta=Operator, HO1D_para)  
+    constructs the N operator as before but using parameters of the HO1D_para object from the above derived type instead of the old Cavity_mode_t.  
   END SUB  
 
   SUBROUTINE Write_HO1D_operator(Operator)  

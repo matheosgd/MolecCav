@@ -6,6 +6,6 @@ OUT/*
 *.log
 ARCH/*
 test_action_op.f90
-comp.log
+comp.sh
 RESULTS/*.png
 RESULTS/*.txt
