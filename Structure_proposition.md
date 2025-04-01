@@ -197,7 +197,7 @@ MODULE HO1D_operator_m
     CALL Initialize_H_HO1D(Hamiltonian, HO1D_para) or  
     CALL Initialize_x_HO1D(PosOp, HO1D_para) or  
     CALL Initialize_N_HO1D(NbQuanta, HO1D_para)  
-    constructs the operator as before but using parameters of the HO1D_para object from the above derived type instead of the old Cavity_mode_t.  
+    constructs the operator as before but using parameters of the HO1D_para object from the above derived type instead of the old Cavity_mode_t. Calls the next three procedures. 
   END SUB
 
   SUBROUTINE Initialize_H_HO1D(Hamiltonian=Operator, HO1D_para)  
