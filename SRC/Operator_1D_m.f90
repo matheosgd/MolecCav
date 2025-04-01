@@ -368,6 +368,7 @@ MODULE Operator_1D_m
   SUBROUTINE MolecCav_Average_value_operator_1D(Value, Operator, Psi)   ! /!\ FOR NOW EVERYTHING IS REAL /!\
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     USE QDUtil_m
+    USE Algebra_m
     IMPLICIT NONE
 
     real(kind=Rkind),    intent(inout) :: Value
@@ -381,7 +382,7 @@ MODULE Operator_1D_m
     ALLOCATE(Intermediary(Nb))
 
     CALL MolecCav_Action_Operator_1D(Intermediary, Operator, Psi)
-    Value = DOT_PRODUCT(Psi, Intermediary) 
+    CALL Scalar_product(Value, Psi, Intermediary)
 
     DEALLOCATE(Intermediary)
     

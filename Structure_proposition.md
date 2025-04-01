@@ -130,7 +130,7 @@ MODULE Quantum_HO1D_m
     add an HO operator to a already initialized object of Quantum_HO1D_t type
     CALL Initialize_HO1D_operator(HO1D%<the chosen operator>, Operator_type="Hamiltonian" for instance, HO1D=HO1D%HO1D_parameters_t)  
     HO1D%<the chosen operator> = Operator
-  END DUB
+  END SUB
 
   SUBROUTINE Write_quantum_HO1D(HO1D)  
     display values of the type in the output  
@@ -460,5 +460,5 @@ App_MolecCav (Layer 0)
 │                                                             ├─ Action_cavity_oprators_m
 │                                                             └─ ND_indexes_m
 │
-└─ Layer 1 ─────────────└ Layer 2 ─────────────────────────────└ Layer 3 ────────────────└ Layer 4 ────────└ Layer 4 ──────────────────└ Layer 5
+└─ Layer 1 ─────────────└ Layer 2 ─────────────────────────────└ Layer 3 ────────────────└ Layer 4 ────────└ Layer 5 ──────────────────└ Layer 6
 ```  

@@ -5,7 +5,7 @@
 !==================================================================================================
 ! MIT License
 !
-! Copyright (c) 2025 Mathéo Segaud
+! Copyright (c) 2525 Mathéo Segaud
 !
 ! Permission is hereby granted, free of charge, to any person obtaining a copy
 ! of this software and associated documentation files (the "Software"), to deal
@@ -58,7 +58,7 @@ MODULE HO1D_operator_m
   
   PRIVATE
 
-  PUBLIC Initialize_HO1D_operator, Write_HO1D_operator, Deallocate_HO1D_operator
+  PUBLIC HO1D_operator_t, Initialize_HO1D_operator, Write_HO1D_operator, Deallocate_HO1D_operator
  
   INTERFACE Initialize_HO1D_operator
     MODULE PROCEDURE MolecCav_Initialize_HO1D_operator
@@ -96,15 +96,15 @@ MODULE HO1D_operator_m
     integer, optional,       intent(in)    :: Verbose                                                                            ! cf. comments in HO1D_parameters_m
     logical, optional,       intent(in)    :: Debug                                                                              ! cf. comments in HO1D_parameters_m
 
-    integer                                :: Verbose_local = 20                                                                 ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
+    integer                                :: Verbose_local = 25                                                                 ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
     logical                                :: Debug_local   = .FALSE.
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) Verbose_local = Verbose
     IF (PRESENT(Debug))   Debug_local   = Debug
 
-    IF (Verbose_local > 20) WRITE(out_unit,*) 
-    IF (Verbose_local > 20) WRITE(out_unit,*) "--------------------------------------------------INITIALIZING THE HO1D OPERATOR--&
+    IF (Verbose_local > 25) WRITE(out_unit,*) 
+    IF (Verbose_local > 25) WRITE(out_unit,*) "--------------------------------------------------INITIALIZING THE HO1D OPERATOR--&
                                               &------------------------------------------------"; FLUSH(out_unit)
 
     IF (Debug_local) THEN
@@ -148,15 +148,15 @@ MODULE HO1D_operator_m
         STOP "### No Operator type recognized, please verify the input of Initialize_HO1D_operator subroutine"
     END SELECT
 
-    IF (Verbose_local > 21) THEN
-      IF (Verbose_local < 23) WRITE(out_unit,*)
+    IF (Verbose_local > 26) THEN
+      IF (Verbose_local < 28) WRITE(out_unit,*)
       WRITE(out_unit,*) "--- HO1D operator constructed by MolecCav_Initialize_HO1D_operator :"
       CALL Write_HO1D_operator(Operator)
       WRITE(out_unit,*) "--- End HO1D operator constructed by MolecCav_Initialize_HO1D_operator"
     END IF
 
-    IF (Verbose_local > 20) WRITE(out_unit,*) 
-    IF (Verbose_local > 20) WRITE(out_unit,*) "-----------------------------------------------------HO1D OPERATOR INITIALIZED----&
+    IF (Verbose_local > 25) WRITE(out_unit,*) 
+    IF (Verbose_local > 25) WRITE(out_unit,*) "-----------------------------------------------------HO1D OPERATOR INITIALIZED----&
                                               &------------------------------------------------"; FLUSH(out_unit)
 
   END SUBROUTINE MolecCav_Initialize_HO1D_operator
@@ -174,20 +174,20 @@ MODULE HO1D_operator_m
     logical, optional,       intent(in)    :: Debug                                                                              ! cf. comments in HO1D_parameters_m
 
     integer                                :: i                                                                                  ! loop increments /!\ Fortran counts from 1 to Nb !!! /!\
-    integer                                :: Verbose_local = 20                                                                 ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
+    integer                                :: Verbose_local = 25                                                                 ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
     logical                                :: Debug_local   = .FALSE.
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) Verbose_local = Verbose
     IF (PRESENT(Debug))   Debug_local   = Debug
 
-    IF (Verbose_local > 22) WRITE(out_unit,*) 
-    IF (Verbose_local > 22) WRITE(out_unit,*) "----------------------------------Constructing the matrix representation of the 1D&
+    IF (Verbose_local > 27) WRITE(out_unit,*) 
+    IF (Verbose_local > 27) WRITE(out_unit,*) "----------------------------------Constructing the matrix representation of the 1D&
                                               & HO Hamiltonian---------------------------------"
  
     !---------------------------------------------Construction of the matrix Operator--------------------------------------------
     IF (.NOT. Hamiltonian%Dense) THEN
-      IF (Verbose_local > 23) WRITE(out_unit,*) "--- The Dense parameter of the Hamiltonian is .FALSE., so the 1D HO Hamiltonian'&
+      IF (Verbose_local > 28) WRITE(out_unit,*) "--- The Dense parameter of the Hamiltonian is .FALSE., so the 1D HO Hamiltonian'&
                                                &s matrix representation will be a rank-1 tensor of the diagonal elementsof its an&
                                                &alytical matrix (in Eigenbasis)"
       !---------------------------------------------Initialization to default values---------------------------------------------
@@ -202,7 +202,7 @@ MODULE HO1D_operator_m
       IF (Debug_local) CALL Write_Vec(Hamiltonian%Diag_val_R, out_unit, 1, info="HO1DHamiltonian")
 
     ELSE
-      IF (Verbose_local > 23) WRITE(out_unit,*) "--- The Dense parameter of the Hamiltonian is .TRUE., so the full 1D HO Hamilton&
+      IF (Verbose_local > 28) WRITE(out_unit,*) "--- The Dense parameter of the Hamiltonian is .TRUE., so the full 1D HO Hamilton&
                                                 &ian's matrix will be constructed (in Eigenbasis) for the representation, as if t&
                                                 &he analytical matrix was a dense one"
       !---------------------------------------------Initialization to default values---------------------------------------------
@@ -233,20 +233,20 @@ MODULE HO1D_operator_m
     logical, optional,       intent(in)    :: Debug                                                                              ! cf. comments in HO1D_parameters_m
 
     integer                                :: i                                                                                  ! loop increments /!\ Fortran counts from 1 to Nb !!! /!\
-    integer                                :: Verbose_local = 20                                                                 ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
+    integer                                :: Verbose_local = 25                                                                 ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
     logical                                :: Debug_local   = .FALSE.
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) Verbose_local = Verbose
     IF (PRESENT(Debug))   Debug_local   = Debug
 
-    IF (Verbose_local > 22) WRITE(out_unit,*) 
-    IF (Verbose_local > 22) WRITE(out_unit,*) "-------------------------------Constructing the matrix representation of the 1D HO&
+    IF (Verbose_local > 27) WRITE(out_unit,*) 
+    IF (Verbose_local > 27) WRITE(out_unit,*) "-------------------------------Constructing the matrix representation of the 1D HO&
                                              & Position operator------------------------------"
 
     !---------------------------------------------Construction of the matrix Operator--------------------------------------------
     IF ((.NOT. PositionOp%Dense) .AND. HO1D_para%Nb > 1) THEN
-      IF (Verbose_local > 23) WRITE(out_unit,*) "--- The Dense parameter of the Position operator is .FALSE., so the 1D HO Positi&
+      IF (Verbose_local > 28) WRITE(out_unit,*) "--- The Dense parameter of the Position operator is .FALSE., so the 1D HO Positi&
                                                 &on operator's matrix representation will be a rank-2 tensor of the tridiagonal e&
                                                 &lements of its analytical matrix (in Eigenbasis)"
       !-----------------------------------Initialization of the characteristics of the operator----------------------------------
@@ -268,7 +268,7 @@ MODULE HO1D_operator_m
       IF (Debug_local) CALL Write_Mat(PositionOp%Band_val_R, out_unit, 3, info="HO1DPositionOp")
 
     ELSE IF (.NOT. PositionOp%Dense) THEN
-      IF (Verbose_local > 23) WRITE(out_unit,*) "--- The Dense parameter of the Position operator is .FALSE. BUT the basis set si&
+      IF (Verbose_local > 28) WRITE(out_unit,*) "--- The Dense parameter of the Position operator is .FALSE. BUT the basis set si&
                                                 &ze is only 1, so the 1D HO Position operator's matrix representation will use th&
                                                 &e Diag_val_R rank-1 tensor to store the only element of the analytical matrix (i&
                                                 &n Eigenbasis)"
@@ -284,7 +284,7 @@ MODULE HO1D_operator_m
       IF (Debug_local) CALL Write_Vec(PositionOp%Diag_val_R, out_unit, 1, info="HO1DPositionOp")
 
     ELSE 
-      IF (Verbose_local > 23) WRITE(out_unit,*) "--- The Dense parameter of the Position operator is .TRUE., so the full 1D HO Po&
+      IF (Verbose_local > 28) WRITE(out_unit,*) "--- The Dense parameter of the Position operator is .TRUE., so the full 1D HO Po&
                                                 &sition operator's matrix will be constructed (in Eigenbasis) for the representat&
                                                 &ion, as if the analytical matrix was a dense one"
       !---------------------------------------------Initialization to default values---------------------------------------------
@@ -317,20 +317,20 @@ MODULE HO1D_operator_m
     logical, optional,       intent(in)    :: Debug                                                                              ! cf. comments in HO1D_parameters_m
 
     integer                                :: i                                                                                  ! loop increments /!\ Fortran counts from 1 to Nb !!! /!\
-    integer                                :: Verbose_local = 20                                                                 ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
+    integer                                :: Verbose_local = 25                                                                 ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
     logical                                :: Debug_local   = .FALSE.
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) Verbose_local = Verbose
     IF (PRESENT(Debug))   Debug_local   = Debug
 
-    IF (Verbose_local > 22) WRITE(out_unit,*) 
-    IF (Verbose_local > 22) WRITE(out_unit,*) "---------------------Constructing the matrix representation of the 1D HO Number of&
+    IF (Verbose_local > 27) WRITE(out_unit,*) 
+    IF (Verbose_local > 27) WRITE(out_unit,*) "---------------------Constructing the matrix representation of the 1D HO Number of&
                                              & excitation Quanta operator---------------------"
   
     !---------------------------------------------Construction of the matrix Operator--------------------------------------------
     IF (.NOT. NbQuanta%Dense) THEN
-      IF (Verbose_local > 23) WRITE(out_unit,*) "--- The Dense parameter of the NbQuanta operator is .FALSE., so the 1D HO NbQuan&
+      IF (Verbose_local > 28) WRITE(out_unit,*) "--- The Dense parameter of the NbQuanta operator is .FALSE., so the 1D HO NbQuan&
                                                 &ta's matrix representation will be a rank-1 tensor of the diagonal elements of i&
                                                 &ts analytical matrix (in Eigenbasis)"
       !---------------------------------------------Initialization to default values---------------------------------------------
@@ -345,7 +345,7 @@ MODULE HO1D_operator_m
       IF (Debug_local) CALL Write_Vec(NbQuanta%Diag_val_R, out_unit, 1, info="HO1DNbQuanta")
 
     ELSE
-      IF (Verbose_local > 23) WRITE(out_unit,*) "--- The Dense parameter of the NbQuanta is .TRUE., so the full 1D HO NbQuanta's &
+      IF (Verbose_local > 28) WRITE(out_unit,*) "--- The Dense parameter of the NbQuanta is .TRUE., so the full 1D HO NbQuanta's &
                                                 &matrix will be constructed (in Eigenbasis) for the representation, as if the ana&
                                                 &lytical matrix was a dense one"
       !---------------------------------------------Initialization to default values---------------------------------------------
@@ -454,7 +454,7 @@ MODULE HO1D_operator_m
     integer, optional,     intent(in)    :: Verbose                                                                                 ! cf. comments in HO1D_parameters_m
     logical, optional,     intent(in)    :: Debug                                                                                   ! cf. comments in HO1D_parameters_m
 
-    integer                              :: Verbose_local = 20                                                                      ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
+    integer                              :: Verbose_local = 25                                                                      ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
     logical                              :: Debug_local   = .FALSE.
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
@@ -462,8 +462,8 @@ MODULE HO1D_operator_m
     IF (PRESENT(Debug))   Debug_local   = Debug
 
     !-----------------------------Deallocating the HO1D operator object----------------------------
-    IF (Verbose_local > 22) WRITE(out_unit,*)
-    IF (Verbose_local > 22) WRITE(out_unit,*) "-----------------------------------------------Deallocating the HO1D_operator obje&
+    IF (Verbose_local > 27) WRITE(out_unit,*)
+    IF (Verbose_local > 27) WRITE(out_unit,*) "-----------------------------------------------Deallocating the HO1D_operator obje&
                                               &ct----------------------------------------------"
   
     IF (Debug_local) THEN

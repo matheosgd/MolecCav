@@ -5,7 +5,7 @@
 !==================================================================================================
 ! MIT License
 !
-! Copyright (c) 2025 Mathéo Segaud
+! Copyright (c) 2525 Mathéo Segaud
 !
 ! Permission is hereby granted, free of charge, to any person obtaining a copy
 ! of this software and associated documentation files (the "Software"), to deal
@@ -56,19 +56,19 @@ MODULE HO1D_parameters_m
   CONTAINS
 
 
-  SUBROUTINE MolecCav_Read_HO1D_parameters(HO1D_para, nio, Verbose, Debug)                                                       ! nio is the label of the file from which the values have to be drawn.
+  SUBROUTINE MolecCav_Read_HO1D_parameters(HO1D_para, nio, Verbose, Debug)                                                       ! nio is the Fortran unit of the file from which the values have to be drawn.
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m
     IMPLICIT NONE
     
     TYPE(HO1D_parameters_t), intent(inout) :: HO1D_para   
-    integer,                 intent(in)    :: nio
+    integer,                 intent(in)    :: nio                                                                                ! the Fortran unit of the nml data file containing the parameters of the HO (most of the time just use in_unit)
     integer, optional,       intent(in)    :: Verbose
     logical, optional,       intent(in)    :: Debug
 
     integer                                :: Nb, err_io                                                                         ! the number of basis vectors of the HO, and an error control variable
     real(kind=Rkind)                       :: w, m, eq_pos                                                                       ! eigenpulsation, mass, molecule-coupling strength, and equilibrium position associated with this HO
-    integer                                :: Verbose_local = 20                                                                 ! controls the level of information printing (result and calculations, not intermediary results which are related to Debug). From 20 to 24 at this layer
+    integer                                :: Verbose_local = 25                                                                 ! controls the level of information printing (result and calculations, not intermediary results which are related to Debug). From 25 to 29 at this layer
     logical                                :: Debug_local   = .FALSE.                                                            ! controls the printing of intermediary results for checking and debugging
 
     NAMELIST /HO_1/ Nb, w, m, eq_pos                                                                                             ! declare the nml HO_1 and specify the parameter's list to be found within
@@ -78,8 +78,8 @@ MODULE HO1D_parameters_m
     IF (PRESENT(Verbose)) Verbose_local = Verbose
     IF (PRESENT(Debug))   Debug_local   = Debug
 
-    IF (Verbose_local > 20) WRITE(out_unit,*) 
-    IF (Verbose_local > 20) WRITE(out_unit,*) "-------------------------------------------------INITIALIZING THE HO1D PARAMETERS-&
+    IF (Verbose_local > 25) WRITE(out_unit,*) 
+    IF (Verbose_local > 25) WRITE(out_unit,*) "-------------------------------------------------INITIALIZING THE HO1D PARAMETERS-&
                                               &------------------------------------------------"; FLUSH(out_unit)
 
     !----------------------------------------------Initialization to default values----------------------------------------------
@@ -89,8 +89,8 @@ MODULE HO1D_parameters_m
     eq_pos = -ONE
  
     !-----------------------------------------------------Reading of the nml-----------------------------------------------------
-    IF (Verbose_local > 22) WRITE(out_unit,*) 
-    IF (Verbose_local > 22) WRITE(out_unit,*) "--------------------------------------------Reading the namelist of the HO1D param&
+    IF (Verbose_local > 27) WRITE(out_unit,*) 
+    IF (Verbose_local > 27) WRITE(out_unit,*) "--------------------------------------------Reading the namelist of the HO1D param&
                                               &eters-------------------------------------------"
     
     READ(nio, nml = HO_1, iostat = err_io)                                                                                       ! assign the values read in the nml to the declared list of parameters
@@ -116,23 +116,23 @@ MODULE HO1D_parameters_m
     END IF
     
     !----------------------------------------Construction of the Cavity_mode_t type object---------------------------------------
-    IF (Verbose_local > 22) WRITE(out_unit,*) 
-    IF (Verbose_local > 22) WRITE(out_unit,*) "--------------------------------------------Constructing the HO1D_parameters_t----&
+    IF (Verbose_local > 27) WRITE(out_unit,*) 
+    IF (Verbose_local > 27) WRITE(out_unit,*) "--------------------------------------------Constructing the HO1D_parameters_t----&
                                               &---------------------------------------"
     HO1D_para%Nb     = Nb
     HO1D_para%w      = w
     HO1D_para%m      = m
     HO1D_para%eq_pos = eq_pos
 
-    IF (Verbose_local > 21) THEN
-      IF (Verbose_local < 23) WRITE(out_unit,*)
+    IF (Verbose_local > 26) THEN
+      IF (Verbose_local < 28) WRITE(out_unit,*)
       WRITE(out_unit,*) "--- HO1D parameters constructed by MolecCav_Read_HO1D_parameters :"
       CALL Write_HO1D_parameters(HO1D_para)
       WRITE(out_unit,*) "--- End HO1D parameters constructed by MolecCav_Read_HO1D_parameters"
     END IF
 
-    IF (Verbose_local > 20) WRITE(out_unit,*) 
-    IF (Verbose_local > 20) WRITE(out_unit,*) "-------------------------------------------------HO1D PARAMETERS INITIALIZED------&
+    IF (Verbose_local > 25) WRITE(out_unit,*) 
+    IF (Verbose_local > 25) WRITE(out_unit,*) "-------------------------------------------------HO1D PARAMETERS INITIALIZED------&
                                               &-------------------------------------------"; FLUSH(out_unit)
 
   END SUBROUTINE MolecCav_Read_HO1D_parameters
