@@ -364,6 +364,23 @@ MODULE HO1D_operator_m
   END SUBROUTINE MolecCav_Initialize_N_HO1D
 
   
+  FUNCTION MolecCav_Allocated_HO1D_operator(HO1D_operator) RESULT(Alloc)
+    USE QDUtil_m
+    IMPLICIT NONE 
+
+    integer, allocatable           :: List_indexes(:)                                                                            ! the current values of the indexes for each dimension
+    TYPE(ND_indexes_t), intent(in) :: ND_indexes
+
+    integer                        :: Zero_index
+
+    List_indexes = ND_indexes%Starting_indexes                                                                                   ! dynamic allocation : allows to call the function for any allocatable object, already allocated or not, and even for a tabular not declared allocatable it seems
+
+    Zero_index = 1 + ND_indexes%Begin_right*(ND_indexes%N_dim-1)
+    List_indexes(Zero_index) = List_indexes(Zero_index) - 1                                                                      ! to prepare the initial point I = 0 (state before first loop)
+
+  END FUNCTION MolecCav_Allocated_HO1D_operator
+
+
   SUBROUTINE MolecCav_Write_HO1D_operator(Operator)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m

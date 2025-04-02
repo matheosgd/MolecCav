@@ -833,7 +833,7 @@ MODULE Total_hamiltonian_m
       STOP "### Missing REigval argument in Transition_intensity_matrix"
 
     ELSE IF (PRESENT(Energy_threshold)) THEN
-      I = 0
+      I = 0 ! /!\ REMPLACER PAR COUNT(Reigval(i+1) > Reigval(1) + Energy_threshold) /!\
       DO 
         I = I + 1
         IF (REigval(I+1) - REigval(1) > Energy_threshold) EXIT

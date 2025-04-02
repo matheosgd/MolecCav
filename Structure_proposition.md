@@ -129,7 +129,6 @@ MODULE Quantum_HO1D_m
   SUBROUTINE Append_quantum_HO1D(HO1D, Operator_type="Hamiltonian")
     add an HO operator to a already initialized object of Quantum_HO1D_t type
     CALL Initialize_HO1D_operator(HO1D%<the chosen operator>, Operator_type="Hamiltonian" for instance, HO1D=HO1D%HO1D_parameters_t)  
-    HO1D%<the chosen operator> = Operator
   END SUB
 
   SUBROUTINE Write_quantum_HO1D(HO1D)  
