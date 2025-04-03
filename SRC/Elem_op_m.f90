@@ -57,7 +57,7 @@
 ! ereby obtained wavevector on the initial one.
 !==================================================================================================
 !==================================================================================================
-MODULE Operator_1D_m
+MODULE Elem_op_m
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
   USE QDUtil_m
   USE Cavity_mode_m

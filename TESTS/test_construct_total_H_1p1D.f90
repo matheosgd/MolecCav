@@ -32,7 +32,7 @@ PROGRAM test_construct_total_H_1p1D
   USE QDUtil_Test_m
   USE Algebra_m
   USE Cavity_mode_m
-  USE Operator_1D_m
+  USE Elem_op_m
   USE Total_hamiltonian_m
   IMPLICIT NONE
   

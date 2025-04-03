@@ -32,7 +32,7 @@ PROGRAM test_transition_intensities
   USE QDUtil_Test_m
   USE Algebra_m
   USE Cavity_mode_m
-  USE Operator_1D_m
+  USE Elem_op_m
   USE Total_hamiltonian_m
   IMPLICIT NONE
   

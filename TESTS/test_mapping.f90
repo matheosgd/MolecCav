@@ -33,7 +33,7 @@ PROGRAM test_mapping
   USE Algebra_m
   USE Mapping_m
   USE Cavity_mode_m
-  USE Operator_1D_m
+  USE Elem_op_m
   USE Total_hamiltonian_m
   IMPLICIT NONE
 

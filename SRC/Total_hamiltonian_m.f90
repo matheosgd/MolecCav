@@ -75,7 +75,7 @@ MODULE Total_hamiltonian_m
   SUBROUTINE MolecCav_Action_total_hamiltonian_1p1D(TotH_psi, CavPosition, CavH, MatDipMomt, MatH, Psi, Debug)
     USE QDUtil_m
     USE Cavity_mode_m
-    USE Operator_1D_m
+    USE Elem_op_m
     IMPLICIT NONE
 
     real(kind=Rkind),    intent(inout) :: TotH_psi(:,:)                        ! already allocated !
@@ -178,7 +178,7 @@ MODULE Total_hamiltonian_m
   SUBROUTINE MolecCav_Action_matter_1p1D(Psi_1, Psi_2, Psi_3, MatDipMomt, MatH, Psi)
     USE QDUtil_m
     USE Cavity_mode_m
-    USE Operator_1D_m
+    USE Elem_op_m
     IMPLICIT NONE
 
     real(kind=Rkind),    intent(inout) :: Psi_1(:,:)                           ! cf. below for meaning
@@ -212,7 +212,7 @@ MODULE Total_hamiltonian_m
   SUBROUTINE MolecCav_Action_cavity_1p1D(TotH_psi, CavPosition, CavH, Psi_1, Psi_2, Psi_3, Debug_local)
     USE QDUtil_m
     USE Cavity_mode_m
-    USE Operator_1D_m
+    USE Elem_op_m
     IMPLICIT NONE
 
     real(kind=Rkind),    intent(inout) :: TotH_psi(:,:)                        ! already allocated !
@@ -294,7 +294,7 @@ MODULE Total_hamiltonian_m
   SUBROUTINE MolecCav_Action_total_hamiltonian_1p1D_R1(TotH_psi, CavPosition, CavH, MatDipMomt, MatH, Psi, Debug)
     USE QDUtil_m
     USE Cavity_mode_m
-    USE Operator_1D_m
+    USE Elem_op_m
     IMPLICIT NONE
 
     real(kind=Rkind),    intent(inout) :: TotH_psi(:)                          ! already allocated !
@@ -391,7 +391,7 @@ MODULE Total_hamiltonian_m
   SUBROUTINE MolecCav_Action_matter_1p1D_R1(Psi_1, Psi_2, Psi_3, MatDipMomt, MatH, Psi, Debug_local)
     USE QDUtil_m
     USE Cavity_mode_m
-    USE Operator_1D_m
+    USE Elem_op_m
     USE Mapping_m
     IMPLICIT NONE
 
@@ -440,7 +440,7 @@ MODULE Total_hamiltonian_m
   SUBROUTINE MolecCav_Action_cavity_1p1D_R1(TotH_psi, CavPosition, CavH, Psi_1, Psi_2, Psi_3, Debug_local)
     USE QDUtil_m
     USE Cavity_mode_m
-    USE Operator_1D_m
+    USE Elem_op_m
     USE Mapping_m
     IMPLICIT NONE
 
@@ -533,7 +533,7 @@ MODULE Total_hamiltonian_m
   SUBROUTINE MolecCav_Construct_total_hamiltonian_1p1D(TotH, CavPosition, CavH, MatDipMomt, MatH, Debug)
     USE QDUtil_m
     USE Cavity_mode_m
-    USE Operator_1D_m
+    USE Elem_op_m
     IMPLICIT NONE
 
     real(kind=Rkind),    intent(inout) :: TotH(:,:)                                                ! already allocated !
@@ -622,7 +622,7 @@ MODULE Total_hamiltonian_m
     USE QDUtil_m
     USE Mapping_m
     USE Cavity_mode_m
-    USE Operator_1D_m
+    USE Elem_op_m
     IMPLICIT NONE
 
     real(kind=Rkind),    intent(inout) :: TotH(:,:)                                                ! already allocated !
@@ -735,7 +735,7 @@ MODULE Total_hamiltonian_m
     USE QDUtil_m
     USE Algebra_m
     USE Mapping_m
-    USE Operator_1D_m
+    USE Elem_op_m
     IMPLICIT NONE
   
     real(kind=Rkind),    intent(inout) :: Intensity
@@ -802,7 +802,7 @@ MODULE Total_hamiltonian_m
   SUBROUTINE MolecCav_Initialize_transition_matrix(Intensities, MatDipMomt, REigvec, Energy_threshold, REigval, Nb_states, Debug)   ! /!\ FOR NOW DESIGNED FOR 1p1D
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     USE QDUtil_m
-    USE Operator_1D_m
+    USE Elem_op_m
     IMPLICIT NONE
   
     real(kind=Rkind), allocatable, intent(inout) :: Intensities(:,:)
@@ -872,7 +872,7 @@ MODULE Total_hamiltonian_m
   SUBROUTINE MolecCav_Compute_transition_matrix(Intensities, MatDipMomt, REigvec, Debug)   ! /!\ FOR NOW DESIGNED FOR 1p1D
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     USE QDUtil_m
-    USE Operator_1D_m
+    USE Elem_op_m
     IMPLICIT NONE
   
     real(kind=Rkind),           intent(inout) :: Intensities(:,:)

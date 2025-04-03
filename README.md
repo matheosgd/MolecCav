@@ -26,7 +26,7 @@ ${^2}$ CNRS
     - [```SRC```](#SRC)
         - [```Algebra_m.f90```](#Algebra_m.f90)
         - [```Cavity_mode_m.f90```](#Cavity_mode_m.f90)
-        - [```Operator_1D_m.f90```](#Operator_1D_m.f90)
+        - [```Elem_op_m.f90```](#Elem_op_m.f90)
         - [```Total_hamiltonian_m.f90```](#Total_hamiltonian_m.f90)
     - [```TESTS```](#TESTS)
         - [```test_cavity_mode.f90```](#test_cavity_mode.f90)
@@ -132,7 +132,7 @@ MolecCav
 ├── SRC
 │   ├── Algebra_m.f90
 │   ├── Cavity_mode_m.f90
-│   ├── Operator_1D_m.f90
+│   ├── Elem_op_m.f90
 │   └── Total_hamiltonian_m.f90
 │
 ├── TESTS
@@ -191,7 +191,7 @@ This module contains some procedures related to vectors and matrices management 
 This module contains the procedures to build and describe the modes of the cavity.  
 
 
-### Operator_1D_m.f90
+### Elem_op_m.f90
 This module contains the procedures to build the quantum mechanics operators relative to a cavity mode, and to compute their action on a photon system vector.  
 
 

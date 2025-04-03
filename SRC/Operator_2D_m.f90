@@ -51,7 +51,7 @@ MODULE Operator_2D_m
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     USE QDUtil_m
     USE Cavity_mode_m
-    USE Operator_1D_m
+    USE Elem_op_m
     IMPLICIT NONE
   
     real(kind=Rkind),    intent(inout) :: Op_psi(:,:)                      ! already allocated !
@@ -80,7 +80,7 @@ MODULE Operator_2D_m
     USE QDUtil_m
     USE Algebra_m
     USE Cavity_mode_m
-    USE Operator_1D_m
+    USE Elem_op_m
     IMPLICIT NONE
 
     real(kind=Rkind),    intent(inout) :: Value

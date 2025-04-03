@@ -64,7 +64,7 @@ FFC="gfortran"                                                                 #
 FFLAGS="-Og -g -fbacktrace -fcheck=all -fwhole-file -fcheck=pointer -Wuninitialized -finit-real=nan -finit-integer=nan -fopenmp"
                                                                                # some useful options for the compiler
 
-MODULES_LIB=("Cavity_mode_m" "Operator_1D_m" "Total_hamiltonian_m" "Algebra_m" "Operator_2D_m" "Psi_analysis_m" "ND_indexes_m" "Mapping_m")
+MODULES_LIB=("Cavity_mode_m" "Elem_op_m" "Total_hamiltonian_m" "Algebra_m" "Operator_2D_m" "Psi_analysis_m" "ND_indexes_m" "Mapping_m")
 SRC_LIB=(${MODULES_LIB[@]/%/.f90})
 OBJ_LIB=(${MODULES_LIB[@]/%/.o})
 
