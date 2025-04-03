@@ -69,7 +69,7 @@ MODULE Operator_2D_m
     END IF
 
     DO i_M = 1, Nb_M
-      CALL Action_Operator_1D(Op_psi(i_M, :), Operator, Psi(i_M, :))
+      CALL Action(Op_psi(i_M, :), Operator, Psi(i_M, :))
     END DO
 
   END SUBROUTINE MolecCav_Action_operator_2D

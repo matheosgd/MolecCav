@@ -158,7 +158,7 @@ PROGRAM test_action_total_H_1p1D
     Cavity_mode%lambda  = ZERO
 
     CALL Construct_Operator_1D(Mat_dipolar_moment, "Position",    Mode=Matter_DOF,  Debug=Debug)   ! hypothesis : \mu(q) = \frac{\partial\mu}{\partial q}*\q ; \frac{\partial\mu}{\partial q} = Coeff_dip_momt
-    Mat_dipolar_moment%Band_val_R = Coeff_dipole_moment*Mat_dipolar_moment%Band_val_R              ! => \hat{\mu} = Coeff_dip_momt*\hat{q}
+    Mat_dipolar_moment%Band_val = Coeff_dipole_moment*Mat_dipolar_moment%Band_val              ! => \hat{\mu} = Coeff_dip_momt*\hat{q}
     CALL Construct_Operator_1D(MatH,               "Hamiltonian", Mode=Matter_DOF,  Debug=Debug)
     CALL Construct_Operator_1D(CavPosition,        "Position",    Mode=Cavity_mode, Debug=Debug)
     CALL Construct_Operator_1D(CavH,               "Hamiltonian", Mode=Cavity_mode, Debug=Debug)
@@ -249,11 +249,11 @@ PROGRAM test_action_total_H_1p1D
     WRITE(out_unit,*) "---------------TotH_{1p1D_(w_M=3*\sqrt(2))_(m_M=1)_(w_C=1)_(Coeff_\mu=1)_(lambda=1/2)}--------------"
     Matter_DOF%w        = THREE*SQRT(TWO)
 
-    DEALLOCATE(Mat_dipolar_moment%Band_val_R); DEALLOCATE(Mat_dipolar_moment%Operator_type)
-    DEALLOCATE(MatH%Diag_val_R)              ; DEALLOCATE(MatH%Operator_type)
+    DEALLOCATE(Mat_dipolar_moment%Band_val); DEALLOCATE(Mat_dipolar_moment%Operator_type)
+    DEALLOCATE(MatH%Diag_val)              ; DEALLOCATE(MatH%Operator_type)
 
     CALL Construct_Operator_1D(Mat_dipolar_moment, "Position",    Mode=Matter_DOF,  Debug=Debug)   ! hypothesis : \mu(q) = \frac{\partial\mu}{\partial q}*\q ; \frac{\partial\mu}{\partial q} = Coeff_dip_momt
-    Mat_dipolar_moment%Band_val_R = Coeff_dipole_moment*Mat_dipolar_moment%Band_val_R              ! => \hat{\mu} = Coeff_dip_momt*\hat{q}
+    Mat_dipolar_moment%Band_val = Coeff_dipole_moment*Mat_dipolar_moment%Band_val              ! => \hat{\mu} = Coeff_dip_momt*\hat{q}
     CALL Construct_Operator_1D(MatH,               "Hamiltonian", Mode=Matter_DOF,  Debug=Debug)
     
       !------------------------------------Testing the H actions-----------------------------------
@@ -299,11 +299,11 @@ PROGRAM test_action_total_H_1p1D
     WRITE(out_unit,*) "-------------TotH_{1p1D_(w_M=3*\sqrt(2))_(m_M=m(HF))_(w_C=1)_(Coeff_\mu=1)_(lambda=1/2)}------------"
     Matter_DOF%m        = 1744.60504565_Rkind
 
-    DEALLOCATE(Mat_dipolar_moment%Band_val_R); DEALLOCATE(Mat_dipolar_moment%Operator_type)
-    DEALLOCATE(MatH%Diag_val_R)              ; DEALLOCATE(MatH%Operator_type)
+    DEALLOCATE(Mat_dipolar_moment%Band_val); DEALLOCATE(Mat_dipolar_moment%Operator_type)
+    DEALLOCATE(MatH%Diag_val)              ; DEALLOCATE(MatH%Operator_type)
 
     CALL Construct_Operator_1D(Mat_dipolar_moment, "Position",    Mode=Matter_DOF,  Debug=Debug)   ! hypothesis : \mu(q) = \frac{\partial\mu}{\partial q}*\q ; \frac{\partial\mu}{\partial q} = Coeff_dip_momt
-    Mat_dipolar_moment%Band_val_R = Coeff_dipole_moment*Mat_dipolar_moment%Band_val_R              ! => \hat{\mu} = Coeff_dip_momt*\hat{q}
+    Mat_dipolar_moment%Band_val = Coeff_dipole_moment*Mat_dipolar_moment%Band_val              ! => \hat{\mu} = Coeff_dip_momt*\hat{q}
     CALL Construct_Operator_1D(MatH,               "Hamiltonian", Mode=Matter_DOF,  Debug=Debug)
     
       !------------------------------------Testing the H actions-----------------------------------
@@ -349,8 +349,8 @@ PROGRAM test_action_total_H_1p1D
     WRITE(out_unit,*) "---------TotH_{1p1D_(w_M=3*\sqrt(2))_(m_M=m(HF))_(w_C=\sqrt(2))_(Coeff_\mu=1)_(lambda=1/2)}---------"
     Cavity_mode%w       = SQRT(TWO)
 
-    DEALLOCATE(CavPosition%Band_val_R); DEALLOCATE(CavPosition%Operator_type)
-    DEALLOCATE(CavH%Diag_val_R)       ; DEALLOCATE(CavH%Operator_type)
+    DEALLOCATE(CavPosition%Band_val); DEALLOCATE(CavPosition%Operator_type)
+    DEALLOCATE(CavH%Diag_val)       ; DEALLOCATE(CavH%Operator_type)
 
     CALL Construct_Operator_1D(CavPosition, "Position",    Mode=Cavity_mode, Debug=Debug)
     CALL Construct_Operator_1D(CavH,        "Hamiltonian", Mode=Cavity_mode, Debug=Debug)
@@ -396,11 +396,11 @@ PROGRAM test_action_total_H_1p1D
       !---------------------------------1D operators initialization--------------------------------
     WRITE(out_unit,*)
     WRITE(out_unit,*) "--------TotH_{1p1D_(w_M=3*\sqrt(2))_(m_M=m(HF))_(w_C=\sqrt(2))_(Coeff_\mu=\pi)_(lambda=1/2)}--------"
-    Mat_dipolar_moment%Band_val_R = Mat_dipolar_moment%Band_val_R / Coeff_dipole_moment
+    Mat_dipolar_moment%Band_val = Mat_dipolar_moment%Band_val / Coeff_dipole_moment
     
     Coeff_dipole_moment           = pi
 
-    Mat_dipolar_moment%Band_val_R = Coeff_dipole_moment*Mat_dipolar_moment%Band_val_R              ! => \hat{\mu} = Coeff_dip_momt*\hat{q}
+    Mat_dipolar_moment%Band_val = Coeff_dipole_moment*Mat_dipolar_moment%Band_val              ! => \hat{\mu} = Coeff_dip_momt*\hat{q}
     
       !------------------------------------Testing the H actions-----------------------------------
     CALL Action_total_hamiltonian_1p1D(TotH_psi_1p1D, CavPosition, CavH, Mat_dipolar_moment, MatH, b_0, Debug=Debug)

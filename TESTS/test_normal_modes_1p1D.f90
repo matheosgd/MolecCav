@@ -117,12 +117,12 @@ PROGRAM test_normal_modes_1p1D
                            & Mode=Molecule_1, &
                            & Debug=.FALSE.)
 
-  Mol1_dipolar_moment%Band_val_R = Mol1_dipolar_moment%Band_val_R*Cte_dipole_moment ! /!\ so that the matrix already contains the intensity constant of the dipolar moment with the position of the matter (cf. manual for formulas)
+  Mol1_dipolar_moment%Band_val = Mol1_dipolar_moment%Band_val*Cte_dipole_moment ! /!\ so that the matrix already contains the intensity constant of the dipolar moment with the position of the matter (cf. manual for formulas)
     
-  IF (Debug .AND. ALLOCATED(Mol1_dipolar_moment%Diag_val_R)) CALL Write_Vec(Mol1_dipolar_moment%Diag_val_R, out_unit, 3, info="Mo&
+  IF (Debug .AND. ALLOCATED(Mol1_dipolar_moment%Diag_val)) CALL Write_Vec(Mol1_dipolar_moment%Diag_val, out_unit, 3, info="Mo&
                                                             &l1_dipolar_moment")
-  IF (Debug .AND. (ALLOCATED(Mol1_dipolar_moment%Band_val_R) .OR. ALLOCATED(Mol1_dipolar_moment%Dense_val_R))) CALL Write_Mat(Mol&
-                                                            &1_dipolar_moment%Band_val_R, out_unit, 3, info="Mol1_dipolar_moment")
+  IF (Debug .AND. (ALLOCATED(Mol1_dipolar_moment%Band_val) .OR. ALLOCATED(Mol1_dipolar_moment%Dense_val))) CALL Write_Mat(Mol&
+                                                            &1_dipolar_moment%Band_val, out_unit, 3, info="Mol1_dipolar_moment")
   FLUSH(out_unit)
 
     !-----------------------------First cavity mode----------------------------

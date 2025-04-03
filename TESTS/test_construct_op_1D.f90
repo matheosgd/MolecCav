@@ -197,7 +197,7 @@ PROGRAM test_construct_op_1D
   x_ho_1D_dense_theo_1_6_1   = ZERO
   x_ho_1D_dense_theo_14_17_7 = ZERO
 
-  DO i = 1, 16                                                                 ! /!\ Fortran counts from 1 to Nb !!! /!\ Nb-1 not to have Band_val_R(i+1) out of range
+  DO i = 1, 16                                                                 ! /!\ Fortran counts from 1 to Nb !!! /!\ Nb-1 not to have Band_val(i+1) out of range
     x_ho_1D_band_theo_1_17_1(i,1)     = SQRT(REAL(i,kind=Rkind))
     x_ho_1D_band_theo_1_17_1(i+1,3)   = SQRT(REAL(i,kind=Rkind))
     x_ho_1D_dense_theo_14_17_7(i,i+1) = SQRT(REAL(i,kind=Rkind))
@@ -244,265 +244,265 @@ PROGRAM test_construct_op_1D
   FLUSH(out_unit)
 
   !--------------------------------Comparisons H-------------------------------
-  !H_ho_1D_diag_14_17%Diag_val_R(1) = 0
+  !H_ho_1D_diag_14_17%Diag_val(1) = 0
   !WRITE(out_unit,*) 
   !WRITE(out_unit,*) "H_{Spurious 1 (diagonal, w = 14, Nb = 17)}"
   !DO i = 1, 17
   !  WRITE(out_unit,*) H_ho_1D_diag_theo_14_17(i)
   !END DO
 
-  CALL Equal_R_R_vector(error_construct, H_ho_1D_diag_theo_14_17, H_ho_1D_diag_14_17%Diag_val_R)
-  CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="H_ho_1D_diag_14_17%Diag_val_R well initialized ?")
+  CALL Equal_R_R_vector(error_construct, H_ho_1D_diag_theo_14_17, H_ho_1D_diag_14_17%Diag_val)
+  CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="H_ho_1D_diag_14_17%Diag_val well initialized ?")
   IF (error_construct .AND. Debug) THEN
     CALL Write_Vec(H_ho_1D_diag_theo_14_17, out_unit, Size(H_ho_1D_diag_theo_14_17), info="H_ho_1D_diag_theo_14_17")
-    CALL Write_Vec(H_ho_1D_diag_14_17%Diag_val_R, out_unit, Size(H_ho_1D_diag_14_17%Diag_val_R), in&
-                  &fo="H_ho_1D_diag_14_17%Diag_val_R")
+    CALL Write_Vec(H_ho_1D_diag_14_17%Diag_val, out_unit, Size(H_ho_1D_diag_14_17%Diag_val), in&
+                  &fo="H_ho_1D_diag_14_17%Diag_val")
   END IF
   
-  !H_ho_1D_dense_1_6%Dense_val_R(1,2) = 1
+  !H_ho_1D_dense_1_6%Dense_val(1,2) = 1
   !WRITE(out_unit,*) 
   !WRITE(out_unit,*) "H_{Spurious 2 (diagonal, w = 1, Nb = 6)}"
   !DO i = 1, 17
-  !  WRITE(out_unit,*) H_ho_1D_dense_1_6%Dense_val_R(i,:)
+  !  WRITE(out_unit,*) H_ho_1D_dense_1_6%Dense_val(i,:)
   !END DO
 
-  CALL Equal_R_R_matrix(error_construct, H_ho_1D_dense_theo_1_6, H_ho_1D_dense_1_6%Dense_val_R)
-  CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="H_ho_1D_dense_1_6%Dense_val_R well initialized ?")
+  CALL Equal_R_R_matrix(error_construct, H_ho_1D_dense_theo_1_6, H_ho_1D_dense_1_6%Dense_val)
+  CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="H_ho_1D_dense_1_6%Dense_val well initialized ?")
   IF (error_construct .AND. Debug) THEN
     CALL Write_Mat(H_ho_1D_dense_theo_1_6, out_unit, Size(H_ho_1D_dense_theo_1_6, dim=2), info="H_ho_1D_dense_theo_1_6")
-    CALL Write_Mat(H_ho_1D_dense_1_6%Dense_val_R, out_unit, Size(H_ho_1D_dense_1_6%Dense_val_R, dim=2), in&
-                  &fo="H_ho_1D_dense_1_6%Dense_val_R")
+    CALL Write_Mat(H_ho_1D_dense_1_6%Dense_val, out_unit, Size(H_ho_1D_dense_1_6%Dense_val, dim=2), in&
+                  &fo="H_ho_1D_dense_1_6%Dense_val")
   END IF
 
-  !H_ho_1D_dense_14_17%Dense_val_R(1,2) = 1
+  !H_ho_1D_dense_14_17%Dense_val(1,2) = 1
   !WRITE(out_unit,*) 
   !WRITE(out_unit,*) "H_{Spurious 3 (diagonal, w = 14, Nb = 17)}"
   !DO i = 1, 17
-  !  WRITE(out_unit,*) H_ho_1D_dense_14_17%Dense_val_R(i,:)
+  !  WRITE(out_unit,*) H_ho_1D_dense_14_17%Dense_val(i,:)
   !END DO
 
-  CALL Equal_R_R_matrix(error_construct, H_ho_1D_dense_theo_14_17, H_ho_1D_dense_14_17%Dense_val_R)
+  CALL Equal_R_R_matrix(error_construct, H_ho_1D_dense_theo_14_17, H_ho_1D_dense_14_17%Dense_val)
   CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="H_ho_1D_dense_14_17&
-                   &%Dense_val_R well initialized ?")
+                   &%Dense_val well initialized ?")
   IF (error_construct .AND. Debug) THEN
     CALL Write_Mat(H_ho_1D_dense_theo_14_17, out_unit, Size(H_ho_1D_dense_theo_14_17, dim=2), info="H_ho_1D_dense_theo_14_17")
-    CALL Write_Mat(H_ho_1D_dense_14_17%Dense_val_R, out_unit, Size(H_ho_1D_dense_14_17%Dense_val_R, dim=2), in&
-                  &fo="H_ho_1D_dense_14_17%Dense_val_R")
+    CALL Write_Mat(H_ho_1D_dense_14_17%Dense_val, out_unit, Size(H_ho_1D_dense_14_17%Dense_val, dim=2), in&
+                  &fo="H_ho_1D_dense_14_17%Dense_val")
   END IF
 
-  !H_ho_1D_diag_1_6%Diag_val_R(1) = 1
+  !H_ho_1D_diag_1_6%Diag_val(1) = 1
   !WRITE(out_unit,*) 
   !WRITE(out_unit,*) "H_{Spurious 4 (diagonal, w = 1, Nb = 6)}"
   !DO i = 1, 17
-  !  WRITE(out_unit,*) H_ho_1D_diag_1_6%Dense_val_R(i,:)
+  !  WRITE(out_unit,*) H_ho_1D_diag_1_6%Dense_val(i,:)
   !END DO
 
   DO i = 1, 6
-    CALL Equal_R_R_scalar(error_construct, H_ho_1D_dense_1_6%Dense_val_R(i,i), H_ho_1D_diag_1_6%Diag_val_R(i))
+    CALL Equal_R_R_scalar(error_construct, H_ho_1D_dense_1_6%Dense_val(i,i), H_ho_1D_diag_1_6%Diag_val(i))
     CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="H_ho_1D_diag_1_6%&
-                     &Diag_val_R("//TO_string(i)//") well initialized ?")
-    IF (error_construct .AND. Debug) WRITE(out_unit,*) "H_ho_1D_dense_1_6%Dense_val_R("//TO_string(&
+                     &Diag_val("//TO_string(i)//") well initialized ?")
+    IF (error_construct .AND. Debug) WRITE(out_unit,*) "H_ho_1D_dense_1_6%Dense_val("//TO_string(&
                                                        &i)//","//TO_string(i)//"), H_ho_1D_diag_1_6&
-                                                       &%Diag_val_R("//TO_string(i)//")"
+                                                       &%Diag_val("//TO_string(i)//")"
   END DO
 
-  CALL Equal_R_R_vector(error_construct, H_ho_1D_diag_1_17%Diag_val_R(1:6), H_ho_1D_diag_1_6%Diag_val_R)
+  CALL Equal_R_R_vector(error_construct, H_ho_1D_diag_1_17%Diag_val(1:6), H_ho_1D_diag_1_6%Diag_val)
   CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="H_ho_1D_diag_1_17%D&
                      &iag_val_R well initialized ?")
   IF (error_construct .AND. Debug) THEN
-    CALL Write_Vec(H_ho_1D_diag_1_17%Diag_val_R, out_unit, Size(H_ho_1D_diag_1_17%Diag_val_R), info="H_ho_1D_diag_1_17%Diag_val_R")
-    CALL Write_Vec(H_ho_1D_diag_1_6%Diag_val_R, out_unit, Size(H_ho_1D_diag_1_6%Diag_val_R), in&
-                  &fo="H_ho_1D_diag_1_6%Diag_val_R")
+    CALL Write_Vec(H_ho_1D_diag_1_17%Diag_val, out_unit, Size(H_ho_1D_diag_1_17%Diag_val), info="H_ho_1D_diag_1_17%Diag_val")
+    CALL Write_Vec(H_ho_1D_diag_1_6%Diag_val, out_unit, Size(H_ho_1D_diag_1_6%Diag_val), in&
+                  &fo="H_ho_1D_diag_1_6%Diag_val")
   END IF
 
-  !H_ho_1D_diag_14_6%Diag_val_R(1) = 1
+  !H_ho_1D_diag_14_6%Diag_val(1) = 1
   !WRITE(out_unit,*) 
   !WRITE(out_unit,*) "H_{Spurious 5 (diagonal, w = 14, Nb = 6)}"
 
-  CALL Equal_R_R_vector(error_construct, H_ho_1D_diag_14_6%Diag_val_R, H_ho_1D_diag_14_17%Diag_val_R(1:6))
+  CALL Equal_R_R_vector(error_construct, H_ho_1D_diag_14_6%Diag_val, H_ho_1D_diag_14_17%Diag_val(1:6))
   CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="H_ho_1D_diag_14_6%D&
                    &iag_val_R well initialized ?")
   IF (error_construct .AND. Debug) THEN
-    CALL Write_Vec(H_ho_1D_diag_14_6%Diag_val_R, out_unit, Size(H_ho_1D_diag_14_6%Diag_val_R), info="H_ho_1D_diag_14_6%Diag_val_R")
-    CALL Write_Vec(H_ho_1D_diag_14_17%Diag_val_R, out_unit, Size(H_ho_1D_diag_14_17%Diag_val_R), in&
-                  &fo="H_ho_1D_diag_14_17%Diag_val_R")
+    CALL Write_Vec(H_ho_1D_diag_14_6%Diag_val, out_unit, Size(H_ho_1D_diag_14_6%Diag_val), info="H_ho_1D_diag_14_6%Diag_val")
+    CALL Write_Vec(H_ho_1D_diag_14_17%Diag_val, out_unit, Size(H_ho_1D_diag_14_17%Diag_val), in&
+                  &fo="H_ho_1D_diag_14_17%Diag_val")
   END IF
 
 
   !-------------------------------Comparisons x-------------------------------
-  CALL Equal_R_R_matrix(error_construct, x_ho_1D_band_theo_1_17_1, x_ho_1D_band_1_17_1%Band_val_R)
+  CALL Equal_R_R_matrix(error_construct, x_ho_1D_band_theo_1_17_1, x_ho_1D_band_1_17_1%Band_val)
   CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="x_ho_1D_band_1_17_1&
-                   &%Band_val_R well initialized ?")
+                   &%Band_val well initialized ?")
   IF (error_construct .AND. Debug) THEN
     CALL Write_Mat(x_ho_1D_band_theo_1_17_1, out_unit, Size(x_ho_1D_band_theo_1_17_1, dim=2), info="x_ho_1D_band_theo_1_17_1")
     CALL Write_Mat(x_ho_1D_band_theo_1_17_1, out_unit, Size(x_ho_1D_band_theo_1_17_1, dim=2), in&
                   &fo="x_ho_1D_band_theo_1_17_1")
   END IF
 
-  !x_ho_1D_dense_1_6_1%Dense_val_R(1,1) = 5
+  !x_ho_1D_dense_1_6_1%Dense_val(1,1) = 5
   !WRITE(out_unit,*)
   !WRITE(out_unit,*) "x_{Spurious 2 (dense, w = 1, Nb = 6, m = 1)}"
   !DO i = 1, 6
-  !  WRITE(out_unit,*) x_ho_1D_dense_1_6_1%Dense_val_R(i,:)
+  !  WRITE(out_unit,*) x_ho_1D_dense_1_6_1%Dense_val(i,:)
   !END DO
 
-  CALL Equal_R_R_matrix(error_construct, x_ho_1D_dense_theo_1_6_1, x_ho_1D_dense_1_6_1%Dense_val_R)
+  CALL Equal_R_R_matrix(error_construct, x_ho_1D_dense_theo_1_6_1, x_ho_1D_dense_1_6_1%Dense_val)
   CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="x_ho_1D_dense_1_6_1&
-                   &%Dense_val_R well initialized ?")
+                   &%Dense_val well initialized ?")
   IF (error_construct .AND. Debug) THEN
     CALL Write_Mat(x_ho_1D_dense_theo_1_6_1, out_unit, Size(x_ho_1D_dense_theo_1_6_1, dim=2), info="x_ho_1D_dense_theo_1_6_1")
-    CALL Write_Mat(x_ho_1D_dense_1_6_1%Dense_val_R, out_unit, Size(x_ho_1D_dense_1_6_1%Dense_val_R, dim=2), in&
-                  &fo="x_ho_1D_dense_1_6_1%Dense_val_R")
+    CALL Write_Mat(x_ho_1D_dense_1_6_1%Dense_val, out_unit, Size(x_ho_1D_dense_1_6_1%Dense_val, dim=2), in&
+                  &fo="x_ho_1D_dense_1_6_1%Dense_val")
   END IF
 
-  !x_ho_1D_dense_14_17_7%Dense_val_R(1,1) = 5
+  !x_ho_1D_dense_14_17_7%Dense_val(1,1) = 5
   !WRITE(out_unit,*)
   !WRITE(out_unit,*) "x_{Spurious 3 (dense, w = 14, Nb = 17, m = 7)}"
   !DO i = 1, 17
-  !  WRITE(out_unit,*) x_ho_1D_dense_14_17_7%Dense_val_R(i,:)
+  !  WRITE(out_unit,*) x_ho_1D_dense_14_17_7%Dense_val(i,:)
   !END DO
 
-  CALL Equal_R_R_matrix(error_construct, x_ho_1D_dense_theo_14_17_7, x_ho_1D_dense_14_17_7%Dense_val_R)
+  CALL Equal_R_R_matrix(error_construct, x_ho_1D_dense_theo_14_17_7, x_ho_1D_dense_14_17_7%Dense_val)
   CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="x_ho_1D_dense_14_17&
-                  &_7%Dense_val_R well initialized ?")
+                  &_7%Dense_val well initialized ?")
   IF (error_construct .AND. Debug) THEN
     CALL Write_Mat(x_ho_1D_dense_theo_14_17_7, out_unit, Size(x_ho_1D_dense_theo_14_17_7, dim=2), info="x_ho_1D_dense_theo_14_17_7")
-    CALL Write_Mat(x_ho_1D_dense_14_17_7%Dense_val_R, out_unit, Size(x_ho_1D_dense_14_17_7%Dense_val_R, dim=2), in&
-                  &fo="x_ho_1D_dense_14_17_7%Dense_val_R")
+    CALL Write_Mat(x_ho_1D_dense_14_17_7%Dense_val, out_unit, Size(x_ho_1D_dense_14_17_7%Dense_val, dim=2), in&
+                  &fo="x_ho_1D_dense_14_17_7%Dense_val")
   END IF
 
-  !x_ho_1D_band_1_6_1%Band_val_R(6,1) = 15
+  !x_ho_1D_band_1_6_1%Band_val(6,1) = 15
   !WRITE(out_unit,*) "x_{Spurious 4 (Band, w = 1, Nb = 6, m = 1)}"
   !DO i = 1, 6
-  !  WRITE(out_unit,*) x_ho_1D_band_1_6_1%Band_val_R(i,:)
+  !  WRITE(out_unit,*) x_ho_1D_band_1_6_1%Band_val(i,:)
   !END DO
 
-  CALL Equal_R_R_vector(error_construct, x_ho_1D_band_1_17_1%Band_val_R(1:5,1), x_ho_1D_band_1_6_1%Band_val_R(1:5,1))
+  CALL Equal_R_R_vector(error_construct, x_ho_1D_band_1_17_1%Band_val(1:5,1), x_ho_1D_band_1_6_1%Band_val(1:5,1))
   CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="x_ho_1D_band_1_6_1%&
-                   &Band_val_R(:,1) well initialized ?")
+                   &Band_val(:,1) well initialized ?")
   IF (error_construct .AND. Debug) THEN
-    CALL Write_Vec(x_ho_1D_band_1_17_1%Band_val_R(1:5,1), out_unit, Size(x_ho_1D_band_1_17_1%Band_v&
-                  &al_R(1:5,1)), info="x_ho_1D_band_1_17_1%Band_val_R(1:5,1)")
-    CALL Write_Vec(x_ho_1D_band_1_6_1%Band_val_R(1:5,1), out_unit, Size(x_ho_1D_band_1_6_1%Band_val&
-                  &_R(1:5,1)), info="x_ho_1D_band_1_6_1%Band_val_R(1:5,1)")
+    CALL Write_Vec(x_ho_1D_band_1_17_1%Band_val(1:5,1), out_unit, Size(x_ho_1D_band_1_17_1%Band_v&
+                  &al(1:5,1)), info="x_ho_1D_band_1_17_1%Band_val(1:5,1)")
+    CALL Write_Vec(x_ho_1D_band_1_6_1%Band_val(1:5,1), out_unit, Size(x_ho_1D_band_1_6_1%Band_val&
+                  &(1:5,1)), info="x_ho_1D_band_1_6_1%Band_val(1:5,1)")
   END IF
-  CALL Equal_R_R_vector(error_construct, x_ho_1D_band_1_17_1%Band_val_R(1:6,2), x_ho_1D_band_1_6_1%Band_val_R(:,2))
+  CALL Equal_R_R_vector(error_construct, x_ho_1D_band_1_17_1%Band_val(1:6,2), x_ho_1D_band_1_6_1%Band_val(:,2))
   CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="x_ho_1D_band_1_6_1%&
-                   &Band_val_R(:,2) well initialized ?")
+                   &Band_val(:,2) well initialized ?")
   IF (error_construct .AND. Debug) THEN
-    CALL Write_Vec(x_ho_1D_band_1_17_1%Band_val_R(1:6,2), out_unit, Size(x_ho_1D_band_1_17_1%Band_v&
-                  &al_R(1:6,2)), info="x_ho_1D_band_1_17_1%Band_val_R(1:6,2)")
-    CALL Write_Vec(x_ho_1D_band_1_6_1%Band_val_R(1:6,2), out_unit, Size(x_ho_1D_band_1_6_1%Band_val&
-                  &_R(1:6,2)), info="x_ho_1D_band_1_6_1%Band_val_R(1:6,2)")
+    CALL Write_Vec(x_ho_1D_band_1_17_1%Band_val(1:6,2), out_unit, Size(x_ho_1D_band_1_17_1%Band_v&
+                  &al(1:6,2)), info="x_ho_1D_band_1_17_1%Band_val(1:6,2)")
+    CALL Write_Vec(x_ho_1D_band_1_6_1%Band_val(1:6,2), out_unit, Size(x_ho_1D_band_1_6_1%Band_val&
+                  &(1:6,2)), info="x_ho_1D_band_1_6_1%Band_val(1:6,2)")
   END IF
-  CALL Equal_R_R_vector(error_construct, x_ho_1D_band_1_17_1%Band_val_R(1:6,3), x_ho_1D_band_1_6_1%Band_val_R(:,3))
+  CALL Equal_R_R_vector(error_construct, x_ho_1D_band_1_17_1%Band_val(1:6,3), x_ho_1D_band_1_6_1%Band_val(:,3))
   CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="x_ho_1D_band_1_6_1%&
-                  &Band_val_R(:,3) well initialized ?")
+                  &Band_val(:,3) well initialized ?")
   IF (error_construct .AND. Debug) THEN
-    CALL Write_Vec(x_ho_1D_band_1_17_1%Band_val_R(1:6,3), out_unit, Size(x_ho_1D_band_1_17_1%Band_v&
-                  &al_R(1:6,3)), info="x_ho_1D_band_1_17_1%Band_val_R(1:6,3)")
-    CALL Write_Vec(x_ho_1D_band_1_6_1%Band_val_R(1:6,3), out_unit, Size(x_ho_1D_band_1_6_1%Band_val&
-                  &_R(1:6,3)), info="x_ho_1D_band_1_6_1%Band_val_R(1:6,3)")
+    CALL Write_Vec(x_ho_1D_band_1_17_1%Band_val(1:6,3), out_unit, Size(x_ho_1D_band_1_17_1%Band_v&
+                  &al(1:6,3)), info="x_ho_1D_band_1_17_1%Band_val(1:6,3)")
+    CALL Write_Vec(x_ho_1D_band_1_6_1%Band_val(1:6,3), out_unit, Size(x_ho_1D_band_1_6_1%Band_val&
+                  &(1:6,3)), info="x_ho_1D_band_1_6_1%Band_val(1:6,3)")
   END IF
-  CALL Equal_R_R_scalar(error_construct, ZERO, x_ho_1D_band_1_6_1%Band_val_R(6,1))
+  CALL Equal_R_R_scalar(error_construct, ZERO, x_ho_1D_band_1_6_1%Band_val(6,1))
   CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="x_ho_1D_band_1_6_1%&
-                  &Band_val_R(6,1) well initialized ?")
-  IF (error_construct .AND. Debug) WRITE(out_unit,*) "x_ho_1D_band_1_6_1%Band_val_R(6,1)", x_ho_1D_&
-                  &band_1_6_1%Band_val_R(6,1), "/= 0"
+                  &Band_val(6,1) well initialized ?")
+  IF (error_construct .AND. Debug) WRITE(out_unit,*) "x_ho_1D_band_1_6_1%Band_val(6,1)", x_ho_1D_&
+                  &band_1_6_1%Band_val(6,1), "/= 0"
 
-  !x_ho_1D_band_14_17_7%Band_val_R(1,3) = 5
+  !x_ho_1D_band_14_17_7%Band_val(1,3) = 5
   DO i = 1, 16
-    CALL Equal_R_R_scalar(error_construct, x_ho_1D_dense_theo_14_17_7(i+1,i), x_ho_1D_band_14_17_7%Band_val_R(i,1))
+    CALL Equal_R_R_scalar(error_construct, x_ho_1D_dense_theo_14_17_7(i+1,i), x_ho_1D_band_14_17_7%Band_val(i,1))
     CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="x_ho_1D_band_14_1&
-                     &7_7%Band_val_R("//TO_string(i)//",1) well initialized ?")
-    IF (error_construct .AND. Debug) WRITE(out_unit,*) x_ho_1D_band_14_17_7%Band_val_R(i,1), x_ho_1D_dense_theo_14_17_7(i+1,i)
+                     &7_7%Band_val("//TO_string(i)//",1) well initialized ?")
+    IF (error_construct .AND. Debug) WRITE(out_unit,*) x_ho_1D_band_14_17_7%Band_val(i,1), x_ho_1D_dense_theo_14_17_7(i+1,i)
 
-    CALL Equal_R_R_scalar(error_construct, x_ho_1D_dense_theo_14_17_7(i,i+1), x_ho_1D_band_14_17_7%Band_val_R(i+1,3))
+    CALL Equal_R_R_scalar(error_construct, x_ho_1D_dense_theo_14_17_7(i,i+1), x_ho_1D_band_14_17_7%Band_val(i+1,3))
     CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="x_ho_1D_band_14_1&
-                     &7_7%Band_val_R("//TO_string(i+1)//",3) well initialized ?")
-    IF (error_construct .AND. Debug) WRITE(out_unit,*) x_ho_1D_band_14_17_7%Band_val_R(i+1,3), x_ho_1D_dense_theo_14_17_7(i,i+1)
+                     &7_7%Band_val("//TO_string(i+1)//",3) well initialized ?")
+    IF (error_construct .AND. Debug) WRITE(out_unit,*) x_ho_1D_band_14_17_7%Band_val(i+1,3), x_ho_1D_dense_theo_14_17_7(i,i+1)
 
   END DO
 
-  CALL Equal_R_R_scalar(error_construct, ZERO, x_ho_1D_band_14_17_7%Band_val_R(17,1))
+  CALL Equal_R_R_scalar(error_construct, ZERO, x_ho_1D_band_14_17_7%Band_val(17,1))
   CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="x_ho_1D_band_14_17_&
-                   &7%Band_val_R(17,1) well initialized ?")
-  IF (error_construct .AND. Debug) WRITE(out_unit,*) x_ho_1D_band_14_17_7%Band_val_R(17,1), "/= 0"
-  CALL Equal_R_R_scalar(error_construct, ZERO, x_ho_1D_band_14_17_7%Band_val_R(1,3))
+                   &7%Band_val(17,1) well initialized ?")
+  IF (error_construct .AND. Debug) WRITE(out_unit,*) x_ho_1D_band_14_17_7%Band_val(17,1), "/= 0"
+  CALL Equal_R_R_scalar(error_construct, ZERO, x_ho_1D_band_14_17_7%Band_val(1,3))
   CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="x_ho_1D_band_14_17_&
-                   &7%Band_val_R(1,3) well initialized ?")
-  IF (error_construct .AND. Debug) WRITE(out_unit,*) x_ho_1D_band_14_17_7%Band_val_R(1,3), "/= 0"
+                   &7%Band_val(1,3) well initialized ?")
+  IF (error_construct .AND. Debug) WRITE(out_unit,*) x_ho_1D_band_14_17_7%Band_val(1,3), "/= 0"
 
-  !x_ho_1D_band_14_6_1%Band_val_R(6,1) = 5
+  !x_ho_1D_band_14_6_1%Band_val(6,1) = 5
   !WRITE(out_unit,*) "x_{Spurious 4 (Band, w = 1, Nb = 6, m = 1)}"
   !DO i = 1, 6
-  !  WRITE(out_unit,*) x_ho_1D_band_1_6_1%Band_val_R(i,:)
+  !  WRITE(out_unit,*) x_ho_1D_band_1_6_1%Band_val(i,:)
   !END DO
 
-  CALL Equal_R_R_matrix(error_construct, x_ho_1D_band_1_6_1%Band_val_R/(SQRT(14.0_Rkind)), x_ho_1D_band_14_6_1%Band_val_R)
+  CALL Equal_R_R_matrix(error_construct, x_ho_1D_band_1_6_1%Band_val/(SQRT(14.0_Rkind)), x_ho_1D_band_14_6_1%Band_val)
   CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="x_ho_1D_band_14_6_1&
-                   &%Band_val_R well initialized ?")
+                   &%Band_val well initialized ?")
   IF (error_construct .AND. Debug) THEN
-    CALL Write_Mat(x_ho_1D_band_1_6_1%Band_val_R/(SQRT(14.0_Rkind)), out_unit, Size(x_ho_1D_band_1_&
-                  &6_1%Band_val_R/(SQRT(14.0_Rkind)), dim=2), info="x_ho_1D_band_1_6_1%Band_val_R/(SQRT(14.0_Rkind))")
-    CALL Write_Mat(x_ho_1D_band_14_6_1%Band_val_R, out_unit, Size(x_ho_1D_band_14_6_1%Band_val_R, d&
-                  &im=2), info="x_ho_1D_band_14_6_1%Band_val_R")
+    CALL Write_Mat(x_ho_1D_band_1_6_1%Band_val/(SQRT(14.0_Rkind)), out_unit, Size(x_ho_1D_band_1_&
+                  &6_1%Band_val/(SQRT(14.0_Rkind)), dim=2), info="x_ho_1D_band_1_6_1%Band_val/(SQRT(14.0_Rkind))")
+    CALL Write_Mat(x_ho_1D_band_14_6_1%Band_val, out_unit, Size(x_ho_1D_band_14_6_1%Band_val, d&
+                  &im=2), info="x_ho_1D_band_14_6_1%Band_val")
   END IF
 
-  !x_ho_1D_band_1_6_7%Band_val_R(6,1) = 5
+  !x_ho_1D_band_1_6_7%Band_val(6,1) = 5
   !WRITE(out_unit,*) "x_{Spurious 4 (Band, w = 1, Nb = 6, m = 1)}"
   !DO i = 1, 6
-  !  WRITE(out_unit,*) x_ho_1D_band_1_6_1%Band_val_R(i,:)
+  !  WRITE(out_unit,*) x_ho_1D_band_1_6_1%Band_val(i,:)
   !END DO
 
-  CALL Equal_R_R_matrix(error_construct, x_ho_1D_band_1_6_1%Band_val_R/(SQRT(SEVEN)), x_ho_1D_band_1_6_7%Band_val_R)
+  CALL Equal_R_R_matrix(error_construct, x_ho_1D_band_1_6_1%Band_val/(SQRT(SEVEN)), x_ho_1D_band_1_6_7%Band_val)
   CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="x_ho_1D_band_1_6_7%&
-                   &Band_val_R well initialized ?")
+                   &Band_val well initialized ?")
   IF (error_construct .AND. Debug) THEN
-    CALL Write_Mat(x_ho_1D_band_1_6_1%Band_val_R/(SQRT(SEVEN)), out_unit, Size(x_ho_1D_band_1_6_1%B&
-                  &and_val_R/(SQRT(SEVEN)), dim=2), info="x_ho_1D_band_1_6_1%Band_val_R/(SQRT(SEVEN))")
-    CALL Write_Mat(x_ho_1D_band_1_6_7%Band_val_R, out_unit, Size(x_ho_1D_band_1_6_7%Band_val_R, dim&
-                  &=2), info="x_ho_1D_band_1_6_7%Band_val_R")
+    CALL Write_Mat(x_ho_1D_band_1_6_1%Band_val/(SQRT(SEVEN)), out_unit, Size(x_ho_1D_band_1_6_1%B&
+                  &and_val/(SQRT(SEVEN)), dim=2), info="x_ho_1D_band_1_6_1%Band_val/(SQRT(SEVEN))")
+    CALL Write_Mat(x_ho_1D_band_1_6_7%Band_val, out_unit, Size(x_ho_1D_band_1_6_7%Band_val, dim&
+                  &=2), info="x_ho_1D_band_1_6_7%Band_val")
   END IF
 
 
   !-------------------------------Comparisons N-------------------------------
-  !N_ho_1D_dense_17%Dense_val_R(1,1) = 5
+  !N_ho_1D_dense_17%Dense_val(1,1) = 5
 
-  CALL Equal_R_R_matrix(error_construct, N_ho_1D_dense_theo_17, N_ho_1D_dense_17%Dense_val_R)
+  CALL Equal_R_R_matrix(error_construct, N_ho_1D_dense_theo_17, N_ho_1D_dense_17%Dense_val)
   CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="N_ho_1D_dense_17%De&
                    &nse_val_R well initialized ?")
   IF (error_construct .AND. Debug) THEN
     CALL Write_Mat(N_ho_1D_dense_theo_17, out_unit, Size(N_ho_1D_dense_theo_17, dim=2), info="N_ho_1D_dense_theo_17")
-    CALL Write_Mat(N_ho_1D_dense_17%Dense_val_R, out_unit, Size(N_ho_1D_dense_17%Dense_val_R, dim=&
-                  &2), info="N_ho_1D_dense_17%Dense_val_R")
+    CALL Write_Mat(N_ho_1D_dense_17%Dense_val, out_unit, Size(N_ho_1D_dense_17%Dense_val, dim=&
+                  &2), info="N_ho_1D_dense_17%Dense_val")
   END IF
 
-  !N_ho_1D_diag_17%Diag_val_R(1) = 5
-  !N_ho_1D_dense_6%Dense_val_R(1,1) = 5
-  !N_ho_1D_diag_6%Diag_val_R(1) = 5
+  !N_ho_1D_diag_17%Diag_val(1) = 5
+  !N_ho_1D_dense_6%Dense_val(1,1) = 5
+  !N_ho_1D_diag_6%Diag_val(1) = 5
   
   DO i = 1, 6
-    CALL Equal_R_R_scalar(error_construct, N_ho_1D_dense_theo_17(i,i), N_ho_1D_diag_17%Diag_val_R(i))
+    CALL Equal_R_R_scalar(error_construct, N_ho_1D_dense_theo_17(i,i), N_ho_1D_diag_17%Diag_val(i))
     CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="N_ho_1D_diag_17%D&
-                     &iag_val_R("//TO_string(i)//") well initialized ?")
-    IF (error_construct .AND. Debug) WRITE(out_unit,*) N_ho_1D_dense_theo_17(i,i), N_ho_1D_diag_17%Diag_val_R(i)
+                     &iag_val("//TO_string(i)//") well initialized ?")
+    IF (error_construct .AND. Debug) WRITE(out_unit,*) N_ho_1D_dense_theo_17(i,i), N_ho_1D_diag_17%Diag_val(i)
   END DO
 
-  CALL Equal_R_R_matrix(error_construct, N_ho_1D_dense_theo_17(1:6,1:6), N_ho_1D_dense_6%Dense_val_R)
-  CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="N_ho_1D_dense_6%Dense_val_R well initialized ?")
+  CALL Equal_R_R_matrix(error_construct, N_ho_1D_dense_theo_17(1:6,1:6), N_ho_1D_dense_6%Dense_val)
+  CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="N_ho_1D_dense_6%Dense_val well initialized ?")
   IF (error_construct .AND. Debug) THEN
     CALL Write_Mat(N_ho_1D_dense_theo_17(1:6,1:6), out_unit, Size(N_ho_1D_dense_theo_17(1:6,1:6), d&
                   &im=2), info="N_ho_1D_dense_theo_17(1:6,1:6)")
-    CALL Write_Mat(N_ho_1D_dense_6%Dense_val_R, out_unit, Size(N_ho_1D_dense_6%Dense_val_R, dim=2),&
-                 & info="N_ho_1D_dense_6%Dense_val_R")
+    CALL Write_Mat(N_ho_1D_dense_6%Dense_val, out_unit, Size(N_ho_1D_dense_6%Dense_val, dim=2),&
+                 & info="N_ho_1D_dense_6%Dense_val")
   END IF
 
   DO i = 1, 6
-    CALL Equal_R_R_scalar(error_construct, N_ho_1D_dense_theo_17(i,i), N_ho_1D_diag_6%Diag_val_R(i))
+    CALL Equal_R_R_scalar(error_construct, N_ho_1D_dense_theo_17(i,i), N_ho_1D_diag_6%Diag_val(i))
     CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="N_ho_1D_diag_6%Di&
-                     &ag_val_R("//TO_string(i)//") well initialized ?")
-    IF (error_construct .AND. Debug) WRITE(out_unit,*) N_ho_1D_dense_theo_17(i,i), N_ho_1D_diag_6%Diag_val_R(i)
+                     &ag_val("//TO_string(i)//") well initialized ?")
+    IF (error_construct .AND. Debug) WRITE(out_unit,*) N_ho_1D_dense_theo_17(i,i), N_ho_1D_diag_6%Diag_val(i)
   END DO
 
 

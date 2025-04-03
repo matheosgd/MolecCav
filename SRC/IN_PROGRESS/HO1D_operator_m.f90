@@ -50,9 +50,9 @@ MODULE HO1D_operator_m
     logical                          :: Dense = .FALSE.                                                                          ! if .TRUE. then the matrix storage will not be optimized and it will be stored as a Dense matrix. Otherwise, the elements matrix will be stored in a table such as taking advantage of the sparcity of the operator's analytical matrix in the HO Eigenbasis
     integer                          :: Upper_bandwidth = 0                                                                      ! if type = "Band". Gives the number of additional bands to consider above the diagonal.
     integer                          :: Lower_bandwidth = 0                                                                      ! if type = "Band". Gives the number of additional bands to consider below the diagonal. Ex : Upper_bandwidth=Lower_bandwidth=1 would give a tridiagonal matrix
-    real(kind=Rkind),    allocatable :: Dense_val_R(:,:)                                                                         ! if Dense == .TRUE.
-    real(kind=Rkind),    allocatable :: Diag_val_R(:)                                                                            ! if Dense == .FALSE. .AND. the operator analytical matrix in the HO1D Eigenbasis is diagonal. The diagonal elements are stored in a vector (rank-1 tensor)
-    real(kind=Rkind),    allocatable :: Band_val_R(:,:)                                                                          ! if Dense == .FALSE. .AND. the operator analytical matrix in the HO1D Eigenbasis is band. The number of columns will be the number of diagonals to consider : each considered diagonal is stored in a column
+    real(kind=Rkind),    allocatable :: Dense_val(:,:)                                                                         ! if Dense == .TRUE.
+    real(kind=Rkind),    allocatable :: Diag_val(:)                                                                            ! if Dense == .FALSE. .AND. the operator analytical matrix in the HO1D Eigenbasis is diagonal. The diagonal elements are stored in a vector (rank-1 tensor)
+    real(kind=Rkind),    allocatable :: Band_val(:,:)                                                                          ! if Dense == .FALSE. .AND. the operator analytical matrix in the HO1D Eigenbasis is band. The number of columns will be the number of diagonals to consider : each considered diagonal is stored in a column
   END TYPE
   
   
@@ -191,31 +191,31 @@ MODULE HO1D_operator_m
                                                &s matrix representation will be a rank-1 tensor of the diagonal elementsof its an&
                                                &alytical matrix (in Eigenbasis)"
       !---------------------------------------------Initialization to default values---------------------------------------------
-      ALLOCATE(Hamiltonian%Diag_val_R(HO1D_para%Nb))
+      ALLOCATE(Hamiltonian%Diag_val(HO1D_para%Nb))
 
       !------------------------------------------------Construction of the matrix------------------------------------------------
       DO i = 1, HO1D_para%Nb                                                                                                     ! /!\ Fortran counts from 1 to Nb !!! /!\
-        Hamiltonian%Diag_val_R(i) = HO1D_para%w*(i - ONE + HALF)                                                                 ! "-1" because the first Fortran vector is the fundamental eigenvector of the HO i.e. the 0^{th} ket 
+        Hamiltonian%Diag_val(i) = HO1D_para%w*(i - ONE + HALF)                                                                 ! "-1" because the first Fortran vector is the fundamental eigenvector of the HO i.e. the 0^{th} ket 
       END DO
 
       IF (Debug_local) WRITE(out_unit,*)
-      IF (Debug_local) CALL Write_Vec(Hamiltonian%Diag_val_R, out_unit, 1, info="HO1DHamiltonian")
+      IF (Debug_local) CALL Write_Vec(Hamiltonian%Diag_val, out_unit, 1, info="HO1DHamiltonian")
 
     ELSE
       IF (Verbose_local > 28) WRITE(out_unit,*) "--- The Dense parameter of the Hamiltonian is .TRUE., so the full 1D HO Hamilton&
                                                 &ian's matrix will be constructed (in Eigenbasis) for the representation, as if t&
                                                 &he analytical matrix was a dense one"
       !---------------------------------------------Initialization to default values---------------------------------------------
-      ALLOCATE(Hamiltonian%Dense_val_R(HO1D_para%Nb, HO1D_para%Nb))
-      Hamiltonian%Dense_val_R = ZERO
+      ALLOCATE(Hamiltonian%Dense_val(HO1D_para%Nb, HO1D_para%Nb))
+      Hamiltonian%Dense_val = ZERO
 
       !------------------------------------------------Construction of the matrix------------------------------------------------
       DO i = 1, HO1D_para%Nb                                                                                                     ! /!\ Fortran counts from 1 to Nb !!! /!\
-        Hamiltonian%Dense_val_R(i,i) = HO1D_para%w*(i - ONE + HALF)                                                              ! "-1" because the first Fortran vector is the fundamental eigenvector of the HO i.e. the 0^{th} ket 
+        Hamiltonian%Dense_val(i,i) = HO1D_para%w*(i - ONE + HALF)                                                              ! "-1" because the first Fortran vector is the fundamental eigenvector of the HO i.e. the 0^{th} ket 
       END DO
 
       IF (Debug_local) WRITE(out_unit,*)
-      IF (Debug_local) CALL Write_Mat(Hamiltonian%Dense_val_R, out_unit, Size(Hamiltonian%Dense_val_R), info="HO1DHamiltonian")
+      IF (Debug_local) CALL Write_Mat(Hamiltonian%Dense_val, out_unit, Size(Hamiltonian%Dense_val), info="HO1DHamiltonian")
     END IF
       
   END SUBROUTINE MolecCav_Initialize_H_HO1D
@@ -254,52 +254,52 @@ MODULE HO1D_operator_m
       PositionOp%Lower_bandwidth   = 1
 
       !---------------------------------------------Initialization to default values---------------------------------------------
-      ALLOCATE(PositionOp%Band_val_R(HO1D_para%Nb,3))                                                                            ! Nb lines (number of diagonal elements) and 3 columns because 3 bands to consider : the diagonal, and the two bands above and below it
-      PositionOp%Band_val_R = ZERO
+      ALLOCATE(PositionOp%Band_val(HO1D_para%Nb,3))                                                                            ! Nb lines (number of diagonal elements) and 3 columns because 3 bands to consider : the diagonal, and the two bands above and below it
+      PositionOp%Band_val = ZERO
 
       !------------------------------------------------Construction of the matrix------------------------------------------------
-      DO i = 1, HO1D_para%Nb - 1                                                                                                 ! /!\ Fortran counts from 1 to Nb !!! /!\ Nb-1 not to have Band_val_R(i+1) out of range
-        PositionOp%Band_val_R(i,1)   = SQRT(REAL(i,kind=Rkind))
-        PositionOp%Band_val_R(i+1,3) = SQRT(REAL(i,kind=Rkind))
+      DO i = 1, HO1D_para%Nb - 1                                                                                                 ! /!\ Fortran counts from 1 to Nb !!! /!\ Nb-1 not to have Band_val(i+1) out of range
+        PositionOp%Band_val(i,1)   = SQRT(REAL(i,kind=Rkind))
+        PositionOp%Band_val(i+1,3) = SQRT(REAL(i,kind=Rkind))
       END DO
-      PositionOp%Band_val_R = PositionOp%Band_val_R / SQRT(TWO * HO1D_para%w * HO1D_para%m)
+      PositionOp%Band_val = PositionOp%Band_val / SQRT(TWO * HO1D_para%w * HO1D_para%m)
     
       IF (Debug_local) WRITE(out_unit,*)
-      IF (Debug_local) CALL Write_Mat(PositionOp%Band_val_R, out_unit, 3, info="HO1DPositionOp")
+      IF (Debug_local) CALL Write_Mat(PositionOp%Band_val, out_unit, 3, info="HO1DPositionOp")
 
     ELSE IF (.NOT. PositionOp%Dense) THEN
       IF (Verbose_local > 28) WRITE(out_unit,*) "--- The Dense parameter of the Position operator is .FALSE. BUT the basis set si&
                                                 &ze is only 1, so the 1D HO Position operator's matrix representation will use th&
-                                                &e Diag_val_R rank-1 tensor to store the only element of the analytical matrix (i&
+                                                &e Diag_val rank-1 tensor to store the only element of the analytical matrix (i&
                                                 &n Eigenbasis)"
       !---------------------------------------------Initialization to default values---------------------------------------------
-      ALLOCATE(PositionOp%Diag_val_R(HO1D_para%Nb))
+      ALLOCATE(PositionOp%Diag_val(HO1D_para%Nb))
 
       !------------------------------------------------Construction of the matrix------------------------------------------------
       DO i = 1, HO1D_para%Nb                                                                                                     ! /!\ Fortran counts from 1 to Nb !!! /!\
-        PositionOp%Diag_val_R(i) = ZERO                                                                                          ! the position operator matrix has first value (i.e. only value in the Nb = 0 case) 0 
+        PositionOp%Diag_val(i) = ZERO                                                                                          ! the position operator matrix has first value (i.e. only value in the Nb = 0 case) 0 
       END DO
 
       IF (Debug_local) WRITE(out_unit,*)
-      IF (Debug_local) CALL Write_Vec(PositionOp%Diag_val_R, out_unit, 1, info="HO1DPositionOp")
+      IF (Debug_local) CALL Write_Vec(PositionOp%Diag_val, out_unit, 1, info="HO1DPositionOp")
 
     ELSE 
       IF (Verbose_local > 28) WRITE(out_unit,*) "--- The Dense parameter of the Position operator is .TRUE., so the full 1D HO Po&
                                                 &sition operator's matrix will be constructed (in Eigenbasis) for the representat&
                                                 &ion, as if the analytical matrix was a dense one"
       !---------------------------------------------Initialization to default values---------------------------------------------
-      ALLOCATE(PositionOp%Dense_val_R(HO1D_para%Nb, HO1D_para%Nb))
-      PositionOp%Dense_val_R = ZERO
+      ALLOCATE(PositionOp%Dense_val(HO1D_para%Nb, HO1D_para%Nb))
+      PositionOp%Dense_val = ZERO
       
       !------------------------------------------------Construction of the matrix------------------------------------------------
       DO i = 1, HO1D_para%Nb - 1                                                                                                 ! /!\ Fortran counts from 1 to Nb !!! /!\
-        PositionOp%Dense_val_R(i,i+1) = SQRT(REAL(i,kind=Rkind))
-        PositionOp%Dense_val_R(i+1,i) = SQRT(REAL(i,kind=Rkind))
+        PositionOp%Dense_val(i,i+1) = SQRT(REAL(i,kind=Rkind))
+        PositionOp%Dense_val(i+1,i) = SQRT(REAL(i,kind=Rkind))
       END DO
-      PositionOp%Dense_val_R = PositionOp%Dense_val_R / SQRT(TWO * HO1D_para%w * HO1D_para%m)
+      PositionOp%Dense_val = PositionOp%Dense_val / SQRT(TWO * HO1D_para%w * HO1D_para%m)
     
       IF (Debug_local) WRITE(out_unit,*)
-      IF (Debug_local) CALL Write_Mat(PositionOp%Dense_val_R, out_unit, Size(PositionOp%Dense_val_R), info="HO1DPositionOp")
+      IF (Debug_local) CALL Write_Mat(PositionOp%Dense_val, out_unit, Size(PositionOp%Dense_val), info="HO1DPositionOp")
     END IF
       
   END SUBROUTINE MolecCav_Initialize_x_HO1D
@@ -334,53 +334,36 @@ MODULE HO1D_operator_m
                                                 &ta's matrix representation will be a rank-1 tensor of the diagonal elements of i&
                                                 &ts analytical matrix (in Eigenbasis)"
       !---------------------------------------------Initialization to default values---------------------------------------------
-      ALLOCATE(NbQuanta%Diag_val_R(HO1D_para%Nb))
+      ALLOCATE(NbQuanta%Diag_val(HO1D_para%Nb))
 
       !------------------------------------------------Construction of the matrix------------------------------------------------
       DO i = 1, HO1D_para%Nb                                                                                                     ! /!\ Fortran counts from 1 to Nb !!! /!\
-        NbQuanta%Diag_val_R(i) = i - 1
+        NbQuanta%Diag_val(i) = i - 1
       END DO
   
       IF (Debug_local) WRITE(out_unit,*)
-      IF (Debug_local) CALL Write_Vec(NbQuanta%Diag_val_R, out_unit, 1, info="HO1DNbQuanta")
+      IF (Debug_local) CALL Write_Vec(NbQuanta%Diag_val, out_unit, 1, info="HO1DNbQuanta")
 
     ELSE
       IF (Verbose_local > 28) WRITE(out_unit,*) "--- The Dense parameter of the NbQuanta is .TRUE., so the full 1D HO NbQuanta's &
                                                 &matrix will be constructed (in Eigenbasis) for the representation, as if the ana&
                                                 &lytical matrix was a dense one"
       !---------------------------------------------Initialization to default values---------------------------------------------
-      ALLOCATE(NbQuanta%Dense_val_R(HO1D_para%Nb, HO1D_para%Nb))
-      NbQuanta%Dense_val_R = ZERO
+      ALLOCATE(NbQuanta%Dense_val(HO1D_para%Nb, HO1D_para%Nb))
+      NbQuanta%Dense_val = ZERO
 
       !------------------------------------------------Construction of the matrix------------------------------------------------
       DO i = 1, HO1D_para%Nb                                                                            ! /!\ Fortran counts from 1 to Nb !!! /!\
-        NbQuanta%Dense_val_R(i,i) = i - 1
+        NbQuanta%Dense_val(i,i) = i - 1
       END DO
 
       IF (Debug_local) WRITE(out_unit,*)
-      IF (Debug_local) CALL Write_Mat(NbQuanta%Dense_val_R, out_unit, Size(NbQuanta%Dense_val_R), info="HO1DNbQuanta")
+      IF (Debug_local) CALL Write_Mat(NbQuanta%Dense_val, out_unit, Size(NbQuanta%Dense_val), info="HO1DNbQuanta")
     END IF
       
   END SUBROUTINE MolecCav_Initialize_N_HO1D
 
   
-  FUNCTION MolecCav_Allocated_HO1D_operator(HO1D_operator) RESULT(Alloc)
-    USE QDUtil_m
-    IMPLICIT NONE 
-
-    integer, allocatable           :: List_indexes(:)                                                                            ! the current values of the indexes for each dimension
-    TYPE(ND_indexes_t), intent(in) :: ND_indexes
-
-    integer                        :: Zero_index
-
-    List_indexes = ND_indexes%Starting_indexes                                                                                   ! dynamic allocation : allows to call the function for any allocatable object, already allocated or not, and even for a tabular not declared allocatable it seems
-
-    Zero_index = 1 + ND_indexes%Begin_right*(ND_indexes%N_dim-1)
-    List_indexes(Zero_index) = List_indexes(Zero_index) - 1                                                                      ! to prepare the initial point I = 0 (state before first loop)
-
-  END FUNCTION MolecCav_Allocated_HO1D_operator
-
-
   SUBROUTINE MolecCav_Write_HO1D_operator(Operator)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m
@@ -410,14 +393,14 @@ MODULE HO1D_operator_m
     FLUSH(out_unit)
 
     WRITE(out_unit,*) "_________________________the operator's representations_________________________"
-    IF (ALLOCATED(Operator%Diag_val_R)) THEN                                                                                     ! we assume that the code is supposed to be used only allocating one of the matrices of each Operator_t object
+    IF (ALLOCATED(Operator%Diag_val)) THEN                                                                                     ! we assume that the code is supposed to be used only allocating one of the matrices of each Operator_t object
       WRITE(out_unit,*) "|The operator is represented using the H Eigenbasis with a basis size of       | ", Operator%Operator_type
       WRITE(out_unit,*) "|______________________________________________________________________________|____________________"
       FLUSH(out_unit)
       
       WRITE(out_unit,*) "|The operator's Diagonal matrix representation has been used, and is           |"
       WRITE(out_unit,*) "|______________________________________________________________________________|"
-      CALL Write_Vec(Operator%Diag_val_R, out_unit, 1, info="Diag_val_R")
+      CALL Write_Vec(Operator%Diag_val, out_unit, 1, info="Diag_val")
       WRITE(out_unit,*) "|______________________________________________________________________________|"
       FLUSH(out_unit)
 
@@ -427,14 +410,14 @@ MODULE HO1D_operator_m
       FLUSH(out_unit)
     END IF
 
-    IF (ALLOCATED(Operator%Band_val_R)) THEN
+    IF (ALLOCATED(Operator%Band_val)) THEN
       WRITE(out_unit,*) "|The operator is represented using the H Eigenbasis with a basis size of      | ", Operator%Operator_type
       WRITE(out_unit,*) "|_____________________________________________________________________________|_____________________"
       FLUSH(out_unit)
 
       WRITE(out_unit,*) "|The operator's Band matrix representation has been used, and is               |"
       WRITE(out_unit,*) "|______________________________________________________________________________|"
-      CALL Write_Mat(Operator%Band_val_R, out_unit, 3, info="Band_val_R")
+      CALL Write_Mat(Operator%Band_val, out_unit, 3, info="Band_val")
       WRITE(out_unit,*) "|______________________________________________________________________________|"
       FLUSH(out_unit)
   
@@ -444,14 +427,14 @@ MODULE HO1D_operator_m
       FLUSH(out_unit)
     END IF
 
-    IF (ALLOCATED(Operator%Dense_val_R)) THEN
+    IF (ALLOCATED(Operator%Dense_val)) THEN
       WRITE(out_unit,*) "|The operator is represented using the H Eigenbasis with a basis size of      | ", Operator%Operator_type
       WRITE(out_unit,*) "|_____________________________________________________________________________|_____________________"
       FLUSH(out_unit)
 
       WRITE(out_unit,*) "|______________________________________________________________________________|"
       WRITE(out_unit,*) "|The operator's Dense matrix representation has been used, and is              |"
-      CALL Write_Mat(Operator%Dense_val_R, out_unit, Size(Operator%Dense_val_R, dim=2), info="Dense_val_R")
+      CALL Write_Mat(Operator%Dense_val, out_unit, Size(Operator%Dense_val, dim=2), info="Dense_val")
       WRITE(out_unit,*) "|______________________________________________________________________________|"
       FLUSH(out_unit)
   
@@ -490,9 +473,9 @@ MODULE HO1D_operator_m
     END IF 
 
     IF (ALLOCATED(Operator%Operator_type)) DEALLOCATE(Operator%Operator_type)
-    IF (ALLOCATED(Operator%Dense_val_R))   DEALLOCATE(Operator%Dense_val_R)
-    IF (ALLOCATED(Operator%Diag_val_R))    DEALLOCATE(Operator%Diag_val_R)
-    IF (ALLOCATED(Operator%Band_val_R))    DEALLOCATE(Operator%Band_val_R)
+    IF (ALLOCATED(Operator%Dense_val))   DEALLOCATE(Operator%Dense_val)
+    IF (ALLOCATED(Operator%Diag_val))    DEALLOCATE(Operator%Diag_val)
+    IF (ALLOCATED(Operator%Band_val))    DEALLOCATE(Operator%Band_val)
 
     IF (Debug_local) THEN
       WRITE(out_unit,*)

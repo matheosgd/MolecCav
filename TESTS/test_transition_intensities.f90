@@ -94,9 +94,9 @@ PROGRAM test_transition_intensities
                            & Mode=Molecule_1, &
                            & Debug=.FALSE.)
 
-  Mol1DipMomt%Band_val_R = Mol1DipMomt%Band_val_R*CteDipMomt                                                              ! /!\ so that the matrix already contains the intensity constant of the dipolar moment with the position of the matter (cf. manual for formulas)
+  Mol1DipMomt%Band_val = Mol1DipMomt%Band_val*CteDipMomt                                                              ! /!\ so that the matrix already contains the intensity constant of the dipolar moment with the position of the matter (cf. manual for formulas)
     
-  IF (Debug) CALL Write_Mat(Mol1DipMomt%Band_val_R, out_unit, 3, info="Mol1DipMomt")
+  IF (Debug) CALL Write_Mat(Mol1DipMomt%Band_val, out_unit, 3, info="Mol1DipMomt")
   FLUSH(out_unit)
 
     !------------------------------------------------------First cavity mode-----------------------------------------------------

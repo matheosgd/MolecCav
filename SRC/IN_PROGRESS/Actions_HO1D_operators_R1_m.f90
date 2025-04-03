@@ -112,9 +112,9 @@ MODULE Actions_HO1D_operators_R1_m
     END IF
     
     !-----------------------------------------------------Checking dimensions----------------------------------------------------
-    IF (ALLOCATED(Operator%Dense_val_R)) Nb = Size(Operator%Dense_val_R, dim=1)
-    IF (ALLOCATED(Operator%Diag_val_R) ) Nb = Size(Operator%Diag_val_R,  dim=1)
-    IF (ALLOCATED(Operator%Band_val_R) ) Nb = Size(Operator%Band_val_R,  dim=1)
+    IF (ALLOCATED(Operator%Dense_val)) Nb = Size(Operator%Dense_val, dim=1)
+    IF (ALLOCATED(Operator%Diag_val) ) Nb = Size(Operator%Diag_val,  dim=1)
+    IF (ALLOCATED(Operator%Band_val) ) Nb = Size(Operator%Band_val,  dim=1)
 
     IF (Nb /= Size(Psi)) THEN
       WRITE(out_unit,*) "### The dimensions of the Operator's matrix representation does not match the operand Psi's vector size.&
@@ -133,18 +133,18 @@ MODULE Actions_HO1D_operators_R1_m
     END IF 
 
     !---------------------------------------------Selection of the calculation method--------------------------------------------
-    IF      (ALLOCATED(Operator%Diag_val_R))   THEN
-      IF (Debug_local) WRITE(out_unit,*) "--- Operator%Diag_val_R is allocated. The diagonal operator action called."
+    IF      (ALLOCATED(Operator%Diag_val))   THEN
+      IF (Debug_local) WRITE(out_unit,*) "--- Operator%Diag_val is allocated. The diagonal operator action called."
       CALL Action_diag_HO1D_operator_R1(Op_psi=Op_psi, Operator=Operator, Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
 
-    ELSE IF (ALLOCATED(Operator%Band_val_R))   THEN
-      IF (Debug_local) WRITE(out_unit,*) "--- Operator%Diag_val_R is not allocated."
-      IF (Debug_local) WRITE(out_unit,*) "--- Operator%Band_val_R is allocated. The band operator action called."
+    ELSE IF (ALLOCATED(Operator%Band_val))   THEN
+      IF (Debug_local) WRITE(out_unit,*) "--- Operator%Diag_val is not allocated."
+      IF (Debug_local) WRITE(out_unit,*) "--- Operator%Band_val is allocated. The band operator action called."
       CALL Action_band_HO1D_operator_R1(Op_psi=Op_psi, Operator=Operator, Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
 
-    ELSE IF (ALLOCATED(Operator%Dense_val_R)) THEN
-      IF (Debug_local) WRITE(out_unit,*) "Operator%Diag_val_R and Operator%Band_val_R are not allocated."
-      IF (Debug_local) WRITE(out_unit,*) "Operator%Dense_val_R is allocated. The dense operator action called."
+    ELSE IF (ALLOCATED(Operator%Dense_val)) THEN
+      IF (Debug_local) WRITE(out_unit,*) "Operator%Diag_val and Operator%Band_val are not allocated."
+      IF (Debug_local) WRITE(out_unit,*) "Operator%Dense_val is allocated. The dense operator action called."
       CALL Action_dense_HO1D_operator_R1(Op_psi=Op_psi, Operator=Operator, Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
 
     ELSE
@@ -191,7 +191,7 @@ MODULE Actions_HO1D_operators_R1_m
                                              & procedure--------------------------------------"; FLUSH(out_unit)
     
     !----------------------------------------------------Computing the action----------------------------------------------------
-    Op_psi(:) = matmul(Operator%Dense_val_R, Psi)
+    Op_psi(:) = matmul(Operator%Dense_val, Psi)
 
   END SUBROUTINE MolecCav_Action_dense_HO1D_operator_R1_real
 
@@ -220,7 +220,7 @@ MODULE Actions_HO1D_operators_R1_m
                                              &nal procedure--------------------------------------"; FLUSH(out_unit)
     
     !----------------------------------------------------Computing the action----------------------------------------------------
-    Op_psi = Operator%Diag_val_R * Psi
+    Op_psi = Operator%Diag_val * Psi
 
   END SUBROUTINE MolecCav_Action_diag_HO1D_operator_R1_real
 
@@ -253,13 +253,13 @@ MODULE Actions_HO1D_operators_R1_m
     Nb = size(Op_psi)
 
     Op_psi     = ZERO
-    Op_psi     = Operator%Band_val_R(:,2) * Psi
-    Op_psi(1)  = Op_psi(1)  + Operator%Band_val_R(2,3)    * Psi(2)
-    Op_psi(Nb) = Op_psi(Nb) + Operator%Band_val_R(Nb-1,1) * Psi(Nb-1)
+    Op_psi     = Operator%Band_val(:,2) * Psi
+    Op_psi(1)  = Op_psi(1)  + Operator%Band_val(2,3)    * Psi(2)
+    Op_psi(Nb) = Op_psi(Nb) + Operator%Band_val(Nb-1,1) * Psi(Nb-1)
     DO i = 2, Nb-1
       Op_psi(i) = Op_psi(i) + &
-                & Operator%Band_val_R(i-1,1) * Psi(i-1) + &
-                & Operator%Band_val_R(i+1,3) * Psi(i+1)
+                & Operator%Band_val(i-1,1) * Psi(i-1) + &
+                & Operator%Band_val(i+1,3) * Psi(i+1)
     END DO
 
   END SUBROUTINE MolecCav_Action_band_HO1D_operator_R1_real
@@ -304,9 +304,9 @@ MODULE Actions_HO1D_operators_R1_m
     END IF
     
     !-----------------------------------------------------Checking dimensions----------------------------------------------------
-    IF (ALLOCATED(Operator%Dense_val_R)) Nb = Size(Operator%Dense_val_R, dim=1)
-    IF (ALLOCATED(Operator%Diag_val_R )) Nb = Size(Operator%Diag_val_R,  dim=1)
-    IF (ALLOCATED(Operator%Band_val_R )) Nb = Size(Operator%Band_val_R,  dim=1)
+    IF (ALLOCATED(Operator%Dense_val)) Nb = Size(Operator%Dense_val, dim=1)
+    IF (ALLOCATED(Operator%Diag_val )) Nb = Size(Operator%Diag_val,  dim=1)
+    IF (ALLOCATED(Operator%Band_val )) Nb = Size(Operator%Band_val,  dim=1)
 
     IF (Nb /= Size(Psi)) THEN
       WRITE(out_unit,*) "### The dimensions of the Operator's matrix representation does not match the operand Psi's vector size.&
@@ -381,9 +381,9 @@ MODULE Actions_HO1D_operators_R1_m
     END IF
     
     !-----------------------------------------------------Checking dimensions----------------------------------------------------
-    IF (ALLOCATED(Operator%Dense_val_R)) Nb = Size(Operator%Dense_val_R, dim=1)
-    IF (ALLOCATED(Operator%Diag_val_R) ) Nb = Size(Operator%Diag_val_R,  dim=1)
-    IF (ALLOCATED(Operator%Band_val_R) ) Nb = Size(Operator%Band_val_R,  dim=1)
+    IF (ALLOCATED(Operator%Dense_val)) Nb = Size(Operator%Dense_val, dim=1)
+    IF (ALLOCATED(Operator%Diag_val) ) Nb = Size(Operator%Diag_val,  dim=1)
+    IF (ALLOCATED(Operator%Band_val) ) Nb = Size(Operator%Band_val,  dim=1)
 
     IF (Nb /= Size(Psi)) THEN
       WRITE(out_unit,*) "### The dimensions of the Operator's matrix representation does not match the operand Psi's vector size.&
@@ -402,18 +402,18 @@ MODULE Actions_HO1D_operators_R1_m
     END IF 
 
     !---------------------------------------------Selection of the calculation method--------------------------------------------
-    IF      (ALLOCATED(Operator%Diag_val_R))   THEN
-      IF (Debug_local) WRITE(out_unit,*) "--- Operator%Diag_val_R is allocated. The diagonal operator action called."
+    IF      (ALLOCATED(Operator%Diag_val))   THEN
+      IF (Debug_local) WRITE(out_unit,*) "--- Operator%Diag_val is allocated. The diagonal operator action called."
       CALL Action_diag_HO1D_operator_R1(Op_psi=Op_psi, Operator=Operator, Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
 
-    ELSE IF (ALLOCATED(Operator%Band_val_R))   THEN
-      IF (Debug_local) WRITE(out_unit,*) "--- Operator%Diag_val_R is not allocated."
-      IF (Debug_local) WRITE(out_unit,*) "--- Operator%Band_val_R is allocated. The band operator action called."
+    ELSE IF (ALLOCATED(Operator%Band_val))   THEN
+      IF (Debug_local) WRITE(out_unit,*) "--- Operator%Diag_val is not allocated."
+      IF (Debug_local) WRITE(out_unit,*) "--- Operator%Band_val is allocated. The band operator action called."
       CALL Action_band_HO1D_operator_R1(Op_psi=Op_psi, Operator=Operator, Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
 
-    ELSE IF (ALLOCATED(Operator%Dense_val_R)) THEN
-      IF (Debug_local) WRITE(out_unit,*) "Operator%Diag_val_R and Operator%Band_val_R are not allocated."
-      IF (Debug_local) WRITE(out_unit,*) "Operator%Dense_val_R is allocated. The dense operator action called."
+    ELSE IF (ALLOCATED(Operator%Dense_val)) THEN
+      IF (Debug_local) WRITE(out_unit,*) "Operator%Diag_val and Operator%Band_val are not allocated."
+      IF (Debug_local) WRITE(out_unit,*) "Operator%Dense_val is allocated. The dense operator action called."
       CALL Action_dense_HO1D_operator_R1(Op_psi=Op_psi, Operator=Operator, Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
 
     ELSE
@@ -460,7 +460,7 @@ MODULE Actions_HO1D_operators_R1_m
                                              & procedure--------------------------------------"; FLUSH(out_unit)
     
     !----------------------------------------------------Computing the action----------------------------------------------------
-    Op_psi(:) = matmul(Operator%Dense_val_R, Psi)
+    Op_psi(:) = matmul(Operator%Dense_val, Psi)
 
   END SUBROUTINE MolecCav_Action_dense_HO1D_operator_R1_complex
 
@@ -489,7 +489,7 @@ MODULE Actions_HO1D_operators_R1_m
                                              &nal procedure--------------------------------------"; FLUSH(out_unit)
     
     !----------------------------------------------------Computing the action----------------------------------------------------
-    Op_psi = Operator%Diag_val_R * Psi
+    Op_psi = Operator%Diag_val * Psi
 
   END SUBROUTINE MolecCav_Action_diag_HO1D_operator_R1_complex
 
@@ -522,13 +522,13 @@ MODULE Actions_HO1D_operators_R1_m
     Nb = size(Op_psi)
 
     Op_psi     = ZERO
-    Op_psi     = Operator%Band_val_R(:,2) * Psi
-    Op_psi(1)  = Op_psi(1)  + Operator%Band_val_R(2,3)    * Psi(2)
-    Op_psi(Nb) = Op_psi(Nb) + Operator%Band_val_R(Nb-1,1) * Psi(Nb-1)
+    Op_psi     = Operator%Band_val(:,2) * Psi
+    Op_psi(1)  = Op_psi(1)  + Operator%Band_val(2,3)    * Psi(2)
+    Op_psi(Nb) = Op_psi(Nb) + Operator%Band_val(Nb-1,1) * Psi(Nb-1)
     DO i = 2, Nb-1
       Op_psi(i) = Op_psi(i) + &
-                & Operator%Band_val_R(i-1,1) * Psi(i-1) + &
-                & Operator%Band_val_R(i+1,3) * Psi(i+1)
+                & Operator%Band_val(i-1,1) * Psi(i-1) + &
+                & Operator%Band_val(i+1,3) * Psi(i+1)
     END DO
 
   END SUBROUTINE MolecCav_Action_band_HO1D_operator_R1_complex
@@ -573,9 +573,9 @@ MODULE Actions_HO1D_operators_R1_m
     END IF
     
     !-----------------------------------------------------Checking dimensions----------------------------------------------------
-    IF (ALLOCATED(Operator%Dense_val_R)) Nb = Size(Operator%Dense_val_R, dim=1)
-    IF (ALLOCATED(Operator%Diag_val_R )) Nb = Size(Operator%Diag_val_R,  dim=1)
-    IF (ALLOCATED(Operator%Band_val_R )) Nb = Size(Operator%Band_val_R,  dim=1)
+    IF (ALLOCATED(Operator%Dense_val)) Nb = Size(Operator%Dense_val, dim=1)
+    IF (ALLOCATED(Operator%Diag_val )) Nb = Size(Operator%Diag_val,  dim=1)
+    IF (ALLOCATED(Operator%Band_val )) Nb = Size(Operator%Band_val,  dim=1)
 
     IF (Nb /= Size(Psi)) THEN
       WRITE(out_unit,*) "### The dimensions of the Operator's matrix representation does not match the operand Psi's vector size.&

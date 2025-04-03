@@ -120,12 +120,12 @@ PROGRAM App_MolecCav
   WRITE(out_unit,*) "Molecular Dipole moment :"
   CALL Construct_Operator_1D(Operator=Mol1DipMomt,  operator_type="Position",    Dense=.FALSE., Mode=Molecule_1, Debug=Debug)    ! initialized as a position operator because of approximation over its expression (cf. readme.md or manual)
 
-  IF (ALLOCATED(Mol1DipMomt%Dense_val_R)) Mol1DipMomt%Dense_val_R = Mol1DipMomt%Dense_val_R*CteMol1DipMomt                       ! /!\ so that the matrix already contains the intensity constant of the dipolar moment with the position of the matter (cf. manual for formulas)
-  IF (ALLOCATED(Mol1DipMomt%Band_val_R))  Mol1DipMomt%Band_val_R  = Mol1DipMomt%Band_val_R *CteMol1DipMomt                       ! /!\ so that the matrix already contains the intensity constant of the dipolar moment with the position of the matter (cf. manual for formulas)
+  IF (ALLOCATED(Mol1DipMomt%Dense_val)) Mol1DipMomt%Dense_val = Mol1DipMomt%Dense_val*CteMol1DipMomt                       ! /!\ so that the matrix already contains the intensity constant of the dipolar moment with the position of the matter (cf. manual for formulas)
+  IF (ALLOCATED(Mol1DipMomt%Band_val))  Mol1DipMomt%Band_val  = Mol1DipMomt%Band_val *CteMol1DipMomt                       ! /!\ so that the matrix already contains the intensity constant of the dipolar moment with the position of the matter (cf. manual for formulas)
     
-  IF (Debug .AND. ALLOCATED(Mol1DipMomt%Diag_val_R )) CALL Write_Vec(Mol1DipMomt%Diag_val_R, out_unit, 3, info="Mol1DipMomt")
-  IF (Debug .AND. ALLOCATED(Mol1DipMomt%Band_val_R )) CALL Write_Mat(Mol1DipMomt%Band_val_R, out_unit, 3, info="Mol1DipMomt")
-  IF (Debug .AND. ALLOCATED(Mol1DipMomt%Dense_val_R)) CALL Write_Mat(Mol1DipMomt%Band_val_R, out_unit, 3, info="Mol1DipMomt")
+  IF (Debug .AND. ALLOCATED(Mol1DipMomt%Diag_val )) CALL Write_Vec(Mol1DipMomt%Diag_val, out_unit, 3, info="Mol1DipMomt")
+  IF (Debug .AND. ALLOCATED(Mol1DipMomt%Band_val )) CALL Write_Mat(Mol1DipMomt%Band_val, out_unit, 3, info="Mol1DipMomt")
+  IF (Debug .AND. ALLOCATED(Mol1DipMomt%Dense_val)) CALL Write_Mat(Mol1DipMomt%Band_val, out_unit, 3, info="Mol1DipMomt")
   FLUSH(out_unit)
 
     !------------------------------------------------------First cavity mode-----------------------------------------------------
@@ -258,7 +258,7 @@ PROGRAM App_MolecCav
   END IF
 
   ALLOCATE(Result_psi_1p1D_R1(Cavity_mode_1%Nb))
-  CALL Action_Operator_1D(Result_psi_1p1D_R1, Cav1N, CavPsi)
+  CALL Action(Result_psi_1p1D_R1, Cav1N, CavPsi)
   IF (Debug .AND. Size(CavPsi) <= 10) THEN
     WRITE(out_unit,*) 'Action of Nb_photons over the cavity mode WF (1D)'
     CALL Write_Vec(Result_psi_1p1D_R1, out_unit, 1, info="N_CavPsi")

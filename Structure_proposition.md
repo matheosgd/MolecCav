@@ -185,9 +185,9 @@ MODULE HO1D_operator_m
     logical                          :: Dense = .FALSE.  
     integer                          :: Upper_bandwidth = 0  
     integer                          :: Lower_bandwidth = 0  
-    real(kind=Rkind),    allocatable :: Dense_val_R(:,:)  
-    real(kind=Rkind),    allocatable :: Diag_val_R(:)  
-    real(kind=Rkind),    allocatable :: Band_val_R(:,:)  
+    real(kind=Rkind),    allocatable :: Dense_val(:,:)  
+    real(kind=Rkind),    allocatable :: Diag_val(:)  
+    real(kind=Rkind),    allocatable :: Band_val(:,:)  
   END TYPE  
 
   CONTAINS  

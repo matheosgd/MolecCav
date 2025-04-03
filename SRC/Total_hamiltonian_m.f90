@@ -197,13 +197,13 @@ MODULE Total_hamiltonian_m
     !    Psi_3 = [MatDipMomt]_psi
 
     DO i_C = 1, Size(Psi, 2)                                                   ! initialize Matter_hamiltonianSystem_WF by applying the matter hamiltonian to each column of the matrix of the total system WF Psi
-      CALL Action_Operator_1D(Psi_1(:,i_C), MatH, Psi(:,i_C))
+      CALL Action(Psi_1(:,i_C), MatH, Psi(:,i_C))
     END DO
     
     Psi_2(:,:) = Psi(:,:)
 
     DO i_C = 1, Size(Psi, 2)
-      CALL Action_Operator_1D(Psi_3(:,i_C), MatDipMomt, Psi(:,i_C))
+      CALL Action(Psi_3(:,i_C), MatDipMomt, Psi(:,i_C))
     END DO
 
   END SUBROUTINE MolecCav_Action_matter_1p1D
@@ -246,7 +246,7 @@ MODULE Total_hamiltonian_m
     ALLOCATE(Intermediary(Size(TotH_psi,1), Size(TotH_psi,2)))
     Intermediary = ZERO
     DO i_M = 1, Size(TotH_psi,1)
-      CALL Action_Operator_1D(Intermediary(i_M,:), CavH, Psi_2(i_M,:))
+      CALL Action(Intermediary(i_M,:), CavH, Psi_2(i_M,:))
     END DO
     IF (Debug_local .AND. Nb_C <= 10) THEN
       WRITE(out_unit,*)
@@ -267,7 +267,7 @@ MODULE Total_hamiltonian_m
 
     Intermediary = ZERO
     DO i_M = 1, Size(TotH_psi,1)
-      CALL Action_Operator_1D(Intermediary(i_M,:), CavPosition, Psi_3(i_M,:))
+      CALL Action(Intermediary(i_M,:), CavPosition, Psi_3(i_M,:))
     END DO
     IF (Debug_local .AND. Nb_C <= 10) THEN
       WRITE(out_unit,*)
@@ -422,13 +422,13 @@ MODULE Total_hamiltonian_m
     Psi_3_R2 = ZERO
 
     DO i_C = 1, Nb_C                                                   ! initialize Matter_hamiltonianSystem_WF by applying the matter hamiltonian to each column of the matrix of the total system WF Psi
-      CALL Action_Operator_1D(Psi_1_R2(:,i_C), MatH, Psi_R2(:,i_C))
+      CALL Action(Psi_1_R2(:,i_C), MatH, Psi_R2(:,i_C))
     END DO
     
     Psi_2(:) = Psi(:)
 
     DO i_C = 1, Nb_C
-      CALL Action_Operator_1D(Psi_3_R2(:,i_C), MatDipMomt, Psi_R2(:,i_C))
+      CALL Action(Psi_3_R2(:,i_C), MatDipMomt, Psi_R2(:,i_C))
     END DO
 
     CALL Mapping_WF_R2TOR1(Psi_1, Psi_1_R2)
@@ -480,7 +480,7 @@ MODULE Total_hamiltonian_m
     Psi_2_R2        = ZERO
     CALL Mapping_WF_R1TOR2(Psi_2_R2, Psi_2, Debug=Debug_local)
     DO i_M = 1, Nb_M
-      CALL Action_Operator_1D(Intermediary_R2(i_M,:), CavH, Psi_2_R2(i_M,:))
+      CALL Action(Intermediary_R2(i_M,:), CavH, Psi_2_R2(i_M,:))
     END DO
     IF (Debug_local .AND. Nb_C <= 50) THEN
       WRITE(out_unit,*)
@@ -505,7 +505,7 @@ MODULE Total_hamiltonian_m
     ALLOCATE(Psi_3_R2(Nb_M, Nb_C))
     CALL Mapping_WF_R1TOR2(Psi_3_R2, Psi_3)
     DO i_M = 1, Nb_M
-      CALL Action_Operator_1D(Intermediary_R2(i_M,:), CavPosition, Psi_3_R2(i_M,:))
+      CALL Action(Intermediary_R2(i_M,:), CavPosition, Psi_3_R2(i_M,:))
     END DO
     IF (Debug_local .AND. Nb_C <= 50) THEN
       WRITE(out_unit,*)
@@ -549,19 +549,19 @@ MODULE Total_hamiltonian_m
 
     IF (PRESENT(Debug)) Debug_local = Debug
 
-    IF (ALLOCATED(MatH%Diag_val_R)) THEN
-      Nb_M = Size(MatH%Diag_val_R)
-    ELSE IF (ALLOCATED(MatH%Dense_val_R)) THEN
-      Nb_M = Size(MatH%Dense_val_R, dim=1)
+    IF (ALLOCATED(MatH%Diag_val)) THEN
+      Nb_M = Size(MatH%Diag_val)
+    ELSE IF (ALLOCATED(MatH%Dense_val)) THEN
+      Nb_M = Size(MatH%Dense_val, dim=1)
     ELSE 
       WRITE(out_unit,*) "The matter Hamiltonian does not seem to have been initialized (matrices not allocated)."
       STOP "### The matter Hamiltonian does not seem to have been initialized (matrices not allocated)."
     END IF
 
-    IF (ALLOCATED(CavH%Diag_val_R)) THEN
-      Nb_C = Size(CavH%Diag_val_R)
-    ELSE IF (ALLOCATED(CavH%Dense_val_R)) THEN
-      Nb_C = Size(CavH%Dense_val_R, dim=1)
+    IF (ALLOCATED(CavH%Diag_val)) THEN
+      Nb_C = Size(CavH%Diag_val)
+    ELSE IF (ALLOCATED(CavH%Dense_val)) THEN
+      Nb_C = Size(CavH%Dense_val, dim=1)
     ELSE 
       WRITE(out_unit,*) "The matter Hamiltonian does not seem to have been initialized (matrices not allocated)."
       STOP "### The matter Hamiltonian does not seem to have been initialized (matrices not allocated)."
@@ -639,30 +639,30 @@ MODULE Total_hamiltonian_m
 
     IF (PRESENT(Debug)) Debug_local = Debug
 
-    IF (ALLOCATED(MatH%Diag_val_R)) THEN
-      Nb_M = Size(MatH%Diag_val_R)
-    ELSE IF (ALLOCATED(MatH%Dense_val_R)) THEN
-      Nb_M = Size(MatH%Dense_val_R, dim=1)
+    IF (ALLOCATED(MatH%Diag_val)) THEN
+      Nb_M = Size(MatH%Diag_val)
+    ELSE IF (ALLOCATED(MatH%Dense_val)) THEN
+      Nb_M = Size(MatH%Dense_val, dim=1)
     ELSE 
       WRITE(out_unit,*) "The matter Hamiltonian does not seem to have been initialized (matrices not allocated)."
       STOP "### The matter Hamiltonian does not seem to have been initialized (matrices not allocated)."
     END IF
 
-    IF (ALLOCATED(CavH%Diag_val_R)) THEN
-      Nb_C = Size(CavH%Diag_val_R)
-    ELSE IF (ALLOCATED(CavH%Dense_val_R)) THEN
-      Nb_C = Size(CavH%Dense_val_R, dim=1)
+    IF (ALLOCATED(CavH%Diag_val)) THEN
+      Nb_C = Size(CavH%Diag_val)
+    ELSE IF (ALLOCATED(CavH%Dense_val)) THEN
+      Nb_C = Size(CavH%Dense_val, dim=1)
     ELSE 
       WRITE(out_unit,*) "The matter Hamiltonian does not seem to have been initialized (matrices not allocated)."
       STOP "### The matter Hamiltonian does not seem to have been initialized (matrices not allocated)."
     END IF
 
-    IF (.NOT. ALLOCATED(MatDipMomt%Band_val_R) .AND. .NOT. ALLOCATED(MatDipMomt%Dense_val_R)) THEN
+    IF (.NOT. ALLOCATED(MatDipMomt%Band_val) .AND. .NOT. ALLOCATED(MatDipMomt%Dense_val)) THEN
       WRITE(out_unit,*) "The matter dipole moment operator does not seem to have been initialized (matrices not allocated)."
       STOP "### The matter dipole moment operator does not seem to have been initialized (matrices not allocated)."
     END IF
 
-    IF (.NOT. ALLOCATED(CavPosition%Band_val_R) .AND. .NOT. ALLOCATED(CavPosition%Dense_val_R)) THEN
+    IF (.NOT. ALLOCATED(CavPosition%Band_val) .AND. .NOT. ALLOCATED(CavPosition%Dense_val)) THEN
       WRITE(out_unit,*) "The cavity position operator does not seem to have been initialized (matrices not allocated)."
       STOP "### The cavity position operator does not seem to have been initialized (matrices not allocated)."
     END IF
@@ -783,10 +783,10 @@ MODULE Total_hamiltonian_m
     CALL Mapping_WF_R1TOR2(FinPsi_1p1D,  FinPsi,  Debug=Debug)
     CALL Mapping_WF_R1TOR2(InitPsi_1p1D, InitPsi, Debug=Debug)
 
-    IF (Debug) CALL Write_operator_1D(MatDipMomt)
+    IF (Debug) CALL Write(MatDipMomt)
 
     DO i_C = 1, Nb_C
-      CALL Action_Operator_1D(Intermediary(:,i_C), MatDipMomt, FinPsi_1p1D(:,i_C))
+      CALL Action(Intermediary(:,i_C), MatDipMomt, FinPsi_1p1D(:,i_C))
     END DO
     IF (Debug) CALL Write_Mat(Intermediary, out_unit, Size(Intermediary, dim=2), info="\hat{\mu}_{mat}\ket{\Psi_f}")
 

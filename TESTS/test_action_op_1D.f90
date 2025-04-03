@@ -116,8 +116,8 @@ PROGRAM test_action_op_1D
 
   !----------------------------Testing the H actions---------------------------
     !---------------------------------H_{w=1/2}--------------------------------
-  CALL Action_Operator_1D(Op_psi, H_diag_half, b_0)
-  Op_psi_ana(:) = [H_diag_half%Diag_val_R(1), ZERO, ZERO]
+  CALL Action(Op_psi, H_diag_half, b_0)
+  Op_psi_ana(:) = [H_diag_half%Diag_val(1), ZERO, ZERO]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="H_{diag, w=1/2}|0>")
   IF (error_action .AND. Debug) THEN
@@ -125,8 +125,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="H_{diag, w=1/2}|0>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, H_diag_half, b_1)
-  Op_psi_ana(:) = [ZERO, H_diag_half%Diag_val_R(2), ZERO]
+  CALL Action(Op_psi, H_diag_half, b_1)
+  Op_psi_ana(:) = [ZERO, H_diag_half%Diag_val(2), ZERO]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="H_{diag, w=1/2}|1>")
   IF (error_action .AND. Debug) THEN
@@ -134,8 +134,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="H_{diag, w=1/2}|1>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, H_diag_half, b_2)
-  Op_psi_ana(:) = [ZERO, ZERO, H_diag_half%Diag_val_R(3)]
+  CALL Action(Op_psi, H_diag_half, b_2)
+  Op_psi_ana(:) = [ZERO, ZERO, H_diag_half%Diag_val(3)]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="H_{diag, w=1/2}|2>")
   IF (error_action .AND. Debug) THEN
@@ -143,8 +143,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="H_{diag, w=1/2}|2>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, H_dense_half, b_0)
-  Op_psi_ana(:) = [H_dense_half%Dense_val_R(1,1), ZERO, ZERO]
+  CALL Action(Op_psi, H_dense_half, b_0)
+  Op_psi_ana(:) = [H_dense_half%Dense_val(1,1), ZERO, ZERO]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="H_{dense, w=1/2}|0>")
   IF (error_action .AND. Debug) THEN
@@ -152,8 +152,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="H_{dense, w=1/2}|0>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, H_dense_half, b_1)
-  Op_psi_ana(:) = [ZERO, H_dense_half%Dense_val_R(2,2), ZERO]
+  CALL Action(Op_psi, H_dense_half, b_1)
+  Op_psi_ana(:) = [ZERO, H_dense_half%Dense_val(2,2), ZERO]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="H_{dense, w=1/2}|1>")
   IF (error_action .AND. Debug) THEN
@@ -161,8 +161,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="H_{dense, w=1/2}|1>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, H_dense_half, b_2)
-  Op_psi_ana(:) = [ZERO, ZERO, H_dense_half%Dense_val_R(3,3)]
+  CALL Action(Op_psi, H_dense_half, b_2)
+  Op_psi_ana(:) = [ZERO, ZERO, H_dense_half%Dense_val(3,3)]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="H_{dense, w=1/2}|2>")
   IF (error_action .AND. Debug) THEN
@@ -170,8 +170,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="H_{dense, w=1/2}|2>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, H_diag_half, Psi_1D)
-  Op_psi_ana(:) = [Coeff_0*H_diag_half%Diag_val_R(1), Coeff_1*H_diag_half%Diag_val_R(2), Coeff_2*H_diag_half%Diag_val_R(3)] / Norm
+  CALL Action(Op_psi, H_diag_half, Psi_1D)
+  Op_psi_ana(:) = [Coeff_0*H_diag_half%Diag_val(1), Coeff_1*H_diag_half%Diag_val(2), Coeff_2*H_diag_half%Diag_val(3)] / Norm
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="H_{diag, w=1/2}|Psi_1D>")
   IF (error_action .AND. Debug) THEN
@@ -179,9 +179,9 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana*Norm, out_unit, Size(Op_psi_ana), info="H_{diag, w=1/2}|Psi_1D>*Norm(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, H_dense_half, Psi_1D)
-  Op_psi_ana(:) = [Coeff_0*H_dense_half%Dense_val_R(1,1), Coeff_1*H_dense_half%Dense_val_R(2,2), Co&
-                  &eff_2*H_dense_half%Dense_val_R(3,3)] / Norm
+  CALL Action(Op_psi, H_dense_half, Psi_1D)
+  Op_psi_ana(:) = [Coeff_0*H_dense_half%Dense_val(1,1), Coeff_1*H_dense_half%Dense_val(2,2), Co&
+                  &eff_2*H_dense_half%Dense_val(3,3)] / Norm
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="H_{dense, w=1/2}|Psi_1D>")
   IF (error_action .AND. Debug) THEN
@@ -190,8 +190,8 @@ PROGRAM test_action_op_1D
   END IF
 
     !----------------------------------H_{w=3}---------------------------------
-  CALL Action_Operator_1D(Op_psi, H_diag_3, b_0)
-  Op_psi_ana(:) = [H_diag_3%Diag_val_R(1), ZERO, ZERO]
+  CALL Action(Op_psi, H_diag_3, b_0)
+  Op_psi_ana(:) = [H_diag_3%Diag_val(1), ZERO, ZERO]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="H_{diag, w=3}|0>")
   IF (error_action .AND. Debug) THEN
@@ -199,8 +199,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="H_{diag, w=3}|0>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, H_diag_3, b_1)
-  Op_psi_ana(:) = [ZERO, H_diag_3%Diag_val_R(2), ZERO]
+  CALL Action(Op_psi, H_diag_3, b_1)
+  Op_psi_ana(:) = [ZERO, H_diag_3%Diag_val(2), ZERO]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="H_{diag, w=3}|1>")
   IF (error_action .AND. Debug) THEN
@@ -208,8 +208,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="H_{diag, w=3}|1>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, H_diag_3, b_2)
-  Op_psi_ana(:) = [ZERO, ZERO, H_diag_3%Diag_val_R(3)]
+  CALL Action(Op_psi, H_diag_3, b_2)
+  Op_psi_ana(:) = [ZERO, ZERO, H_diag_3%Diag_val(3)]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="H_{diag, w=3}|2>")
   IF (error_action .AND. Debug) THEN
@@ -217,8 +217,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="H_{diag, w=3}|2>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, H_dense_3, b_0)
-  Op_psi_ana(:) = [H_dense_3%Dense_val_R(1,1), ZERO, ZERO]
+  CALL Action(Op_psi, H_dense_3, b_0)
+  Op_psi_ana(:) = [H_dense_3%Dense_val(1,1), ZERO, ZERO]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="H_{dense, w=3}|0>")
   IF (error_action .AND. Debug) THEN
@@ -226,8 +226,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="H_{dense, w=3}|0>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, H_dense_3, b_1)
-  Op_psi_ana(:) = [ZERO, H_dense_3%Dense_val_R(2,2), ZERO]
+  CALL Action(Op_psi, H_dense_3, b_1)
+  Op_psi_ana(:) = [ZERO, H_dense_3%Dense_val(2,2), ZERO]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="H_{dense, w=3}|1>")
   IF (error_action .AND. Debug) THEN
@@ -235,8 +235,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="H_{dense, w=3}|1>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, H_dense_3, b_2)
-  Op_psi_ana(:) = [ZERO, ZERO, H_dense_3%Dense_val_R(3,3)]
+  CALL Action(Op_psi, H_dense_3, b_2)
+  Op_psi_ana(:) = [ZERO, ZERO, H_dense_3%Dense_val(3,3)]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="H_{dense, w=3}|2>")
   IF (error_action .AND. Debug) THEN
@@ -244,8 +244,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="H_{dense, w=3}|2>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, H_diag_3, Psi_1D)
-  Op_psi_ana(:) = [Coeff_0*H_diag_3%Diag_val_R(1), Coeff_1*H_diag_3%Diag_val_R(2), Coeff_2*H_diag_3%Diag_val_R(3)] / Norm
+  CALL Action(Op_psi, H_diag_3, Psi_1D)
+  Op_psi_ana(:) = [Coeff_0*H_diag_3%Diag_val(1), Coeff_1*H_diag_3%Diag_val(2), Coeff_2*H_diag_3%Diag_val(3)] / Norm
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="H_{diag, w=3}|Psi_1D>")
   IF (error_action .AND. Debug) THEN
@@ -253,9 +253,9 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana*Norm, out_unit, Size(Op_psi_ana), info="H_{diag, w=3}|Psi_1D>*Norm(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, H_dense_3, Psi_1D)
-  Op_psi_ana(:) = [Coeff_0*H_dense_3%Dense_val_R(1,1), Coeff_1*H_dense_3%Dense_val_R(2,2), Coeff_2*&
-                  &H_dense_3%Dense_val_R(3,3)] / Norm
+  CALL Action(Op_psi, H_dense_3, Psi_1D)
+  Op_psi_ana(:) = [Coeff_0*H_dense_3%Dense_val(1,1), Coeff_1*H_dense_3%Dense_val(2,2), Coeff_2*&
+                  &H_dense_3%Dense_val(3,3)] / Norm
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="H_{dense, w=3}|Psi_1D>")
   IF (error_action .AND. Debug) THEN
@@ -280,8 +280,8 @@ PROGRAM test_action_op_1D
 
   !----------------------------Testing the x actions---------------------------
     !------------------------------x_{w=1/2, m=1}------------------------------
-  CALL Action_Operator_1D(Op_psi, x_band_half_1, b_0)
-  Op_psi_ana(:) = [ZERO, x_band_half_1%Band_val_R(1,1), ZERO]
+  CALL Action(Op_psi, x_band_half_1, b_0)
+  Op_psi_ana(:) = [ZERO, x_band_half_1%Band_val(1,1), ZERO]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="x_{band, w=1/2, m=1}|0>")
   IF (error_action .AND. Debug) THEN
@@ -289,8 +289,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="x_{band, w=1/2, m=1}|0>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, x_band_half_1, b_1)
-  Op_psi_ana(:) = [x_band_half_1%Band_val_R(2,3), ZERO, x_band_half_1%Band_val_R(2,1)]
+  CALL Action(Op_psi, x_band_half_1, b_1)
+  Op_psi_ana(:) = [x_band_half_1%Band_val(2,3), ZERO, x_band_half_1%Band_val(2,1)]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="x_{band, w=1/2, m=1}|1>")
   IF (error_action .AND. Debug) THEN
@@ -298,8 +298,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="x_{band, w=1/2, m=1}|1>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, x_band_half_1, b_2)
-  Op_psi_ana(:) = [ZERO, x_band_half_1%Band_val_R(3,3), ZERO]
+  CALL Action(Op_psi, x_band_half_1, b_2)
+  Op_psi_ana(:) = [ZERO, x_band_half_1%Band_val(3,3), ZERO]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="x_{band, w=1/2, m=1}|2>")
   IF (error_action .AND. Debug) THEN
@@ -307,8 +307,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="x_{band, w=1/2, m=1}|2>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, x_dense_half_1, b_0)
-  Op_psi_ana(:) = [ZERO, x_dense_half_1%Dense_val_R(2,1), ZERO]
+  CALL Action(Op_psi, x_dense_half_1, b_0)
+  Op_psi_ana(:) = [ZERO, x_dense_half_1%Dense_val(2,1), ZERO]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="x_{dense, w=1/2, m=1}|0>")
   IF (error_action .AND. Debug) THEN
@@ -316,8 +316,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="x_{dense, w=1/2, m=1}|0>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, x_dense_half_1, b_1)
-  Op_psi_ana(:) = [x_dense_half_1%Dense_val_R(1,2), ZERO, x_dense_half_1%Dense_val_R(3,2)]
+  CALL Action(Op_psi, x_dense_half_1, b_1)
+  Op_psi_ana(:) = [x_dense_half_1%Dense_val(1,2), ZERO, x_dense_half_1%Dense_val(3,2)]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="x_{dense, w=1/2, m=1}|1>")
   IF (error_action .AND. Debug) THEN
@@ -325,8 +325,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="x_{dense, w=1/2, m=1}|1>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, x_dense_half_1, b_2)
-  Op_psi_ana(:) = [ZERO, x_dense_half_1%Dense_val_R(2,3), ZERO]
+  CALL Action(Op_psi, x_dense_half_1, b_2)
+  Op_psi_ana(:) = [ZERO, x_dense_half_1%Dense_val(2,3), ZERO]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="x_{dense, w=1/2, m=1}|2>")
   IF (error_action .AND. Debug) THEN
@@ -334,9 +334,9 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="x_{dense, w=1/2, m=1}|2>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, x_band_half_1, Psi_1D)
-  Op_psi_ana(:) = [Coeff_1*x_band_half_1%Band_val_R(2,3), Coeff_0*x_band_half_1%Band_val_R(1,1) + C&
-                  &oeff_2*x_band_half_1%Band_val_R(3,3), Coeff_1*x_band_half_1%Band_val_R(2,1)] / Norm
+  CALL Action(Op_psi, x_band_half_1, Psi_1D)
+  Op_psi_ana(:) = [Coeff_1*x_band_half_1%Band_val(2,3), Coeff_0*x_band_half_1%Band_val(1,1) + C&
+                  &oeff_2*x_band_half_1%Band_val(3,3), Coeff_1*x_band_half_1%Band_val(2,1)] / Norm
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="x_{band, w=1/2, m=1}|Psi_1D>")
   IF (error_action .AND. Debug) THEN
@@ -344,9 +344,9 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana*Norm, out_unit, Size(Op_psi_ana), info="x_{band, w=1/2, m=1}|Psi_1D>*Norm(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, x_dense_half_1, Psi_1D)
-  Op_psi_ana(:) = [Coeff_1*x_dense_half_1%Dense_val_R(1,2), Coeff_0*x_dense_half_1%Dense_val_R(2,1)&
-                 & + Coeff_2*x_dense_half_1%Dense_val_R(2,3), Coeff_1*x_dense_half_1%Dense_val_R(3,2)] / Norm
+  CALL Action(Op_psi, x_dense_half_1, Psi_1D)
+  Op_psi_ana(:) = [Coeff_1*x_dense_half_1%Dense_val(1,2), Coeff_0*x_dense_half_1%Dense_val(2,1)&
+                 & + Coeff_2*x_dense_half_1%Dense_val(2,3), Coeff_1*x_dense_half_1%Dense_val(3,2)] / Norm
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="x_{dense, w=1/2, m=1}|Psi_1D>")
   IF (error_action .AND. Debug) THEN
@@ -355,8 +355,8 @@ PROGRAM test_action_op_1D
   END IF
 
     !-------------------------------x_{w=3, m=1}-------------------------------
-  CALL Action_Operator_1D(Op_psi, x_band_3_1, b_0)
-  Op_psi_ana(:) = [ZERO, x_band_3_1%Band_val_R(1,1), ZERO]
+  CALL Action(Op_psi, x_band_3_1, b_0)
+  Op_psi_ana(:) = [ZERO, x_band_3_1%Band_val(1,1), ZERO]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="x_{band, w=3, m=1}|0>")
   IF (error_action .AND. Debug) THEN
@@ -364,8 +364,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="x_{band, w=3, m=1}|0>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, x_band_3_1, b_1)
-  Op_psi_ana(:) = [x_band_3_1%Band_val_R(2,3), ZERO, x_band_3_1%Band_val_R(2,1)]
+  CALL Action(Op_psi, x_band_3_1, b_1)
+  Op_psi_ana(:) = [x_band_3_1%Band_val(2,3), ZERO, x_band_3_1%Band_val(2,1)]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="x_{band, w=3, m=1}|1>")
   IF (error_action .AND. Debug) THEN
@@ -373,8 +373,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="x_{band, w=3, m=1}|1>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, x_band_3_1, b_2)
-  Op_psi_ana(:) = [ZERO, x_band_3_1%Band_val_R(3,3), ZERO]
+  CALL Action(Op_psi, x_band_3_1, b_2)
+  Op_psi_ana(:) = [ZERO, x_band_3_1%Band_val(3,3), ZERO]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="x_{band, w=3, m=1}|2>")
   IF (error_action .AND. Debug) THEN
@@ -382,8 +382,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="x_{band, w=3, m=1}|2>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, x_dense_3_1, b_0)
-  Op_psi_ana(:) = [ZERO, x_dense_3_1%Dense_val_R(2,1), ZERO]
+  CALL Action(Op_psi, x_dense_3_1, b_0)
+  Op_psi_ana(:) = [ZERO, x_dense_3_1%Dense_val(2,1), ZERO]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="x_{dense, w=3, m=1}|0>")
   IF (error_action .AND. Debug) THEN
@@ -391,8 +391,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="x_{dense, w=3, m=1}|0>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, x_dense_3_1, b_1)
-  Op_psi_ana(:) = [x_dense_3_1%Dense_val_R(1,2), ZERO, x_dense_3_1%Dense_val_R(3,2)]
+  CALL Action(Op_psi, x_dense_3_1, b_1)
+  Op_psi_ana(:) = [x_dense_3_1%Dense_val(1,2), ZERO, x_dense_3_1%Dense_val(3,2)]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="x_{dense, w=3, m=1}|1>")
   IF (error_action .AND. Debug) THEN
@@ -400,8 +400,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="x_{dense, w=3, m=1}|1>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, x_dense_3_1, b_2)
-  Op_psi_ana(:) = [ZERO, x_dense_3_1%Dense_val_R(2,3), ZERO]
+  CALL Action(Op_psi, x_dense_3_1, b_2)
+  Op_psi_ana(:) = [ZERO, x_dense_3_1%Dense_val(2,3), ZERO]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="x_{dense, w=3, m=1}|2>")
   IF (error_action .AND. Debug) THEN
@@ -409,9 +409,9 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="x_{dense, w=3, m=1}|2>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, x_band_3_1, Psi_1D)
-  Op_psi_ana(:) = [Coeff_1*x_band_3_1%Band_val_R(2,3), Coeff_0*x_band_3_1%Band_val_R(1,1) + Coeff_2&
-                  &*x_band_3_1%Band_val_R(3,3), Coeff_1*x_band_3_1%Band_val_R(2,1)] / Norm
+  CALL Action(Op_psi, x_band_3_1, Psi_1D)
+  Op_psi_ana(:) = [Coeff_1*x_band_3_1%Band_val(2,3), Coeff_0*x_band_3_1%Band_val(1,1) + Coeff_2&
+                  &*x_band_3_1%Band_val(3,3), Coeff_1*x_band_3_1%Band_val(2,1)] / Norm
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="x_{band, w=3, m=1}|Psi_1D>")
   IF (error_action .AND. Debug) THEN
@@ -419,9 +419,9 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana*Norm, out_unit, Size(Op_psi_ana), info="x_{band, w=3, m=1}|Psi_1D>*Norm(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, x_dense_3_1, Psi_1D)
-  Op_psi_ana(:) = [Coeff_1*x_dense_3_1%Dense_val_R(1,2), Coeff_0*x_dense_3_1%Dense_val_R(2,1) + Coe&
-                  &ff_2*x_dense_3_1%Dense_val_R(2,3), Coeff_1*x_dense_3_1%Dense_val_R(3,2)] / Norm
+  CALL Action(Op_psi, x_dense_3_1, Psi_1D)
+  Op_psi_ana(:) = [Coeff_1*x_dense_3_1%Dense_val(1,2), Coeff_0*x_dense_3_1%Dense_val(2,1) + Coe&
+                  &ff_2*x_dense_3_1%Dense_val(2,3), Coeff_1*x_dense_3_1%Dense_val(3,2)] / Norm
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="x_{dense, w=3, m=1}|Psi_1D>")
   IF (error_action .AND. Debug) THEN
@@ -430,8 +430,8 @@ PROGRAM test_action_op_1D
   END IF
 
     !-------------------------------x_{w=3, m=4}-------------------------------
-  CALL Action_Operator_1D(Op_psi, x_band_3_4, b_0)
-  Op_psi_ana(:) = [ZERO, x_band_3_4%Band_val_R(1,1), ZERO]
+  CALL Action(Op_psi, x_band_3_4, b_0)
+  Op_psi_ana(:) = [ZERO, x_band_3_4%Band_val(1,1), ZERO]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="x_{band, w=3, m=4}|0>")
   IF (error_action .AND. Debug) THEN
@@ -439,8 +439,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="x_{band, w=3, m=4}|0>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, x_band_3_4, b_1)
-  Op_psi_ana(:) = [x_band_3_4%Band_val_R(2,3), ZERO, x_band_3_4%Band_val_R(2,1)]
+  CALL Action(Op_psi, x_band_3_4, b_1)
+  Op_psi_ana(:) = [x_band_3_4%Band_val(2,3), ZERO, x_band_3_4%Band_val(2,1)]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="x_{band, w=3, m=4}|1>")
   IF (error_action .AND. Debug) THEN
@@ -448,8 +448,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="x_{band, w=3, m=4}|1>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, x_band_3_4, b_2)
-  Op_psi_ana(:) = [ZERO, x_band_3_4%Band_val_R(3,3), ZERO]
+  CALL Action(Op_psi, x_band_3_4, b_2)
+  Op_psi_ana(:) = [ZERO, x_band_3_4%Band_val(3,3), ZERO]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="x_{band, w=3, m=4}|2>")
   IF (error_action .AND. Debug) THEN
@@ -457,8 +457,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="x_{band, w=3, m=4}|2>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, x_dense_3_4, b_0)
-  Op_psi_ana(:) = [ZERO, x_dense_3_4%Dense_val_R(2,1), ZERO]
+  CALL Action(Op_psi, x_dense_3_4, b_0)
+  Op_psi_ana(:) = [ZERO, x_dense_3_4%Dense_val(2,1), ZERO]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="x_{dense, w=3, m=4}|0>")
   IF (error_action .AND. Debug) THEN
@@ -466,8 +466,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="x_{dense, w=3, m=4}|0>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, x_dense_3_4, b_1)
-  Op_psi_ana(:) = [x_dense_3_4%Dense_val_R(1,2), ZERO, x_dense_3_4%Dense_val_R(3,2)]
+  CALL Action(Op_psi, x_dense_3_4, b_1)
+  Op_psi_ana(:) = [x_dense_3_4%Dense_val(1,2), ZERO, x_dense_3_4%Dense_val(3,2)]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="x_{dense, w=3, m=4}|1>")
   IF (error_action .AND. Debug) THEN
@@ -475,8 +475,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="x_{dense, w=3, m=4}|1>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, x_dense_3_4, b_2)
-  Op_psi_ana(:) = [ZERO, x_dense_3_4%Dense_val_R(2,3), ZERO]
+  CALL Action(Op_psi, x_dense_3_4, b_2)
+  Op_psi_ana(:) = [ZERO, x_dense_3_4%Dense_val(2,3), ZERO]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="x_{dense, w=3, m=4}|2>")
   IF (error_action .AND. Debug) THEN
@@ -484,9 +484,9 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="x_{dense, w=3, m=4}|2>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, x_band_3_4, Psi_1D)
-  Op_psi_ana(:) = [Coeff_1*x_band_3_4%Band_val_R(2,3), Coeff_0*x_band_3_4%Band_val_R(1,1) + Coeff_2&
-                  &*x_band_3_4%Band_val_R(3,3), Coeff_1*x_band_3_4%Band_val_R(2,1)] / Norm
+  CALL Action(Op_psi, x_band_3_4, Psi_1D)
+  Op_psi_ana(:) = [Coeff_1*x_band_3_4%Band_val(2,3), Coeff_0*x_band_3_4%Band_val(1,1) + Coeff_2&
+                  &*x_band_3_4%Band_val(3,3), Coeff_1*x_band_3_4%Band_val(2,1)] / Norm
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="x_{band, w=3, m=4}|Psi_1D>")
   IF (error_action .AND. Debug) THEN
@@ -494,9 +494,9 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana*Norm, out_unit, Size(Op_psi_ana), info="x_{band, w=3, m=4}|Psi_1D>*Norm(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, x_dense_3_4, Psi_1D)
-  Op_psi_ana(:) = [Coeff_1*x_dense_3_4%Dense_val_R(1,2), Coeff_0*x_dense_3_4%Dense_val_R(2,1) + Coe&
-                  &ff_2*x_dense_3_4%Dense_val_R(2,3), Coeff_1*x_dense_3_4%Dense_val_R(3,2)] / Norm
+  CALL Action(Op_psi, x_dense_3_4, Psi_1D)
+  Op_psi_ana(:) = [Coeff_1*x_dense_3_4%Dense_val(1,2), Coeff_0*x_dense_3_4%Dense_val(2,1) + Coe&
+                  &ff_2*x_dense_3_4%Dense_val(2,3), Coeff_1*x_dense_3_4%Dense_val(3,2)] / Norm
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="x_{dense, w=3, m=4}|Psi_1D>")
   IF (error_action .AND. Debug) THEN
@@ -511,7 +511,7 @@ PROGRAM test_action_op_1D
 
 
   !----------------------------Testing the N actions---------------------------
-  CALL Action_Operator_1D(Op_psi, N_diag, b_0)
+  CALL Action(Op_psi, N_diag, b_0)
   Op_psi_ana(:) = ZERO
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="N_{diag}|0>")
@@ -520,8 +520,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="N_{diag}|0>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, N_diag, b_1)
-  Op_psi_ana(:) = [ZERO, N_diag%Diag_val_R(2), ZERO]
+  CALL Action(Op_psi, N_diag, b_1)
+  Op_psi_ana(:) = [ZERO, N_diag%Diag_val(2), ZERO]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="N_{diag}|1>")
   IF (error_action .AND. Debug) THEN
@@ -529,8 +529,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="N_{diag}|1>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, N_diag, b_2)
-  Op_psi_ana(:) = [ZERO, ZERO, N_diag%Diag_val_R(3)]
+  CALL Action(Op_psi, N_diag, b_2)
+  Op_psi_ana(:) = [ZERO, ZERO, N_diag%Diag_val(3)]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="N_{diag}|2>")
   IF (error_action .AND. Debug) THEN
@@ -538,7 +538,7 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="N_{diag}|2>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, N_dense, b_0)
+  CALL Action(Op_psi, N_dense, b_0)
   Op_psi_ana(:) = ZERO
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="N_{dense}|0>")
@@ -547,8 +547,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="N_{dense}|0>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, N_dense, b_1)
-  Op_psi_ana(:) = [ZERO, N_dense%Dense_val_R(2,2), ZERO]
+  CALL Action(Op_psi, N_dense, b_1)
+  Op_psi_ana(:) = [ZERO, N_dense%Dense_val(2,2), ZERO]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="N_{dense}|1>")
   IF (error_action .AND. Debug) THEN
@@ -556,8 +556,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="N_{dense}|1>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, N_dense, b_2)
-  Op_psi_ana(:) = [ZERO, ZERO, N_dense%Dense_val_R(3,3)]
+  CALL Action(Op_psi, N_dense, b_2)
+  Op_psi_ana(:) = [ZERO, ZERO, N_dense%Dense_val(3,3)]
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="N_{dense}|2>")
   IF (error_action .AND. Debug) THEN
@@ -565,8 +565,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana, out_unit, Size(Op_psi_ana), info="N_{dense}|2>(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, N_diag, Psi_1D)
-  Op_psi_ana(:) = [ZERO, Coeff_1*N_diag%Diag_val_R(2), Coeff_2*N_diag%Diag_val_R(3)] / Norm
+  CALL Action(Op_psi, N_diag, Psi_1D)
+  Op_psi_ana(:) = [ZERO, Coeff_1*N_diag%Diag_val(2), Coeff_2*N_diag%Diag_val(3)] / Norm
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="N_{diag}|Psi_1D>")
   IF (error_action .AND. Debug) THEN
@@ -574,8 +574,8 @@ PROGRAM test_action_op_1D
     CALL Write_Vec(Op_psi_ana*Norm, out_unit, Size(Op_psi_ana), info="N_{diag}|Psi_1D>*Norm(Analitical)")
   END IF
 
-  CALL Action_Operator_1D(Op_psi, N_dense, Psi_1D)
-  Op_psi_ana(:) = [ZERO, Coeff_1*N_dense%Dense_val_R(2,2), Coeff_2*N_dense%Dense_val_R(3,3)] / Norm
+  CALL Action(Op_psi, N_dense, Psi_1D)
+  Op_psi_ana(:) = [ZERO, Coeff_1*N_dense%Dense_val(2,2), Coeff_2*N_dense%Dense_val(3,3)] / Norm
   CALL Equal_R_R_vector(error_action, Op_psi, Op_psi_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="N_{dense}|Psi_1D>")
   IF (error_action .AND. Debug) THEN

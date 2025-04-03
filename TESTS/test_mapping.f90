@@ -169,7 +169,7 @@ PROGRAM test_mapping
 
     !-----------------------------------operators initialization-----------------------------------
   CALL Construct_Operator_1D(Mat_dipolar_moment, "Position",    Mode=DOF_1,  Debug=Debug)          ! hypothesis : \mu(q) = \frac{\partial\mu}{\partial q}*\q ; \frac{\partial\mu}{\partial q} = Coeff_dip_momt
-  Mat_dipolar_moment%Band_val_R = Coeff_dipole_moment*Mat_dipolar_moment%Band_val_R                ! => \hat{\mu} = Coeff_dip_momt*\hat{q}
+  Mat_dipolar_moment%Band_val = Coeff_dipole_moment*Mat_dipolar_moment%Band_val                ! => \hat{\mu} = Coeff_dip_momt*\hat{q}
   CALL Construct_Operator_1D(MatH,               "Hamiltonian", Mode=DOF_1,  Debug=Debug)
   CALL Construct_Operator_1D(CavPosition,        "Position",    Mode=DOF_2, Debug=Debug)
   CALL Construct_Operator_1D(CavH,               "Hamiltonian", Mode=DOF_2, Debug=Debug)
