@@ -396,6 +396,10 @@ PROGRAM App_MolecCav
   CALL Compute_transition_matrix(Intensities,    Mol1DipMomt, REigvec, Debug=.TRUE.)
   CALL time_perso("Transition matrix computed")
 
+  DO I = 1, 4
+    WRITE(out_unit,*) "Transition energy GSto"//TO_string(I)//" = "//TO_string((REigval(I+1)-REigval(1)))
+  END DO
+  
   DEALLOCATE(TotH); DEALLOCATE(REigval); DEALLOCATE(REigvec)
 
     !-----------------------------Construction of the 1p1D total system Mass-weighted Hessian matrix-----------------------------
@@ -435,52 +439,14 @@ PROGRAM App_MolecCav
   ALLOCATE(Cav1Weights(Nb_C))
 
   WRITE(out_unit,*) "Psi_1p1D_R2 analysis"
-  CALL Reduced_density_psi(Mol1Weights, Cav1Weights, Psi_1p1D_R2, Debug=.TRUE.)
+  CALL Reduced_density_psi(Mol1Weights, Cav1Weights, Psi_1p1D_R2, Debug=.FALSE.)
   WRITE(out_unit,*); CALL Write_Vec(Mol1Weights, out_unit, 1, info="Mol1Weights")
   WRITE(out_unit,*); CALL Write_Vec(Cav1Weights, out_unit, 1, info="Cav1Weights")
   WRITE(out_unit,*); WRITE(out_unit,*) "Psi_1p1D_R1 analysis"
-  CALL Reduced_density_psi(Mol1Weights, Cav1Weights, Psi_1p1D_R1, Debug=.TRUE.)
+  CALL Reduced_density_psi(Mol1Weights, Cav1Weights, Psi_1p1D_R1, Debug=.FALSE.)
   WRITE(out_unit,*); CALL Write_Vec(Mol1Weights, out_unit, 1, info="Mol1Weights")
   WRITE(out_unit,*); CALL Write_Vec(Cav1Weights, out_unit, 1, info="Cav1Weights")
   DEALLOCATE(Mol1Weights); DEALLOCATE(Cav1Weights)
 
-  !-----------------------------------------------An experiment on the TotH action-----------------------------------------------
-  WRITE(out_unit,*); WRITE(out_unit,*) "-----------------------------------------------An experiment on the TotH action----------&
-                                       &-------------------------------------"
-  ALLOCATE(Result_psi_1p1D_R1(NB))
-  ALLOCATE(Result_psi_1p1D_R2(Nb_M, Nb_C))
-!  CALL Write_Mat(Psi_1p1D_R2, out_unit, 10, info="Psi_R2")
-!  CALL Write_Vec(Psi_1p1D_R1, out_unit, 1,  info="Psi_R1")
-  CALL Action_total_hamiltonian_1p1D(Result_psi_1p1D_R2, Cav1Position, Cav1H, Mol1DipMomt, Mol1H, Psi_1p1D_R2, Debug=.FALSE.)
-  CALL Action_total_hamiltonian_1p1D(Result_psi_1p1D_R1, Cav1Position, Cav1H, Mol1DipMomt, Mol1H, Psi_1p1D_R1, Debug=.FALSE.)
-!  CALL Write_Mat(Result_psi_1p1D_R2, out_unit, 10, info="Res_R2")
-!  CALL Write_Vec(Result_psi_1p1D_R1, out_unit, 1,  info="Res_R1")
-  DEALLOCATE(Result_psi_1p1D_R2); DEALLOCATE(Result_psi_1p1D_R1)
-  !-------------------------------------------------An experiment on the matrices------------------------------------------------
-  WRITE(out_unit,*); WRITE(out_unit,*) "-------------------------------------------------An experiment on the matrices-----------&
-                                       &-------------------------------------"
-  i = 0
-  DO j = 1, 4
-    DO k = 1, 4
-      i = i + 1
-      A(k,j) = i
-    END DO 
-  END DO
-  CALL Write_Mat(A, out_unit, 4, info="A")
-  CALL Mapping_WF_R2TOR1(B, A)
-  CALL Write_Vec(B, out_unit, 1, info="B")
-
-  Ranks_sizes = [4,4]
-  CALL Initialize_ND_indexes(ND_indexes, Ranks_sizes)
-  List_indexes = Initialize_List_indexes(ND_indexes)
-  !CALL Write_ND_indexes(ND_indexes)
-  !CALL Write_Vec(List_indexes, out_unit, 4, info="List_indexes")
-
-  CALL Increment_indexes(Continue_loop, List_indexes, ND_indexes, Debug=Debug)
-  CALL Increment_indexes(Continue_loop, List_indexes, ND_indexes, Debug=Debug)
-  CALL Increment_indexes(Continue_loop, List_indexes, ND_indexes, Debug=Debug)
-  CALL Increment_indexes(Continue_loop, List_indexes, ND_indexes, Debug=Debug)
-  CALL Increment_indexes(Continue_loop, List_indexes, ND_indexes, Debug=Debug)
-  CALL Increment_indexes(Continue_loop, List_indexes, ND_indexes, Debug=Debug)
 
 END PROGRAM

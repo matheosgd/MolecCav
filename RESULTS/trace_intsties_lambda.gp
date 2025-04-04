@@ -1,17 +1,17 @@
-reset
-set term qt font "Times, 15"
+#reset
+#set term qt font "Times, 15"
 #set term png font "Times, 15"
 #set output "/home/msegaud/MolecCav/RESULTS/time.png"
-set grid
-show grid
+#set grid
+#show grid
 
 #set datafile separator ";"
+#set title  'Ratio (Absorbance du SQ pour diff. [H_{2}O_{2}]) / (Abs(SQ seul))'
 #set xlabel 'Nb_C = Nb_M'
 #set ylabel 'Time (cpu)'
 #set zlabel 'z'
-#set title  'Ratio (Absorbance du SQ pour diff. [H_{2}O_{2}]) / (Abs(SQ seul))'
-unset xrange
-unset yrange
+#unset xrange
+#unset yrange
 #unset zrange
 #set yrange [1.599960484:1.599960489]
 #set xrange [0:55]
@@ -129,16 +129,23 @@ unset yrange
 
 
 #set term dumb size 100, 30 feed ansirgb
+reset
+set term qt font "Times, 15"
+set grid
+show grid
+
 set title  'Intensities = f(coupling\_strenght) for resonant case (w = w_{HF}) [a.u.]'
-set xlabel '\lambda [a.u.]'
+set xlabel 'Transition energy [Ha]'
 set ylabel 'Transition intensity [a.u.]'
+unset xrange
+unset yrange
 #set xrange [0:55]
 #set yrange [1.599960484:1.599960489]
 set key left top #deplace legende (=key) en bas à droite /!\ penser à remettre en haut à la fin (cf derniere ligne)
-  plot '/home/msegaud/MolecCav/RESULTS/transition_intensities.txt' every :::0::0 using 1:2 with points pointtype 7 pointsize 1.5 t 'Groud\_state -> 1'
-replot '/home/msegaud/MolecCav/RESULTS/transition_intensities.txt' every :::0::0 using 1:3 with points pointtype 7 pointsize 1.5 t 'Groud\_state -> 2'
-replot '/home/msegaud/MolecCav/RESULTS/transition_intensities.txt' every :::0::0 using 1:4 with points pointtype 9 pointsize 1.5 t 'Groud\_state -> 3'
-replot '/home/msegaud/MolecCav/RESULTS/transition_intensities.txt' every :::0::0 using 1:5 with points pointtype 11 pointsize 1.5 t 'Groud\_state -> 4'
+
+  plot '/home/segaud/MolecCav/RESULTS/transition_intensities.txt' using 2:3 with points pointtype 7 pointsize 1.5 t 'Groud\_state -> 1'
+replot '/home/segaud/MolecCav/RESULTS/transition_intensities.txt' using 4:5 with points pointtype 7 pointsize 1.5 t 'Groud\_state -> 2'
+
 set key right top #reinitialise position legende après les tracé
 
 
