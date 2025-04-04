@@ -132,7 +132,6 @@ MODULE Elem_op_m
   SUBROUTINE MolecCav_Action_elem_op_R1_real(Op_psi, Elem_op, Psi, Verbose, Debug)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     USE QDUtil_m
-    USE HO1D_operator_m
     IMPLICIT NONE
 
     real(kind=Rkind),      intent(inout) :: Op_psi(:)
@@ -224,7 +223,6 @@ MODULE Elem_op_m
   SUBROUTINE MolecCav_Action_dense_elem_op_R1_real(Op_psi, Elem_op, Psi, Verbose, Debug)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     USE QDUtil_m
-    USE HO1D_operator_m
     IMPLICIT NONE
     
     real(kind=Rkind),      intent(inout) :: Op_psi(:)
@@ -253,7 +251,6 @@ MODULE Elem_op_m
   SUBROUTINE MolecCav_Action_diag_elem_op_R1_real(Op_psi, Elem_op, Psi, Verbose, Debug) 
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     USE QDUtil_m
-    USE HO1D_operator_m
     IMPLICIT NONE
     
     real(kind=Rkind),      intent(inout) :: Op_psi(:)
@@ -282,7 +279,6 @@ MODULE Elem_op_m
   SUBROUTINE MolecCav_Action_band_elem_op_R1_real(Op_psi, Elem_op, Psi, Verbose, Debug)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     USE QDUtil_m
-    USE HO1D_operator_m
     IMPLICIT NONE
     
     real(kind=Rkind),      intent(inout) :: Op_psi(:)
@@ -322,7 +318,6 @@ MODULE Elem_op_m
   SUBROUTINE MolecCav_Action_elem_op_R1_complex(Op_psi, Elem_op, Psi, Verbose, Debug)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     USE QDUtil_m
-    USE HO1D_operator_m
     IMPLICIT NONE
 
     complex(kind=Rkind),   intent(inout) :: Op_psi(:)
@@ -414,7 +409,6 @@ MODULE Elem_op_m
   SUBROUTINE MolecCav_Action_dense_elem_op_R1_complex(Op_psi, Elem_op, Psi, Verbose, Debug)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     USE QDUtil_m
-    USE HO1D_operator_m
     IMPLICIT NONE
     
     complex(kind=Rkind),   intent(inout) :: Op_psi(:)
@@ -443,7 +437,6 @@ MODULE Elem_op_m
   SUBROUTINE MolecCav_Action_diag_elem_op_R1_complex(Op_psi, Elem_op, Psi, Verbose, Debug) 
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     USE QDUtil_m
-    USE HO1D_operator_m
     IMPLICIT NONE
     
     complex(kind=Rkind),   intent(inout) :: Op_psi(:)
@@ -472,7 +465,6 @@ MODULE Elem_op_m
   SUBROUTINE MolecCav_Action_band_elem_op_R1_complex(Op_psi, Elem_op, Psi, Verbose, Debug)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     USE QDUtil_m
-    USE HO1D_operator_m
     IMPLICIT NONE
     
     complex(kind=Rkind),   intent(inout) :: Op_psi(:)

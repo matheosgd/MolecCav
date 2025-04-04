@@ -108,7 +108,7 @@ FFLAGS   += -J$(MOD_DIR) $(EXTMod)
 # to these optional aguments are added : "-J" which indicates the DIRECTORY (and not all the path of the .mod files) where to STORE the .mod files of the...
 # ...lib. after compilation (at the contrary of "-I" which indicates where to FIND the needed ones); and the path towards the .mod files of the external...
 # ...library(ies).
-SRCFILES = Algebra_m.f90 ND_indexes_m.f90 Mapping_m.f90 Cavity_mode_m.f90 Elem_op_m.f90 Operator_2D_m.f90 Total_hamiltonian_m.f90 Psi_analysis_m.f90
+SRCFILES = Tests_m.f90 Algebra_m.f90 ND_indexes_m.f90 Mapping_m.f90 Cavity_mode_m.f90 Elem_op_m.f90 Operator_2D_m.f90 Total_hamiltonian_m.f90 Psi_analysis_m.f90
 # the list of all the .f90 source files OF THE LIBRARY (only the modules, not the test/app programs) to be compiled
 OBJ0     = ${SRCFILES:.f90=.o}
 # this syntax looks like a list slicing in python : change the .f90 string of the var to .o : it allows to change the extension of the file from .f90 to .o
@@ -136,11 +136,11 @@ $(info ***********************************************************************)
 .PHONY: ut UT
 # the ".PHONY <string1> <string2> <...>" make command indicates to make that the provided string are neither files nor directories and allows to use them...
 # ... as key-words, ex: as command-line commands
-UT ut: test_algebra.exe test_cavity_mode.exe test_construct_op_1D.exe test_action_op_1D.exe test_action_total_H_1p1D.exe test_construct_total_H_1p1D.exe test_normal_modes_1p1D.exe test_ND_indexes.exe test_mapping.exe test_transition_intensities.exe
+UT ut: test_algebra.exe test_cavity_mode.exe test_construct_op_1D.exe test_action_elem_op.exe test_action_total_H_1p1D.exe test_construct_total_H_1p1D.exe test_normal_modes_1p1D.exe test_ND_indexes.exe test_mapping.exe test_transition_intensities.exe
 	./test_algebra.exe                                      > $(OUTPUT_DIR)/test_algebra.log
 	./test_cavity_mode.exe            < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_cavity_mode.log
 	./test_construct_op_1D.exe        < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_construct_op_1D.log
-	./test_action_op_1D.exe           < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_action_op_1D.log
+	./test_action_elem_op.exe         < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_action_elem_op.log
 	./test_action_total_H_1p1D.exe    < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_action_total_H_1p1D.log
 	./test_construct_total_H_1p1D.exe < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_construct_total_H_1p1D.log
 	./test_normal_modes_1p1D.exe      < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_normal_modes_1p1D.log
@@ -150,7 +150,7 @@ UT ut: test_algebra.exe test_cavity_mode.exe test_construct_op_1D.exe test_actio
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_algebra.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_cavity_mode.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_construct_op_1D.log
-	grep "Number of error(s)" $(OUTPUT_DIR)/test_action_op_1D.log
+	grep "Number of error(s)" $(OUTPUT_DIR)/test_action_elem_op.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_action_total_H_1p1D.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_construct_total_H_1p1D.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_normal_modes_1p1D.log
@@ -186,7 +186,7 @@ app APP App: $(MAIN).exe
 # this command will compile the library (create the .o and .mod files) and the tests (create the .o and .exe files) and create the static library .a file...
 # ... BUT not execute anything !
 .PHONY: all
-all: $(LIBA) test_algebra.exe test_cavity_mode.exe test_construct_op_1D.exe test_action_op_1D.exe test_action_total_H_1p1D.exe test_construct_total_H_1p1D.exe test_mapping.exe test_transition_intensities.exe $(MAIN).exe
+all: $(LIBA) test_algebra.exe test_cavity_mode.exe test_construct_op_1D.exe test_action_elem_op.exe test_action_total_H_1p1D.exe test_construct_total_H_1p1D.exe test_mapping.exe test_transition_intensities.exe $(MAIN).exe
 # Recall : LIBA = libMolecCav
 # this instruction is understood by Make as "see these files". It will search the make file for where they are defined i.e. for their dependancies, and...
 # ... create them as they are defined if they are too old. 
@@ -304,11 +304,11 @@ $(OBJ_DIR)/%.o : $(TESTS_DIR)/%.f90
 #$(OBJ_DIR)/test_construct_op_1D.o        : $(TESTS_DIR)/test_construct_op_1D.f90
 #	$(FFC) -c -o $(OBJ_DIR)/test_construct_op_1D.o $(FFLAGS) $(TESTS_DIR)/test_construct_op_1D.f90
 
-#test_action_op_1D.exe                    : $(OBJ_DIR)/test_action_op_1D.o $(LIBA)
-#	$(FFC) -o test_action_op_1D.exe  $(FFLAGS) $(OBJ_DIR)/test_action_op_1D.o $(LIBA) $(EXTLib)
+#test_action_elem_op.exe                    : $(OBJ_DIR)/test_action_elem_op.o $(LIBA)
+#	$(FFC) -o test_action_elem_op.exe  $(FFLAGS) $(OBJ_DIR)/test_action_elem_op.o $(LIBA) $(EXTLib)
 
-#$(OBJ_DIR)/test_action_op_1D.o           : $(TESTS_DIR)/test_action_op_1D.f90
-#	$(FFC) -c -o $(OBJ_DIR)/test_action_op_1D.o $(FFLAGS) $(TESTS_DIR)/test_action_op_1D.f90
+#$(OBJ_DIR)/test_action_elem_op.o           : $(TESTS_DIR)/test_action_elem_op.f90
+#	$(FFC) -c -o $(OBJ_DIR)/test_action_elem_op.o $(FFLAGS) $(TESTS_DIR)/test_action_elem_op.f90
 
 #test_action_total_H_1p1D.exe             : $(OBJ_DIR)/test_action_total_H_1p1D.o $(LIBA)
 #	$(FFC) -o test_action_total_H_1p1D.exe  $(FFLAGS) $(OBJ_DIR)/test_action_total_H_1p1D.o $(LIBA) $(EXTLib)
@@ -373,7 +373,7 @@ $(OBJ_DIR)/%.o : $(SRC_DIR)/%.f90
 $(OBJ_DIR)/test_algebra.o                : $(LIBA)
 $(OBJ_DIR)/test_cavity_mode.o            : $(LIBA)
 $(OBJ_DIR)/test_construct_op_1D.o        : $(LIBA)
-$(OBJ_DIR)/test_action_op_1D.o           : $(LIBA)
+$(OBJ_DIR)/test_action_elem_op.o         : $(LIBA)
 $(OBJ_DIR)/test_action_total_H_1p1D.o    : $(LIBA)
 $(OBJ_DIR)/test_construct_total_H_1p1D.o : $(LIBA)
 $(OBJ_DIR)/test_normal_modes_1p1D.o      : $(LIBA)
@@ -381,8 +381,8 @@ $(OBJ_DIR)/test_ND_indexes.o             : $(LIBA)
 $(OBJ_DIR)/test_mapping.o                : $(LIBA)
 $(OBJ_DIR)/test_transition_intensities.o : $(LIBA)
 
-$(OBJ_DIR)/Elem_op_m.o               : $(OBJ_DIR)/Algebra_m.o 
-$(OBJ_DIR)/Elem_op_m.o               : $(OBJ_DIR)/Cavity_mode_m.o 
+$(OBJ_DIR)/Elem_op_m.o                   : $(OBJ_DIR)/Algebra_m.o 
+$(OBJ_DIR)/Elem_op_m.o                   : $(OBJ_DIR)/Cavity_mode_m.o 
 $(OBJ_DIR)/Operator_2D_m.o               : $(OBJ_DIR)/Algebra_m.o 
 $(OBJ_DIR)/Operator_2D_m.o               : $(OBJ_DIR)/Cavity_mode_m.o 
 $(OBJ_DIR)/Operator_2D_m.o               : $(OBJ_DIR)/Elem_op_m.o 

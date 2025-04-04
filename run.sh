@@ -71,7 +71,7 @@ OBJ_LIB=(${MODULES_LIB[@]/%/.o})
 LIB="libMolecCav"
 LIBA="$LIB.a"
 
-TESTS=("test_algebra" "test_cavity_mode" "test_construct_op_1D" "test_action_op_1D" "test_action_total_H_1p1D" "test_construct_total_H_1p1D" "test_normal_modes_1p1D" "test_ND_indexes" "test_mapping")
+TESTS=("test_algebra" "test_cavity_mode" "test_construct_op_1D" "test_action_elem_op" "test_action_total_H_1p1D" "test_construct_total_H_1p1D" "test_normal_modes_1p1D" "test_ND_indexes" "test_mapping")
 SRC_TESTS=(${TESTS[@]/%/.f90})                                                 # parenthesis must be added here to make bash know that the next var is also an array
 OBJ_TESTS=(${TESTS[@]/%/.o})                                                   
 EXE_TESTS=(${TESTS[@]/%/.exe})  
@@ -521,8 +521,8 @@ case "$command" in
 	Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_cavity_mode.log)"
 	./test_construct_op_1D.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_construct_op_1D.log
 	Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_construct_op_1D.log)"
-	./test_action_op_1D.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_action_op_1D.log
-	Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_action_op_1D.log)"
+	./test_action_elem_op.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_action_elem_op.log
+	Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_action_elem_op.log)"
 	./test_action_total_H_1p1D.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_action_total_H_1p1D.log
 	Claim "$(grep "Number of error(s)" "$OUTPUT_DIR/"test_action_total_H_1p1D.log)"
 	./test_construct_total_H_1p1D.exe < ${DATA_DIR}/data_tests.nml > "$OUTPUT_DIR/"test_construct_total_H_1p1D.log

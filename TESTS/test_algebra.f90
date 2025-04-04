@@ -70,9 +70,9 @@ PROGRAM test_algebra
 
 
   !----------------------------Tests initialization----------------------------
-  CALL Initialize_Test(test_sca_pdt,      test_name='OUT/test_file_sca_pdt')
-  CALL Initialize_Test(test_norm,         test_name='OUT/test_file_norm')
-  CALL Initialize_Test(test_normalization,test_name='OUT/test_file_normalztn')
+  CALL Initialize_Test(test_sca_pdt,       test_name='OUT/test_file_sca_pdt')
+  CALL Initialize_Test(test_norm,          test_name='OUT/test_file_norm')
+  CALL Initialize_Test(test_normalization, test_name='OUT/test_file_normalztn')
 
 
   !---------------------------Matrices initialization--------------------------
