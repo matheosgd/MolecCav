@@ -1,16 +1,16 @@
 #! /bin/bash
 
-rm -f "/home/msegaud/MolecCav/RESULTS/transition_intensities.txt"
+rm -f "/home/segaud/MolecCav/RESULTS/trnstn_int_strength_old.txt"
 
 cd ~/MolecCav
-make all
-echo -e "lambda --- Transition energy 0to1 --- Transition intensity 0to1 --- Transition energy 0to2 --- Transition intensity 0to2" > "/home/segaud/MolecCav/RESULTS/transition_intensities.txt"
+make all MAIN=App_trnstn_int
+echo -e "lambda --- Transition energy 0to1 --- Transition intensity 0to1 --- Transition energy 0to2 --- Transition intensity 0to2" > "/home/segaud/MolecCav/RESULTS/trnstn_int_strength_old.txt"
 
 for coupling_strength in 0.00 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.10
 do 
   echo -e "\n Doing coupling_strength = $coupling_strength..."
 
-  ./App_MolecCav.exe << ** > "OUT/App_MolecCav.log"
+  ./App_trnstn_int.exe << ** > "OUT/App_trnstn_int.log"
   &HO_1             !The diatomic molecule
   D = 1             !Label of the basis/HO/mode/dimension
   Nb = 10           !Number of basis vectors associated with the HO D
@@ -31,23 +31,23 @@ do
 **
   echo "Finished coupling strength = $coupling_strength"
 
-  Intensities="$(grep "Intensities matrix   1" OUT/App_MolecCav.log)"
+  Intensities="$(grep "Intensities matrix   1" OUT/App_trnstn_int.log)"
   GSto1="${Intensities:51: 12}"
   GSto2="${Intensities:70: 12}"
 #  GSto3="${Intensities:89: 12}"
 #  GSto4="${Intensities:108:12}"
-  Enrgy1="$(grep "Transition energy GSto1" OUT/App_MolecCav.log)"
+  Enrgy1="$(grep "Transition energy GSto1" OUT/App_trnstn_int.log)"
   Enrgy1="${Enrgy1:27}"
-  Enrgy2="$(grep "Transition energy GSto2" OUT/App_MolecCav.log)"
+  Enrgy2="$(grep "Transition energy GSto2" OUT/App_trnstn_int.log)"
   Enrgy2="${Enrgy2:27}"
-#  Enrgy3="$(grep "Transition energy GSto3" OUT/App_MolecCav.log)"
+#  Enrgy3="$(grep "Transition energy GSto3" OUT/App_trnstn_int.log)"
 #  Enrgy3="${Enrgy3:27}"
-#  Enrgy4="$(grep "Transition energy GSto4" OUT/App_MolecCav.log)"
+#  Enrgy4="$(grep "Transition energy GSto4" OUT/App_trnstn_int.log)"
 #  Enrgy4="${Enrgy4:27}"
 
-  echo "$coupling_strength       ${Enrgy1}    ${GSto1}                  ${Enrgy2}    ${GSto2}" >> "/home/segaud/MolecCav/RESULTS/transition_intensities.txt"
+  echo "$coupling_strength       ${Enrgy1}    ${GSto1}                  ${Enrgy2}    ${GSto2}" >> "/home/segaud/MolecCav/RESULTS/trnstn_int_strength_old.txt"
 
-  echo "Done testing coupling strength"
+  echo -e "\n Done testing coupling strength"
 done
 
 #cd /home/msegaud/MolecCav/RESULTS

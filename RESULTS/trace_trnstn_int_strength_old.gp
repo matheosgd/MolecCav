@@ -119,13 +119,29 @@
 #   set term dumb size <nb of xchar>, <nb of ychars> (optional) aspect <ratio hlenght/vlength> (optional) <mono|ansirgb> (optional)
 #Rq: mono : noir et blanc (default); ansirgb sequence de couleurs classiques de gnuplot. Il existe d'autres options (ansi et ansi256).
 #Rq: /!\ les points sur ligne abscisses ne seront pas tracés : mieux vaut décaler l'origine du repère.
-#Rq: si deux points sont trop il va les paniquer et les mélanger : juste augmenter la taille du graph avec size ! (default: 79,24)
+#Rq: si deux points sont trop proches il va les paniquer et les mélanger : juste augmenter la taille du graph avec size ! (default: 79,24)
 #TRACER EN ECHELLE LOG 
 #Rq: deux options : 1. tracer u 1:(log($2)) 2. changer parametres d'échelle
 #   plot '/home/msegaud/MolecCav/RESULTS/time_test_02.txt' every :::0::0 using 1:(log10($2)) with points pointtype 7 pointsize 1.5 t 'time\_dense'
 #ou
 #   set logscale y
 #   plot '/home/msegaud/MolecCav/RESULTS/time_test_02.txt' every :::0::0 using 1:2 with points pointtype 7 pointsize 1.5 t 'time\_dense'
+
+#COMMAND LINE
+#DISPLAY HELP/MANUAL
+#$ gnuplot -h <=> gnuplot --help
+#TELL HIM TO WAIT FOR SLOW INITIALIZATION STARTUP (tackle the error message issue)
+#$ gnuplot -s <=> gnuplot --slow 
+#PLOT SOMETHING
+#gnuplot -p -e "command1; command2; etc" <=> gnuplot --persist -e "..."
+#Rq: --persist tells him not to close the plot window when the program exits (otherwise it remains on screen just the time of execution of the command i.e. 1/2 second)
+#Rq: -e is the option to feed him with a command
+#Ex: gnuplot -p -e "set title 'Sine curve'; plot sin(x)" 
+#EXECUTING SCRIPT FILE 
+#Rq: no need for any keyword !
+#$ gnuplot RESULTS/trace_intsties_lambda.gp
+#EXECUTING COMMANDS AND SCRIPT FILE 
+#$ gnuplot -p -e "a=2; set term qt" RESULTS/trace_intsties_lambda.gp
 
 
 #set term dumb size 100, 30 feed ansirgb
@@ -139,12 +155,20 @@ set xlabel 'Transition energy [Ha]'
 set ylabel 'Transition intensity [a.u.]'
 unset xrange
 unset yrange
-#set xrange [0:55]
+#set xrange [4.5133733113021475E-003:6.9614011415021380E-003]
 #set yrange [1.599960484:1.599960489]
 set key left top #deplace legende (=key) en bas à droite /!\ penser à remettre en haut à la fin (cf derniere ligne)
 
-  plot '/home/segaud/MolecCav/RESULTS/transition_intensities.txt' using 2:3 with points pointtype 7 pointsize 1.5 t 'Groud\_state -> 1'
-replot '/home/segaud/MolecCav/RESULTS/transition_intensities.txt' using 4:5 with points pointtype 7 pointsize 1.5 t 'Groud\_state -> 2'
+Conv = 21947.46
+Gam  = 10
+x_0  = 10
+L(x, x_0, Gam) = ( Gam/(2*pi) ) / ( ((Gam**2)/4) + (x-x_0)**2 )
+
+  plot L(x, 5.8665000000000002E-003, 2/(pi*0.0488532887))
+#  plot '/home/segaud/MolecCav/RESULTS/trnstn_int_strength_old.txt' using (L(x,$2,$3)) w l lw 2 t 'Groud\_state -> 1'
+#replot '/home/segaud/MolecCav/RESULTS/trnstn_int_strength_old.txt' using (L(x,$2,$3) + L(x,$2+1,$3+1)) w l lw 2 t 'Groud\_state -> 1'
+#  plot '/home/segaud/MolecCav/RESULTS/trnstn_int_strength_old.txt' using 2:3 with points pointtype 7 pointsize 1.5 t 'Groud\_state -> 1'
+#replot '/home/segaud/MolecCav/RESULTS/trnstn_int_strength_old.txt' using 4:5 with points pointtype 7 pointsize 1.5 t 'Groud\_state -> 2'
 
 set key right top #reinitialise position legende après les tracé
 
