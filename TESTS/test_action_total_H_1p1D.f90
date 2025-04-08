@@ -31,7 +31,7 @@ PROGRAM test_action_total_H_1p1D
     USE QDUtil_m
     USE QDUtil_Test_m
     USE Algebra_m
-    USE Cavity_mode_m
+    USE Cavity_mode_old_m
     USE Elem_op_m
     USE Total_hamiltonian_m
     IMPLICIT NONE

@@ -31,7 +31,7 @@ PROGRAM test_normal_modes_1p1D
   USE QDUtil_m
   USE QDUtil_Test_m
   USE Algebra_m
-  USE Cavity_mode_m
+  USE Cavity_mode_old_m
   USE Elem_op_m
   USE Total_hamiltonian_m
   IMPLICIT NONE
@@ -319,7 +319,7 @@ PROGRAM test_normal_modes_1p1D
 
   SUBROUTINE Compute_normal_modes(Nrml_modes, Nrml_coordinates, MWH_local, DOF_1, DOF_2, Coeff_dipole_moment)
     USE QDUtil_m
-    USE Cavity_mode_m
+    USE Cavity_mode_old_m
     IMPLICIT NONE 
 
     real(kind=Rkind), intent(inout)              :: Nrml_modes(2)                             ! VP of the MWH
@@ -362,7 +362,7 @@ PROGRAM test_normal_modes_1p1D
 
   FUNCTION Total_Eigenenergy_1p1D(i_1, i_2, w_1_local, w_2_local) RESULT(TotE_local)
     USE QDUtil_m
-    USE Cavity_mode_m
+    USE Cavity_mode_old_m
     IMPLICIT NONE
  
     real(kind=Rkind)    :: TotE_local

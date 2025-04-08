@@ -26,9 +26,10 @@
 ! SOFTWARE.
 !==================================================================================================
 !==================================================================================================
-MODULE Cavity_mode_m
+MODULE Quantum_HO1D_m
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
   USE QDUtil_m                                                                 ! gives Rkind=real64; out_unit=OUTPUT_UNIT; INPUT_UNIT=in_unit; EYE=i and other numbers; TO_LOWERCASE; TO_UPPERCASE;... We thereby use ZERO instead of 0.0_real64
+  USE Elem_op_m
   IMPLICIT NONE
 
 
@@ -39,6 +40,16 @@ MODULE Cavity_mode_m
     real(kind=Rkind) :: m      = ZERO                                          ! mass associated with the HO D
     real(kind=Rkind) :: lambda = -ONE                                          ! strength parameter of the coupling between the mode D and the molecule
     real(kind=Rkind) :: eq_pos = -ONE                                          ! equilibrium position of the HO
+  END TYPE
+
+  TYPE                           :: Quantum_HO1D_t
+    integer                      :: Nb = 0
+    real(kind=Rkind)             :: w = ZERO
+    real(kind=Rkind)             :: m = ZERO
+    TYPE(Elem_op_t), allocatable :: Tab_op(:)
+    integer                      :: Nq = 0
+    real(kind=Rkind)             :: Eq_pos = -ONE
+    real(kind=Rkind)             :: Scale_q = ZERO
   END TYPE
 
 

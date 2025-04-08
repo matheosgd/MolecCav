@@ -50,7 +50,7 @@ MODULE Operator_2D_m
   SUBROUTINE MolecCav_Action_operator_2D(Op_psi, Operator, Psi)   ! /!\ FOR NOW EVERYTHING IS REAL /!\ compute the resulting vector Psi_result(:) from the action of the operator of the cavity mode on the photon state vector Psi_argument(:) written in the Eigenbasis of H_ho
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     USE QDUtil_m
-    USE Cavity_mode_m
+    USE Quantum_HO1D_m
     USE Elem_op_m
     IMPLICIT NONE
   
@@ -79,7 +79,7 @@ MODULE Operator_2D_m
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     USE QDUtil_m
     USE Algebra_m
-    USE Cavity_mode_m
+    USE Quantum_HO1D_m
     USE Elem_op_m
     IMPLICIT NONE
 

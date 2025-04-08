@@ -29,13 +29,13 @@
 PROGRAM test_action_elem_op
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
   USE QDUtil_m
-  USE Cavity_mode_m
   USE Tests_m
   USE Algebra_m
   USE Elem_op_m
   IMPLICIT NONE
 
-  logical                       :: Debug = .FALSE.
+  integer                       :: Verbose = 0
+  logical                       :: Debug   = .FALSE.
 
   TYPE(Elem_op_t)               :: EO1_diag_1
   TYPE(Elem_op_t)               :: EO1_dense_1
@@ -111,14 +111,14 @@ PROGRAM test_action_elem_op
     !---------------------------------(Diag/Dense) Coeff = 1 (EO1)--------------------------------
       !---------------------------------first basis vector (i*)b_0--------------------------------
   CALL MolecCav_Construct_op_psi_ana_real(Op_psi_real_ana, EO1_diag_1, ONE, b_0, Debug) ! same analytical result as with E01_dense_1
-  CALL Action(Op_psi_real, EO1_diag_1, b_0, Debug=Debug)
+  CALL Action(Op_psi_real, EO1_diag_1, b_0, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
   IF (error_action .AND. Debug) THEN
     CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{diag, 1}|0>")
     CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
   END IF
-  CALL Action(Op_psi_real, EO1_dense_1, b_0, Debug=Debug)
+  CALL Action(Op_psi_real, EO1_dense_1, b_0, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
   IF (error_action .AND. Debug) THEN
@@ -127,14 +127,14 @@ PROGRAM test_action_elem_op
   END IF
 
   Op_psi_complex_ana = Op_psi_real_ana*EYE                                                               ! make as if the b_0 was a vector of the canonical basis set on \mathbb{C} i.e. i*b_0
-  CALL Action(Op_psi_complex, EO1_diag_1, EYE*b_0, Debug=Debug)
+  CALL Action(Op_psi_complex, EO1_diag_1, EYE*b_0, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
   IF (error_action .AND. Debug) THEN
     CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{diag, 1}|0>")
     CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
   END IF
-  CALL Action(Op_psi_complex, EO1_dense_1, EYE*b_0, Debug=Debug)
+  CALL Action(Op_psi_complex, EO1_dense_1, EYE*b_0, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
   IF (error_action .AND. Debug) THEN
@@ -143,240 +143,240 @@ PROGRAM test_action_elem_op
   END IF
       !---------------------------------second basis vector (i*)b_1--------------------------------
   CALL MolecCav_Construct_op_psi_ana_real(Op_psi_real_ana, EO1_diag_1, ONE, b_1, Debug) ! same analytical result as with E01_dense_1
-  CALL Action(Op_psi_real, EO1_diag_1, b_1, Debug=Debug)
+  CALL Action(Op_psi_real, EO1_diag_1, b_1, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|1>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{diag, 1}|1>")
+    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{diag, 1}|1>(Analitical)")
   END IF
-  CALL Action(Op_psi_real, EO1_dense_1, b_1, Debug=Debug)
+  CALL Action(Op_psi_real, EO1_dense_1, b_1, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|1>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{dense, 1}|0>")
-    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{dense, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{dense, 1}|1>")
+    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{dense, 1}|1>(Analitical)")
   END IF
 
   Op_psi_complex_ana = Op_psi_real_ana*EYE                                                               ! make as if the b_1 was a vector of the canonical basis set on \mathbb{C} i.e. i*b_1
-  CALL Action(Op_psi_complex, EO1_diag_1, EYE*b_1, Debug=Debug)
+  CALL Action(Op_psi_complex, EO1_diag_1, EYE*b_1, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|1>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{diag, 1}|1>")
+    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{diag, 1}|1>(Analitical)")
   END IF
-  CALL Action(Op_psi_complex, EO1_dense_1, EYE*b_1, Debug=Debug)
+  CALL Action(Op_psi_complex, EO1_dense_1, EYE*b_1, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|1>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{dense, 1}|0>")
-    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{dense, 1}|1>")
+    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, 1}|1>(Analitical)")
   END IF
       !---------------------------------third basis vector (i*)b_2--------------------------------
   CALL MolecCav_Construct_op_psi_ana_real(Op_psi_real_ana, EO1_diag_1, ONE, b_2, Debug) ! same analytical result as with E01_dense_1
-  CALL Action(Op_psi_real, EO1_diag_1, b_2, Debug=Debug)
+  CALL Action(Op_psi_real, EO1_diag_1, b_2, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|2>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{diag, 1}|2>")
+    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{diag, 1}|2>(Analitical)")
   END IF
-  CALL Action(Op_psi_real, EO1_dense_1, b_2, Debug=Debug)
+  CALL Action(Op_psi_real, EO1_dense_1, b_2, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|2>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{dense, 1}|0>")
-    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{dense, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{dense, 1}|2>")
+    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{dense, 1}|2>(Analitical)")
   END IF
 
   Op_psi_complex_ana = Op_psi_real_ana*EYE                                                               ! make as if the b_2 was a vector of the canonical basis set on \mathbb{C} i.e. i*b_2
-  CALL Action(Op_psi_complex, EO1_diag_1, EYE*b_2, Debug=Debug)
+  CALL Action(Op_psi_complex, EO1_diag_1, EYE*b_2, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|2>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{diag, 1}|2>")
+    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{diag, 1}|2>(Analitical)")
   END IF
-  CALL Action(Op_psi_complex, EO1_dense_1, EYE*b_2, Debug=Debug)
+  CALL Action(Op_psi_complex, EO1_dense_1, EYE*b_2, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|2>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{dense, 1}|0>")
-    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{dense, 1}|2>")
+    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, 1}|2>(Analitical)")
   END IF      
       !---------------------------------WF LC of the basis vectors--------------------------------
   CALL MolecCav_Construct_op_psi_ana_real(Op_psi_real_ana, EO1_diag_1, ONE, Psi_1D_R1_real, Debug) ! same analytical result as with E01_dense_1
-  CALL Action(Op_psi_real, EO1_diag_1, Psi_1D_R1_real, Debug=Debug)
+  CALL Action(Op_psi_real, EO1_diag_1, Psi_1D_R1_real, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|\Psi_{real}>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{diag, 1}|\Psi_{real}>")
+    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{diag, 1}|\Psi_{real}>(Analitical)")
   END IF
-  CALL Action(Op_psi_real, EO1_dense_1, Psi_1D_R1_real, Debug=Debug)
+  CALL Action(Op_psi_real, EO1_dense_1, Psi_1D_R1_real, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|\Psi_{real}>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{dense, 1}|0>")
-    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{dense, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{dense, 1}|\Psi_{real}>")
+    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{dense, 1}|\Psi_{real}>(Analitical)")
   END IF
 
   CALL MolecCav_Construct_op_psi_ana_complex(Op_psi_complex_ana, EO1_diag_1, ONE, Psi_1D_R1_complex, Debug) ! same analytical result as with E01_dense_1
-  CALL Action(Op_psi_complex, EO1_diag_1, Psi_1D_R1_complex, Debug=Debug)
+  CALL Action(Op_psi_complex, EO1_diag_1, Psi_1D_R1_complex, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|\Psi_{complex}>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{diag, 1}|\Psi_{complex}>")
+    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{diag, 1}|\Psi_{complex}>(Analitical)")
   END IF
-  CALL Action(Op_psi_complex, EO1_dense_1, Psi_1D_R1_complex, Debug=Debug)
+  CALL Action(Op_psi_complex, EO1_dense_1, Psi_1D_R1_complex, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|\Psi_{complex}>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{dense, 1}|0>")
-    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{dense, 1}|\Psi_{complex}>")
+    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, 1}|\Psi_{complex}>(Analitical)")
   END IF
     !---------------------------------(Diag/Dense) Coeff = 1/10 (EO2)--------------------------------
       !---------------------------------first basis vector (i*)b_0--------------------------------
   CALL MolecCav_Construct_op_psi_ana_real(Op_psi_real_ana, EO2_diag_tenth, ONETENTH, b_0, Debug) ! same analytical result as with E01_dense_1
-  CALL Action(Op_psi_real, EO2_diag_tenth, b_0, Debug=Debug)
+  CALL Action(Op_psi_real, EO2_diag_tenth, b_0, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1/10}|0>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{diag, 1/10}|0>")
+    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{diag, 1/10}|0>(Analitical)")
   END IF
-  CALL Action(Op_psi_real, EO2_dense_tenth, b_0, Debug=Debug)
+  CALL Action(Op_psi_real, EO2_dense_tenth, b_0, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1/10}|0>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{dense, 1}|0>")
-    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{dense, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{dense, 1/10}|0>")
+    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{dense, 1/10}|0>(Analitical)")
   END IF
 
   Op_psi_complex_ana = Op_psi_real_ana*EYE                                                               ! make as if the b_0 was a vector of the canonical basis set on \mathbb{C} i.e. i*b_0
-  CALL Action(Op_psi_complex, EO2_diag_tenth, EYE*b_0, Debug=Debug)
+  CALL Action(Op_psi_complex, EO2_diag_tenth, EYE*b_0, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1/10}|0>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{diag, 1/10}|0>")
+    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{diag, 1/10}|0>(Analitical)")
   END IF
-  CALL Action(Op_psi_complex, EO2_dense_tenth, EYE*b_0, Debug=Debug)
+  CALL Action(Op_psi_complex, EO2_dense_tenth, EYE*b_0, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1/10}|0>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{dense, 1}|0>")
-    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{dense, 1/10}|0>")
+    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, 1/10}|0>(Analitical)")
   END IF
       !---------------------------------second basis vector (i*)b_1--------------------------------
   CALL MolecCav_Construct_op_psi_ana_real(Op_psi_real_ana, EO2_diag_tenth, ONETENTH, b_1, Debug) ! same analytical result as with E01_dense_1
-  CALL Action(Op_psi_real, EO2_diag_tenth, b_1, Debug=Debug)
+  CALL Action(Op_psi_real, EO2_diag_tenth, b_1, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1/10}|1>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{diag, 1/10}|1>")
+    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{diag, 1/10}|1>(Analitical)")
   END IF
-  CALL Action(Op_psi_real, EO2_dense_tenth, b_1, Debug=Debug)
+  CALL Action(Op_psi_real, EO2_dense_tenth, b_1, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1/10}|1>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{dense, 1}|0>")
-    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{dense, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{dense, 1/10}|1>")
+    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{dense, 1/10}|1>(Analitical)")
   END IF
 
   Op_psi_complex_ana = Op_psi_real_ana*EYE                                                               ! make as if the b_1 was a vector of the canonical basis set on \mathbb{C} i.e. i*b_1
-  CALL Action(Op_psi_complex, EO2_diag_tenth, EYE*b_1, Debug=Debug)
+  CALL Action(Op_psi_complex, EO2_diag_tenth, EYE*b_1, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1/10}|1>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{diag, 1/10}|1>")
+    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{diag, 1/10}|1>(Analitical)")
   END IF
-  CALL Action(Op_psi_complex, EO2_dense_tenth, EYE*b_1, Debug=Debug)
+  CALL Action(Op_psi_complex, EO2_dense_tenth, EYE*b_1, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1/10}|1>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{dense, 1}|0>")
-    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{dense, 1/10}|1>")
+    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, 1/10}|1>(Analitical)")
   END IF
       !---------------------------------third basis vector (i*)b_2--------------------------------
   CALL MolecCav_Construct_op_psi_ana_real(Op_psi_real_ana, EO2_diag_tenth, ONETENTH, b_2, Debug) ! same analytical result as with E01_dense_1
-  CALL Action(Op_psi_real, EO2_diag_tenth, b_2, Debug=Debug)
+  CALL Action(Op_psi_real, EO2_diag_tenth, b_2, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1/10}|2>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{diag, 1/10}|2>")
+    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{diag, 1/10}|2>(Analitical)")
   END IF
-  CALL Action(Op_psi_real, EO2_dense_tenth, b_2, Debug=Debug)
+  CALL Action(Op_psi_real, EO2_dense_tenth, b_2, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1/10}|2>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{dense, 1}|0>")
-    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{dense, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{dense, 1/10}|2>")
+    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{dense, 1/10}|2>(Analitical)")
   END IF
 
   Op_psi_complex_ana = Op_psi_real_ana*EYE                                                               ! make as if the b_2 was a vector of the canonical basis set on \mathbb{C} i.e. i*b_2
-  CALL Action(Op_psi_complex, EO2_diag_tenth, EYE*b_2, Debug=Debug)
+  CALL Action(Op_psi_complex, EO2_diag_tenth, EYE*b_2, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1/10}|2>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{diag, 1/10}|2>")
+    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{diag, 1/10}|2>(Analitical)")
   END IF
-  CALL Action(Op_psi_complex, EO2_dense_tenth, EYE*b_2, Debug=Debug)
+  CALL Action(Op_psi_complex, EO2_dense_tenth, EYE*b_2, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1/10}|2>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{dense, 1}|0>")
-    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{dense, 1/10}|2>")
+    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, 1/10}|2>(Analitical)")
   END IF      
       !---------------------------------WF LC of the basis vectors--------------------------------
   CALL MolecCav_Construct_op_psi_ana_real(Op_psi_real_ana, EO2_diag_tenth, ONETENTH, Psi_1D_R1_real, Debug) ! same analytical result as with E01_dense_1
-  CALL Action(Op_psi_real, EO2_diag_tenth, Psi_1D_R1_real, Debug=Debug)
+  CALL Action(Op_psi_real, EO2_diag_tenth, Psi_1D_R1_real, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1/10}|\Psi_{real}>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{diag, 1/10}|\Psi_{real}>")
+    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{diag, 1/10}|\Psi_{real}>(Analitical)")
   END IF
-  CALL Action(Op_psi_real, EO2_dense_tenth, Psi_1D_R1_real, Debug=Debug)
+  CALL Action(Op_psi_real, EO2_dense_tenth, Psi_1D_R1_real, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1/10}|\Psi_{real}>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{dense, 1}|0>")
-    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{dense, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{dense, 1/10}|\Psi_{real}>")
+    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{dense, 1/10}|\Psi_{real}>(Analitical)")
   END IF
 
   CALL MolecCav_Construct_op_psi_ana_complex(Op_psi_complex_ana, EO2_diag_tenth, ONETENTH, Psi_1D_R1_complex, Debug) ! same analytical result as with E01_dense_1
-  CALL Action(Op_psi_complex, EO2_diag_tenth, Psi_1D_R1_complex, Debug=Debug)
+  CALL Action(Op_psi_complex, EO2_diag_tenth, Psi_1D_R1_complex, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1/10}|\Psi_{complex}>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{diag, 1/10}|\Psi_{complex}>")
+    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{diag, 1/10}|\Psi_{complex}>(Analitical)")
   END IF
-  CALL Action(Op_psi_complex, EO2_dense_tenth, Psi_1D_R1_complex, Debug=Debug)
+  CALL Action(Op_psi_complex, EO2_dense_tenth, Psi_1D_R1_complex, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1/10}|\Psi_{complex}>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{dense, 1}|0>")
-    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{dense, 1/10}|\Psi_{complex}>")
+    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, 1/10}|\Psi_{complex}>(Analitical)")
   END IF
     !--------------------------------(Band/Dense) Coeff = 1 (EO3)--------------------------------
       !---------------------------------first basis vector (i*)b_0--------------------------------
   CALL MolecCav_Construct_op_psi_ana_real(Op_psi_real_ana, EO3_band_1, ONE, b_0, Debug) ! same analytical result as with E01_dense_1
-  CALL Action(Op_psi_real, EO3_band_1, b_0, Debug=Debug)
+  CALL Action(Op_psi_real, EO3_band_1, b_0, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{band, 1}|0>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{band, 1}|0>")
+    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{band, 1}|0>(Analitical)")
   END IF
-  CALL Action(Op_psi_real, EO3_dense_1, b_0, Debug=Debug)
+  CALL Action(Op_psi_real, EO3_dense_1, b_0, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
   IF (error_action .AND. Debug) THEN
@@ -385,14 +385,14 @@ PROGRAM test_action_elem_op
   END IF
 
   Op_psi_complex_ana = Op_psi_real_ana*EYE                                                               ! make as if the b_0 was a vector of the canonical basis set on \mathbb{C} i.e. i*b_0
-  CALL Action(Op_psi_complex, EO3_band_1, EYE*b_0, Debug=Debug)
+  CALL Action(Op_psi_complex, EO3_band_1, EYE*b_0, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{band, 1}|0>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{band, 1}|0>")
+    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{band, 1}|0>(Analitical)")
   END IF
-  CALL Action(Op_psi_complex, EO3_dense_1, EYE*b_0, Debug=Debug)
+  CALL Action(Op_psi_complex, EO3_dense_1, EYE*b_0, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
   CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
   IF (error_action .AND. Debug) THEN
@@ -401,233 +401,233 @@ PROGRAM test_action_elem_op
   END IF
       !---------------------------------second basis vector (i*)b_1--------------------------------
   CALL MolecCav_Construct_op_psi_ana_real(Op_psi_real_ana, EO3_band_1, ONE, b_1, Debug) ! same analytical result as with E01_dense_1
-  CALL Action(Op_psi_real, EO3_band_1, b_1, Debug=Debug)
+  CALL Action(Op_psi_real, EO3_band_1, b_1, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{band, 1}|1>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{band, 1}|1>")
+    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{band, 1}|1>(Analitical)")
   END IF
-  CALL Action(Op_psi_real, EO3_dense_1, b_1, Debug=Debug)
+  CALL Action(Op_psi_real, EO3_dense_1, b_1, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|1>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{dense, 1}|0>")
-    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{dense, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{dense, 1}|1>")
+    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{dense, 1}|1>(Analitical)")
   END IF
 
   Op_psi_complex_ana = Op_psi_real_ana*EYE                                                               ! make as if the b_1 was a vector of the canonical basis set on \mathbb{C} i.e. i*b_1
-  CALL Action(Op_psi_complex, EO3_band_1, EYE*b_1, Debug=Debug)
+  CALL Action(Op_psi_complex, EO3_band_1, EYE*b_1, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{band, 1}|1>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{band, 1}|1>")
+    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{band, 1}|1>(Analitical)")
   END IF
-  CALL Action(Op_psi_complex, EO3_dense_1, EYE*b_1, Debug=Debug)
+  CALL Action(Op_psi_complex, EO3_dense_1, EYE*b_1, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|1>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{dense, 1}|0>")
-    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{dense, 1}|1>")
+    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, 1}|1>(Analitical)")
   END IF
       !---------------------------------third basis vector (i*)b_2--------------------------------
   CALL MolecCav_Construct_op_psi_ana_real(Op_psi_real_ana, EO3_band_1, ONE, b_2, Debug) ! same analytical result as with E01_dense_1
-  CALL Action(Op_psi_real, EO3_band_1, b_2, Debug=Debug)
+  CALL Action(Op_psi_real, EO3_band_1, b_2, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{band, 1}|2>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{band, 1}|2>")
+    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{band, 1}|2>(Analitical)")
   END IF
-  CALL Action(Op_psi_real, EO3_dense_1, b_2, Debug=Debug)
+  CALL Action(Op_psi_real, EO3_dense_1, b_2, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|2>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{dense, 1}|0>")
-    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{dense, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{dense, 1}|2>")
+    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{dense, 1}|2>(Analitical)")
   END IF
 
   Op_psi_complex_ana = Op_psi_real_ana*EYE                                                               ! make as if the b_2 was a vector of the canonical basis set on \mathbb{C} i.e. i*b_2
-  CALL Action(Op_psi_complex, EO3_band_1, EYE*b_2, Debug=Debug)
+  CALL Action(Op_psi_complex, EO3_band_1, EYE*b_2, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{band, 1}|2>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{band, 1}|2>")
+    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{band, 1}|2>(Analitical)")
   END IF
-  CALL Action(Op_psi_complex, EO3_dense_1, EYE*b_2, Debug=Debug)
+  CALL Action(Op_psi_complex, EO3_dense_1, EYE*b_2, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|2>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{dense, 1}|0>")
-    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{dense, 1}|2>")
+    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, 1}|2>(Analitical)")
   END IF      
       !---------------------------------WF LC of the basis vectors--------------------------------
   CALL MolecCav_Construct_op_psi_ana_real(Op_psi_real_ana, EO3_band_1, ONE, Psi_1D_R1_real, Debug) ! same analytical result as with E01_dense_1
-  CALL Action(Op_psi_real, EO3_band_1, Psi_1D_R1_real, Debug=Debug)
+  CALL Action(Op_psi_real, EO3_band_1, Psi_1D_R1_real, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{band, 1}|\Psi_{real}>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{band, 1}|\Psi_{real}>")
+    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{band, 1}|\Psi_{real}>(Analitical)")
   END IF
-  CALL Action(Op_psi_real, EO3_dense_1, Psi_1D_R1_real, Debug=Debug)
+  CALL Action(Op_psi_real, EO3_dense_1, Psi_1D_R1_real, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|\Psi_{real}>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{dense, 1}|0>")
-    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{dense, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{dense, 1}|\Psi_{real}>")
+    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{dense, 1}|\Psi_{real}>(Analitical)")
   END IF
 
   CALL MolecCav_Construct_op_psi_ana_complex(Op_psi_complex_ana, EO3_band_1, ONE, Psi_1D_R1_complex, Debug) ! same analytical result as with E01_dense_1
-  CALL Action(Op_psi_complex, EO3_band_1, Psi_1D_R1_complex, Debug=Debug)
+  CALL Action(Op_psi_complex, EO3_band_1, Psi_1D_R1_complex, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{band, 1}|\Psi_{complex}>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{band, 1}|\Psi_{complex}>")
+    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{band, 1}|\Psi_{complex}>(Analitical)")
   END IF
-  CALL Action(Op_psi_complex, EO3_dense_1, Psi_1D_R1_complex, Debug=Debug)
+  CALL Action(Op_psi_complex, EO3_dense_1, Psi_1D_R1_complex, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|\Psi_{complex}>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{dense, 1}|0>")
-    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{dense, 1}|\Psi_{complex}>")
+    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, 1}|\Psi_{complex}>(Analitical)")
   END IF
     !---------------------------------(Band/Dense) Coeff = PI (EO4)--------------------------------
       !---------------------------------first basis vector (i*)b_0--------------------------------
   CALL MolecCav_Construct_op_psi_ana_real(Op_psi_real_ana, EO4_band_pi, PI, b_0, Debug) ! same analytical result as with E01_dense_1
-  CALL Action(Op_psi_real, EO4_band_pi, b_0, Debug=Debug)
+  CALL Action(Op_psi_real, EO4_band_pi, b_0, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{band, \pi}|0>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{band, \pi}|0>")
+    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{band, \pi}|0>(Analitical)")
   END IF
-  CALL Action(Op_psi_real, EO4_dense_pi, b_0, Debug=Debug)
+  CALL Action(Op_psi_real, EO4_dense_pi, b_0, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, \pi}|0>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{dense, 1}|0>")
-    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{dense, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{dense, \pi}|0>")
+    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{dense, \pi}|0>(Analitical)")
   END IF
 
   Op_psi_complex_ana = Op_psi_real_ana*EYE                                                               ! make as if the b_0 was a vector of the canonical basis set on \mathbb{C} i.e. i*b_0
-  CALL Action(Op_psi_complex, EO4_band_pi, EYE*b_0, Debug=Debug)
+  CALL Action(Op_psi_complex, EO4_band_pi, EYE*b_0, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{band, \pi}|0>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{band, \pi}|0>")
+    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{band, \pi}|0>(Analitical)")
   END IF
-  CALL Action(Op_psi_complex, EO4_dense_pi, EYE*b_0, Debug=Debug)
+  CALL Action(Op_psi_complex, EO4_dense_pi, EYE*b_0, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, \pi}|0>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{dense, 1}|0>")
-    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{dense, \pi}|0>")
+    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, \pi}|0>(Analitical)")
   END IF
       !---------------------------------second basis vector (i*)b_1--------------------------------
   CALL MolecCav_Construct_op_psi_ana_real(Op_psi_real_ana, EO4_band_pi, PI, b_1, Debug) ! same analytical result as with E01_dense_1
-  CALL Action(Op_psi_real, EO4_band_pi, b_1, Debug=Debug)
+  CALL Action(Op_psi_real, EO4_band_pi, b_1, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{band, \pi}|1>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{band, \pi}|1>")
+    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{band, \pi}|1>(Analitical)")
   END IF
-  CALL Action(Op_psi_real, EO4_dense_pi, b_1, Debug=Debug)
+  CALL Action(Op_psi_real, EO4_dense_pi, b_1, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, \pi}|1>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{dense, 1}|0>")
-    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{dense, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{dense, \pi}|1>")
+    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{dense, \pi}|1>(Analitical)")
   END IF
 
   Op_psi_complex_ana = Op_psi_real_ana*EYE                                                               ! make as if the b_1 was a vector of the canonical basis set on \mathbb{C} i.e. i*b_1
-  CALL Action(Op_psi_complex, EO4_band_pi, EYE*b_1, Debug=Debug)
+  CALL Action(Op_psi_complex, EO4_band_pi, EYE*b_1, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{band, \pi}|1>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{band, \pi}|1>")
+    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{band, \pi}|1>(Analitical)")
   END IF
-  CALL Action(Op_psi_complex, EO4_dense_pi, EYE*b_1, Debug=Debug)
+  CALL Action(Op_psi_complex, EO4_dense_pi, EYE*b_1, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, \pi}|1>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{dense, 1}|0>")
-    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{dense, \pi}|1>")
+    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, \pi}|1>(Analitical)")
   END IF
       !---------------------------------third basis vector (i*)b_2--------------------------------
   CALL MolecCav_Construct_op_psi_ana_real(Op_psi_real_ana, EO4_band_pi, PI, b_2, Debug) ! same analytical result as with E01_dense_1
-  CALL Action(Op_psi_real, EO4_band_pi, b_2, Debug=Debug)
+  CALL Action(Op_psi_real, EO4_band_pi, b_2, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{band, \pi}|2>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{band, \pi}|2>")
+    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{band, \pi}|2>(Analitical)")
   END IF
-  CALL Action(Op_psi_real, EO4_dense_pi, b_2, Debug=Debug)
+  CALL Action(Op_psi_real, EO4_dense_pi, b_2, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, \pi}|2>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{dense, 1}|0>")
-    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{dense, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{dense, \pi}|2>")
+    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{dense, \pi}|2>(Analitical)")
   END IF
 
   Op_psi_complex_ana = Op_psi_real_ana*EYE                                                               ! make as if the b_2 was a vector of the canonical basis set on \mathbb{C} i.e. i*b_2
-  CALL Action(Op_psi_complex, EO4_band_pi, EYE*b_2, Debug=Debug)
+  CALL Action(Op_psi_complex, EO4_band_pi, EYE*b_2, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{band, \pi}|2>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{band, \pi}|2>")
+    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{band, \pi}|2>(Analitical)")
   END IF
-  CALL Action(Op_psi_complex, EO4_dense_pi, EYE*b_2, Debug=Debug)
+  CALL Action(Op_psi_complex, EO4_dense_pi, EYE*b_2, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, \pi}|2>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{dense, 1}|0>")
-    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{dense, \pi}|2>")
+    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, \pi}|2>(Analitical)")
   END IF      
       !---------------------------------WF LC of the basis vectors--------------------------------
   CALL MolecCav_Construct_op_psi_ana_real(Op_psi_real_ana, EO4_band_pi, PI, Psi_1D_R1_real, Debug) ! same analytical result as with E01_dense_1
-  CALL Action(Op_psi_real, EO4_band_pi, Psi_1D_R1_real, Debug=Debug)
+  CALL Action(Op_psi_real, EO4_band_pi, Psi_1D_R1_real, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{band, \pi}|\Psi_{real}>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{band, \pi}|\Psi_{real}>")
+    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{band, \pi}|\Psi_{real}>(Analitical)")
   END IF
-  CALL Action(Op_psi_real, EO4_dense_pi, Psi_1D_R1_real, Debug=Debug)
+  CALL Action(Op_psi_real, EO4_dense_pi, Psi_1D_R1_real, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_real, Op_psi_real_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, \pi}|\Psi_{real}>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{dense, 1}|0>")
-    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{dense, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_real, out_unit, Size(Op_psi_real), info="\hat{O}_{dense, \pi}|\Psi_{real}>")
+    CALL Write_Vec(Op_psi_real_ana, out_unit, Size(Op_psi_real_ana), info="\hat{O}_{dense, \pi}|\Psi_{real}>(Analitical)")
   END IF
 
   CALL MolecCav_Construct_op_psi_ana_complex(Op_psi_complex_ana, EO4_band_pi, PI, Psi_1D_R1_complex, Debug) ! same analytical result as with E01_dense_1
-  CALL Action(Op_psi_complex, EO4_band_pi, Psi_1D_R1_complex, Debug=Debug)
+  CALL Action(Op_psi_complex, EO4_band_pi, Psi_1D_R1_complex, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{diag, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{band, \pi}|\Psi_{complex}>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{diag, 1}|0>")
-    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{diag, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{band, \pi}|\Psi_{complex}>")
+    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{band, \pi}|\Psi_{complex}>(Analitical)")
   END IF
-  CALL Action(Op_psi_complex, EO4_dense_pi, Psi_1D_R1_complex, Debug=Debug)
+  CALL Action(Op_psi_complex, EO4_dense_pi, Psi_1D_R1_complex, Verbose=Verbose, Debug=Debug)
   CALL Equal_tensor(error_action, Op_psi_complex, Op_psi_complex_ana)
-  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, error_action, test2=.FALSE., info="\hat{O}_{dense, \pi}|\Psi_{complex}>")
   IF (error_action .AND. Debug) THEN
-    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{dense, 1}|0>")
-    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, 1}|0>(Analitical)")
+    CALL Write_Vec(Op_psi_complex, out_unit, Size(Op_psi_complex), info="\hat{O}_{dense, \pi}|\Psi_{complex}>")
+    CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, \pi}|\Psi_{complex}>(Analitical)")
   END IF
 
   !----------------------------Testing the Deallocation---------------------------
       !----------------------------Diagonal guy---------------------------
-  CALL Dealloc(EO1_diag_1,  Debug=Debug)
+  CALL Dealloc(EO1_diag_1, Verbose=Verbose, Debug=Debug)
   CALL Logical_Test(test_action, EO1_diag_1%Dense, test2=.FALSE., info="Dense")
   CALL Logical_Test(test_action, EO1_diag_1%Grid, test2=.FALSE., info="Grid")
   CALL Logical_Test(test_action, EO1_diag_1%Upper_bandwidth /= 0, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
@@ -637,7 +637,7 @@ PROGRAM test_action_elem_op
   CALL Logical_Test(test_action, ALLOCATED(EO1_diag_1%Band_val),  test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
   CALL Logical_Test(test_action, ALLOCATED(EO1_diag_1%Dense_val), test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
       !----------------------------Dense guy---------------------------
-  CALL Dealloc(EO1_dense_1, Debug=Debug)
+  CALL Dealloc(EO1_dense_1, Verbose=Verbose, Debug=Debug)
   CALL Logical_Test(test_action, EO1_dense_1%Dense, test2=.FALSE., info="Dense")
   CALL Logical_Test(test_action, EO1_dense_1%Grid, test2=.FALSE., info="Grid")
   CALL Logical_Test(test_action, EO1_dense_1%Upper_bandwidth /= 0, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
@@ -647,7 +647,7 @@ PROGRAM test_action_elem_op
   CALL Logical_Test(test_action, ALLOCATED(EO1_dense_1%Band_val),  test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
   CALL Logical_Test(test_action, ALLOCATED(EO1_dense_1%Dense_val), test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
       !----------------------------Band guy---------------------------
-  CALL Dealloc(EO3_band_1,  Debug=Debug)
+  CALL Dealloc(EO3_band_1, Verbose=Verbose, Debug=Debug)
   CALL Logical_Test(test_action, EO3_band_1%Dense, test2=.FALSE., info="Dense")
   CALL Logical_Test(test_action, EO3_band_1%Grid, test2=.FALSE., info="Grid")
   CALL Logical_Test(test_action, EO3_band_1%Upper_bandwidth /= 0, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")

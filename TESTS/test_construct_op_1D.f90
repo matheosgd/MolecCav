@@ -30,7 +30,7 @@ PROGRAM test_construct_op_1D
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
   USE QDUtil_m
   USE QDUtil_Test_m
-  USE Cavity_mode_m
+  USE Cavity_mode_old_m
   USE Elem_op_m
   IMPLICIT NONE
 
@@ -87,7 +87,7 @@ PROGRAM test_construct_op_1D
 
 
   !------------------------Construct H matricies to test-----------------------
-  CALL Construct_Operator_1D(H_ho_1D_diag_1_6,    "Hamiltonian", Mode=Mode, Debug=Debug)
+  CALL Construct_Operator_1D(H_ho_1D_diag_1_6,    "Hamiltonian", Dense=.FALSE., Mode=Mode, Debug=Debug)
 
   Mode%w  = 14*ONE
   CALL Construct_Operator_1D(H_ho_1D_diag_14_6,   "Hamiltonian", Mode=Mode, Debug=Debug)

@@ -34,7 +34,7 @@ PROGRAM App_MolecCav
   USE Algebra_m
   USE ND_indexes_m
   USE Mapping_m
-  USE Cavity_mode_m
+  USE Cavity_mode_old_m
   USE Elem_op_m
   USE Operator_2D_m
   USE Total_hamiltonian_m

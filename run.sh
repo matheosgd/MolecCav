@@ -64,7 +64,7 @@ FFC="gfortran"                                                                 #
 FFLAGS="-Og -g -fbacktrace -fcheck=all -fwhole-file -fcheck=pointer -Wuninitialized -finit-real=nan -finit-integer=nan -fopenmp"
                                                                                # some useful options for the compiler
 
-MODULES_LIB=("Cavity_mode_m" "Elem_op_m" "Total_hamiltonian_m" "Algebra_m" "Operator_2D_m" "Psi_analysis_m" "ND_indexes_m" "Mapping_m")
+MODULES_LIB=("Quantum_HO1D_m" "Elem_op_m" "Total_hamiltonian_m" "Algebra_m" "Operator_2D_m" "Psi_analysis_m" "ND_indexes_m" "Mapping_m")
 SRC_LIB=(${MODULES_LIB[@]/%/.f90})
 OBJ_LIB=(${MODULES_LIB[@]/%/.o})
 
@@ -149,8 +149,8 @@ Build_QDLIBA()
 Build_obj_lib()
 {
   cd ~/MolecCav
- 	$FFC -c -o ${OBJ[0]} $FFLAGS ${SRC_FILES[0]}                                           # OBJ[0] = OBJ/obj/Cavity_mode_m.o 
-                                                                                         # SRC_FILES[0] = OBJ/obj/Cavity_mode_m.f90
+ 	$FFC -c -o ${OBJ[0]} $FFLAGS ${SRC_FILES[0]}                                           # OBJ[0] = OBJ/obj/Quantum_HO1D_m.o 
+                                                                                         # SRC_FILES[0] = OBJ/obj/Quantum_HO1D_m.f90
   $FFC -c -o ${OBJ[3]} $FFLAGS ${SRC_FILES[3]}                                           # OBJ[2] = OBJ/obj/Algebra_m.o            |/!\ Algebra has to be compiled         /!\
                                                                                          # SRC_FILES[2] = OBJ/obj/Algebra_m.f90    |/!\ before operator_1d (used in op_1d) /!\         
   $FFC -c -o ${OBJ[1]} $FFLAGS ${SRC_FILES[1]}                                           # OBJ[1] = OBJ/obj/Operator_1D.o          

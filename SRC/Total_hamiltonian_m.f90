@@ -74,7 +74,7 @@ MODULE Total_hamiltonian_m
     
   SUBROUTINE MolecCav_Action_total_hamiltonian_1p1D(TotH_psi, CavPosition, CavH, MatDipMomt, MatH, Psi, Debug)
     USE QDUtil_m
-    USE Cavity_mode_m
+    USE Quantum_HO1D_m
     USE Elem_op_m
     IMPLICIT NONE
 
@@ -177,7 +177,7 @@ MODULE Total_hamiltonian_m
 
   SUBROUTINE MolecCav_Action_matter_1p1D(Psi_1, Psi_2, Psi_3, MatDipMomt, MatH, Psi)
     USE QDUtil_m
-    USE Cavity_mode_m
+    USE Quantum_HO1D_m
     USE Elem_op_m
     IMPLICIT NONE
 
@@ -211,7 +211,7 @@ MODULE Total_hamiltonian_m
   
   SUBROUTINE MolecCav_Action_cavity_1p1D(TotH_psi, CavPosition, CavH, Psi_1, Psi_2, Psi_3, Debug_local)
     USE QDUtil_m
-    USE Cavity_mode_m
+    USE Quantum_HO1D_m
     USE Elem_op_m
     IMPLICIT NONE
 
@@ -293,7 +293,7 @@ MODULE Total_hamiltonian_m
 
   SUBROUTINE MolecCav_Action_total_hamiltonian_1p1D_R1(TotH_psi, CavPosition, CavH, MatDipMomt, MatH, Psi, Debug)
     USE QDUtil_m
-    USE Cavity_mode_m
+    USE Quantum_HO1D_m
     USE Elem_op_m
     IMPLICIT NONE
 
@@ -390,7 +390,7 @@ MODULE Total_hamiltonian_m
 
   SUBROUTINE MolecCav_Action_matter_1p1D_R1(Psi_1, Psi_2, Psi_3, MatDipMomt, MatH, Psi, Debug_local)
     USE QDUtil_m
-    USE Cavity_mode_m
+    USE Quantum_HO1D_m
     USE Elem_op_m
     USE Mapping_m
     IMPLICIT NONE
@@ -439,7 +439,7 @@ MODULE Total_hamiltonian_m
   
   SUBROUTINE MolecCav_Action_cavity_1p1D_R1(TotH_psi, CavPosition, CavH, Psi_1, Psi_2, Psi_3, Debug_local)
     USE QDUtil_m
-    USE Cavity_mode_m
+    USE Quantum_HO1D_m
     USE Elem_op_m
     USE Mapping_m
     IMPLICIT NONE
@@ -532,7 +532,7 @@ MODULE Total_hamiltonian_m
 
   SUBROUTINE MolecCav_Construct_total_hamiltonian_1p1D(TotH, CavPosition, CavH, MatDipMomt, MatH, Debug)
     USE QDUtil_m
-    USE Cavity_mode_m
+    USE Quantum_HO1D_m
     USE Elem_op_m
     IMPLICIT NONE
 
@@ -621,7 +621,7 @@ MODULE Total_hamiltonian_m
   SUBROUTINE MolecCav_Construct_total_hamiltonian_1p1D_R1(TotH, CavPosition, CavH, MatDipMomt, MatH, Debug)
     USE QDUtil_m
     USE Mapping_m
-    USE Cavity_mode_m
+    USE Quantum_HO1D_m
     USE Elem_op_m
     IMPLICIT NONE
 
