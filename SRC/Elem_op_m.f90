@@ -613,9 +613,13 @@ MODULE Elem_op_m
     END IF 
 
     IF (ALLOCATED(Elem_op%Operator_type)) DEALLOCATE(Elem_op%Operator_type)
-    IF (ALLOCATED(Elem_op%Dense_val))   DEALLOCATE(Elem_op%Dense_val)
-    IF (ALLOCATED(Elem_op%Diag_val))    DEALLOCATE(Elem_op%Diag_val)
-    IF (ALLOCATED(Elem_op%Band_val))    DEALLOCATE(Elem_op%Band_val)
+    Elem_op%Dense           = .FALSE.
+    Elem_op%Grid            = .FALSE.
+    Elem_op%Upper_bandwidth = 0
+    Elem_op%Lower_bandwidth = 0
+    IF (ALLOCATED(Elem_op%Dense_val))     DEALLOCATE(Elem_op%Dense_val)
+    IF (ALLOCATED(Elem_op%Diag_val))      DEALLOCATE(Elem_op%Diag_val)
+    IF (ALLOCATED(Elem_op%Band_val))      DEALLOCATE(Elem_op%Band_val)
 
     IF (Debug_local) THEN
       WRITE(out_unit,*)

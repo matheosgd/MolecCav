@@ -625,7 +625,39 @@ PROGRAM test_action_elem_op
     CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, 1}|0>(Analitical)")
   END IF
 
-  
+  !----------------------------Testing the Deallocation---------------------------
+      !----------------------------Diagonal guy---------------------------
+  CALL Dealloc(EO1_diag_1,  Debug=Debug)
+  CALL Logical_Test(test_action, EO1_diag_1%Dense, test2=.FALSE., info="Dense")
+  CALL Logical_Test(test_action, EO1_diag_1%Grid, test2=.FALSE., info="Grid")
+  CALL Logical_Test(test_action, EO1_diag_1%Upper_bandwidth /= 0, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, EO1_diag_1%Lower_bandwidth /= 0, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, ALLOCATED(EO1_diag_1%Operator_type),  test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, ALLOCATED(EO1_diag_1%Diag_val),  test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, ALLOCATED(EO1_diag_1%Band_val),  test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, ALLOCATED(EO1_diag_1%Dense_val), test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+      !----------------------------Dense guy---------------------------
+  CALL Dealloc(EO1_dense_1, Debug=Debug)
+  CALL Logical_Test(test_action, EO1_dense_1%Dense, test2=.FALSE., info="Dense")
+  CALL Logical_Test(test_action, EO1_dense_1%Grid, test2=.FALSE., info="Grid")
+  CALL Logical_Test(test_action, EO1_dense_1%Upper_bandwidth /= 0, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, EO1_dense_1%Lower_bandwidth /= 0, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, ALLOCATED(EO1_dense_1%Operator_type),  test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, ALLOCATED(EO1_dense_1%Diag_val),  test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, ALLOCATED(EO1_dense_1%Band_val),  test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, ALLOCATED(EO1_dense_1%Dense_val), test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+      !----------------------------Band guy---------------------------
+  CALL Dealloc(EO3_band_1,  Debug=Debug)
+  CALL Logical_Test(test_action, EO3_band_1%Dense, test2=.FALSE., info="Dense")
+  CALL Logical_Test(test_action, EO3_band_1%Grid, test2=.FALSE., info="Grid")
+  CALL Logical_Test(test_action, EO3_band_1%Upper_bandwidth /= 0, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, EO3_band_1%Lower_bandwidth /= 0, test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, ALLOCATED(EO3_band_1%Operator_type),  test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, ALLOCATED(EO3_band_1%Diag_val),  test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, ALLOCATED(EO3_band_1%Band_val),  test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+  CALL Logical_Test(test_action, ALLOCATED(EO3_band_1%Dense_val), test2=.FALSE., info="\hat{O}_{dense, 1}|0>")
+
+
   CALL Finalize_Test(test_action)
   
   
