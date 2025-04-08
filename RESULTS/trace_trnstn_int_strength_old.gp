@@ -40,6 +40,10 @@
 #   R                 = 8.314
 #   f(x)              = (deltaH + gamma_interaction*(1-2*x)) / (R*log((1-x)/x)+deltaS)
 #   plot f(x) 
+#CHANGER LE NB DE POINTS SUR LEQUEL SERA EVALUE LA FONCTION
+#set samples <Nb of grid  points>
+#show samples
+#Rq: default : 100
 #SUPERPOSE PLS COURBES EX PLUSIEURS FICHIERS
 #   offset1 = 0
 #   offset2 = 0
