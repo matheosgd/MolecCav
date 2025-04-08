@@ -9,3 +9,4 @@ test_action_op.f90
 comp.sh
 RESULTS/*.png
 RESULTS/*.txt
+RESULTS/trace_trnstn*.gp

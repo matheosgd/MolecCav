@@ -9,7 +9,7 @@ echo -e "set term qt font \"Times, 12\"" >> "/home/segaud/MolecCav/RESULTS/trace
 echo -e "set grid\nshow grid"            >> "/home/segaud/MolecCav/RESULTS/trace_trnstn_int_detu.gp"
 echo -e "\nset title  'Intensities = f(detuning) for small coupling (\lambda = 4e-4 a.u.; w_M = w_{HF}) [a.u.]" >> "/home/segaud/MolecCav/RESULTS/trace_trnstn_int_detu.gp"
 echo -e "set xlabel 'Transition energy [Ha]'"                                                                   >> "/home/segaud/MolecCav/RESULTS/trace_trnstn_int_detu.gp"
-echo -e "set ylabel 'Coupling strength [a.u.]'"                                                                 >> "/home/segaud/MolecCav/RESULTS/trace_trnstn_int_detu.gp"
+echo -e "set ylabel 'Arbitrary units [a.u.]'"                                                                 >> "/home/segaud/MolecCav/RESULTS/trace_trnstn_int_detu.gp"
 echo -e "\nunset xrange\nunset yrange"                                    >> "/home/segaud/MolecCav/RESULTS/trace_trnstn_int_detu.gp"
 echo -e "min = 5.4610394673397069E-003 - 1E-5"                            >> "/home/segaud/MolecCav/RESULTS/trace_trnstn_int_detu.gp"
 echo -e "max = 6.2723303490619256E-003 + 1E-5"                            >> "/home/segaud/MolecCav/RESULTS/trace_trnstn_int_detu.gp"
