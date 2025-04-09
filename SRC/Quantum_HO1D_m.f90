@@ -25,6 +25,17 @@
 ! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ! SOFTWARE.
 !==================================================================================================
+! README :
+! The only module related to general HO that the others modules will need to call in a "USE".  
+! Initialize_quantum_HO1D : reads the namelist and initialize the type, then constructs the operat-
+! or using parameters of the HO1D_para object from the so called derived type.
+! Append_quantum_HO1D     : add an HO operator to a already initialized object of Quantum_HO1D_t type.
+! Write_quantum_HO1D      : display values of the type in the output
+! Deallocate_quantum_HO1D : deallocate all tables of the type
+! The module to initialize the HO by reading its parameters from the namelist.  
+! Read_HO1D_parameters  : reads the namelist and initialize the type.
+! Write_HO1D_parameters : displays values of the type in the output.
+!==================================================================================================
 !==================================================================================================
 MODULE Quantum_HO1D_m
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
@@ -33,7 +44,7 @@ MODULE Quantum_HO1D_m
   IMPLICIT NONE
 
 
-  TYPE :: Cavity_mode_t                                                        ! MC = MolecCav NB: everything is initialized at values that are not supposed to make it possible of the cavity mode lecture/creation have successfully been executed
+  TYPE :: Cavity_mode_t ! OLD                                                  ! MC = MolecCav NB: everything is initialized at values that are not supposed to make it possible of the cavity mode lecture/creation have successfully been executed
     integer          :: D      = 0                                             ! label of the HO/mode/dimension/associated basis set
     integer          :: Nb     = 0                                             ! number of basis vectors associated with the HO D
     real(kind=Rkind) :: w      = ZERO                                          ! eigenpulsation associated with the HO D
@@ -46,24 +57,460 @@ MODULE Quantum_HO1D_m
     integer                      :: Nb = 0
     real(kind=Rkind)             :: w = ZERO
     real(kind=Rkind)             :: m = ZERO
-    TYPE(Elem_op_t), allocatable :: Tab_op(:)
+    TYPE(Elem_op_t), allocatable :: Tab_op(:)                                  ! 0 : \hat{Id} ; 1 : \hat{H} ; 2 : \hat{x} ; 3 : \hat{N} ; 4 : \hat{we will see} ; 
     integer                      :: Nq = 0
     real(kind=Rkind)             :: Eq_pos = -ONE
     real(kind=Rkind)             :: Scale_q = ZERO
   END TYPE
 
 
-  INTERFACE Read_cavity_mode
-    MODULE PROCEDURE MolecCav_Read_cavity_mode
+  PUBLIC Cavity_mode_t, Read_cavity_mode, Write_cavity_mode,& ! OLD 
+       & Quantum_HO1D_t, Initialize, Action, Write, Deallocate
+
+  INTERFACE Initialize
+    MODULE PROCEDURE MolecCav_Initialize_quantum_HO1D, MolecCav_Initialize_QHO1D_Elem_op
   END INTERFACE
-  INTERFACE Write_cavity_mode
-    MODULE PROCEDURE MolecCav_Write_cavity_mode
+  INTERFACE Initialize_I
+    MODULE PROCEDURE MolecCav_Initialize_I_QHO1D
+  END INTERFACE
+  INTERFACE Initialize_H
+    MODULE PROCEDURE MolecCav_Initialize_H_QHO1D
+  END INTERFACE
+  INTERFACE Initialize_x
+    MODULE PROCEDURE MolecCav_Initialize_x_QHO1D
+  END INTERFACE
+  INTERFACE Initialize_N
+    MODULE PROCEDURE MolecCav_Initialize_N_QHO1D
+  END INTERFACE
+  INTERFACE Action
+    MODULE PROCEDURE MolecCav_Action_quantum_HO1D
+  END INTERFACE
+  INTERFACE Write
+    MODULE PROCEDURE MolecCav_Write_quantum_HO1D
+  END INTERFACE
+  INTERFACE Deallocate
+    MODULE PROCEDURE MolecCav_Deallocate_quantum_HO1D
   END INTERFACE
     
+
+  INTERFACE Read_cavity_mode ! OLD
+    MODULE PROCEDURE MolecCav_Read_cavity_mode
+  END INTERFACE
+  INTERFACE Write_cavity_mode ! OLD
+    MODULE PROCEDURE MolecCav_Write_cavity_mode
+  END INTERFACE
+
 
   CONTAINS
 
 
+  SUBROUTINE Initialize_quantum_HO1D(QHO1D, Nb, w, m, Verbose, Debug) ! here init on the 1D QHO basis : don't need Nq etc. will write later Init_grid or Init_other_basis, maybe called by this one, in this case, the "call" will be determined by the optional arg (Nb, Nq etc.)
+    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
+    USE QDUtil_m
+    USE Elem_op_m
+    IMPLICIT NONE
+  
+    TYPE(Quantum_HO1D_t), intent(inout) :: QHO1D
+    integer,              intent(in)    :: Nb
+    real(kind=Rkind),     intent(in)    :: w 
+    real(kind=Rkind),     intent(in)    :: m 
+    integer, optional,    intent(in)    :: Verbose                                                                         ! cf. comments in HO1D_parameters_m
+    logical, optional,    intent(in)    :: Debug                                                                           ! cf. comments in HO1D_parameters_m
+
+    integer                             :: Verbose_local = 20                                                              ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
+    logical                             :: Debug_local   = .FALSE.
+    
+    !------------------------------------------------------Debugging options-----------------------------------------------------
+    IF (PRESENT(Verbose)) Verbose_local = Verbose
+    IF (PRESENT(Debug))   Debug_local   = Debug
+
+    IF (Verbose_local > 20) WRITE(out_unit,*) 
+    IF (Verbose_local > 20) WRITE(out_unit,*) "-------------------------------------------------INITIALIZING THE QUANTUM HO1D OBJ&
+                                              &ECT-------------------------------------------------"; FLUSH(out_unit)
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "--- Arguments of MolecCav_Initialize_quantum_HO1D :"
+      WRITE(out_unit,*) "The <<QHO1D>> argument :"
+      CALL Write(QHO1D)
+      WRITE(out_unit,*) "--- End arguments of MolecCav_Initialize_quantum_HO1D"
+      FLUSH(out_unit)
+    END IF
+    
+    !------------------------------------------Initializing the parameters of the 1D QHO------------------------------------------
+    QHO1D%Nb = Nb
+    QHO1D%w  = w
+    QHO1D%m  = m
+    ALLOCATE(QHO1D%Tab_op(0:3))
+    
+    !--------------------------------------Constructing the operators to build-------------------------------------
+    CALL Initialize(Elem_op=QHO1D%Tab_op(0), Operator_type="Identity",    Nb=Nb,           Verbose=Verbose_local, Debug=Debug_local)
+    CALL Initialize(Elem_op=QHO1D%Tab_op(1), Operator_type="Hamiltonian", Nb=Nb, w=w,      Verbose=Verbose_local, Debug=Debug_local)
+    CALL Initialize(Elem_op=QHO1D%Tab_op(2), Operator_type="Position",    Nb=Nb, w=w, m=m, Verbose=Verbose_local, Debug=Debug_local)
+    CALL Initialize(Elem_op=QHO1D%Tab_op(3), Operator_type="NbQuanta",    Nb=Nb,           Verbose=Verbose_local, Debug=Debug_local)
+
+    IF (Verbose_local > 20) WRITE(out_unit,*) 
+    IF (Verbose_local > 20) WRITE(out_unit,*) "--------------------------------------------------QUANTUM HO1D OBJECT INITIALIZED-&
+                                              &------------------------------------------------"; FLUSH(out_unit)
+
+  END SUBROUTINE Initialize_quantum_HO1D
+
+
+  SUBROUTINE MolecCav_Initialize_QHO1D_Elem_op(Elem_op, Operator_type, Nb, w, m, Dense, Verbose, Debug)
+    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
+    USE QDUtil_m
+    USE Elem_op_m
+    IMPLICIT NONE
+
+    TYPE(Elem_op_t),            intent(inout) :: Elem_op                                                                         ! the object of type Elem_op_t to be constructed here
+    character(len=*),           intent(in)    :: Operator_type                                                                   ! ex : "Hamiltonian", "Position", etc. (len=:) Expects to be allocatable, while (len=*) is dedicated to a procedure argument.
+    integer,                    intent(in)    :: Nb                                                                              ! the HO/Cavity mode which the operator is relative to
+    real(kind=Rkind), optional, intent(in)    :: w                                                                               ! the HO/Cavity mode which the operator is relative to
+    real(kind=Rkind), optional, intent(in)    :: m                                                                               ! the HO/Cavity mode which the operator is relative to
+    logical,          optional, intent(in)    :: Dense                                                                           ! if .TRUE. then the matrix storage will not be optimized and it will be stored as a Dense matrix
+    integer,          optional, intent(in)    :: Verbose                                                                         ! cf. comments in HO1D_parameters_m
+    logical,          optional, intent(in)    :: Debug                                                                           ! cf. comments in HO1D_parameters_m
+
+    integer                                   :: Verbose_local = 25                                                              ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
+    logical                                   :: Debug_local   = .FALSE.
+
+    !------------------------------------------------------Debugging options-----------------------------------------------------
+    IF (PRESENT(Verbose)) Verbose_local = Verbose
+    IF (PRESENT(Debug))   Debug_local   = Debug
+
+    IF (Verbose_local > 25) WRITE(out_unit,*) 
+    IF (Verbose_local > 25) WRITE(out_unit,*) "--------------------------------------------------INITIALIZING THE HO1D OPERATOR--&
+                                              &------------------------------------------------"; FLUSH(out_unit)
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "--- Arguments of MolecCav_Initialize_HO1D_operator :"
+      WRITE(out_unit,*) "The <<Elem_op>> argument :"
+      CALL Write(Elem_op)
+      WRITE(out_unit,*) "The <<Operator_type>> argument : "//Operator_type
+      WRITE(out_unit,*) "The <<Nb>> argument : "//TO_string(Nb)
+      IF (PRESENT(w)) WRITE(out_unit,*) "The <<w>> argument : "//TO_string(w)
+      IF (PRESENT(m)) WRITE(out_unit,*) "The <<m>> argument : "//TO_string(m)
+      IF (PRESENT(Dense)) WRITE(out_unit,*) "The <<Dense>> argument : "//TO_string(Dense)
+      WRITE(out_unit,*) "--- End arguments of MolecCav_Construct_Operator_1D"
+      FLUSH(out_unit)
+    END IF
+
+    IF (.NOT. PRESENT(w) .AND. TRIM(TO_lowercase(Operator_type)) == "hamiltonian") THEN
+      WRITE(out_unit,*) "### nan"
+      STOP "### nan"
+    END IF 
+    IF ((.NOT. PRESENT(w) .OR. .NOT. PRESENT(m)) .AND. TRIM(TO_lowercase(Operator_type)) == "hamiltonian") THEN
+      WRITE(out_unit,*) "### nan"
+      STOP "### nan"
+    END IF 
+    
+    !---------------------------------------First steps of the construction of the Operator--------------------------------------
+    ALLOCATE(character(len=LEN_TRIM(Operator_type)) :: Elem_op%Operator_type)                                                   ! /!\ strings cannot be allocated the exact same way as tables ! /!\
+    Elem_op%Operator_type = TO_lowercase(TRIM(Operator_type))                                                                   ! allocation on assignement (not anymore : supposed to work but caused dynamic allocation random errors at execution). Elem_op_type has the right lengths (no spaces added) thanks to len=* at declaration and it will fit the Op%op_type thanks to len=:, allocatable at declaration of the derived type. 
+
+    IF (PRESENT(Dense)) Elem_op%Dense = Dense
+
+    !---------------------------------------------Construction of the matrix Operator--------------------------------------------
+    IF (Debug_local) THEN
+      WRITE(out_unit,*); WRITE(out_unit,*) "--- The Elem_op_t object just before construction of its matrix representation"
+      CALL Write_HO1D_operator(Elem_op)
+      WRITE(out_unit,*) "--- End Elem_op_t object (just before construction of its matrix representation)"
+    END IF 
+
+    SELECT CASE (Elem_op%Operator_type)                                                                                         ! TO_lowercase avoid case sensitivity issues
+      CASE ("identity")
+        CALL Initialize_I(Identity=Elem_op,    Nb=Nb,           Verbose=Verbose_local, Debug=Debug_local)
+    
+      CASE ("hamiltonian")
+        CALL Initialize_H(Hamiltonian=Elem_op, Nb=Nb, w=w,      Verbose=Verbose_local, Debug=Debug_local)
+    
+      CASE ("position")
+        CALL Initialize_x(PositionOp=Elem_op,  Nb=Nb, w=w, m=m, Verbose=Verbose_local, Debug=Debug_local)
+      
+      CASE ("nbquanta")
+        CALL Initialize_N(NbQuanta=Elem_op,    Nb=Nb,           Verbose=Verbose_local, Debug=Debug_local)
+
+      CASE DEFAULT
+        WRITE(out_unit,*) "### No Operator type recognized, please check the input of Initialize_HO1D_operator subroutine"
+        STOP "### No Operator type recognized, please verify the input of Initialize_HO1D_operator subroutine"
+    END SELECT
+
+    IF (Verbose_local > 26) THEN
+      IF (Verbose_local < 28) WRITE(out_unit,*)
+      WRITE(out_unit,*) "--- HO1D operator constructed by MolecCav_Initialize_HO1D_operator :"
+      CALL Write_HO1D_operator(Elem_op)
+      WRITE(out_unit,*) "--- End HO1D operator constructed by MolecCav_Initialize_HO1D_operator"
+    END IF
+
+    IF (Verbose_local > 25) WRITE(out_unit,*) 
+    IF (Verbose_local > 25) WRITE(out_unit,*) "-----------------------------------------------------HO1D OPERATOR INITIALIZED----&
+                                              &------------------------------------------------"; FLUSH(out_unit)
+
+  END SUBROUTINE MolecCav_Initialize_QHO1D_Elem_op
+
+
+  SUBROUTINE MolecCav_Initialize_I_QHO1D(Identity, Nb, Verbose, Debug)
+    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
+    USE QDUtil_m
+    USE Elem_op_m
+    IMPLICIT NONE
+    
+    TYPE(Elem_op_t),   intent(inout) :: Identity                                                                        ! matrix of the one-dimensional harmonic Hamiltonian associated with HO D
+    integer,           intent(in)    :: Nb                                                                            ! cf. comments in HO1D_parameters_m
+    integer, optional, intent(in)    :: Verbose                                                                            ! cf. comments in HO1D_parameters_m
+    logical, optional, intent(in)    :: Debug                                                                              ! cf. comments in HO1D_parameters_m
+
+    integer                          :: i
+    integer                          :: Verbose_local = 25                                                                 ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
+    logical                          :: Debug_local   = .FALSE.
+
+    !------------------------------------------------------Debugging options-----------------------------------------------------
+    IF (PRESENT(Verbose)) Verbose_local = Verbose
+    IF (PRESENT(Debug))   Debug_local   = Debug
+
+    IF (Verbose_local > 27) WRITE(out_unit,*) 
+    IF (Verbose_local > 27) WRITE(out_unit,*) "----------------------------------Constructing the matrix representation of the 1D&
+                                              & HO Identity---------------------------------"
+ 
+    !---------------------------------------------Construction of the matrix Operator--------------------------------------------
+    IF (.NOT. Identity%Dense) THEN
+      IF (Verbose_local > 28) WRITE(out_unit,*) "--- The Dense parameter of the Identity is .FALSE., so the 1D HO Identity'&
+                                               &s matrix representation will be a rank-0 tensor of ONE"
+      !---------------------------------------------Initialization to default values---------------------------------------------
+      ALLOCATE(Identity%Diag_val(1))
+
+      !------------------------------------------------Construction of the matrix------------------------------------------------
+      Identity%Diag_val = ONE                                                                 ! "-1" because the first Fortran vector is the fundamental eigenvector of the HO i.e. the 0^{th} ket 
+
+      IF (Debug_local) WRITE(out_unit,*)
+      IF (Debug_local) CALL Write_Vec(Identity%Diag_val, out_unit, 1, info="QHO1DIdentity")
+
+    ELSE
+      IF (Verbose_local > 28) WRITE(out_unit,*) "--- The Dense parameter of the Identity is .TRUE., so the full 1D HO Identity&
+                                                &'s matrix will be constructed (in Eigenbasis) for the representation, as if t&
+                                                &he analytical matrix was a dense one"
+      !---------------------------------------------Initialization to default values---------------------------------------------
+      ALLOCATE(Identity%Dense_val(Nb, Nb))
+      Identity%Dense_val = ZERO
+
+      !------------------------------------------------Construction of the matrix------------------------------------------------
+      DO i = 1, Nb                                                                                                     ! /!\ Fortran counts from 1 to Nb !!! /!\
+        Identity%Dense_val(i,i) = ONE                                                              ! "-1" because the first Fortran vector is the fundamental eigenvector of the HO i.e. the 0^{th} ket 
+      END DO
+
+      IF (Debug_local) WRITE(out_unit,*)
+      IF (Debug_local) CALL Write_Mat(Identity%Dense_val, out_unit, Size(Identity%Dense_val), info="QHO1DIdentity")
+    END IF
+      
+  END SUBROUTINE MolecCav_Initialize_I_QHO1D
+
+
+  SUBROUTINE MolecCav_Initialize_H_QHO1D(Hamiltonian, Nb, w, Verbose, Debug)
+    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
+    USE QDUtil_m
+    USE Elem_op_m
+    IMPLICIT NONE
+    
+    TYPE(Elem_op_t),   intent(inout) :: Hamiltonian                                                                        ! matrix of the one-dimensional harmonic Hamiltonian associated with HO D
+    integer,           intent(in)    :: Nb                                                                            ! cf. comments in HO1D_parameters_m
+    real(kind=Rkind),  intent(in)    :: w                                                                            ! cf. comments in HO1D_parameters_m
+    integer, optional, intent(in)    :: Verbose                                                                            ! cf. comments in HO1D_parameters_m
+    logical, optional, intent(in)    :: Debug                                                                              ! cf. comments in HO1D_parameters_m
+
+    integer                          :: i                                                                                  ! loop increments /!\ Fortran counts from 1 to Nb !!! /!\
+    integer                          :: Verbose_local = 25                                                                 ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
+    logical                          :: Debug_local   = .FALSE.
+
+    !------------------------------------------------------Debugging options-----------------------------------------------------
+    IF (PRESENT(Verbose)) Verbose_local = Verbose
+    IF (PRESENT(Debug))   Debug_local   = Debug
+
+    IF (Verbose_local > 27) WRITE(out_unit,*) 
+    IF (Verbose_local > 27) WRITE(out_unit,*) "----------------------------------Constructing the matrix representation of the 1D&
+                                              & HO Hamiltonian---------------------------------"
+ 
+    !---------------------------------------------Construction of the matrix Operator--------------------------------------------
+    IF (.NOT. Hamiltonian%Dense) THEN
+      IF (Verbose_local > 28) WRITE(out_unit,*) "--- The Dense parameter of the Hamiltonian is .FALSE., so the 1D HO Hamiltonian'&
+                                               &s matrix representation will be a rank-1 tensor of the diagonal elementsof its an&
+                                               &alytical matrix (in Eigenbasis)"
+      !---------------------------------------------Initialization to default values---------------------------------------------
+      ALLOCATE(Hamiltonian%Diag_val(Nb))
+
+      !------------------------------------------------Construction of the matrix------------------------------------------------
+      DO i = 1, Nb                                                                                                     ! /!\ Fortran counts from 1 to Nb !!! /!\
+        Hamiltonian%Diag_val(i) = w*(i - ONE + HALF)                                                                 ! "-1" because the first Fortran vector is the fundamental eigenvector of the HO i.e. the 0^{th} ket 
+      END DO
+
+      IF (Debug_local) WRITE(out_unit,*)
+      IF (Debug_local) CALL Write_Vec(Hamiltonian%Diag_val, out_unit, 1, info="HO1DHamiltonian")
+
+    ELSE
+      IF (Verbose_local > 28) WRITE(out_unit,*) "--- The Dense parameter of the Hamiltonian is .TRUE., so the full 1D HO Hamilton&
+                                                &ian's matrix will be constructed (in Eigenbasis) for the representation, as if t&
+                                                &he analytical matrix was a dense one"
+      !---------------------------------------------Initialization to default values---------------------------------------------
+      ALLOCATE(Hamiltonian%Dense_val(Nb, Nb))
+      Hamiltonian%Dense_val = ZERO
+
+      !------------------------------------------------Construction of the matrix------------------------------------------------
+      DO i = 1, Nb                                                                                                     ! /!\ Fortran counts from 1 to Nb !!! /!\
+        Hamiltonian%Dense_val(i,i) = w*(i - ONE + HALF)                                                              ! "-1" because the first Fortran vector is the fundamental eigenvector of the HO i.e. the 0^{th} ket 
+      END DO
+
+      IF (Debug_local) WRITE(out_unit,*)
+      IF (Debug_local) CALL Write_Mat(Hamiltonian%Dense_val, out_unit, Size(Hamiltonian%Dense_val), info="HO1DHamiltonian")
+    END IF
+      
+  END SUBROUTINE MolecCav_Initialize_H_QHO1D
+
+
+  SUBROUTINE MolecCav_Initialize_x_QHO1D(PositionOp, Nb, w, m, Verbose, Debug)
+    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT, OUTPUT_UNIT, real64 
+    USE QDUtil_m
+    USE Elem_op_m
+   IMPLICIT NONE
+    
+    TYPE(Elem_op_t),   intent(inout) :: PositionOp
+    integer,           intent(in)    :: Nb                                                                            ! cf. comments in HO1D_parameters_m
+    real(kind=Rkind),  intent(in)    :: w                                                                            ! cf. comments in HO1D_parameters_m
+    real(kind=Rkind),  intent(in)    :: m                                                                            ! cf. comments in HO1D_parameters_m
+    integer, optional, intent(in)    :: Verbose                                                                            ! cf. comments in HO1D_parameters_m
+    logical, optional, intent(in)    :: Debug                                                                              ! cf. comments in HO1D_parameters_m
+
+    integer                          :: i                                                                                  ! loop increments /!\ Fortran counts from 1 to Nb !!! /!\
+    integer                          :: Verbose_local = 25                                                                 ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
+    logical                          :: Debug_local   = .FALSE.
+
+    !------------------------------------------------------Debugging options-----------------------------------------------------
+    IF (PRESENT(Verbose)) Verbose_local = Verbose
+    IF (PRESENT(Debug))   Debug_local   = Debug
+
+    IF (Verbose_local > 27) WRITE(out_unit,*) 
+    IF (Verbose_local > 27) WRITE(out_unit,*) "-------------------------------Constructing the matrix representation of the 1D HO&
+                                             & Position operator------------------------------"
+
+    !---------------------------------------------Construction of the matrix Operator--------------------------------------------
+    IF ((.NOT. PositionOp%Dense) .AND. Nb > 1) THEN
+      IF (Verbose_local > 28) WRITE(out_unit,*) "--- The Dense parameter of the Position operator is .FALSE., so the 1D HO Positi&
+                                                &on operator's matrix representation will be a rank-2 tensor of the tridiagonal e&
+                                                &lements of its analytical matrix (in Eigenbasis)"
+      !-----------------------------------Initialization of the characteristics of the operator----------------------------------
+      PositionOp%Upper_bandwidth   = 1
+      PositionOp%Lower_bandwidth   = 1
+
+      !---------------------------------------------Initialization to default values---------------------------------------------
+      ALLOCATE(PositionOp%Band_val(Nb,3))                                                                            ! Nb lines (number of diagonal elements) and 3 columns because 3 bands to consider : the diagonal, and the two bands above and below it
+      PositionOp%Band_val = ZERO
+
+      !------------------------------------------------Construction of the matrix------------------------------------------------
+      DO i = 1, Nb - 1                                                                                                 ! /!\ Fortran counts from 1 to Nb !!! /!\ Nb-1 not to have Band_val(i+1) out of range
+        PositionOp%Band_val(i,1)   = SQRT(REAL(i,kind=Rkind))
+        PositionOp%Band_val(i+1,3) = SQRT(REAL(i,kind=Rkind))
+      END DO
+      PositionOp%Band_val = PositionOp%Band_val / SQRT(TWO * w * m)
+    
+      IF (Debug_local) WRITE(out_unit,*)
+      IF (Debug_local) CALL Write_Mat(PositionOp%Band_val, out_unit, 3, info="HO1DPositionOp")
+
+    ELSE IF (.NOT. PositionOp%Dense) THEN
+      IF (Verbose_local > 28) WRITE(out_unit,*) "--- The Dense parameter of the Position operator is .FALSE. BUT the basis set si&
+                                                &ze is only 1, so the 1D HO Position operator's matrix representation will use th&
+                                                &e Diag_val rank-1 tensor to store the only element of the analytical matrix (i&
+                                                &n Eigenbasis)"
+      !---------------------------------------------Initialization to default values---------------------------------------------
+      ALLOCATE(PositionOp%Diag_val(Nb))
+
+      !------------------------------------------------Construction of the matrix------------------------------------------------
+      DO i = 1, Nb                                                                                                     ! /!\ Fortran counts from 1 to Nb !!! /!\
+        PositionOp%Diag_val(i) = ZERO                                                                                          ! the position operator matrix has first value (i.e. only value in the Nb = 0 case) 0 
+      END DO
+
+      IF (Debug_local) WRITE(out_unit,*)
+      IF (Debug_local) CALL Write_Vec(PositionOp%Diag_val, out_unit, 1, info="HO1DPositionOp")
+
+    ELSE 
+      IF (Verbose_local > 28) WRITE(out_unit,*) "--- The Dense parameter of the Position operator is .TRUE., so the full 1D HO Po&
+                                                &sition operator's matrix will be constructed (in Eigenbasis) for the representat&
+                                                &ion, as if the analytical matrix was a dense one"
+      !---------------------------------------------Initialization to default values---------------------------------------------
+      ALLOCATE(PositionOp%Dense_val(Nb, Nb))
+      PositionOp%Dense_val = ZERO
+      
+      !------------------------------------------------Construction of the matrix------------------------------------------------
+      DO i = 1, Nb - 1                                                                                                 ! /!\ Fortran counts from 1 to Nb !!! /!\
+        PositionOp%Dense_val(i,i+1) = SQRT(REAL(i,kind=Rkind))
+        PositionOp%Dense_val(i+1,i) = SQRT(REAL(i,kind=Rkind))
+      END DO
+      PositionOp%Dense_val = PositionOp%Dense_val / SQRT(TWO * w * m)
+    
+      IF (Debug_local) WRITE(out_unit,*)
+      IF (Debug_local) CALL Write_Mat(PositionOp%Dense_val, out_unit, Size(PositionOp%Dense_val), info="HO1DPositionOp")
+    END IF
+      
+  END SUBROUTINE MolecCav_Initialize_x_QHO1D
+
+
+  SUBROUTINE MolecCav_Initialize_N_QHO1D(NbQuanta, Nb, Verbose, Debug)
+    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
+    USE QDUtil_m
+    USE Elem_op_m
+    IMPLICIT NONE
+    
+    TYPE(Elem_op_t),   intent(inout) :: NbQuanta
+    integer,           intent(in)    :: Nb                                                                            ! cf. comments in HO1D_parameters_m
+    integer, optional, intent(in)    :: Verbose                                                                            ! cf. comments in HO1D_parameters_m
+    logical, optional, intent(in)    :: Debug                                                                              ! cf. comments in HO1D_parameters_m
+
+    integer                          :: i                                                                                  ! loop increments /!\ Fortran counts from 1 to Nb !!! /!\
+    integer                          :: Verbose_local = 25                                                                 ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
+    logical                          :: Debug_local   = .FALSE.
+
+    !------------------------------------------------------Debugging options-----------------------------------------------------
+    IF (PRESENT(Verbose)) Verbose_local = Verbose
+    IF (PRESENT(Debug))   Debug_local   = Debug
+
+    IF (Verbose_local > 27) WRITE(out_unit,*) 
+    IF (Verbose_local > 27) WRITE(out_unit,*) "---------------------Constructing the matrix representation of the 1D HO Number of&
+                                             & excitation Quanta operator---------------------"
+  
+    !---------------------------------------------Construction of the matrix Operator--------------------------------------------
+    IF (.NOT. NbQuanta%Dense) THEN
+      IF (Verbose_local > 28) WRITE(out_unit,*) "--- The Dense parameter of the NbQuanta operator is .FALSE., so the 1D HO NbQuan&
+                                                &ta's matrix representation will be a rank-1 tensor of the diagonal elements of i&
+                                                &ts analytical matrix (in Eigenbasis)"
+      !---------------------------------------------Initialization to default values---------------------------------------------
+      ALLOCATE(NbQuanta%Diag_val(Nb))
+
+      !------------------------------------------------Construction of the matrix------------------------------------------------
+      DO i = 1, Nb                                                                                                     ! /!\ Fortran counts from 1 to Nb !!! /!\
+        NbQuanta%Diag_val(i) = i - 1
+      END DO
+  
+      IF (Debug_local) WRITE(out_unit,*)
+      IF (Debug_local) CALL Write_Vec(NbQuanta%Diag_val, out_unit, 1, info="HO1DNbQuanta")
+
+    ELSE
+      IF (Verbose_local > 28) WRITE(out_unit,*) "--- The Dense parameter of the NbQuanta is .TRUE., so the full 1D HO NbQuanta's &
+                                                &matrix will be constructed (in Eigenbasis) for the representation, as if the ana&
+                                                &lytical matrix was a dense one"
+      !---------------------------------------------Initialization to default values---------------------------------------------
+      ALLOCATE(NbQuanta%Dense_val(Nb, Nb))
+      NbQuanta%Dense_val = ZERO
+
+      !------------------------------------------------Construction of the matrix------------------------------------------------
+      DO i = 1, Nb                                                                            ! /!\ Fortran counts from 1 to Nb !!! /!\
+        NbQuanta%Dense_val(i,i) = i - 1
+      END DO
+
+      IF (Debug_local) WRITE(out_unit,*)
+      IF (Debug_local) CALL Write_Mat(NbQuanta%Dense_val, out_unit, Size(NbQuanta%Dense_val), info="HO1DNbQuanta")
+    END IF
+      
+  END SUBROUTINE MolecCav_Initialize_N_QHO1D
+
+  
   SUBROUTINE MolecCav_Read_cavity_mode(Mode, nio)                              ! nio is the label of the file from which the values have to be drawn.
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     IMPLICIT NONE
