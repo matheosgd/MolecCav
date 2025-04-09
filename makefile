@@ -136,11 +136,11 @@ $(info ***********************************************************************)
 .PHONY: ut UT
 # the ".PHONY <string1> <string2> <...>" make command indicates to make that the provided string are neither files nor directories and allows to use them...
 # ... as key-words, ex: as command-line commands
-UT ut: test_algebra.exe test_cavity_mode.exe test_construct_op_1D.exe test_action_elem_op.exe test_action_total_H_1p1D.exe test_construct_total_H_1p1D.exe test_normal_modes_1p1D.exe test_ND_indexes.exe test_mapping.exe test_transition_intensities.exe
+UT ut: test_algebra.exe test_cavity_mode.exe test_quantum_ho1d.exe test_elem_op.exe test_action_total_H_1p1D.exe test_construct_total_H_1p1D.exe test_normal_modes_1p1D.exe test_ND_indexes.exe test_mapping.exe test_transition_intensities.exe
 	./test_algebra.exe                                      > $(OUTPUT_DIR)/test_algebra.log
 	./test_cavity_mode.exe            < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_cavity_mode.log
-	./test_construct_op_1D.exe        < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_construct_op_1D.log
-	./test_action_elem_op.exe         < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_action_elem_op.log
+	./test_quantum_ho1d.exe        < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_quantum_ho1d.log
+	./test_elem_op.exe         < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_elem_op.log
 	./test_action_total_H_1p1D.exe    < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_action_total_H_1p1D.log
 	./test_construct_total_H_1p1D.exe < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_construct_total_H_1p1D.log
 	./test_normal_modes_1p1D.exe      < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_normal_modes_1p1D.log
@@ -149,8 +149,8 @@ UT ut: test_algebra.exe test_cavity_mode.exe test_construct_op_1D.exe test_actio
 	./test_transition_intensities.exe < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_transition_intensities.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_algebra.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_cavity_mode.log
-	grep "Number of error(s)" $(OUTPUT_DIR)/test_construct_op_1D.log
-	grep "Number of error(s)" $(OUTPUT_DIR)/test_action_elem_op.log
+	grep "Number of error(s)" $(OUTPUT_DIR)/test_quantum_ho1d.log
+	grep "Number of error(s)" $(OUTPUT_DIR)/test_elem_op.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_action_total_H_1p1D.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_construct_total_H_1p1D.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_normal_modes_1p1D.log
@@ -186,7 +186,7 @@ app APP App: $(MAIN).exe
 # this command will compile the library (create the .o and .mod files) and the tests (create the .o and .exe files) and create the static library .a file...
 # ... BUT not execute anything !
 .PHONY: all
-all: $(LIBA) test_algebra.exe test_cavity_mode.exe test_construct_op_1D.exe test_action_elem_op.exe test_action_total_H_1p1D.exe test_construct_total_H_1p1D.exe test_mapping.exe test_transition_intensities.exe $(MAIN).exe
+all: $(LIBA) test_algebra.exe test_cavity_mode.exe test_quantum_ho1d.exe test_elem_op.exe test_action_total_H_1p1D.exe test_construct_total_H_1p1D.exe test_mapping.exe test_transition_intensities.exe $(MAIN).exe
 # Recall : LIBA = libMolecCav
 # this instruction is understood by Make as "see these files". It will search the make file for where they are defined i.e. for their dependancies, and...
 # ... create them as they are defined if they are too old. 
@@ -298,17 +298,17 @@ $(OBJ_DIR)/%.o : $(TESTS_DIR)/%.f90
 # "-c" is the compilation and can take also as an argument "-o" which here does not mean "link into executable" but allows to choose the name of the thereby...
 #... created object files. Here the path where they have to be stored (OBJ/obj) is added as a prefix to the name 
 
-#test_construct_op_1D.exe                 : $(OBJ_DIR)/test_construct_op_1D.o $(LIBA)
-#	$(FFC) -o test_construct_op_1D.exe  $(FFLAGS) $(OBJ_DIR)/test_construct_op_1D.o $(LIBA) $(EXTLib)
+#test_quantum_ho1d.exe                 : $(OBJ_DIR)/test_quantum_ho1d.o $(LIBA)
+#	$(FFC) -o test_quantum_ho1d.exe  $(FFLAGS) $(OBJ_DIR)/test_quantum_ho1d.o $(LIBA) $(EXTLib)
 
-#$(OBJ_DIR)/test_construct_op_1D.o        : $(TESTS_DIR)/test_construct_op_1D.f90
-#	$(FFC) -c -o $(OBJ_DIR)/test_construct_op_1D.o $(FFLAGS) $(TESTS_DIR)/test_construct_op_1D.f90
+#$(OBJ_DIR)/test_quantum_ho1d.o        : $(TESTS_DIR)/test_quantum_ho1d.f90
+#	$(FFC) -c -o $(OBJ_DIR)/test_quantum_ho1d.o $(FFLAGS) $(TESTS_DIR)/test_quantum_ho1d.f90
 
-#test_action_elem_op.exe                    : $(OBJ_DIR)/test_action_elem_op.o $(LIBA)
-#	$(FFC) -o test_action_elem_op.exe  $(FFLAGS) $(OBJ_DIR)/test_action_elem_op.o $(LIBA) $(EXTLib)
+#test_elem_op.exe                    : $(OBJ_DIR)/test_elem_op.o $(LIBA)
+#	$(FFC) -o test_elem_op.exe  $(FFLAGS) $(OBJ_DIR)/test_elem_op.o $(LIBA) $(EXTLib)
 
-#$(OBJ_DIR)/test_action_elem_op.o           : $(TESTS_DIR)/test_action_elem_op.f90
-#	$(FFC) -c -o $(OBJ_DIR)/test_action_elem_op.o $(FFLAGS) $(TESTS_DIR)/test_action_elem_op.f90
+#$(OBJ_DIR)/test_elem_op.o           : $(TESTS_DIR)/test_elem_op.f90
+#	$(FFC) -c -o $(OBJ_DIR)/test_elem_op.o $(FFLAGS) $(TESTS_DIR)/test_elem_op.f90
 
 #test_action_total_H_1p1D.exe             : $(OBJ_DIR)/test_action_total_H_1p1D.o $(LIBA)
 #	$(FFC) -o test_action_total_H_1p1D.exe  $(FFLAGS) $(OBJ_DIR)/test_action_total_H_1p1D.o $(LIBA) $(EXTLib)
@@ -372,8 +372,8 @@ $(OBJ_DIR)/%.o : $(SRC_DIR)/%.f90
 # ... specify that one module needs another one
 $(OBJ_DIR)/test_algebra.o                : $(LIBA)
 $(OBJ_DIR)/test_cavity_mode.o            : $(LIBA)
-$(OBJ_DIR)/test_construct_op_1D.o        : $(LIBA)
-$(OBJ_DIR)/test_action_elem_op.o         : $(LIBA)
+$(OBJ_DIR)/test_quantum_ho1d.o        : $(LIBA)
+$(OBJ_DIR)/test_elem_op.o         : $(LIBA)
 $(OBJ_DIR)/test_action_total_H_1p1D.o    : $(LIBA)
 $(OBJ_DIR)/test_construct_total_H_1p1D.o : $(LIBA)
 $(OBJ_DIR)/test_normal_modes_1p1D.o      : $(LIBA)

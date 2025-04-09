@@ -83,7 +83,7 @@ MODULE Quantum_HO1D_m
     MODULE PROCEDURE MolecCav_Initialize_N_QHO1D
   END INTERFACE
   INTERFACE Action
-    MODULE PROCEDURE MolecCav_Action_quantum_HO1D
+    MODULE PROCEDURE MolecCav_Action_quantum_HO1D_real, MolecCav_Action_quantum_HO1D_complex
   END INTERFACE
   INTERFACE Write
     MODULE PROCEDURE MolecCav_Write_quantum_HO1D
@@ -104,7 +104,7 @@ MODULE Quantum_HO1D_m
   CONTAINS
 
 
-  SUBROUTINE Initialize_quantum_HO1D(QHO1D, Nb, w, m, Verbose, Debug) ! here init on the 1D QHO basis : don't need Nq etc. will write later Init_grid or Init_other_basis, maybe called by this one, in this case, the "call" will be determined by the optional arg (Nb, Nq etc.)
+  SUBROUTINE MolecCav_Initialize_quantum_HO1D(QHO1D, Nb, w, m, Verbose, Debug) ! here init on the 1D QHO basis : don't need Nq etc. will write later Init_grid or Init_other_basis, maybe called by this one, in this case, the "call" will be determined by the optional arg (Nb, Nq etc.)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m
     USE Elem_op_m
@@ -153,7 +153,7 @@ MODULE Quantum_HO1D_m
     IF (Verbose_local > 20) WRITE(out_unit,*) "--------------------------------------------------QUANTUM HO1D OBJECT INITIALIZED-&
                                               &------------------------------------------------"; FLUSH(out_unit)
 
-  END SUBROUTINE Initialize_quantum_HO1D
+  END SUBROUTINE MolecCav_Initialize_quantum_HO1D
 
 
   SUBROUTINE MolecCav_Initialize_QHO1D_Elem_op(Elem_op, Operator_type, Nb, w, m, Dense, Verbose, Debug)
@@ -197,12 +197,12 @@ MODULE Quantum_HO1D_m
     END IF
 
     IF (.NOT. PRESENT(w) .AND. TRIM(TO_lowercase(Operator_type)) == "hamiltonian") THEN
-      WRITE(out_unit,*) "### nan"
-      STOP "### nan"
+      WRITE(out_unit,*) "### nan ham"
+      STOP "### nan ham"
     END IF 
-    IF ((.NOT. PRESENT(w) .OR. .NOT. PRESENT(m)) .AND. TRIM(TO_lowercase(Operator_type)) == "hamiltonian") THEN
-      WRITE(out_unit,*) "### nan"
-      STOP "### nan"
+    IF ((.NOT. PRESENT(w) .OR. .NOT. PRESENT(m)) .AND. TRIM(TO_lowercase(Operator_type)) == "position") THEN
+      WRITE(out_unit,*) "### nan x"
+      STOP "### nan x"
     END IF 
     
     !---------------------------------------First steps of the construction of the Operator--------------------------------------
@@ -214,7 +214,7 @@ MODULE Quantum_HO1D_m
     !---------------------------------------------Construction of the matrix Operator--------------------------------------------
     IF (Debug_local) THEN
       WRITE(out_unit,*); WRITE(out_unit,*) "--- The Elem_op_t object just before construction of its matrix representation"
-      CALL Write_HO1D_operator(Elem_op)
+      CALL Write(Elem_op)
       WRITE(out_unit,*) "--- End Elem_op_t object (just before construction of its matrix representation)"
     END IF 
 
@@ -239,7 +239,7 @@ MODULE Quantum_HO1D_m
     IF (Verbose_local > 26) THEN
       IF (Verbose_local < 28) WRITE(out_unit,*)
       WRITE(out_unit,*) "--- HO1D operator constructed by MolecCav_Initialize_HO1D_operator :"
-      CALL Write_HO1D_operator(Elem_op)
+      CALL Write(Elem_op)
       WRITE(out_unit,*) "--- End HO1D operator constructed by MolecCav_Initialize_HO1D_operator"
     END IF
 
@@ -511,6 +511,216 @@ MODULE Quantum_HO1D_m
   END SUBROUTINE MolecCav_Initialize_N_QHO1D
 
   
+  SUBROUTINE MolecCav_Action_quantum_HO1D_real(Op_psi, QHO1D, i_op, Psi, Verbose, Debug)
+    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
+    USE QDUtil_m
+    USE Elem_op_m
+    IMPLICIT NONE
+
+    real(kind=Rkind),     intent(inout) :: Op_psi(:)
+    TYPE(Quantum_HO1D_t), intent(in)    :: QHO1D
+    integer,              intent(in)    :: i_op
+    real(kind=Rkind),     intent(in)    :: Psi(:)
+    integer, optional,    intent(in)    :: Verbose                                                                              ! cf. comments in HO1D_parameters_m
+    logical, optional,    intent(in)    :: Debug                                                                                ! cf. comments in HO1D_parameters_m
+
+    integer                             :: Nb
+    integer                             :: Verbose_local = 25                                                                   ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
+    logical                             :: Debug_local   = .FALSE.
+
+    !------------------------------------------------------Debugging options-----------------------------------------------------
+    IF (PRESENT(Verbose)) Verbose_local = Verbose
+    IF (PRESENT(Debug))   Debug_local   = Debug
+
+    IF (Verbose_local > 25) WRITE(out_unit,*) 
+    IF (Verbose_local > 25) WRITE(out_unit,*) "---------------------------------------COMPUTING ACTION OF THE HO1D OPERATOR OVER &
+                                              &THE R1 WF---------------------------------------"; FLUSH(out_unit)
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "--- Arguments of MolecCav_Action_quantum_HO1D :"
+      WRITE(out_unit,*) "The <<QHO1D>> argument :"
+      CALL Write(QHO1D)
+      WRITE(out_unit,*) "The <<i_op>> argument :"//TO_string(i_op)
+      WRITE(out_unit,*) "The <<Psi>> argument : "
+      CALL Write_Vec(Psi, out_unit, 1, info="Psi")
+      WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
+      WRITE(out_unit,*) "--- End arguments of MolecCav_Action_quantum_HO1D"
+      FLUSH(out_unit)
+    END IF
+    
+    !-----------------------------------------------------Checking dimensions----------------------------------------------------
+    ! ALREADY CHECKED IN THE ACTIONS CODED IN ELEM_OP_M ! (fortunately btw, otherwise the \hat{I}d case should have teste above)
+
+    !---------------------------------------------Selection of the calculation method--------------------------------------------
+    IF (QHO1D%Tab_op(i_op)%Operator_type == "identity") THEN 
+      Op_psi = Psi
+    ELSE
+      CALL Action(Op_psi=Op_psi, Elem_op=QHO1D%Tab_op(i_op), Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
+    END IF
+
+    IF (Verbose_local > 26) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "--- Resulting statevector from the action of the HO1D Elem_op on the Psi statevector operand, computed &
+                        &by Action_HO1D_operator_R1 :"
+      CALL Write_Vec(Op_psi, out_unit, 1, info="Op_Psi")
+      WRITE(out_unit,*) "--- End resulting statevector computed by Action_HO1D_operator_R1"
+    END IF
+  
+    IF (Verbose_local > 25) WRITE(out_unit,*) 
+    IF (Verbose_local > 25) WRITE(out_unit,*) "----------------------------------------ACTION OF THE HO1D OPERATOR OVER THE R1 WF&
+                                              & COMPUTED---------------------------------------"; FLUSH(out_unit)
+  
+  END SUBROUTINE MolecCav_Action_quantum_HO1D_real
+
+  
+  SUBROUTINE MolecCav_Action_quantum_HO1D_complex(Op_psi, QHO1D, i_op, Psi, Verbose, Debug)
+    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
+    USE QDUtil_m
+    USE Elem_op_m
+    IMPLICIT NONE
+
+    complex(kind=Rkind),     intent(inout) :: Op_psi(:)
+    TYPE(Quantum_HO1D_t), intent(in)    :: QHO1D
+    integer,              intent(in)    :: i_op
+    complex(kind=Rkind),     intent(in)    :: Psi(:)
+    integer, optional,    intent(in)    :: Verbose                                                                              ! cf. comments in HO1D_parameters_m
+    logical, optional,    intent(in)    :: Debug                                                                                ! cf. comments in HO1D_parameters_m
+
+    integer                             :: Nb
+    integer                             :: Verbose_local = 25                                                                   ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
+    logical                             :: Debug_local   = .FALSE.
+
+    !------------------------------------------------------Debugging options-----------------------------------------------------
+    IF (PRESENT(Verbose)) Verbose_local = Verbose
+    IF (PRESENT(Debug))   Debug_local   = Debug
+
+    IF (Verbose_local > 25) WRITE(out_unit,*) 
+    IF (Verbose_local > 25) WRITE(out_unit,*) "---------------------------------------COMPUTING ACTION OF THE HO1D OPERATOR OVER &
+                                              &THE R1 WF---------------------------------------"; FLUSH(out_unit)
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "--- Arguments of MolecCav_Action_quantum_HO1D :"
+      WRITE(out_unit,*) "The <<QHO1D>> argument :"
+      CALL Write(QHO1D)
+      WRITE(out_unit,*) "The <<i_op>> argument :"//TO_string(i_op)
+      WRITE(out_unit,*) "The <<Psi>> argument : "
+      CALL Write_Vec(Psi, out_unit, 1, info="Psi")
+      WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
+      WRITE(out_unit,*) "--- End arguments of MolecCav_Action_quantum_HO1D"
+      FLUSH(out_unit)
+    END IF
+    
+    !-----------------------------------------------------Checking dimensions----------------------------------------------------
+    ! ALREADY CHECKED IN THE ACTIONS CODED IN ELEM_OP_M !
+
+    !---------------------------------------------Selection of the calculation method--------------------------------------------
+    IF (QHO1D%Tab_op(i_op)%Operator_type == "identity") THEN 
+      Op_psi = Psi
+    ELSE
+      CALL Action(Op_psi=Op_psi, Elem_op=QHO1D%Tab_op(i_op), Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
+    END IF
+
+    IF (Verbose_local > 26) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "--- Resulting statevector from the action of the HO1D Elem_op on the Psi statevector operand, computed &
+                        &by Action_HO1D_operator_R1 :"
+      CALL Write_Vec(Op_psi, out_unit, 1, info="Op_Psi")
+      WRITE(out_unit,*) "--- End resulting statevector computed by Action_HO1D_operator_R1"
+    END IF
+  
+    IF (Verbose_local > 25) WRITE(out_unit,*) 
+    IF (Verbose_local > 25) WRITE(out_unit,*) "----------------------------------------ACTION OF THE HO1D OPERATOR OVER THE R1 WF&
+                                              & COMPUTED---------------------------------------"; FLUSH(out_unit)
+  
+  END SUBROUTINE MolecCav_Action_quantum_HO1D_complex
+
+  
+  SUBROUTINE MolecCav_Write_quantum_HO1D(QHO1D)
+    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
+    USE QDUtil_m
+    USE Elem_op_m
+    IMPLICIT NONE 
+    
+    TYPE(Quantum_HO1D_t), intent(in) :: QHO1D
+
+    integer                          :: i_op
+
+    WRITE(out_unit,*) "____________________________________The parameters of the 1D QHO____________________________________"
+    WRITE(out_unit,*) "|Basis set size of the HO (QHO1D%Nb)                                         | "//TO_string(QHO1D%Nb)
+    WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
+    WRITE(out_unit,*) "|Eigenpulsation of the HO (QHO1D%w)                                          | "//TO_string(QHO1D%w)
+    WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
+    WRITE(out_unit,*) "|Mass associated with the HO (QHO1D%m)                                       | "//TO_string(QHO1D%m)
+    IF (ALLOCATED(QHO1D%Tab_op)) THEN 
+      WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
+      WRITE(out_unit,*) "|The "//TO_string(i_op)//"^{th} operator associated with the HO :            | QHO1D%Tab_op("//TO_string&
+                        &(i_op)//")"
+      DO i_op = 1, Size(QHO1D%Tab_op)
+        CALL Write(QHO1D%Tab_op(i_op))
+      END DO 
+    END IF
+    WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
+    WRITE(out_unit,*) "|Number of grid points of the QHO DOF (QHO1D%Nq)                             | "//TO_string(QHO1D%Nq)
+    WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
+    WRITE(out_unit,*) "|Equilibrium position of the HO (QHO1D%Eq_pos)                               | "//TO_string(QHO1D%Eq_pos)
+    WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
+    WRITE(out_unit,*) "|Change in variable coefficient for the DOF grid (QHO1D%Scale_q)             | "//TO_string(QHO1D%Scale_q)
+    WRITE(out_unit,*) "|________________________________________End HO1D parameters_________________|______________________"
+    FLUSH(out_unit)
+
+  END SUBROUTINE MolecCav_Write_quantum_HO1D
+
+
+  SUBROUTINE MolecCav_Deallocate_quantum_HO1D(QHO1D, Verbose, Debug)
+    USE QDUtil_m
+    USE Elem_op_m
+    IMPLICIT NONE 
+
+    TYPE(Quantum_HO1D_t), intent(inout) :: QHO1D
+    integer, optional,    intent(in)    :: Verbose                                                                                 ! cf. comments in HO1D_parameters_m
+    logical, optional,    intent(in)    :: Debug                                                                                   ! cf. comments in HO1D_parameters_m
+
+    integer                             :: Verbose_local = 25                                                                      ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
+    logical                             :: Debug_local   = .FALSE.
+
+    !------------------------------------------------------Debugging options-----------------------------------------------------
+    IF (PRESENT(Verbose)) Verbose_local = Verbose
+    IF (PRESENT(Debug))   Debug_local   = Debug
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*) "--- The QHO1D to be deallocated :"
+      CALL Write(QHO1D)
+      WRITE(out_unit,*) "--- End QHO1D to be deallocated"
+    END IF 
+
+    !-----------------------------Deallocating the HO1D operator object----------------------------
+    IF (Verbose_local > 27) WRITE(out_unit,*)
+    IF (Verbose_local > 27) WRITE(out_unit,*) "-----------------------------------------------Deallocating the QHO1D obje&
+                                              &ct----------------------------------------------"
+  
+    QHO1D%Nb = 0
+    QHO1D%w = ZERO
+    QHO1D%m = ZERO
+    IF (ALLOCATED(QHO1D%Tab_op)) DEALLOCATE(QHO1D%Tab_op)
+    QHO1D%Nq = 0
+    QHO1D%Eq_pos = -ONE
+    QHO1D%Scale_q = ZERO
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "--- The QHO1D object after having been deallocated :"
+      CALL Write(QHO1D)
+      WRITE(out_unit,*) "--- End dellocating QHO1D"
+    END IF
+
+  END SUBROUTINE MolecCav_Deallocate_quantum_HO1D
+
+
+  !############################################################################################
+  !############################################## OLD #########################################
+  !############################################################################################
   SUBROUTINE MolecCav_Read_cavity_mode(Mode, nio)                              ! nio is the label of the file from which the values have to be drawn.
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     IMPLICIT NONE

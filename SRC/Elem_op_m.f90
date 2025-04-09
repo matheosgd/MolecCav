@@ -105,7 +105,7 @@ MODULE Elem_op_m
 !  END INTERFACE
 
   INTERFACE Action
-    MODULE PROCEDURE MolecCav_Action_elem_op_R1_real,       MolecCav_Action_elem_op_R1_complex&
+    MODULE PROCEDURE MolecCav_Action_elem_op_R1_real, MolecCav_Action_elem_op_R1_complex&
                   &, MolecCav_Action_Operator_1D ! OLD INTERFACE
   END INTERFACE
   INTERFACE Action_dense

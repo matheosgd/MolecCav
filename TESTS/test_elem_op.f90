@@ -26,7 +26,7 @@
 ! SOFTWARE.
 !==================================================================================================
 !==================================================================================================
-PROGRAM test_action_elem_op
+PROGRAM test_elem_op
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
   USE QDUtil_m
   USE Tests_m
@@ -70,7 +70,7 @@ PROGRAM test_action_elem_op
 
 
   !-----------------------------Test initialization----------------------------
-  CALL Initialize_Test(test_action, test_name="OUT/test_file_actn_elem_op")
+  CALL Initialize_Test(test_action, test_name="OUT/test_file_elem_op")
   
 
   !-------------------------Wavefunction initialization (real)------------------------
