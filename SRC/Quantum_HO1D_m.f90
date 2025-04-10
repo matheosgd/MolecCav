@@ -104,7 +104,7 @@ MODULE Quantum_HO1D_m
   CONTAINS
 
 
-  SUBROUTINE MolecCav_Initialize_quantum_HO1D(QHO1D, Nb, w, m, Verbose, Debug) ! here init on the 1D QHO basis : don't need Nq etc. will write later Init_grid or Init_other_basis, maybe called by this one, in this case, the "call" will be determined by the optional arg (Nb, Nq etc.)
+  SUBROUTINE MolecCav_Initialize_quantum_HO1D(QHO1D, Nb, w, m, Dense, Verbose, Debug) ! here init on the 1D QHO basis : don't need Nq etc. will write later Init_grid or Init_other_basis, maybe called by this one, in this case, the "call" will be determined by the optional arg (Nb, Nq etc.)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m
     USE Elem_op_m
@@ -114,6 +114,7 @@ MODULE Quantum_HO1D_m
     integer,              intent(in)    :: Nb
     real(kind=Rkind),     intent(in)    :: w 
     real(kind=Rkind),     intent(in)    :: m 
+    logical, optional,    intent(in)    :: Dense                                                                         ! cf. comments in HO1D_parameters_m
     integer, optional,    intent(in)    :: Verbose                                                                         ! cf. comments in HO1D_parameters_m
     logical, optional,    intent(in)    :: Debug                                                                           ! cf. comments in HO1D_parameters_m
 
@@ -133,6 +134,7 @@ MODULE Quantum_HO1D_m
       WRITE(out_unit,*) "--- Arguments of MolecCav_Initialize_quantum_HO1D :"
       WRITE(out_unit,*) "The <<QHO1D>> argument :"
       CALL Write(QHO1D)
+      WRITE(out_unit,*) "The <<Nb>> argument :"//TO_string(Nb)
       WRITE(out_unit,*) "--- End arguments of MolecCav_Initialize_quantum_HO1D"
       FLUSH(out_unit)
     END IF
@@ -144,10 +146,17 @@ MODULE Quantum_HO1D_m
     ALLOCATE(QHO1D%Tab_op(0:3))
     
     !--------------------------------------Constructing the operators to build-------------------------------------
-    CALL Initialize(Elem_op=QHO1D%Tab_op(0), Operator_type="Identity",    Nb=Nb,           Verbose=Verbose_local, Debug=Debug_local)
-    CALL Initialize(Elem_op=QHO1D%Tab_op(1), Operator_type="Hamiltonian", Nb=Nb, w=w,      Verbose=Verbose_local, Debug=Debug_local)
-    CALL Initialize(Elem_op=QHO1D%Tab_op(2), Operator_type="Position",    Nb=Nb, w=w, m=m, Verbose=Verbose_local, Debug=Debug_local)
-    CALL Initialize(Elem_op=QHO1D%Tab_op(3), Operator_type="NbQuanta",    Nb=Nb,           Verbose=Verbose_local, Debug=Debug_local)
+    IF (PRESENT(Dense)) THEN
+      CALL Initialize(QHO1D%Tab_op(0), "Identity",    Nb=Nb,           Dense=Dense, Verbose=Verbose_local, Debug=Debug_local)
+      CALL Initialize(QHO1D%Tab_op(1), "Hamiltonian", Nb=Nb, w=w,      Dense=Dense, Verbose=Verbose_local, Debug=Debug_local)
+      CALL Initialize(QHO1D%Tab_op(2), "Position",    Nb=Nb, w=w, m=m, Dense=Dense, Verbose=Verbose_local, Debug=Debug_local)
+      CALL Initialize(QHO1D%Tab_op(3), "NbQuanta",    Nb=Nb,           Dense=Dense, Verbose=Verbose_local, Debug=Debug_local)
+    ELSE 
+      CALL Initialize(QHO1D%Tab_op(0), Operator_type="Identity",    Nb=Nb,           Verbose=Verbose_local, Debug=Debug_local)
+      CALL Initialize(QHO1D%Tab_op(1), Operator_type="Hamiltonian", Nb=Nb, w=w,      Verbose=Verbose_local, Debug=Debug_local)
+      CALL Initialize(QHO1D%Tab_op(2), Operator_type="Position",    Nb=Nb, w=w, m=m, Verbose=Verbose_local, Debug=Debug_local)
+      CALL Initialize(QHO1D%Tab_op(3), Operator_type="NbQuanta",    Nb=Nb,           Verbose=Verbose_local, Debug=Debug_local)
+    END IF 
 
     IF (Verbose_local > 20) WRITE(out_unit,*) 
     IF (Verbose_local > 20) WRITE(out_unit,*) "--------------------------------------------------QUANTUM HO1D OBJECT INITIALIZED-&
@@ -648,26 +657,27 @@ MODULE Quantum_HO1D_m
     integer                          :: i_op
 
     WRITE(out_unit,*) "____________________________________The parameters of the 1D QHO____________________________________"
-    WRITE(out_unit,*) "|Basis set size of the HO (QHO1D%Nb)                                         | "//TO_string(QHO1D%Nb)
-    WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
-    WRITE(out_unit,*) "|Eigenpulsation of the HO (QHO1D%w)                                          | "//TO_string(QHO1D%w)
-    WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
-    WRITE(out_unit,*) "|Mass associated with the HO (QHO1D%m)                                       | "//TO_string(QHO1D%m)
+    WRITE(out_unit,*) "|Basis set size of the HO (QHO1D%Nb)                                           | "//TO_string(QHO1D%Nb)
+    WRITE(out_unit,*) "|______________________________________________________________________________|______________________"
+    WRITE(out_unit,*) "|Eigenpulsation of the HO (QHO1D%w)                                            | "//TO_string(QHO1D%w)
+    WRITE(out_unit,*) "|______________________________________________________________________________|______________________"
+    WRITE(out_unit,*) "|Mass associated with the HO (QHO1D%m)                                         | "//TO_string(QHO1D%m)
     IF (ALLOCATED(QHO1D%Tab_op)) THEN 
-      WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
-      WRITE(out_unit,*) "|The "//TO_string(i_op)//"^{th} operator associated with the HO :            | QHO1D%Tab_op("//TO_string&
-                        &(i_op)//")"
-      DO i_op = 1, Size(QHO1D%Tab_op)
+      WRITE(out_unit,*) "|______________________________________________________________________________|______________________"
+      WRITE(out_unit,*) "|The "//TO_string(i_op)//"^{th} operator associated with the HO (QHO1D%Tab_op("//TO_string(i_op)//")) : &
+                        &               |"
+      WRITE(out_unit,*) "|______________________________________________________________________________|"
+      DO i_op = 0, Size(QHO1D%Tab_op)-1
         CALL Write(QHO1D%Tab_op(i_op))
       END DO 
     END IF
-    WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
-    WRITE(out_unit,*) "|Number of grid points of the QHO DOF (QHO1D%Nq)                             | "//TO_string(QHO1D%Nq)
-    WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
-    WRITE(out_unit,*) "|Equilibrium position of the HO (QHO1D%Eq_pos)                               | "//TO_string(QHO1D%Eq_pos)
-    WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
-    WRITE(out_unit,*) "|Change in variable coefficient for the DOF grid (QHO1D%Scale_q)             | "//TO_string(QHO1D%Scale_q)
-    WRITE(out_unit,*) "|________________________________________End HO1D parameters_________________|______________________"
+    WRITE(out_unit,*) "|______________________________________________________________________________|______________________"
+    WRITE(out_unit,*) "|Number of grid points of the QHO DOF (QHO1D%Nq)                               | "//TO_string(QHO1D%Nq)
+    WRITE(out_unit,*) "|______________________________________________________________________________|______________________"
+    WRITE(out_unit,*) "|Equilibrium position of the HO (QHO1D%Eq_pos)                                 | "//TO_string(QHO1D%Eq_pos)
+    WRITE(out_unit,*) "|______________________________________________________________________________|______________________"
+    WRITE(out_unit,*) "|Change in variable coefficient for the DOF grid (QHO1D%Scale_q)               | "//TO_string(QHO1D%Scale_q)
+    WRITE(out_unit,*) "|________________________________________End HO1D parameters___________________|______________________"
     FLUSH(out_unit)
 
   END SUBROUTINE MolecCav_Write_quantum_HO1D

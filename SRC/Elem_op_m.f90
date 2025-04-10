@@ -520,20 +520,20 @@ MODULE Elem_op_m
       FLUSH(out_unit)
     END IF
 
-    WRITE(out_unit,*) "|Is its matrix supposed to be represented as a dense one ? Elem_op%Dense      | "//TO_string(Elem_op%Dense)
+    WRITE(out_unit,*) "|Is its matrix supposed to be represented as a dense one ? Elem_op%Dense       | "//TO_string(Elem_op%Dense)
     WRITE(out_unit,*) "|______________________________________________________________________________|____________________"
     
-    WRITE(out_unit,*) "|Case of a band matrix, (Elem_op%Upper_bandwidth, Elem_op%Lower_bandwidth)   | ("//TO_string(Elem_op%Up&
-                      &per_bandwidth)//TO_string(Elem_op%Lower_bandwidth)//")"
+    WRITE(out_unit,*) "|Case of a band matrix, (Elem_op%Upper_bandwidth, Elem_op%Lower_bandwidth)     | ("//TO_string(Elem_op%Up&
+                      &per_bandwidth)//","//TO_string(Elem_op%Lower_bandwidth)//")"
     WRITE(out_unit,*) "|______________________________________________________________________________|____________________"
     FLUSH(out_unit)
 
-    WRITE(out_unit,*) "_________________________the operator's representations_________________________"
-    WRITE(out_unit,*) "|Is its matrix supposed to be represented on the grid ? Elem_op%Grid      | "//TO_string(Elem_op%Grid)
+    WRITE(out_unit,*) "_________________________the operator's representations_____________________________________________"
+    WRITE(out_unit,*) "|Is its matrix supposed to be represented on the grid ? Elem_op%Grid           | "//TO_string(Elem_op%Grid)
     WRITE(out_unit,*) "|______________________________________________________________________________|____________________"
 
     IF (ALLOCATED(Elem_op%Diag_val)) THEN                                                                                     ! we assume that the code is supposed to be used only allocating one of the matrices of each Elem_op_t object
-      WRITE(out_unit,*) "|The operator is represented using the H Eigenbasis with a basis size of       | ", Elem_op%Operator_type
+      WRITE(out_unit,*) "|The operator is represented using a matrix of size (Elem_op%Nb) :             | ", SIZE(Elem_op%Diag_val)
       WRITE(out_unit,*) "|______________________________________________________________________________|____________________"
       FLUSH(out_unit)
       
@@ -550,8 +550,8 @@ MODULE Elem_op_m
     END IF
 
     IF (ALLOCATED(Elem_op%Band_val)) THEN
-      WRITE(out_unit,*) "|The operator is represented using the H Eigenbasis with a basis size of      | ", Elem_op%Operator_type
-      WRITE(out_unit,*) "|_____________________________________________________________________________|_____________________"
+      WRITE(out_unit,*) "|The operator is represented using a matrix of size (Elem_op%Nb) :             | ",  SIZE(Elem_op%Band_val)
+      WRITE(out_unit,*) "|______________________________________________________________________________|_____________________"
       FLUSH(out_unit)
 
       WRITE(out_unit,*) "|The operator's Band matrix representation has been used, and is               |"
@@ -567,7 +567,7 @@ MODULE Elem_op_m
     END IF
 
     IF (ALLOCATED(Elem_op%Dense_val)) THEN
-      WRITE(out_unit,*) "|The operator is represented using the H Eigenbasis with a basis size of      | ", Elem_op%Operator_type
+      WRITE(out_unit,*) "|The operator is represented using a matrix of size (Elem_op%Nb) :            | ",  SIZE(Elem_op%Dense_val)
       WRITE(out_unit,*) "|_____________________________________________________________________________|_____________________"
       FLUSH(out_unit)
 
