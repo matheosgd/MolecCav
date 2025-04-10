@@ -118,12 +118,15 @@ MODULE Quantum_HO1D_m
     integer, optional,    intent(in)    :: Verbose                                                                         ! cf. comments in HO1D_parameters_m
     logical, optional,    intent(in)    :: Debug                                                                           ! cf. comments in HO1D_parameters_m
 
-    integer                             :: Verbose_local = 20                                                              ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
-    logical                             :: Debug_local   = .FALSE.
+    logical                             :: Dense_local                                                              ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
+    integer                             :: Verbose_local                                                              ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
+    logical                             :: Debug_local
     
     !------------------------------------------------------Debugging options-----------------------------------------------------
-    IF (PRESENT(Verbose)) Verbose_local = Verbose
-    IF (PRESENT(Debug))   Debug_local   = Debug
+    IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
+    ELSE; Verbose_local = 20; END IF 
+    IF (PRESENT(Debug))   THEN; Debug_local   = Debug
+    ELSE; Debug_local = .FALSE.; END IF
 
     IF (Verbose_local > 20) WRITE(out_unit,*) 
     IF (Verbose_local > 20) WRITE(out_unit,*) "-------------------------------------------------INITIALIZING THE QUANTUM HO1D OBJ&
@@ -146,17 +149,13 @@ MODULE Quantum_HO1D_m
     ALLOCATE(QHO1D%Tab_op(0:3))
     
     !--------------------------------------Constructing the operators to build-------------------------------------
-    IF (PRESENT(Dense)) THEN
-      CALL Initialize(QHO1D%Tab_op(0), "Identity",    Nb=Nb,           Dense=Dense, Verbose=Verbose_local, Debug=Debug_local)
-      CALL Initialize(QHO1D%Tab_op(1), "Hamiltonian", Nb=Nb, w=w,      Dense=Dense, Verbose=Verbose_local, Debug=Debug_local)
-      CALL Initialize(QHO1D%Tab_op(2), "Position",    Nb=Nb, w=w, m=m, Dense=Dense, Verbose=Verbose_local, Debug=Debug_local)
-      CALL Initialize(QHO1D%Tab_op(3), "NbQuanta",    Nb=Nb,           Dense=Dense, Verbose=Verbose_local, Debug=Debug_local)
-    ELSE 
-      CALL Initialize(QHO1D%Tab_op(0), Operator_type="Identity",    Nb=Nb,           Verbose=Verbose_local, Debug=Debug_local)
-      CALL Initialize(QHO1D%Tab_op(1), Operator_type="Hamiltonian", Nb=Nb, w=w,      Verbose=Verbose_local, Debug=Debug_local)
-      CALL Initialize(QHO1D%Tab_op(2), Operator_type="Position",    Nb=Nb, w=w, m=m, Verbose=Verbose_local, Debug=Debug_local)
-      CALL Initialize(QHO1D%Tab_op(3), Operator_type="NbQuanta",    Nb=Nb,           Verbose=Verbose_local, Debug=Debug_local)
-    END IF 
+    IF (PRESENT(Dense)) THEN; Dense_local = Dense
+    ELSE; Dense_local = .FALSE.; END IF
+
+    CALL Initialize(QHO1D%Tab_op(0), "Identity",    Nb=Nb,           Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local)
+    CALL Initialize(QHO1D%Tab_op(1), "Hamiltonian", Nb=Nb, w=w,      Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local)
+    CALL Initialize(QHO1D%Tab_op(2), "Position",    Nb=Nb, w=w, m=m, Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local)
+    CALL Initialize(QHO1D%Tab_op(3), "NbQuanta",    Nb=Nb,           Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local)
 
     IF (Verbose_local > 20) WRITE(out_unit,*) 
     IF (Verbose_local > 20) WRITE(out_unit,*) "--------------------------------------------------QUANTUM HO1D OBJECT INITIALIZED-&
@@ -180,12 +179,14 @@ MODULE Quantum_HO1D_m
     integer,          optional, intent(in)    :: Verbose                                                                         ! cf. comments in HO1D_parameters_m
     logical,          optional, intent(in)    :: Debug                                                                           ! cf. comments in HO1D_parameters_m
 
-    integer                                   :: Verbose_local = 25                                                              ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
-    logical                                   :: Debug_local   = .FALSE.
+    integer                                   :: Verbose_local                                                              ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
+    logical                                   :: Debug_local
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
-    IF (PRESENT(Verbose)) Verbose_local = Verbose
-    IF (PRESENT(Debug))   Debug_local   = Debug
+    IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
+    ELSE; Verbose_local = 20; END IF 
+    IF (PRESENT(Debug))   THEN; Debug_local   = Debug
+    ELSE; Debug_local = .FALSE.; END IF
 
     IF (Verbose_local > 25) WRITE(out_unit,*) 
     IF (Verbose_local > 25) WRITE(out_unit,*) "--------------------------------------------------INITIALIZING THE HO1D OPERATOR--&
@@ -271,12 +272,14 @@ MODULE Quantum_HO1D_m
     logical, optional, intent(in)    :: Debug                                                                              ! cf. comments in HO1D_parameters_m
 
     integer                          :: i
-    integer                          :: Verbose_local = 25                                                                 ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
-    logical                          :: Debug_local   = .FALSE.
+    integer                          :: Verbose_local                                                                 ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
+    logical                          :: Debug_local
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
-    IF (PRESENT(Verbose)) Verbose_local = Verbose
-    IF (PRESENT(Debug))   Debug_local   = Debug
+    IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
+    ELSE; Verbose_local = 20; END IF 
+    IF (PRESENT(Debug))   THEN; Debug_local   = Debug
+    ELSE; Debug_local = .FALSE.; END IF
 
     IF (Verbose_local > 27) WRITE(out_unit,*) 
     IF (Verbose_local > 27) WRITE(out_unit,*) "----------------------------------Constructing the matrix representation of the 1D&

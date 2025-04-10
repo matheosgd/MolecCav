@@ -139,8 +139,8 @@ $(info ***********************************************************************)
 UT ut: test_algebra.exe test_cavity_mode.exe test_quantum_ho1d.exe test_elem_op.exe test_action_total_H_1p1D.exe test_construct_total_H_1p1D.exe test_normal_modes_1p1D.exe test_ND_indexes.exe test_mapping.exe test_transition_intensities.exe
 	./test_algebra.exe                                      > $(OUTPUT_DIR)/test_algebra.log
 	./test_cavity_mode.exe            < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_cavity_mode.log
-	./test_quantum_ho1d.exe        < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_quantum_ho1d.log
-	./test_elem_op.exe         < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_elem_op.log
+	./test_quantum_ho1d.exe           < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_quantum_ho1d.log
+	./test_elem_op.exe                < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_elem_op.log
 	./test_action_total_H_1p1D.exe    < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_action_total_H_1p1D.log
 	./test_construct_total_H_1p1D.exe < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_construct_total_H_1p1D.log
 	./test_normal_modes_1p1D.exe      < $(DATA_DIR)/data_tests.nml > $(OUTPUT_DIR)/test_normal_modes_1p1D.log
@@ -372,8 +372,8 @@ $(OBJ_DIR)/%.o : $(SRC_DIR)/%.f90
 # ... specify that one module needs another one
 $(OBJ_DIR)/test_algebra.o                : $(LIBA)
 $(OBJ_DIR)/test_cavity_mode.o            : $(LIBA)
-$(OBJ_DIR)/test_quantum_ho1d.o        : $(LIBA)
-$(OBJ_DIR)/test_elem_op.o         : $(LIBA)
+$(OBJ_DIR)/test_quantum_ho1d.o           : $(LIBA)
+$(OBJ_DIR)/test_elem_op.o                : $(LIBA)
 $(OBJ_DIR)/test_action_total_H_1p1D.o    : $(LIBA)
 $(OBJ_DIR)/test_construct_total_H_1p1D.o : $(LIBA)
 $(OBJ_DIR)/test_normal_modes_1p1D.o      : $(LIBA)
