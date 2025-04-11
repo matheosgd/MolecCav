@@ -31,6 +31,7 @@ FFC = gfortran
 MAIN_DIR  = APP
 # the name of the directory where to find the source file(s) of the application/exemple program
 MAIN      = App_MolecCav
+MAIN_OUT  = $(MAIN)
 # the name of the application file without the extension
 OBJ_DIR   = OBJ/obj
 # the name of the directory where to store the objects .o and .mod files (/obj because we might... 
@@ -46,6 +47,7 @@ OUTPUT_DIR = OUT
 # the name of the directory where to store the log files of the library's programs
 DATA_DIR = DATA
 # the name of the directory where to find the data files of the library
+DATA_APP = data_app
 
 EXTMod    =                      
 # the directory where the external libraries are to find (cf next subpart)
@@ -176,7 +178,7 @@ UT ut: test_algebra.exe test_cavity_mode.exe test_construct_op_1D.exe test_actio
 # ... BUT not execute anything !
 .PHONY: app APP App
 app APP App: $(MAIN).exe
-	./$(MAIN).exe < $(DATA_DIR)/data_app.nml > $(OUTPUT_DIR)/$(MAIN).log
+	./$(MAIN).exe < $(DATA_DIR)/$(DATA_APP).nml > $(OUTPUT_DIR)/$(MAIN_OUT).log
 
 
 #=================================================================================
@@ -241,7 +243,7 @@ clean:
 	rm -f test*.exe
 	rm -f $(MAIN).exe
 	rm -f $(OUTPUT_DIR)/test_*.log
-	rm -f $(OUTPUT_DIR)/$(MAIN).log
+	rm -f $(OUTPUT_DIR)/App_*.log
 	@echo "Done cleaning objects, executables, and tests outputs"
 # removes all the object files from the OBJ/ directory, all the executable files, and the output files from the tests
 
