@@ -1,20 +1,22 @@
 #reset
 #set term qt font "Times, 15"
 #set term png font "Times, 15"
-#set output "/home/msegaud/MolecCav/RESULTS/time.png"
+#set output "/home/msegaud/MolecCav/RESULTS/convergence_ZPE.png"
 #set grid
 #show grid
 
 #set datafile separator ";"
-#set title  'Ratio (Absorbance du SQ pour diff. [H_{2}O_{2}]) / (Abs(SQ seul))'
 #set xlabel 'Nb_C = Nb_M'
-#set ylabel 'Time (cpu)'
+#set ylabel 'ZPE'
 #set zlabel 'z'
+#set title  'Ratio (Absorbance du SQ pour diff. [H_{2}O_{2}]) / (Abs(SQ seul))'
 #unset xrange
 #unset yrange
 #unset zrange
-#set yrange [1.599960484:1.599960489]
-#set xrange [0:55]
+#set xrange [2:12]
+#set xrange [0:18]
+#set yrange [0.0062272:0.0062278]
+#set yrange [0.00622:0.00637]
 #set zrange [-10:10]
 
 #offset1 = 0
@@ -127,26 +129,23 @@
 #   set logscale y
 #   plot '/home/msegaud/MolecCav/RESULTS/time_test_02.txt' every :::0::0 using 1:2 with points pointtype 7 pointsize 1.5 t 'time\_dense'
 
-
 ###############################
 # Write your script hereafter #
 ###############################
 reset
-set term qt font "Times, 15"
+set term png font "Times, 15"
+set output "/home/segaud/MolecCav/RESULTS/convergence/convergence_ZPE.png"
 set grid
 show grid
 
 set xlabel 'Nb_C = Nb_M'
-set ylabel 'Time (cpu)'
+set ylabel 'ZPE'
 unset xrange
 unset yrange
-set xrange [0:55]
+set xrange [2:12]
+set yrange [0.0062272:0.0062278]
 
-set key left top 
-  plot '/home/msegaud/MolecCav/RESULTS/time/time_test.txt' every :::0::0 using 1:2 with points pointtype 7 pointsize 1.5 t 'time\_opt'
-replot '/home/msegaud/MolecCav/RESULTS/time/time_test.txt' every :::1::1 using 1:2 with points pointtype 7 pointsize 1.5 t 'time\_dense'
-
-set key right top
+plot '/home/segaud/MolecCav/RESULTS/convergence/Eigenvalues_coupled_ham.txt' using 1:2 with points pointtype 7 pointsize 1.5 lc 'blue' t 'ZPE'
 
 ###############################
 ##     End of your script    ##

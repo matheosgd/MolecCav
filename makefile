@@ -250,6 +250,9 @@ clean:
 cleanall : clean
 	rm -fr OBJ/obj*
 	rm -f lib*.a
+	rm -f $(OUTPUT_DIR)/*.log
+	rm -f RESULTS/*.png
+	rm -f RESULTS/*.txt
 	cd Ext_Lib ; ./cleanlib
 	@echo "Done all cleaning : objects, modules, statics, and same for external libraries"
 # removes all the files from the OBJ/ directory (.o and .mod), all the static library files, and performs the cleaning the external libraries as defined...

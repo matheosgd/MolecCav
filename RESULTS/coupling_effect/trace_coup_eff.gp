@@ -1,22 +1,20 @@
-reset
+#reset
 #set term qt font "Times, 15"
-set term png font "Times, 15"
-set output "/home/msegaud/MolecCav/RESULTS/convergence_ZPE.png"
-set grid
-show grid
+#set term png font "Times, 15"
+#set output "/home/msegaud/MolecCav/RESULTS/time.png"
+#set grid
+#show grid
 
 #set datafile separator ";"
-set xlabel 'Nb_C = Nb_M'
-set ylabel 'ZPE'
+#set xlabel '\lambda [a.u.]'
+#set ylabel 'Normal modes [a.u.]'
 #set zlabel 'z'
 #set title  'Ratio (Absorbance du SQ pour diff. [H_{2}O_{2}]) / (Abs(SQ seul))'
-unset xrange
-unset yrange
+#unset xrange
+#unset yrange
 #unset zrange
-set xrange [2:12]
-#set xrange [0:18]
-set yrange [0.0062272:0.0062278]
-#set yrange [0.00622:0.00637]
+#set yrange [1.599960484:1.599960489]
+#set xrange [0:55]
 #set zrange [-10:10]
 
 #offset1 = 0
@@ -101,6 +99,8 @@ set yrange [0.0062272:0.0062278]
 #   fit f(x) '/home/msegaud/outils/CSV/A_PB_206nm.csv' u 1:($2*scale) via a,b #le tracé
 #AJOUTER UNE DROITE VERTICALE DANS LE PLOT
 #   set arrow from 206, graph 0 to 206, graph 1 nohead #trace droite verticale à abscisse 206 nm
+#Rq: syntaxe complete : set arrow from <position> {to <position>|length <length> angle <angle>}
+#Rq: can choose also linetype, width etc...
 #AFFICHER OU NON LA GRILLE
 #   set grid
 #   show grid
@@ -129,8 +129,34 @@ set yrange [0.0062272:0.0062278]
 #   set logscale y
 #   plot '/home/msegaud/MolecCav/RESULTS/time_test_02.txt' every :::0::0 using 1:2 with points pointtype 7 pointsize 1.5 t 'time\_dense'
 
+###############################
+# Write your script hereafter #
+###############################
+reset
+set term qt font "Times, 15"
+set grid
+show grid
 
-  plot '/home/msegaud/MolecCav/RESULTS/Eigenvalues_coupled_ham.txt' using 1:3 with points pointtype 7 pointsize 1.5 lc 'blue' t 'ZPE'
+set title  'Title'
+set xlabel '\lambda [a.u.]'
+set ylabel 'Normal modes [a.u.]'
+unset xrange
+unset yrange
+set xrange [0:0.25]
+set yrange [0:0.009]
+
+set key left bottom
+  plot '/home/segaud/MolecCav/RESULTS/coupling_effect/coupling_effect.txt' using 1:2 with points pointtype 7 pointsize 1.5 t 'w_1'
+replot 0.0058665 with line lc 'dark-orange'  t 'w_M'
+replot '/home/segaud/MolecCav/RESULTS/coupling_effect/coupling_effect.txt' using 1:3 with points pointtype 7 pointsize 1.5 t 'w_2'
+replot 0.0068665 with line lc 'forest-green' t 'w_C'
+
+set key right top
+
+###############################
+##     End of your script    ##
+###############################
+
 
 
 #set key right top #reinitialise position legende après les tracé

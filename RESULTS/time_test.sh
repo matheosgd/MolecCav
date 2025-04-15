@@ -1,16 +1,16 @@
 #! /bin/bash
 
-rm -f "/home/msegaud/MolecCav/RESULTS/time_test.txt"
+rm -f "/home/segaud/MolecCav/RESULTS/time/time_test.txt"
 
 cd ~/MolecCav
-make all
-echo -e "\n Nb --------- time (cpu) [dense matrices]" >> "/home/msegaud/MolecCav/RESULTS/time_test.txt"
+make all MAIN=App_time
+echo -e "\n Nb --------- time (cpu) [dense matrices]" >> "/home/segaud/MolecCav/RESULTS/time/time_test.txt"
 
-for Nb in 10 20 30 40 50
+for Nb in 10 20 #30 40 50
 do 
   echo -e "\n Doing Nb = $Nb..."
 
-  ./App_MolecCav.exe << ** > "OUT/App_MolecCav.log"
+  ./App_time.exe << ** > "OUT/App_time.log"
 &HO_1             !The diatomic molecule
 D = 1             !Label of the basis/HO/mode/dimension
 Nb = $Nb          !Number of basis vectors associated with the HO D
@@ -25,21 +25,18 @@ D = 2
 Nb = $Nb
 w = 0.0068665
 m = 1.0
-lambda = 0.1
+lambda = 0.04
 eq_pos = 0
 /
 **
-  echo "Finished Nb = $Nb"
+  echo "Finished computation for Nb = $Nb"
 
-  time="$(grep "Total cpu (s):" OUT/App_MolecCav.log)"
+  time="$(grep "Total cpu (s):" OUT/App_time.log)"
   time_cut="${time:65} ..."
 
-  echo "$Nb ${time_cut}" >> "/home/msegaud/MolecCav/RESULTS/time_test.txt"
+  echo "$Nb ${time_cut}" >> "/home/segaud/MolecCav/RESULTS/time/time_test.txt"
 
   echo "Done for Nb = $Nb"
 done
 
-cd /home/msegaud/MolecCav/RESULTS
-#gnuplot <<EOF
-#  load 'trace_time.gp'
-#EOF
+cd /home/segaud/MolecCav/RESULTS/time

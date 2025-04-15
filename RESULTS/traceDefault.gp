@@ -1,17 +1,17 @@
-reset
-set term qt font "Times, 15"
+#reset
+#set term qt font "Times, 15"
 #set term png font "Times, 15"
 #set output "/home/msegaud/MolecCav/RESULTS/time.png"
-set grid
-show grid
+#set grid
+#show grid
 
 #set datafile separator ";"
-set xlabel '\lambda [a.u.]'
-set ylabel 'Normal modes [a.u.]'
-#set zlabel 'z'
 #set title  'Ratio (Absorbance du SQ pour diff. [H_{2}O_{2}]) / (Abs(SQ seul))'
-unset xrange
-unset yrange
+#set xlabel 'Nb_C = Nb_M'
+#set ylabel 'Time (cpu)'
+#set zlabel 'z'
+#unset xrange
+#unset yrange
 #unset zrange
 #set yrange [1.599960484:1.599960489]
 #set xrange [0:55]
@@ -40,6 +40,10 @@ unset yrange
 #   R                 = 8.314
 #   f(x)              = (deltaH + gamma_interaction*(1-2*x)) / (R*log((1-x)/x)+deltaS)
 #   plot f(x) 
+#CHANGER LE NB DE POINTS SUR LEQUEL SERA EVALUE LA FONCTION
+#set samples <Nb of grid  points>
+#show samples
+#Rq: default : 100
 #SUPERPOSE PLS COURBES EX PLUSIEURS FICHIERS
 #   offset1 = 0
 #   offset2 = 0
@@ -99,8 +103,6 @@ unset yrange
 #   fit f(x) '/home/msegaud/outils/CSV/A_PB_206nm.csv' u 1:($2*scale) via a,b #le tracé
 #AJOUTER UNE DROITE VERTICALE DANS LE PLOT
 #   set arrow from 206, graph 0 to 206, graph 1 nohead #trace droite verticale à abscisse 206 nm
-#Rq: syntaxe complete : set arrow from <position> {to <position>|length <length> angle <angle>}
-#Rq: can choose also linetype, width etc...
 #AFFICHER OU NON LA GRILLE
 #   set grid
 #   show grid
@@ -121,26 +123,48 @@ unset yrange
 #   set term dumb size <nb of xchar>, <nb of ychars> (optional) aspect <ratio hlenght/vlength> (optional) <mono|ansirgb> (optional)
 #Rq: mono : noir et blanc (default); ansirgb sequence de couleurs classiques de gnuplot. Il existe d'autres options (ansi et ansi256).
 #Rq: /!\ les points sur ligne abscisses ne seront pas tracés : mieux vaut décaler l'origine du repère.
-#Rq: si deux points sont trop il va les paniquer et les mélanger : juste augmenter la taille du graph avec size ! (default: 79,24)
+#Rq: si deux points sont trop proches il va les paniquer et les mélanger : juste augmenter la taille du graph avec size ! (default: 79,24)
 #TRACER EN ECHELLE LOG 
-#Rq: deux options : 1) tracer u 1:(log($2)) 2) changer parametres d'échelle
+#Rq: deux options : 1. tracer u 1:(log($2)) 2. changer parametres d'échelle
 #   plot '/home/msegaud/MolecCav/RESULTS/time_test_02.txt' every :::0::0 using 1:(log10($2)) with points pointtype 7 pointsize 1.5 t 'time\_dense'
 #ou
 #   set logscale y
 #   plot '/home/msegaud/MolecCav/RESULTS/time_test_02.txt' every :::0::0 using 1:2 with points pointtype 7 pointsize 1.5 t 'time\_dense'
 
+#COMMAND LINE
+#DISPLAY HELP/MANUAL
+#$ gnuplot -h <=> gnuplot --help
+#TELL HIM TO WAIT FOR SLOW INITIALIZATION STARTUP (tackle the error message issue)
+#$ gnuplot -s <=> gnuplot --slow 
+#PLOT SOMETHING
+#gnuplot -p -e "command1; command2; etc" <=> gnuplot --persist -e "..."
+#Rq: --persist tells him not to close the plot window when the program exits (otherwise it remains on screen just the time of execution of the command i.e. 1/2 second)
+#Rq: -e is the option to feed him with a command
+#Ex: gnuplot -p -e "set title 'Sine curve'; plot sin(x)" 
+#EXECUTING SCRIPT FILE 
+#Rq: no need for any keyword !
+#$ gnuplot RESULTS/trace_intsties_lambda.gp
+#EXECUTING COMMANDS AND SCRIPT FILE 
+#$ gnuplot -p -e "a=2; set term qt" RESULTS/trace_intsties_lambda.gp
 
-#set term dumb size 100, 30 feed ansirgb
-set xrange [0:0.25]
-set yrange [0:0.009]
-#set term png font "Times, 15"
-#set output "/home/msegaud/MolecCav/RESULTS/coupling_effect.png"
-set key left bottom #deplace legende (=key) en bas à droite /!\ penser à remettre en haut à la fin (cf derniere ligne)
-  plot '/home/msegaud/MolecCav/RESULTS/coupling_effect.txt' using 1:2 with points pointtype 7 pointsize 1.5 t 'w_1'
-replot 0.0058665 with line lc 'dark-orange'  t 'w_M'
-replot '/home/msegaud/MolecCav/RESULTS/coupling_effect.txt' using 1:3 with points pointtype 7 pointsize 1.5 t 'w_2'
-replot 0.0068665 with line lc 'forest-green' t 'w_C'
-set key right top #reinitialise position legende après les tracé
+
+###############################
+# Write your script hereafter #
+###############################
+reset
+set term qt font "Times, 15"
+set grid
+show grid
+
+set title  'Title'
+set xlabel 'xaxis'
+set ylabel 'yaxis'
+unset xrange
+unset yrange
+
+###############################
+##     End of your script    ##
+###############################
 
 
 #set key right top #reinitialise position legende après les tracé

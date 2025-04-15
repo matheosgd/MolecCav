@@ -1,10 +1,10 @@
 #! /bin/bash
 
-rm -f "/home/msegaud/MolecCav/RESULTS/coupling_effect.txt"
+rm -f "/home/msegaud/MolecCav/RESULTS/coupling_effect/coupling_effect.txt"
 
 cd ~/MolecCav
 make all
-echo -e "\n lambda --------- w1 ---------------- w2" >> "/home/msegaud/MolecCav/RESULTS/coupling_effect.txt"
+echo -e "\n lambda --------- w1 ---------------- w2" > "/home/msegaud/MolecCav/RESULTS/coupling_effect/coupling_effect.txt"
 
 for coupling_strength in 0.00 0.02 0.04 0.06 0.08 0.10 0.12 0.14 0.16 0.18 0.20 0.22 0.24
 do 
@@ -29,7 +29,7 @@ do
   eq_pos = 0
   /
 **
-  echo "Finished Nb = $coupling_strength"
+  echo "Finished computation for coupling strength = $coupling_strength"
 
   w1_all="$(grep "1^{th} Normal coordinate" OUT/App_MolecCav.log)"
   w2_all="$(grep "2^{th} Normal coordinate" OUT/App_MolecCav.log)"
@@ -37,12 +37,9 @@ do
   w1="${w1_all: -24}" #/!\ space needed here !
   w2="${w2_all: -24}"
 
-  echo "$coupling_strength ${w1} ${w2}" >> "/home/msegaud/MolecCav/RESULTS/coupling_effect.txt"
+  echo "$coupling_strength ${w1} ${w2}" >> "/home/segaud/MolecCav/RESULTS/coupling_effect/coupling_effect.txt"
 
-  echo "Done for Nb = $coupling_strength"
+  echo "Done for coupling_strength = $coupling_strength"
 done
 
-cd /home/msegaud/MolecCav/RESULTS
-#gnuplot <<EOF                                   #pls trucs à tracer donc term png pas content donc on lance le script à la main
-#  load 'trace_coup_eff.gp'
-#EOF
+gnuplot -p /home/segaud/MolecCav/RESULTS/coupling_effect/trace_coup_eff.gp
