@@ -3,14 +3,14 @@
 rm -f "/home/segaud/MolecCav/RESULTS/coupling_effect/coupling_effect.txt"
 
 cd ~/MolecCav
-make all MAIN=App_coupling_effect
+make all
 echo -e "\n lambda --------- w1 ---------------- w2" > "/home/segaud/MolecCav/RESULTS/coupling_effect/coupling_effect.txt"
 
 for coupling_strength in 0.00 0.02 0.04 0.06 0.08 0.10 0.12 0.14 0.16 0.18 0.20 0.22 0.24
 do 
   echo -e "\n Doing Nb = $coupling_strength..."
 
-  ./App_coupling_effect.exe << ** > "OUT/App_coupling_effect.log"
+  ./App_MolecCav.exe << ** > "OUT/App_MolecCav.log"
   &HO_1             !The diatomic molecule
   D = 1             !Label of the basis/HO/mode/dimension
   Nb = 10           !Number of basis vectors associated with the HO D
@@ -31,8 +31,8 @@ do
 **
   echo "Finished computation for coupling strength = $coupling_strength"
 
-  w1_all="$(grep "1^{th} Normal coordinate" OUT/App_coupling_effect.log)"
-  w2_all="$(grep "2^{th} Normal coordinate" OUT/App_coupling_effect.log)"
+  w1_all="$(grep "1^{th} Normal coordinate" OUT/App_MolecCav.log)"
+  w2_all="$(grep "2^{th} Normal coordinate" OUT/App_MolecCav.log)"
 
   w1="${w1_all: -24}" #/!\ space needed here !
   w2="${w2_all: -24}"

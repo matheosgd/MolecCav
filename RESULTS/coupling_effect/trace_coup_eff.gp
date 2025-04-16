@@ -137,7 +137,6 @@ set term qt font "Times, 15"
 set grid
 show grid
 
-set title  'Title'
 set xlabel '\lambda [a.u.]'
 set ylabel 'Normal modes [a.u.]'
 unset xrange

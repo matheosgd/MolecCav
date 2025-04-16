@@ -6,10 +6,10 @@
 #show grid
 
 #set datafile separator ";"
-#set title  'Ratio (Absorbance du SQ pour diff. [H_{2}O_{2}]) / (Abs(SQ seul))'
-#set xlabel 'Nb_C = Nb_M'
-#set ylabel 'Time (cpu)'
+#set xlabel '\lambda [a.u.]'
+#set ylabel 'Normal modes [a.u.]'
 #set zlabel 'z'
+#set title  'Ratio (Absorbance du SQ pour diff. [H_{2}O_{2}]) / (Abs(SQ seul))'
 #unset xrange
 #unset yrange
 #unset zrange
@@ -40,10 +40,6 @@
 #   R                 = 8.314
 #   f(x)              = (deltaH + gamma_interaction*(1-2*x)) / (R*log((1-x)/x)+deltaS)
 #   plot f(x) 
-#CHANGER LE NB DE POINTS SUR LEQUEL SERA EVALUE LA FONCTION
-#set samples <Nb of grid  points>
-#show samples
-#Rq: default : 100
 #SUPERPOSE PLS COURBES EX PLUSIEURS FICHIERS
 #   offset1 = 0
 #   offset2 = 0
@@ -103,6 +99,8 @@
 #   fit f(x) '/home/msegaud/outils/CSV/A_PB_206nm.csv' u 1:($2*scale) via a,b #le tracé
 #AJOUTER UNE DROITE VERTICALE DANS LE PLOT
 #   set arrow from 206, graph 0 to 206, graph 1 nohead #trace droite verticale à abscisse 206 nm
+#Rq: syntaxe complete : set arrow from <position> {to <position>|length <length> angle <angle>}
+#Rq: can choose also linetype, width etc...
 #AFFICHER OU NON LA GRILLE
 #   set grid
 #   show grid
@@ -123,30 +121,13 @@
 #   set term dumb size <nb of xchar>, <nb of ychars> (optional) aspect <ratio hlenght/vlength> (optional) <mono|ansirgb> (optional)
 #Rq: mono : noir et blanc (default); ansirgb sequence de couleurs classiques de gnuplot. Il existe d'autres options (ansi et ansi256).
 #Rq: /!\ les points sur ligne abscisses ne seront pas tracés : mieux vaut décaler l'origine du repère.
-#Rq: si deux points sont trop proches il va les paniquer et les mélanger : juste augmenter la taille du graph avec size ! (default: 79,24)
+#Rq: si deux points sont trop il va les paniquer et les mélanger : juste augmenter la taille du graph avec size ! (default: 79,24)
 #TRACER EN ECHELLE LOG 
-#Rq: deux options : 1. tracer u 1:(log($2)) 2. changer parametres d'échelle
+#Rq: deux options : 1) tracer u 1:(log($2)) 2) changer parametres d'échelle
 #   plot '/home/msegaud/MolecCav/RESULTS/time_test_02.txt' every :::0::0 using 1:(log10($2)) with points pointtype 7 pointsize 1.5 t 'time\_dense'
 #ou
 #   set logscale y
 #   plot '/home/msegaud/MolecCav/RESULTS/time_test_02.txt' every :::0::0 using 1:2 with points pointtype 7 pointsize 1.5 t 'time\_dense'
-
-#COMMAND LINE
-#DISPLAY HELP/MANUAL
-#$ gnuplot -h <=> gnuplot --help
-#TELL HIM TO WAIT FOR SLOW INITIALIZATION STARTUP (tackle the error message issue)
-#$ gnuplot -s <=> gnuplot --slow 
-#PLOT SOMETHING
-#gnuplot -p -e "command1; command2; etc" <=> gnuplot --persist -e "..."
-#Rq: --persist tells him not to close the plot window when the program exits (otherwise it remains on screen just the time of execution of the command i.e. 1/2 second)
-#Rq: -e is the option to feed him with a command
-#Ex: gnuplot -p -e "set title 'Sine curve'; plot sin(x)" 
-#EXECUTING SCRIPT FILE 
-#Rq: no need for any keyword !
-#$ gnuplot RESULTS/trace_intsties_lambda.gp
-#EXECUTING COMMANDS AND SCRIPT FILE 
-#$ gnuplot -p -e "a=2; set term qt" RESULTS/trace_intsties_lambda.gp
-
 
 ###############################
 # Write your script hereafter #
@@ -156,15 +137,25 @@ set term qt font "Times, 15"
 set grid
 show grid
 
-set title  'Title'
-set xlabel 'xaxis'
-set ylabel 'yaxis'
+set xlabel 'Detuning [a.u.]'
+set ylabel 'Energy levels [a.u.]'
 unset xrange
 unset yrange
+#set xrange [0:0.25]
+#set yrange [0:0.009]
+
+set key right bottom
+  plot '/home/segaud/MolecCav/RESULTS/perturbations/perturb_effect_in_detu.txt' using 1:2 with points pointtype 7 pointsize 1.5 lc 'dark-violet' t 'E_{1,2} (variational)'
+replot '/home/segaud/MolecCav/RESULTS/perturbations/perturb_effect_in_detu.txt' using 1:3 with points pointtype 7 pointsize 1.5 lc 'dark-violet' notitle #t 'E2'
+replot '/home/segaud/MolecCav/RESULTS/perturbations/perturb_effect_in_detu.txt' using 1:4 with points pointtype 7 pointsize 1.5 lc 'sea-green' t 'E_{1,2} (perturbative)'
+replot '/home/segaud/MolecCav/RESULTS/perturbations/perturb_effect_in_detu.txt' using 1:5 with points pointtype 7 pointsize 1.5 lc 'sea-green' notitle #t 'E2'
+
+set key right top
 
 ###############################
 ##     End of your script    ##
 ###############################
+
 
 
 #set key right top #reinitialise position legende après les tracé

@@ -1,25 +1,25 @@
 ----------Nb = 10----------
   Total cpu (s):              0.000
+  Total cpu (s):              0.002
   Total cpu (s):              0.015
-  Total cpu (s):              0.031
 
 ----------Nb = 20----------
   Total cpu (s):              0.000
-  Total cpu (s):              0.528
-  Total cpu (s):              1.102
+  Total cpu (s):              0.033
+  Total cpu (s):              0.063
 
 ----------Nb = 30----------
   Total cpu (s):              0.000
-  Total cpu (s):             12.309
-  Total cpu (s):             23.005
+  Total cpu (s):              0.093
+  Total cpu (s):              0.255
 
 ----------Nb = 40----------
   Total cpu (s):              0.000
-  Total cpu (s):             81.483
-  Total cpu (s):            160.025
+  Total cpu (s):              0.250
+  Total cpu (s):              1.100
 
 ----------Nb = 50----------
   Total cpu (s):              0.000
-  Total cpu (s):            302.379
-  Total cpu (s):            601.206
+  Total cpu (s):              0.726
+  Total cpu (s):              1.949
 

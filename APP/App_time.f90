@@ -138,21 +138,20 @@ PROGRAM App_MolecCav
   END IF
 
     !-------------------------------------------------Computation of Eigenstates-------------------------------------------------
-  ALLOCATE(REigval(NB))
-  ALLOCATE(REigvec(NB,NB))
+!  ALLOCATE(REigval(NB))
+!  ALLOCATE(REigvec(NB,NB))
 
-  CALL diagonalization(TotH_opt, REigval, REigvec)
-  WRITE(out_unit,*); WRITE(out_unit,*) 'EIGENVALUES'
-  IF (Debug) CALL WRITE_Vec(REigval, out_unit, 10, info = 'VP_TotH_opt[Ha]')
+!  CALL diagonalization(TotH_opt, REigval, REigvec)
+!  WRITE(out_unit,*); WRITE(out_unit,*) 'EIGENVALUES'
+!  IF (Debug) CALL WRITE_Vec(REigval, out_unit, 10, info = 'VP_TotH_opt[Ha]')
   
-  IF (Debug) THEN
-    WRITE(out_unit,*); WRITE(out_unit,*) 'EIGENVECTORS'
-    CALL WRITE_Mat(REigvec, out_unit, 6, info = 'Eigenvectors')
-  END IF 
+!  IF (Debug) THEN
+!    WRITE(out_unit,*); WRITE(out_unit,*) 'EIGENVECTORS'
+!    CALL WRITE_Mat(REigvec, out_unit, 6, info = 'Eigenvectors')
+!  END IF 
 
   CALL time_perso("End of computation (opt)")
-  DEALLOCATE(Mol1H_opt%Diag_val_R, Mol1DipMomt_opt%Band_val_R, Cav1H_opt%Diag_val_R, Cav1Position_opt%Band_val_R, TotH_opt, REigv&
-  &al, REigvec)
+  DEALLOCATE(Mol1H_opt%Diag_val_R, Mol1DipMomt_opt%Band_val_R, Cav1H_opt%Diag_val_R, Cav1Position_opt%Band_val_R, TotH_opt)
 
   !-------------------------------------------------SYSTEM INITIALIZATION [DENSE]------------------------------------------------
     !-------------------------------------Diatomic molecule in a harmonic electonic potential------------------------------------
@@ -215,17 +214,17 @@ PROGRAM App_MolecCav
   END IF
 
     !-------------------------------------------------Computation of Eigenstates-------------------------------------------------
-  ALLOCATE(REigval(NB))
-  ALLOCATE(REigvec(NB,NB))
+!  ALLOCATE(REigval(NB))
+!  ALLOCATE(REigvec(NB,NB))
 
-  CALL diagonalization(TotH_dense, REigval, REigvec)
-  WRITE(out_unit,*); WRITE(out_unit,*) 'EIGENVALUES'
-  IF (Debug) CALL WRITE_Vec(REigval, out_unit, 10, info = 'VP_TotH_dense[Ha]')
+!  CALL diagonalization(TotH_dense, REigval, REigvec)
+!  WRITE(out_unit,*); WRITE(out_unit,*) 'EIGENVALUES'
+!  IF (Debug) CALL WRITE_Vec(REigval, out_unit, 10, info = 'VP_TotH_dense[Ha]')
   
-  IF (Debug) THEN
-    WRITE(out_unit,*); WRITE(out_unit,*) 'EIGENVECTORS'
-    CALL WRITE_Mat(REigvec, out_unit, 6, info = 'Eigenvectors')
-  END IF 
+!  IF (Debug) THEN
+!    WRITE(out_unit,*); WRITE(out_unit,*) 'EIGENVECTORS'
+!    CALL WRITE_Mat(REigvec, out_unit, 6, info = 'Eigenvectors')
+!  END IF 
 
   CALL time_perso("End of computation (dense)")
 

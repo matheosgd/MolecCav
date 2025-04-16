@@ -80,9 +80,9 @@ $(shell [ -d $(ExtLibDIR) ] || (echo $(ExtLibDIR) "does not exist" ; exit 1))
 QD_DIR     = $(ExtLibDIR)/QDUtilLib
 # the name and path where to find all the files of this specific external library (QDUtilLib). Rq: here its a lik-file pointing towards the QDUtilLib_loc file
 
-OOPT       = 0
+OOPT       = 1
 OOMP       = 1
-LLAPACK    = 0
+LLAPACK    = 1
 INT        = 4
 # the parameters to compile the QDUtilLib with (cf makefile of QDUtilLib_loc)
 
@@ -103,7 +103,8 @@ EXTMod     = -I$(QDMOD_DIR)
 #==================Definition of other useful names in variables==================
 #=========================3. For the gfortran compilation=========================
 #=================================================================================
-FFLAGS   = -Og -g -fbacktrace -fcheck=all -fwhole-file -fcheck=pointer -Wuninitialized -finit-real=nan -finit-integer=nan -fopenmp
+#FFLAGS   = -Og -g -fbacktrace -fcheck=all -fwhole-file -fcheck=pointer -Wuninitialized -finit-real=nan -finit-integer=nan -fopenmp
+FFLAGS = -O5 -g -fbacktrace -funroll-loops -ftree-vectorize -falign-loops=16 -fopenmp
 # some useful optional arguments of the gfortran compilation command
 FFLAGS   += -J$(MOD_DIR) $(EXTMod)
 # "+=" works the same way as in python, C, etc
@@ -263,7 +264,7 @@ cleanall : clean
 #====================1. the main executable (the APP/ program)====================
 #=================================================================================
 $(MAIN).exe                              : $(OBJ_DIR)/$(MAIN).o $(LIBA)
-	$(FFC) -o $(MAIN).exe $(FFLAGS) $(OBJ_DIR)/$(MAIN).o $(LIBA) $(EXTLib)
+	$(FFC) -o $(MAIN).exe $(FFLAGS) $(OBJ_DIR)/$(MAIN).o $(LIBA) $(EXTLib) -llapack -lblas
 # this syntax define a file in Make : it shows its dependancies and then the compilation instructions
 # the first line "<the file defined here> : <list of the files it depends on>" provides the dependancies. If Make has to treat this file, it will compare...
 # ... its date of creation with the one of the files it depends on. If it has been created after them all nothing is done. Otherwise or if the file doesn't...
@@ -280,7 +281,7 @@ $(OBJ_DIR)/$(MAIN).o                     : $(MAIN_DIR)/$(MAIN).f90
 #========================2. the tests (the TESTS/ programs)=======================
 #=================================================================================
 %.exe          : $(OBJ_DIR)/%.o
-	$(FFC) -o $@ $(FFLAGS) $< $(LIBA) $(EXTLib)
+	$(FFC) -o $@ $(FFLAGS) $< $(LIBA) $(EXTLib) -llapack -lblas
 
 $(OBJ_DIR)/%.o : $(TESTS_DIR)/%.f90
 	$(FFC) -c -o $@ $(FFLAGS) $<

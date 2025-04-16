@@ -48,7 +48,6 @@ PROGRAM App_perturbations
   !--------------------------------------Diatomic molecule in a harmonic electonic potential-------------------------------------
   TYPE(Cavity_mode_t)           :: Molecule_1
   TYPE(Operator_1D_t)           :: Mol1H                                                                                         ! matrix of the one-dimensional harmonic Hamiltonian associated with HO D
-  TYPE(Operator_1D_t)           :: Mol1Position
   TYPE(Operator_1D_t)           :: Mol1DipMomt
   real(kind=Rkind)              :: CteMol1DipMomt = ONE                                                                          ! the intensity of the variation of the dipole moment with a variation of the matter DOF
   
@@ -93,8 +92,6 @@ PROGRAM App_perturbations
 
   WRITE(out_unit,*) "Molecular Hamiltonian"
   CALL Construct_Operator_1D(Operator=Mol1H,        operator_type="Hamiltonian", Mode=Molecule_1, Debug=.FALSE.)
-  WRITE(out_unit,*) "Molecular Position"
-  CALL Construct_Operator_1D(Operator=Mol1Position, operator_type="Position",    Mode=Molecule_1, Debug=.FALSE.)
   WRITE(out_unit,*) "Molecular Dipole moment"
   CALL Construct_Operator_1D(Operator=Mol1DipMomt,  operator_type="Position",    Mode=Molecule_1, Debug=.FALSE.)    ! initialized as a position operator because of approximation over its expression (cf. readme.md or manual)
 

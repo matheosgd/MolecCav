@@ -1,9 +1,11 @@
 #! /bin/bash
 
 rm -f "/home/segaud/MolecCav/RESULTS/time/time_test.txt"
+rm -f "/home/segaud/MolecCav/RESULTS/time/time_data.txt"
 
 cd ~/MolecCav
 make all MAIN=App_time
+
 echo -e "Nb --------- time (cpu) [opt matrices] --------- time (cpu) [dense matrices]" > "/home/segaud/MolecCav/RESULTS/time/time_test.txt"
 
 for Nb in 10 20 30 40 50

@@ -6,4 +6,4 @@ OUT/*
 ARCH/*
 RESULTS/*.png
 RESULTS/*.txt
-RESULTS/trace_*.gp
+RESULTS/*int_*.gp

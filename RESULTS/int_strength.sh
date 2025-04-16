@@ -44,17 +44,17 @@ do
   eq_pos = 0
   /
 **
-  echo "Finished coupling strength = $coupling_strength"
+  echo "Finished computation for coupling strength = $coupling_strength"
 
   Intensities="$(grep "Intensities matrix   1" OUT/App_trnstn_int.log)"
   GSto1="${Intensities:51: 12}"
   GSto2="${Intensities:70: 12}"
-#  GSto3="${Intensities:89: 12}"
-#  GSto4="${Intensities:108:12}"
   Enrgy1="$(grep "Transition energy GSto1" OUT/App_trnstn_int.log)"
   Enrgy1="${Enrgy1:27}"
   Enrgy2="$(grep "Transition energy GSto2" OUT/App_trnstn_int.log)"
   Enrgy2="${Enrgy2:27}"
+#  GSto3="${Intensities:89: 12}"
+#  GSto4="${Intensities:108:12}"
 #  Enrgy3="$(grep "Transition energy GSto3" OUT/App_trnstn_int.log)"
 #  Enrgy3="${Enrgy3:27}"
 #  Enrgy4="$(grep "Transition energy GSto4" OUT/App_trnstn_int.log)"

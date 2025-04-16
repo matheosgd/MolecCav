@@ -43,7 +43,11 @@ PROGRAM Calc_perturb
 
 
   logical, parameter            :: Debug = .TRUE.
-  integer, parameter            :: Verbose = 0
+
+  integer                       :: err_io
+  integer                       :: Case_nml = 0
+  real(kind=Rkind)              :: DT_nml = 0.00002_Rkind
+  real(kind=Rkind)              :: lambda_nml = 0.04_Rkind
 
   real(kind=Rkind)              :: w_mat, DT, m_mat, lambda, Cte
 
@@ -61,16 +65,26 @@ PROGRAM Calc_perturb
 
   real(kind=Rkind)              :: Energy
 
+  NAMELIST /PARAMETERS/ DT_nml, lambda_nml, Case_nml
+  READ(in_unit, nml = PARAMETERS, iostat = err_io)
+  WRITE(out_unit,*) "--- Case_nml : "//TO_string(Case_nml)
+  IF (err_io /= 0) STOP '### ERROR READING NML IN CALC_PERTURB.f90'
 
   WRITE(out_unit,*) "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
   WRITE(out_unit,*) "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx A(0) >> DT xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
   WRITE(out_unit,*) "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
   w_mat  = 0.0058_Rkind
-  DT     = 0.00002_Rkind
   m_mat  = 1744.60504565_Rkind
-  lambda = 0.008_Rkind
   Cte    = ONE
+  IF (Case_nml == 1) THEN
+    DT     = DT_nml
+    lambda = lambda_nml
+  ELSE
+    DT     = 0.00002_Rkind
+    lambda = 0.04_Rkind
+  END IF 
+
   WRITE(out_unit,*) "--- w_mat   = "//TO_string(w_mat)
   WRITE(out_unit,*) "--- DT      = "//TO_string(DT)
   WRITE(out_unit,*) "--- m_mat   = "//TO_string(m_mat)
@@ -137,8 +151,8 @@ PROGRAM Calc_perturb
 
   Corrections = matmul(TRANSPOSE(REigvec), matmul(W_detu, REigvec))
   WRITE(out_unit,*); CALL Write_Mat(Corrections, out_unit, 3, info="<Psi^(0)|W_detu|Psi^(0)>")
-  CALL Write_Vec(REigval + [Corrections(1,1), Corrections(2,2), Corrections(3,3)], out_unit, 3, info="Energy levels (1) :")
-  WRITE(out_unit,*) " Energy gap (1) : |E_2 - E_1| = "//TO_string(REigval(3)+Corrections(3,3) - REigval(2)-Corrections(2,2)) 
+  CALL Write_Vec(REigval + [Corrections(1,1), Corrections(2,2), Corrections(3,3)], out_unit, 3, info="Energy levels RC (1) :")
+  WRITE(out_unit,*) " Energy gap RC (1) : |E_2 - E_1| = "//TO_string(REigval(3)+Corrections(3,3) - REigval(2)-Corrections(2,2)) 
 
 
   WRITE(out_unit,*); WRITE(out_unit,*)
@@ -147,10 +161,16 @@ PROGRAM Calc_perturb
   WRITE(out_unit,*) "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
   w_mat  = 0.0058_Rkind
-  DT     = 0.0002_Rkind
   m_mat  = 1744.60504565_Rkind
-  lambda = 0.004_Rkind
   Cte    = ONE
+  IF (Case_nml == 2) THEN
+    DT     = 0.0002_Rkind
+    lambda = 0.004_Rkind
+  ELSE 
+    DT     = 0.0002_Rkind
+    lambda = 0.004_Rkind
+  END IF 
+
   WRITE(out_unit,*) "--- w_mat   = "//TO_string(w_mat)
   WRITE(out_unit,*) "--- DT      = "//TO_string(DT)
   WRITE(out_unit,*) "--- m_mat   = "//TO_string(m_mat)
@@ -210,8 +230,8 @@ PROGRAM Calc_perturb
 
   Corrections = matmul(TRANSPOSE(REigvec), matmul(W_cplg, REigvec))
   WRITE(out_unit,*); CALL Write_Mat(Corrections, out_unit, 3, info="<Psi^(0)|W_cplg|Psi^(0)>")
-  CALL Write_Vec(REigval + [Corrections(1,1), Corrections(2,2), Corrections(3,3)], out_unit, 3, info="Energy levels (1) :")
-  WRITE(out_unit,*) " Energy gap (1) : |E_2 - E_1| = "//TO_string(REigval(3)+Corrections(3,3) - REigval(2)-Corrections(2,2)) 
+  CALL Write_Vec(REigval + [Corrections(1,1), Corrections(2,2), Corrections(3,3)], out_unit, 3, info="Energy levels hRnC (1) :")
+  WRITE(out_unit,*) " Energy gap hRnC (1) : |E_2 - E_1| = "//TO_string(REigval(3)+Corrections(3,3) - REigval(2)-Corrections(2,2)) 
   WRITE(out_unit,*) " Pas de correction à l'ordre 1 si la dégénérescence est déjà levée ? " 
 
 
