@@ -240,8 +240,7 @@ $(QDLIBA):
 .PHONY: clean cleanall
 clean:
 	rm -f $(OBJ_DIR)/*.o
-	rm -f test*.exe
-	rm -f $(MAIN).exe
+	rm -f *.exe
 	rm -f $(OUTPUT_DIR)/test_*.log
 	rm -f $(OUTPUT_DIR)/App_*.log
 	@echo "Done cleaning objects, executables, and tests outputs"
