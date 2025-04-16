@@ -4,6 +4,6 @@ OBJ/*
 *.exe
 OUT/*
 ARCH/*
-RESULTS/*.png
-RESULTS/*.txt
-RESULTS/*int_*.gp
+RESULTS/*/*.png
+RESULTS/*/*.txt
+RESULTS/*/*int_*.gp
