@@ -1,25 +1,25 @@
 #! /bin/bash
 
-rm -f "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu.gp"
+rm -f "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
 
 cd ~/MolecCav
 make all MAIN=App_trnstn_int
-echo -e "reset"                                                                                                 >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu.gp"
-echo -e "set term qt font \"Times, 12\""                                                                        >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu.gp"
-echo -e "set grid\nshow grid"                                                                                   >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu.gp"
-echo -e "\nset title  'Intensities = f(detuning) for small coupling (\lambda = 4e-4 a.u.; w_M = w_{HF}) [a.u.]" >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu.gp"
-echo -e "set xlabel 'Transition energy [Ha]'"                                                                   >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu.gp"
-echo -e "set ylabel 'Arbitrary units [a.u.]'"                                                                   >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu.gp"
-echo -e "\nunset xrange\nunset yrange"                                                                          >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu.gp"
-echo -e "min = 5.4610394673397069E-003 - 1E-5"                                                                  >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu.gp"
-echo -e "max = 6.2723303490619256E-003 + 1E-5"                                                                  >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu.gp"
-echo -e "set xrange [min:max]"                                                                                  >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu.gp"
-echo -e "#set yrange [0.0249:0.049]"                                                                            >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu.gp"
-echo -e "#set key left top"                                                                                     >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu.gp"
-echo -e "\nConv = 21947.46 # 1Ha = Conv.cm-1"                                                                   >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu.gp"
-echo -e "Gam = 0.3/Conv  # 30cm-1"                                                                              >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu.gp"
-echo -e "set samples 999\nshow samples"                                                                         >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu.gp"
-echo -e "L(x, x_0, Gam) = ( Gam/(2*pi) ) / ( ((Gam**2)/4) + (x-x_0)**2 )"                                       >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu.gp"
+echo -e "reset"                                                                                                 >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
+echo -e "set term qt font \"Times, 12\""                                                                        >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
+echo -e "set grid\nshow grid"                                                                                   >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
+echo -e "\nset title  'Intensities = f(detuning) for small coupling (\lambda = 4e-4 a.u.; w_M = w_{HF}) [a.u.]" >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
+echo -e "set xlabel 'Transition energy [Ha]'"                                                                   >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
+echo -e "set ylabel 'Arbitrary units [a.u.]'"                                                                   >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
+echo -e "\nunset xrange\nunset yrange"                                                                          >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
+echo -e "min = 5.4610394673397069E-003 - 1E-5"                                                                  >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
+echo -e "max = 6.2723303490619256E-003 + 1E-5"                                                                  >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
+echo -e "set xrange [min:max]"                                                                                  >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
+echo -e "#set yrange [0.0249:0.049]"                                                                            >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
+echo -e "#set key left top"                                                                                     >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
+echo -e "\nConv = 21947.46 # 1Ha = Conv.cm-1"                                                                   >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
+echo -e "Gam = 0.3/Conv  # 30cm-1"                                                                              >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
+echo -e "set samples 999\nshow samples"                                                                         >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
+echo -e "L(x, x_0, Gam) = ( Gam/(2*pi) ) / ( ((Gam**2)/4) + (x-x_0)**2 )"                                       >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
 
 for I in 0 1 -1 #2 -2
 do 
@@ -58,16 +58,16 @@ do
 #  GSto3="${Intensities:89: 12}"
 #  GSto4="${Intensities:108:12}"
 
-  echo -e "\noffset = 0 #$Detuning*1E12" >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu.gp"  
+  echo -e "\noffset = 0 #$Detuning*1E12" >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"  
   if [ "$I" == "0" ]; then 
-    echo -e "  plot ( ${GSto1}*L(x, ${Enrgy1}, Gam) + ${GSto2}*L(x, ${Enrgy2}, Gam) + offset) w l lw 2 t 'Detuning = $Detuning'" >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu.gp"
+    echo -e "  plot ( ${GSto1}*L(x, ${Enrgy1}, Gam) + ${GSto2}*L(x, ${Enrgy2}, Gam) + offset) w l lw 2 t 'Detuning = $Detuning'" >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
   else 
-    echo "replot ( ${GSto1}*L(x, ${Enrgy1}, Gam) + ${GSto2}*L(x, ${Enrgy2}, Gam) + offset) w l lw 2 t 'Detuning = $Detuning'"    >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu.gp"
+    echo "replot ( ${GSto1}*L(x, ${Enrgy1}, Gam) + ${GSto2}*L(x, ${Enrgy2}, Gam) + offset) w l lw 2 t 'Detuning = $Detuning'"    >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
   fi
 
   echo -e "\n Done testing coupling strength"
 done
 
-echo -e "#\nset key left top" >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu.gp"
+echo -e "#\nset key left top" >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
 
-gnuplot -p /home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu.gp
+gnuplot -p /home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp

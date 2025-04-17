@@ -1,10 +1,10 @@
 #! /bin/bash
 
-rm -f "/home/segaud/MolecCav/RESULTS/coupling_effect/coupling_effect.txt"
+rm -f "/home/segaud/MolecCav/RESULTS/coupling_effect/coupling_effect_out.txt"
 
 cd ~/MolecCav
 make all MAIN=App_coupling_effect
-echo -e "\n lambda --------- w1 ---------------- w2" > "/home/segaud/MolecCav/RESULTS/coupling_effect/coupling_effect.txt"
+echo -e "\n lambda --------- w1 ---------------- w2" > "/home/segaud/MolecCav/RESULTS/coupling_effect/coupling_effect_out.txt"
 
 for coupling_strength in 0.00 0.02 0.04 0.06 0.08 0.10 0.12 0.14 0.16 0.18 0.20 0.22 0.24
 do 
@@ -37,7 +37,7 @@ do
   w1="${w1_all: -24}" #/!\ space needed here !
   w2="${w2_all: -24}"
 
-  echo "$coupling_strength ${w1} ${w2}" >> "/home/segaud/MolecCav/RESULTS/coupling_effect/coupling_effect.txt"
+  echo "$coupling_strength ${w1} ${w2}" >> "/home/segaud/MolecCav/RESULTS/coupling_effect/coupling_effect_out.txt"
 
   echo "Done for coupling_strength = $coupling_strength"
 done

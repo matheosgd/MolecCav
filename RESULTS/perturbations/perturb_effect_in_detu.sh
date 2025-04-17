@@ -1,14 +1,15 @@
 #! /bin/bash
 
-rm -f "/home/segaud/MolecCav/RESULTS/perturbations/perturb_effect_in_detu.txt"
+rm -f "/home/segaud/MolecCav/RESULTS/perturbations/perturb_effect_in_detu_out.txt"
 
 cd ~/MolecCav
 make all MAIN=App_perturb_effect
 make all MAIN=Calc_perturb
-#echo "DT ------ E1 ------------------------------- E2 ------------------------------- A(DT) ---------------------------- DT/A(0)" > "/home/segaud/MolecCav/RESULTS/perturbations/perturb_effect_in_detu.txt"
-echo "DT ------ E1 ------------------------------- E2 ---------------------------- E1_pert --------------- E2_pert --------------- DT/A(0)" > "/home/segaud/MolecCav/RESULTS/perturbations/perturb_effect_in_detu.txt"
+#echo "DT ------ E1 ------------------------------- E2 ------------------------------- A(DT) ---------------------------- DT/A(0)" > "/home/segaud/MolecCav/RESULTS/perturbations/perturb_effect_in_detu_out.txt"
+echo "DT ------ E1 ------------------------------- E2 ---------------------------- E1_pert --------------- E2_pert --------------- DT/A(0)" > "/home/segaud/MolecCav/RESULTS/perturbations/perturb_effect_in_detu_out.txt"
 
-for DT in 0.00000 0.00002 0.00004 0.00006 0.00008 0.00010 0.0002 0.0004 0.0006 0.0008 0.0010 #0.00012 0.00014 0.00016 0.00018 0.00020 0.00022 0.00024
+coupling_strength="0.04"
+for DT in 0.00000 0.00002 0.00004 0.00006 0.00008 0.00010 0.00012 0.00014 0.00016 0.00018 0.00020 0.00022 0.00024 0.0002 0.0004 0.0006 0.0008 0.0010
 do 
   echo -e "\n Doing detuning = $DT..."
   w_C=$(echo "0.0058665+$DT" |bc -l)
@@ -26,9 +27,9 @@ do
   &HO_1             !The Cavity
   D = 2
   Nb = 2
-  w = $w_C
+  w = ${w_C}
   m = 1.0
-  lambda = 0.04
+  lambda = ${coupling_strength}
   eq_pos = 0
   /
 **
@@ -56,10 +57,10 @@ do
   E1_pert="${Energy_levels:49:13}"
   E2_pert="${Energy_levels:68}"
 
-#  echo "${DT}   ${E1}           ${E2}           ${Gap}           ${Ratio}" >> "/home/segaud/MolecCav/RESULTS/perturbations/perturb_effect_in_detu.txt"
-  echo "${DT}   ${E1}           ${E2}       ${E1_pert}           ${E2_pert}           ${Ratio}" >> "/home/segaud/MolecCav/RESULTS/perturbations/perturb_effect_in_detu.txt"
+#  echo "${DT}   ${E1}           ${E2}           ${Gap}           ${Ratio}" >> "/home/segaud/MolecCav/RESULTS/perturbations/perturb_effect_in_detu_out.txt"
+  echo "${DT}   ${E1}           ${E2}       ${E1_pert}           ${E2_pert}           ${Ratio}" >> "/home/segaud/MolecCav/RESULTS/perturbations/perturb_effect_in_detu_out.txt"
 
   echo "Done for detuning = $DT"
 done
 
-gnuplot -p /home/segaud/MolecCav/RESULTS/perturbations/trace_perturb_effect_in_detu.gp
+gnuplot -p -e "lambda=${coupling_strength}" /home/segaud/MolecCav/RESULTS/perturbations/trace_perturb_effect_in_detu.gp

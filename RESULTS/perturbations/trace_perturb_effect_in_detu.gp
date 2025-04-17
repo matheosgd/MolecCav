@@ -137,6 +137,7 @@ set term qt font "Times, 15"
 set grid
 show grid
 
+set title sprintf("Coupling strength = %g", lambda)
 set xlabel 'Detuning [a.u.]'
 set ylabel 'Energy levels [a.u.]'
 unset xrange
@@ -145,10 +146,10 @@ unset yrange
 #set yrange [0:0.009]
 
 set key right bottom
-  plot '/home/segaud/MolecCav/RESULTS/perturbations/perturb_effect_in_detu.txt' using 1:2 with points pointtype 7 pointsize 1.5 lc 'dark-violet' t 'E_{1,2} (variational)'
-replot '/home/segaud/MolecCav/RESULTS/perturbations/perturb_effect_in_detu.txt' using 1:3 with points pointtype 7 pointsize 1.5 lc 'dark-violet' notitle #t 'E2'
-replot '/home/segaud/MolecCav/RESULTS/perturbations/perturb_effect_in_detu.txt' using 1:4 with points pointtype 7 pointsize 1.5 lc 'sea-green' t 'E_{1,2} (perturbative)'
-replot '/home/segaud/MolecCav/RESULTS/perturbations/perturb_effect_in_detu.txt' using 1:5 with points pointtype 7 pointsize 1.5 lc 'sea-green' notitle #t 'E2'
+  plot '/home/segaud/MolecCav/RESULTS/perturbations/perturb_effect_in_detu_out.txt' using 1:2 with points pointtype 7 pointsize 1.5 lc 'dark-violet' t 'E_{1,2} (variational)'
+replot '/home/segaud/MolecCav/RESULTS/perturbations/perturb_effect_in_detu_out.txt' using 1:3 with points pointtype 7 pointsize 1.5 lc 'dark-violet' notitle #t 'E2'
+replot '/home/segaud/MolecCav/RESULTS/perturbations/perturb_effect_in_detu_out.txt' using 1:4 with points pointtype 7 pointsize 1.5 lc 'sea-green' t 'E_{1,2} (perturbative)'
+replot '/home/segaud/MolecCav/RESULTS/perturbations/perturb_effect_in_detu_out.txt' using 1:5 with points pointtype 7 pointsize 1.5 lc 'sea-green' notitle #t 'E2'
 
 set key right top
 

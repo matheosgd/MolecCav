@@ -1,6 +1,6 @@
 #! /bin/bash
 
-rm -f "/home/segaud/MolecCav/RESULTS/convergence/Eigenvalues_coupled_ham.txt"
+rm -f "/home/segaud/MolecCav/RESULTS/convergence/Eigenvalues_coupled_ham_out.txt"
 
 cd ~/MolecCav
 make all MAIN=App_convergence
@@ -35,7 +35,7 @@ do
 
 #  mid="$((1+${#eigenvalues}/2))"
 #  first_states="${eigenvalues:$mid:100}..."
-  echo "$Nb ${eigenvalues:28:50} ..." >> "/home/segaud/MolecCav/RESULTS/convergence/Eigenvalues_coupled_ham.txt"
+  echo "$Nb ${eigenvalues:28:50} ..." >> "/home/segaud/MolecCav/RESULTS/convergence/Eigenvalues_coupled_ham_out.txt"
 
   echo "Done for Nb = $Nb"
 done

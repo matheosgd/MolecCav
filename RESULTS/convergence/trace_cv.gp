@@ -134,7 +134,7 @@
 ###############################
 reset
 set term png font "Times, 15"
-set output "/home/segaud/MolecCav/RESULTS/convergence/convergence_ZPE.png"
+set output "/home/segaud/MolecCav/RESULTS/convergence/convergence_ZPE_out.png"
 set grid
 show grid
 
@@ -145,7 +145,7 @@ unset yrange
 set xrange [2:12]
 set yrange [0.0062272:0.0062278]
 
-plot '/home/segaud/MolecCav/RESULTS/convergence/Eigenvalues_coupled_ham.txt' using 1:2 with points pointtype 7 pointsize 1.5 lc 'blue' t 'ZPE'
+plot '/home/segaud/MolecCav/RESULTS/convergence/Eigenvalues_coupled_ham_out.txt' using 1:2 with points pointtype 7 pointsize 1.5 lc 'blue' t 'ZPE'
 
 ###############################
 ##     End of your script    ##

@@ -1,6 +1,6 @@
 #! /bin/bash
 
-rm -f "/home/segaud/MolecCav/RESULTS/perturbations.perturbations_sumup.txt"
+rm -f "/home/segaud/MolecCav/RESULTS/perturbations.perturbations_sumup_out.txt"
 
 cd ~/MolecCav
 make all MAIN=App_perturbations
@@ -94,42 +94,42 @@ Case_nml = 0         !Means the nml will not be used
 **
 echo "Finished Calc_perturb"
 
-cp "OUT/Calc_perturb.log" "RESULTS/perturbations/perturbations_sumup.txt"
+cp "OUT/Calc_perturb.log" "RESULTS/perturbations/perturbations_sumup_out.txt"
 
-echo -e "\n\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" >> "RESULTS/perturbations/perturbations_sumup.txt"
-echo "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxSmall Basis setxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"        >> "RESULTS/perturbations/perturbations_sumup.txt"
-echo "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"        >> "RESULTS/perturbations/perturbations_sumup.txt"
+echo -e "\n\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" >> "RESULTS/perturbations/perturbations_sumup_out.txt"
+echo "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxSmall Basis setxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"        >> "RESULTS/perturbations/perturbations_sumup_out.txt"
+echo "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"        >> "RESULTS/perturbations/perturbations_sumup_out.txt"
 #Energy_levels="$(grep "Energy levels TotH_RuC" OUT/App_perturbations_smallB.log)"
 #Gap="$(grep "Energy gap : |E_2 - E_1| (RuC)" OUT/App_perturbations_smallB.log)"
-#echo "${Energy_levels::81}" >> "RESULTS/perturbations/perturbations_sumup.txt"
-#echo "$Gap"                 >> "RESULTS/perturbations/perturbations_sumup.txt"
+#echo "${Energy_levels::81}" >> "RESULTS/perturbations/perturbations_sumup_out.txt"
+#echo "$Gap"                 >> "RESULTS/perturbations/perturbations_sumup_out.txt"
 
 Energy_levels="$(grep "Energy levels TotH_RC" OUT/App_perturbations_smallB.log)"
 Gap="$(grep "Energy gap : |E_2 - E_1| (RC)" OUT/App_perturbations_smallB.log)"
-echo -e "\n${Energy_levels::81}" >> "RESULTS/perturbations/perturbations_sumup.txt"
-echo "$Gap"                      >> "RESULTS/perturbations/perturbations_sumup.txt"
+echo -e "\n${Energy_levels::81}" >> "RESULTS/perturbations/perturbations_sumup_out.txt"
+echo "$Gap"                      >> "RESULTS/perturbations/perturbations_sumup_out.txt"
 
 Energy_levels="$(grep "Energy levels TotH_oRuC" OUT/App_perturbations_smallB.log)"
 Gap="$(grep "Energy gap : |E_2 - E_1| (oRuC)" OUT/App_perturbations_smallB.log)"
-echo -e "\n${Energy_levels::81}" >> "RESULTS/perturbations/perturbations_sumup.txt"
-echo "$Gap"                      >> "RESULTS/perturbations/perturbations_sumup.txt"
+echo -e "\n${Energy_levels::81}" >> "RESULTS/perturbations/perturbations_sumup_out.txt"
+echo "$Gap"                      >> "RESULTS/perturbations/perturbations_sumup_out.txt"
 
-echo -e "\n\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" >> "RESULTS/perturbations/perturbations_sumup.txt"
-echo "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxConverged Basis setxxxxxxxxxxxxxxxxxxxxxxxxxxxx"        >> "RESULTS/perturbations/perturbations_sumup.txt"
-echo "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"        >> "RESULTS/perturbations/perturbations_sumup.txt"
+echo -e "\n\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" >> "RESULTS/perturbations/perturbations_sumup_out.txt"
+echo "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxConverged Basis setxxxxxxxxxxxxxxxxxxxxxxxxxxxx"        >> "RESULTS/perturbations/perturbations_sumup_out.txt"
+echo "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"        >> "RESULTS/perturbations/perturbations_sumup_out.txt"
 #Energy_levels="$(grep "Energy levels TotH_RuC" OUT/App_perturbations_convergenceB.log)"
 #Gap="$(grep "Energy gap : |E_2 - E_1| (RuC)" OUT/App_perturbations_convergenceB.log)"
-#echo "${Energy_levels::81}" >> "RESULTS/perturbations/perturbations_sumup.txt"
-#echo "$Gap" >> "RESULTS/perturbations/perturbations_sumup.txt"
+#echo "${Energy_levels::81}" >> "RESULTS/perturbations/perturbations_sumup_out.txt"
+#echo "$Gap" >> "RESULTS/perturbations/perturbations_sumup_out.txt"
 
 Energy_levels="$(grep "Energy levels TotH_RC" OUT/App_perturbations_convergenceB.log)"
 Gap="$(grep "Energy gap : |E_2 - E_1| (RC)" OUT/App_perturbations_convergenceB.log)"
-echo -e "\n${Energy_levels::81}" >> "RESULTS/perturbations/perturbations_sumup.txt"
-echo "$Gap" >> "RESULTS/perturbations/perturbations_sumup.txt"
+echo -e "\n${Energy_levels::81}" >> "RESULTS/perturbations/perturbations_sumup_out.txt"
+echo "$Gap" >> "RESULTS/perturbations/perturbations_sumup_out.txt"
 
 Energy_levels="$(grep "Energy levels TotH_oRuC" OUT/App_perturbations_convergenceB.log)"
 Gap="$(grep "Energy gap : |E_2 - E_1| (oRuC)" OUT/App_perturbations_convergenceB.log)"
-echo -e "\n${Energy_levels::81}" >> "RESULTS/perturbations/perturbations_sumup.txt"
-echo "$Gap" >> "RESULTS/perturbations/perturbations_sumup.txt"
+echo -e "\n${Energy_levels::81}" >> "RESULTS/perturbations/perturbations_sumup_out.txt"
+echo "$Gap" >> "RESULTS/perturbations/perturbations_sumup_out.txt"
 
 #execute the perturb_effect_*.sh

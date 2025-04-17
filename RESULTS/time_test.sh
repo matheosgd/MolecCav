@@ -1,12 +1,12 @@
 #! /bin/bash
 
-rm -f "/home/segaud/MolecCav/RESULTS/time/time_test.txt"
-rm -f "/home/segaud/MolecCav/RESULTS/time/time_data.txt"
+rm -f "/home/segaud/MolecCav/RESULTS/time/time_test_out.txt"
+rm -f "/home/segaud/MolecCav/RESULTS/time/time_data_out.txt"
 
 cd ~/MolecCav
 make all MAIN=App_time
 
-echo -e "Nb --------- time (cpu) [opt matrices] --------- time (cpu) [dense matrices]" > "/home/segaud/MolecCav/RESULTS/time/time_test.txt"
+echo -e "Nb --------- time (cpu) [opt matrices] --------- time (cpu) [dense matrices]" > "/home/segaud/MolecCav/RESULTS/time/time_test_out.txt"
 
 for Nb in 10 20 30 40 50
 do 
@@ -52,11 +52,11 @@ eq_pos = 0
   echo "Finished computation for Nb = $Nb"
 
   time="$(grep "Total cpu (s):" OUT/App_time.log)"
-  echo -e "----------Nb = $Nb----------\n$time\n"                               >> "/home/segaud/MolecCav/RESULTS/time/time_data.txt"
+  echo -e "----------Nb = $Nb----------\n$time\n"                               >> "/home/segaud/MolecCav/RESULTS/time/time_data_out.txt"
 
   time_opt="${time:62:9}"
   time_dense="$(echo "${time:98:9} - $time_opt" |bc -l)"
-  echo "$Nb           ${time_opt}                                ${time_dense}" >> "/home/segaud/MolecCav/RESULTS/time/time_test.txt"
+  echo "$Nb           ${time_opt}                                ${time_dense}" >> "/home/segaud/MolecCav/RESULTS/time/time_test_out.txt"
 
   echo "Done for Nb = $Nb"
 done

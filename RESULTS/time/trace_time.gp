@@ -143,8 +143,8 @@ unset yrange
 set xrange [0:end_nb+5]
 
 set key left top 
-  plot '/home/segaud/MolecCav/RESULTS/time/time_test.txt' every ::0::end_pt using 1:2 with points pointtype 7 pointsize 1.5 t 'time\_opt'
-replot '/home/segaud/MolecCav/RESULTS/time/time_test.txt' every ::0::end_pt using 1:3 with points pointtype 7 pointsize 1.5 t 'time\_dense'
+  plot '/home/segaud/MolecCav/RESULTS/time/time_test_out.txt' every ::0::end_pt using 1:2 with points pointtype 7 pointsize 1.5 t 'time\_opt'
+replot '/home/segaud/MolecCav/RESULTS/time/time_test_out.txt' every ::0::end_pt using 1:3 with points pointtype 7 pointsize 1.5 t 'time\_dense'
 
 set key right top
 
