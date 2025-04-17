@@ -44,7 +44,7 @@ do
 #  Gap_all="$(grep "2xA(DT)" OUT/App_perturb_effect_in_detu.log)"
 #  Gap="${Gap_all:14}"
 
-  ./Calc_perturb.exe << ** > "OUT/Calc_perturb.log"
+  ./Calc_perturb.exe << ** > "OUT/Calc_perturb_effect_detu.log"
   &PARAMETERS
   DT_nml = $DT
   lambda_nml = 0.04
@@ -53,7 +53,7 @@ do
 **
   echo "Finished perturbation for detuning = $DT"
 
-  Energy_levels="$(grep "Energy levels RC" OUT/Calc_perturb.log)"
+  Energy_levels="$(grep "Energy levels RC" OUT/Calc_perturb_effect_detu.log)"
   E1_pert="${Energy_levels:49:13}"
   E2_pert="${Energy_levels:68}"
 

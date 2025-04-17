@@ -42,18 +42,18 @@ do
 #  Gap_all="$(grep "2xA(DT)" OUT/App_perturb_effect_in_coupling_R.log)"
 #  Gap="${Gap_all:14}"
 
-  ./Calc_perturb.exe << ** > "OUT/Calc_perturb.log"
+  ./Calc_perturb.exe << ** > "OUT/Calc_perturb_effect_coupling_R.log"
   &PARAMETERS
   DT_nml = 0
   lambda_nml = $coupling_strength
-  Case_nml = 2         !Means regime DT >> A
+  Case_nml = 3         !Means use the general H^{(0)} = RuC with W = coupling(lambda, DT) + DT, taking lambda/=0 and DT=0; so sure to use degenerated pert. theo., contrary to the two other cases.
   /
 **
   echo "Finished perturbation for coupling strength = $coupling_strength"
 
-  Energy_levels="$(grep "Energy levels hRnC" OUT/Calc_perturb.log)"
-  E1_pert="${Energy_levels:51:13}"
-  E2_pert="${Energy_levels:70}"
+  Energy_levels="$(grep "Energy levels G" OUT/Calc_perturb_effect_coupling_R.log)"
+  E1_pert="${Energy_levels:46:14}"
+  E2_pert="${Energy_levels:65}"
 
 #  echo "${DT}   ${E1}           ${E2}           ${Gap}           ${Ratio}" >> "/home/segaud/MolecCav/RESULTS/perturbations/perturb_effect_in_coupling_R_out.txt"
   echo "${coupling_strength}   ${E1}           ${E2}       ${E1_pert}           ${E2_pert}           ${Ratio}" >> "/home/segaud/MolecCav/RESULTS/perturbations/perturb_effect_in_coupling_R_out.txt"

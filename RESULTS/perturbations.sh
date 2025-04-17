@@ -7,6 +7,7 @@ make all MAIN=App_perturbations
 make all MAIN=Calc_perturb
 
 
+######################## Computes sum-up ########################
 ./App_perturbations.exe << ** > "OUT/App_perturbations_smallB.log"
 &HO_1             !The diatomic molecule
 D = 1             !Label of the basis/HO/mode/dimension
@@ -132,4 +133,8 @@ Gap="$(grep "Energy gap : |E_2 - E_1| (oRuC)" OUT/App_perturbations_convergenceB
 echo -e "\n${Energy_levels::81}" >> "RESULTS/perturbations/perturbations_sumup_out.txt"
 echo "$Gap" >> "RESULTS/perturbations/perturbations_sumup_out.txt"
 
-#execute the perturb_effect_*.sh
+######################## Plots the graphs ########################
+cd /home/segaud/MolecCav/RESULTS/perturbations/
+./perturb_effect_in_detu.sh
+./perturb_effect_in_coupling_oR.sh
+./perturb_effect_in_coupling_R.sh

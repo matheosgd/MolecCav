@@ -44,7 +44,7 @@ do
 #  Gap_all="$(grep "2xA(DT)" OUT/App_perturb_effect_in_coupling_oR.log)"
 #  Gap="${Gap_all:14}"
 
-  ./Calc_perturb.exe << ** > "OUT/Calc_perturb.log"
+  ./Calc_perturb.exe << ** > "OUT/Calc_perturb_effect_coupling_oR.log"
   &PARAMETERS
   DT_nml = $DT
   lambda_nml = $coupling_strength
@@ -53,7 +53,7 @@ do
 **
   echo "Finished perturbation for coupling strength = $coupling_strength"
 
-  Energy_levels="$(grep "Energy levels hRnC" OUT/Calc_perturb.log)"
+  Energy_levels="$(grep "Energy levels hRnC" OUT/Calc_perturb_effect_coupling_oR.log)"
   E1_pert="${Energy_levels:51:13}"
   E2_pert="${Energy_levels:70}"
 

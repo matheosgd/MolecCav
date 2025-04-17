@@ -74,7 +74,7 @@ PROGRAM Calc_perturb
   WRITE(out_unit,*) "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx A(0) >> DT xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
   WRITE(out_unit,*) "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
-  w_mat  = 0.0058_Rkind
+  w_mat  = 0.0058665_Rkind
   m_mat  = 1744.60504565_Rkind
   Cte    = ONE
   IF (Case_nml == 1) THEN
@@ -160,12 +160,12 @@ PROGRAM Calc_perturb
   WRITE(out_unit,*) "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx DT >> A(0) xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
   WRITE(out_unit,*) "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
-  w_mat  = 0.0058_Rkind
+  w_mat  = 0.0058665_Rkind
   m_mat  = 1744.60504565_Rkind
   Cte    = ONE
   IF (Case_nml == 2) THEN
-    DT     = 0.0002_Rkind
-    lambda = 0.004_Rkind
+    DT     = DT_nml
+    lambda = lambda_nml
   ELSE 
     DT     = 0.0002_Rkind
     lambda = 0.004_Rkind
@@ -232,7 +232,8 @@ PROGRAM Calc_perturb
   WRITE(out_unit,*); CALL Write_Mat(Corrections, out_unit, 3, info="<Psi^(0)|W_cplg|Psi^(0)>")
   CALL Write_Vec(REigval + [Corrections(1,1), Corrections(2,2), Corrections(3,3)], out_unit, 3, info="Energy levels hRnC (1) :")
   WRITE(out_unit,*) " Energy gap hRnC (1) : |E_2 - E_1| = "//TO_string(REigval(3)+Corrections(3,3) - REigval(2)-Corrections(2,2)) 
-  WRITE(out_unit,*) " Pas de correction à l'ordre 1 si la dégénérescence est déjà levée ? " 
+  WRITE(out_unit,*) " No Energy correction at first order if the two first excited levels already are degenerated ???" 
+  WRITE(out_unit,*) " It's ok, it just needs to go to second order ! (don't worry)" 
 
 
   WRITE(out_unit,*); WRITE(out_unit,*)
@@ -240,11 +241,17 @@ PROGRAM Calc_perturb
   WRITE(out_unit,*) "xxxxxxxxxxxxxxxxxxxxxxxxx CAS GENERAL : 2 PERTURBATIONS xxxxxxxxxxxxxxxxxxxxxxxx"
   WRITE(out_unit,*) "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
-  w_mat  = 0.0058_Rkind
-  DT     = 0.0002_Rkind
+  w_mat  = 0.0058665_Rkind
   m_mat  = 1744.60504565_Rkind
-  lambda = 0.004_Rkind
   Cte    = ONE
+  IF (Case_nml == 3) THEN
+    DT     = DT_nml
+    lambda = lambda_nml
+  ELSE 
+    DT     = 0.0002_Rkind
+    lambda = 0.004_Rkind
+  END IF 
+
   WRITE(out_unit,*) "--- w_mat   = "//TO_string(w_mat)
   WRITE(out_unit,*) "--- DT      = "//TO_string(DT)
   WRITE(out_unit,*) "--- m_mat   = "//TO_string(m_mat)
@@ -312,8 +319,14 @@ PROGRAM Calc_perturb
   CALL Write_Mat(REigvec, out_unit, 3, info="REigvec W_G")
 
   WRITE(out_unit,*)
-  CALL Write_Vec(REigval + Buffer, out_unit, 3, info="Energy levels (1)")
-  WRITE(out_unit,*) " Energy gap (1) : |E_2 - E_1| = "//TO_string(REigval(3)+Buffer(3) - REigval(2)-Buffer(2)) 
+! /!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\
+! Check the log file : the energy corrections in REigval comes in increasing value 
+! order (because of the diagonalisation subroutine) => if one is < 0, the correction 
+!  of the first level may be applied to the G.S. or reverse ! 
+  Energy = REigval(1); REigval(1) = REigval(2); REigval(2) = Energy
+! /!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\/!\
+  CALL Write_Vec(REigval + Buffer, out_unit, 3, info="Energy levels G (1)")
+  WRITE(out_unit,*) " Energy gap G (1) : |E_2 - E_1| = "//TO_string(REigval(3)+Buffer(3) - REigval(2)-Buffer(2)) 
 
 
   CONTAINS
