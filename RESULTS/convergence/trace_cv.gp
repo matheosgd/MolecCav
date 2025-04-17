@@ -135,6 +135,7 @@
 reset
 set term png font "Times, 15"
 set output "/home/segaud/MolecCav/RESULTS/convergence/convergence_ZPE_out.png"
+#set term qt font "Times, 15"
 set grid
 show grid
 
@@ -142,7 +143,7 @@ set xlabel 'Nb_C = Nb_M'
 set ylabel 'ZPE'
 unset xrange
 unset yrange
-set xrange [2:12]
+set xrange [2:end]
 set yrange [0.0062272:0.0062278]
 
 plot '/home/segaud/MolecCav/RESULTS/convergence/Eigenvalues_coupled_ham_out.txt' using 1:2 with points pointtype 7 pointsize 1.5 lc 'blue' t 'ZPE'

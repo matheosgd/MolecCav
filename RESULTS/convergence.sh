@@ -40,4 +40,4 @@ do
   echo "Done for Nb = $Nb"
 done
 
-gnuplot /home/segaud/MolecCav/RESULTS/convergence/trace_cv.gp
+gnuplot -p -e "end=$Nb" /home/segaud/MolecCav/RESULTS/convergence/trace_cv.gp

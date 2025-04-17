@@ -7,3 +7,4 @@ ARCH/*
 RESULTS/*/*.png
 RESULTS/*/*.txt
 RESULTS/*/*int_*.gp
+RESULTS/*/*.pdf
