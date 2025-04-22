@@ -83,7 +83,7 @@ MODULE Quantum_HO1D_m
     MODULE PROCEDURE MolecCav_Initialize_N_QHO1D
   END INTERFACE
   INTERFACE Action
-    MODULE PROCEDURE MolecCav_Action_quantum_HO1D_real, MolecCav_Action_quantum_HO1D_complex
+    MODULE PROCEDURE MolecCav_Action_quantum_HO1D_R1_real, MolecCav_Action_quantum_HO1D_R1_complex
   END INTERFACE
   INTERFACE Write
     MODULE PROCEDURE MolecCav_Write_quantum_HO1D
@@ -532,7 +532,7 @@ MODULE Quantum_HO1D_m
   END SUBROUTINE MolecCav_Initialize_N_QHO1D
 
   
-  SUBROUTINE MolecCav_Action_quantum_HO1D_real(Op_psi, QHO1D, i_op, Psi, Verbose, Debug)
+  SUBROUTINE MolecCav_Action_quantum_HO1D_R1_real(Op_psi, QHO1D, i_op, Psi, Verbose, Debug)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     USE QDUtil_m
     USE Elem_op_m
@@ -594,10 +594,10 @@ MODULE Quantum_HO1D_m
     IF (Verbose_local > 25) WRITE(out_unit,*) "----------------------------------------ACTION OF THE HO1D OPERATOR OVER THE R1 WF&
                                               & COMPUTED---------------------------------------"; FLUSH(out_unit)
   
-  END SUBROUTINE MolecCav_Action_quantum_HO1D_real
+  END SUBROUTINE MolecCav_Action_quantum_HO1D_R1_real
 
   
-  SUBROUTINE MolecCav_Action_quantum_HO1D_complex(Op_psi, QHO1D, i_op, Psi, Verbose, Debug)
+  SUBROUTINE MolecCav_Action_quantum_HO1D_R1_complex(Op_psi, QHO1D, i_op, Psi, Verbose, Debug)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     USE QDUtil_m
     USE Elem_op_m
@@ -659,7 +659,7 @@ MODULE Quantum_HO1D_m
     IF (Verbose_local > 25) WRITE(out_unit,*) "----------------------------------------ACTION OF THE HO1D OPERATOR OVER THE R1 WF&
                                               & COMPUTED---------------------------------------"; FLUSH(out_unit)
   
-  END SUBROUTINE MolecCav_Action_quantum_HO1D_complex
+  END SUBROUTINE MolecCav_Action_quantum_HO1D_R1_complex
 
   
   SUBROUTINE MolecCav_Write_quantum_HO1D(QHO1D)
