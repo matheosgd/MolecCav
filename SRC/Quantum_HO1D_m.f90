@@ -54,12 +54,12 @@ MODULE Quantum_HO1D_m
   END TYPE
 
   TYPE                           :: Quantum_HO1D_t
-    integer                      :: Nb = 0
-    real(kind=Rkind)             :: w = ZERO
-    real(kind=Rkind)             :: m = ZERO
+    integer                      :: Nb      = 0
+    real(kind=Rkind)             :: w       = ZERO
+    real(kind=Rkind)             :: m       = ZERO
     TYPE(Elem_op_t), allocatable :: Tab_op(:)                                  ! 0 : \hat{Id} ; 1 : \hat{H} ; 2 : \hat{x} ; 3 : \hat{N} ; 4 : \hat{we will see} ; 
-    integer                      :: Nq = 0
-    real(kind=Rkind)             :: Eq_pos = -ONE
+    integer                      :: Nq      = 0
+    real(kind=Rkind)             :: Eq_pos  = -ONE
     real(kind=Rkind)             :: Scale_q = ZERO
   END TYPE
 

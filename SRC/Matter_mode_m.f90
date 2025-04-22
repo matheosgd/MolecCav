@@ -46,18 +46,15 @@ MODULE Matter_mode_m
 
 
   TYPE, EXTENDS(Quantum_HO1D_t)  :: Matter_mode_t
-    real(kind=Rkind)             :: lambda      = -ONE
-    real(kind=Rkind)             :: CoeffDipMom = ZERO
+    real(kind=Rkind)             :: lambda       = -ONE
+    real(kind=Rkind)             :: CoeffDipMomt = -ONE
   END TYPE
 
 
   PUBLIC Matter_mode_t, Initialize, Action, Write, Dealloc
 
   INTERFACE Initialize
-    MODULE PROCEDURE MolecCav_Initialize_matter_mode
-  END INTERFACE
-  INTERFACE Read_mode
-    MODULE PROCEDURE MolecCav_Read_matter_mode
+    MODULE PROCEDURE MolecCav_Initialize_matter_mode, MolecCav_Initialize_matter_mode_QHO1D
   END INTERFACE
   INTERFACE Action
     MODULE PROCEDURE MolecCav_Action_matter_mode_R1_real, MolecCav_Action_matter_R1_complex
@@ -73,24 +70,24 @@ MODULE Matter_mode_m
   CONTAINS
 
 
-  SUBROUTINE MolecCav_Initialize_matter_mode(QHO1D, Nb, w, m, Dense, Verbose, Debug) ! here init on the 1D QHO basis : don't need Nq etc. will write later Init_grid or Init_other_basis, maybe called by this one, in this case, the "call" will be determined by the optional arg (Nb, Nq etc.)
+  SUBROUTINE MolecCav_Initialize_matter_mode(MatMode, nio, Dense, Verbose, Debug) ! here init on the 1D QHO basis : don't need Nq etc. will write later Init_grid or Init_other_basis, maybe called by this one, in this case, the "call" will be determined by the optional arg (Nb, Nq etc.)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m
     USE Elem_op_m
     IMPLICIT NONE
   
-    TYPE(Matter_mode_t), intent(inout) :: QHO1D
-    integer,              intent(in)    :: Nb
-    real(kind=Rkind),     intent(in)    :: w 
-    real(kind=Rkind),     intent(in)    :: m 
+    TYPE(Matter_mode_t), intent(inout)  :: MatMode
+    integer,              intent(in)    :: nio
     logical, optional,    intent(in)    :: Dense                                                                         ! cf. comments in HO1D_parameters_m
     integer, optional,    intent(in)    :: Verbose                                                                         ! cf. comments in HO1D_parameters_m
     logical, optional,    intent(in)    :: Debug                                                                           ! cf. comments in HO1D_parameters_m
 
+    real(kind=Rkind)                    :: lambda, CoeffDipMomt, w, m, Eq_pos, Scale_q
+    integer                             :: Nb, Nq
     logical                             :: Dense_local                                                              ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
     integer                             :: Verbose_local                                                              ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
     logical                             :: Debug_local
-    
+
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
     ELSE; Verbose_local = 20; END IF 
@@ -98,37 +95,24 @@ MODULE Matter_mode_m
     ELSE; Debug_local = .FALSE.; END IF
 
     IF (Verbose_local > 20) WRITE(out_unit,*) 
-    IF (Verbose_local > 20) WRITE(out_unit,*) "-------------------------------------------------INITIALIZING THE QUANTUM HO1D OBJ&
-                                              &ECT-------------------------------------------------"; FLUSH(out_unit)
+    IF (Verbose_local > 20) WRITE(out_unit,*) "-------------------------------------------------INITIALIZING THE MATTER MODE OBJE&
+                                              &CT-------------------------------------------------"; FLUSH(out_unit)
 
     IF (Debug_local) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- Arguments of MolecCav_Initialize_quantum_HO1D :"
-      WRITE(out_unit,*) "The <<QHO1D>> argument :"
-      CALL Write(QHO1D)
-      WRITE(out_unit,*) "The <<Nb>> argument :"//TO_string(Nb)
-      WRITE(out_unit,*) "The <<w>>  argument :"//TO_string(w)
-      WRITE(out_unit,*) "The <<m>>  argument :"//TO_string(m)
+      WRITE(out_unit,*) "--- Arguments of MolecCav_Initialize_matter_mode :"
+      WRITE(out_unit,*) "The <<MatMode>> argument :"
+      CALL Write(MatMode)
+      WRITE(out_unit,*) "The <<nio>> argument :"//TO_string(nio)
       IF (PRESENT(Dense)) WRITE(out_unit,*) "The <<Dense>> argument : "//TO_string(Dense)
-      WRITE(out_unit,*) "--- End arguments of MolecCav_Initialize_quantum_HO1D"
+      WRITE(out_unit,*) "--- End arguments of MolecCav_Initialize_matter_mode"
       FLUSH(out_unit)
     END IF
     
     !------------------------------------------Initializing the parameters of the 1D QHO------------------------------------------
-    QHO1D%Nb = Nb
-    QHO1D%w  = w
-    QHO1D%m  = m
-    ALLOCATE(QHO1D%Tab_op(0:3))
+    CALL MolecCav_Initialize_matter_mode_QHO1D(MatMode%Quantum_HO1D_t, lambda, CoeffDipMomt, nio, Dense_local, Verbose=Verbose_lo&
+    &cal, Debug=Debug_local)
     
-    !--------------------------------------Constructing the operators to build-------------------------------------
-    IF (PRESENT(Dense)) THEN; Dense_local = Dense
-    ELSE; Dense_local = .FALSE.; END IF
-
-    CALL Initialize(QHO1D%Tab_op(0), "Identity",    Nb=Nb,           Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local)
-    CALL Initialize(QHO1D%Tab_op(1), "Hamiltonian", Nb=Nb, w=w,      Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local)
-    CALL Initialize(QHO1D%Tab_op(2), "Position",    Nb=Nb, w=w, m=m, Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local)
-    CALL Initialize(QHO1D%Tab_op(3), "NbQuanta",    Nb=Nb,           Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local)
-
     IF (Verbose_local > 20) WRITE(out_unit,*) 
     IF (Verbose_local > 20) WRITE(out_unit,*) "--------------------------------------------------QUANTUM HO1D OBJECT INITIALIZED-&
                                               &------------------------------------------------"; FLUSH(out_unit)
@@ -136,39 +120,73 @@ MODULE Matter_mode_m
   END SUBROUTINE MolecCav_Initialize_matter_mode
 
 
-  SUBROUTINE MolecCav_Read_matter_mode(Mode, nio)                              ! nio is the label of the file from which the values have to be drawn.
+  SUBROUTINE MolecCav_Initialize_matter_mode_QHO1D(QHO1D, lambda, CoeffDipMomt, nio, Dense, Verbose, Debug)                              ! nio is the label of the file from which the values have to be drawn.
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
+    USE Quantum_HO1D_m
     IMPLICIT NONE
     
-    TYPE(Cavity_mode_t),    intent(inout) :: Mode   
-    integer,                intent(in)    :: nio
+    TYPE(Quantum_HO1D_t), intent(inout) :: QHO1D   
+    real(kind=Rkind),     intent(inout) :: lambda   
+    real(kind=Rkind),     intent(inout) :: CoeffDipMomt   
+    integer,              intent(in)    :: nio
+    logical, optional,    intent(in)    :: Dense                                                                         ! cf. comments in HO1D_parameters_m
+    integer, optional,    intent(in)    :: Verbose                                                                         ! cf. comments in HO1D_parameters_m
+    logical, optional,    intent(in)    :: Debug                                                                           ! cf. comments in HO1D_parameters_m
 
-    integer                               :: D, Nb, err_io                     ! label of the basis/HO/mode/dimension, its number of basis vectors, and an error control variable
-    real(kind=Rkind)                      :: w, m, lambda, eq_pos              ! eigenpulsation, mass, molecule-coupling strength, and equilibrium position associated with this HO
-    logical, parameter                    :: Debug = .FALSE.
+    real(kind=Rkind)                    :: w, m, Eq_pos, Scale_q
+    integer                             :: Nb, Nq
+    integer                             :: err_io
+    logical                             :: Dense_local                                                              ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
+    integer                             :: Verbose_local                                                              ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
+    logical                             :: Debug_local
 
-    NAMELIST /HO_1/ D, Nb, w, m, lambda, eq_pos                                ! declare the nml HO_1 and specify the parameter's list to be found within
+    NAMELIST /Matter_mode/ lambda, CoeffDipMomt, Nb, w, m, Nq, Eq_pos, Scale_q
 
+    !------------------------------------------------------Debugging options-----------------------------------------------------
+    IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
+    ELSE; Verbose_local = 20; END IF 
+    IF (PRESENT(Debug))   THEN; Debug_local   = Debug
+    ELSE; Debug_local = .FALSE.; END IF
+
+    IF (Verbose_local > 20) WRITE(out_unit,*) 
+    IF (Verbose_local > 20) WRITE(out_unit,*) "-------------------------------------------------INITIALIZING THE HO1D OF THE MATT&
+                                              &ER MODE OBJECT-------------------------------------------------"; FLUSH(out_unit)
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "--- Arguments of MolecCav_Initialize_matter_mode_QHO1D :"
+      WRITE(out_unit,*) "The <<QHO1D>> argument :"
+      CALL Write(QHO1D)
+      WRITE(out_unit,*) "The <<nio>> argument :"//TO_string(nio)
+      IF (PRESENT(Dense))   WRITE(out_unit,*) "The <<Dense>> argument : "//TO_string(Dense)
+      IF (PRESENT(Verbose)) WRITE(out_unit,*) "The <<Verbose>> argument : "//TO_string(Verbose)
+      IF (PRESENT(Debug))   WRITE(out_unit,*) "The <<Debug>> argument : "//TO_string(Debug)
+      WRITE(out_unit,*) "--- End arguments of MolecCav_Initialize_matter_mode_QHO1D"
+      FLUSH(out_unit)
+    END IF
+    
     !----------------------Initialization to default values--------------------
-    D      = 0
-    Nb     = 1
-    w      = ZERO
-    m      = ZERO
-    lambda = -ONE
-    eq_pos = -ONE
- 
+    lambda       = -ONE
+    CoeffDipMomt = -ONE
+    Nb           = 0
+    w            = ZERO
+    m            = ZERO
+    Nq           = 0
+    Eq_pos       = -ONE
+    Scale_q      = ZERO
+
     !------------------------------Reading of the nml--------------------------
     WRITE(out_unit,*) 
     WRITE(out_unit,*) '********************************************************************************'
-    WRITE(out_unit,*) '**************************** READING BASIS OF THE HO ***************************'
+    WRITE(out_unit,*) '**************************** READING THE QHO1D PARAMETERS ***************************'
     WRITE(out_unit,*) '********************************************************************************'
     
-    READ(nio, nml = HO_1, iostat = err_io)                                     ! assign the values read in the nml to the declared list of parameters
+    READ(nio, nml = Matter_mode, iostat = err_io)                                     ! assign the values read in the nml to the declared list of parameters
 
     IF (Debug) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "-----------------------The namelist parameters are read as----------------------"
-      WRITE(out_unit, nml = HO_1)
+      WRITE(out_unit, nml = Matter_mode)
       WRITE(out_unit,*) "-------------------------End of the namelist parameters-------------------------"
     END IF
     
@@ -198,27 +216,27 @@ MODULE Matter_mode_m
                        & no system ???). Please check the data file '.nml'"
     END IF
     
-    !---------------Construction of the Cavity_mode_t type object-----------
-    Mode%D      = D
-    Mode%Nb     = Nb
-    Mode%w      = w
-    Mode%m      = m
-    Mode%lambda = lambda
-    Mode%eq_pos = eq_pos
+    !---------------Construction of the Quantum_HO1D_t type object-----------
+    QHO1D%Nb      = Nb
+    QHO1D%w       = w
+    QHO1D%m       = m
+    QHO1D%Nq      = Nq
+    QHO1D%Eq_pos  = Eq_pos
+    QHO1D%Scale_q = Scale_q
 
     WRITE(out_unit,*) 
     WRITE(out_unit,*) '********************************************************************************'
-    WRITE(out_unit,*) '************************** BASIS OF THE HO CONSTRUCTED *************************'
+    WRITE(out_unit,*) '************************** QHO1D CONSTRUCTED *************************'
     WRITE(out_unit,*) '********************************************************************************'
 
     IF (Debug) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "--------------Cavity mode constructed by MolecCav_Read_cavity_mode--------------"
-      CALL Write_cavity_mode(Mode)
+      CALL Write(QHO1D)
       WRITE(out_unit,*) "------------End Cavity mode constructed by MolecCav_Read_cavity_mode------------"
     END IF
 
-  END SUBROUTINE MolecCav_Read_matter_mode
+  END SUBROUTINE MolecCav_Initialize_matter_mode_QHO1D
 
 
   SUBROUTINE MolecCav_Action_matter_mode_R1_real(Op_psi, QHO1D, i_op, Psi, Verbose, Debug)
