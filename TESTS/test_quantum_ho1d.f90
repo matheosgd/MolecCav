@@ -30,6 +30,7 @@ PROGRAM test_quantum_ho1d
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
   USE QDUtil_m
   USE Tests_m
+  USE Algebra_m
   USE Cavity_mode_old_m
   USE Elem_op_m
   USE Quantum_HO1D_m
@@ -60,14 +61,16 @@ PROGRAM test_quantum_ho1d
   real(kind=Rkind), allocatable :: N_HO1D_dense_ana_17(:,:)
 
   real(kind=Rkind)              :: Psi_real(6)
+  real(kind=Rkind)              :: Op_psi_real_qho1d(6)
+  real(kind=Rkind)              :: Op_psi_real_elem_op(6)
   complex(kind=Rkind)           :: Psi_complex(6)
-  real(kind=Rkind)              :: Op_psi_real(6)
-  complex(kind=Rkind)           :: Op_psi_complex(6)
+  complex(kind=Rkind)           :: Op_psi_complex_qho1d(6)
+  complex(kind=Rkind)           :: Op_psi_complex_elem_op(6)
   
   TYPE(test_t)                  :: test_construct
   logical                       :: error_construct = .FALSE.
 
-  integer                       :: i
+  integer                       :: i, i_op
 
 
   !-----------------------------Test initialization----------------------------
@@ -84,6 +87,11 @@ PROGRAM test_quantum_ho1d
   CALL Initialize(QHO1D_dense_1_17_1, 17, ONE,    ONE,   Dense=.TRUE., Verbose=Verbose, Debug=Debug)
   CALL Initialize(QHO1D_dense_1_6_7,  6,  ONE,  SEVEN,   Dense=.TRUE., Verbose=Verbose, Debug=Debug)
 
+    !-----------------------Construct Wavepackets to take action on----------------------
+  Psi_real    = [ONE, SQRT(TWO), PI, SQRT(TWO), ONE, HALF]
+  CALL Normalize(Psi_real)
+  Psi_complex = [ONE, SQRT(TWO), PI, SQRT(TWO), ONE, HALF]
+  CALL Normalize(Psi_complex)
 
   !-------------------------Construct reference matricies-----------------------
     !-------------------------I matricies-----------------------
@@ -500,6 +508,30 @@ PROGRAM test_quantum_ho1d
 
 
   !-------------------------Action of a Quantum_HO1D object-----------------------
+  CALL Action(Op_psi_real_qho1d,     QHO1D_opt_14_6_1, 0,           Psi_real, Verbose=Verbose, Debug=Debug)
+  CALL Equal_tensor(error_construct, Op_psi_real_qho1d, Psi_real)
+  CALL Logical_Test(test_construct,   test1=error_construct, test2=.FALSE., info="QHO1D"//TO_string(0)//"^{th} operator action on&
+    & a real rank-one tensor")
+  DO i_op = 1, SIZE(QHO1D_dense_14_6_1%Tab_op)-1
+    CALL Action(Op_psi_real_qho1d,   QHO1D_opt_14_6_1, i_op,        Psi_real, Verbose=Verbose, Debug=Debug)
+    CALL Action(Op_psi_real_elem_op, QHO1D_opt_14_6_1%Tab_op(i_op), Psi_real, Verbose=Verbose, Debug=Debug)
+    CALL Equal_tensor(error_construct, Op_psi_real_qho1d, Op_psi_real_elem_op)
+    CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="QHO1D"//TO_string(i_op)//"^{th} operator action&
+    & on a real rank-one tensor")
+  END DO
+
+  CALL Action(Op_psi_complex_qho1d,     QHO1D_opt_14_6_1, 0,           Psi_complex, Verbose=Verbose, Debug=Debug)
+  CALL Equal_tensor(error_construct, Op_psi_complex_qho1d, Psi_complex)
+  CALL Logical_Test(test_construct,   test1=error_construct, test2=.FALSE., info="QHO1D"//TO_string(0)//"^{th} operator action on&
+    & a complex rank-one tensor")
+  DO i_op = 1, SIZE(QHO1D_dense_14_6_1%Tab_op)-1
+    CALL Action(Op_psi_complex_qho1d,   QHO1D_opt_14_6_1, i_op,        Psi_complex, Verbose=Verbose, Debug=Debug)
+    CALL Action(Op_psi_complex_elem_op, QHO1D_opt_14_6_1%Tab_op(i_op), Psi_complex, Verbose=Verbose, Debug=Debug)
+    CALL Equal_tensor(error_construct, Op_psi_complex_qho1d, Op_psi_complex_elem_op)
+    CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="QHO1D"//TO_string(i_op)//"^{th} operator action&
+    & on a complex rank-one tensor")
+  END DO
+
 
   !-------------------------Deallocate Quantum_HO1D object-----------------------
   CALL Dealloc(QHO1D_opt_14_6_1, Verbose=Verbose, Debug=Debug)

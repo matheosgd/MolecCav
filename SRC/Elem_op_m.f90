@@ -288,12 +288,14 @@ MODULE Elem_op_m
     logical, optional,     intent(in)    :: Debug                                                                                ! cf. comments in HO1D_parameters_m
 
     integer                              :: i, Nb
-    integer                              :: Verbose_local = 25                                                                   ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
-    logical                              :: Debug_local   = .FALSE.
+    integer                              :: Verbose_local                                                                   ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
+    logical                              :: Debug_local
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
-    IF (PRESENT(Verbose)) Verbose_local = Verbose
-    IF (PRESENT(Debug))   Debug_local   = Debug
+    IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
+    ELSE; Verbose_local = 20; END IF 
+    IF (PRESENT(Debug))   THEN; Debug_local   = Debug
+    ELSE; Debug_local = .FALSE.; END IF
 
     IF (Verbose_local > 27) WRITE(out_unit,*) 
     IF (Verbose_local > 27) WRITE(out_unit,*) "---------------------------------------Computing the HO1D operator using the band &
