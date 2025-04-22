@@ -1,6 +1,11 @@
 #! /bin/bash
 
-rm -f "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
+if [ ! -d "/home/segaud/MolecCav/RESULTS/int_strength/" ]                                                             # d teste l'existence du directory "<...>"
+then
+  mkdir "/home/segaud/MolecCav/RESULTS/int_strength/"
+else
+  rm -f "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
+fi
 
 cd ~/MolecCav
 make all MAIN=App_trnstn_int

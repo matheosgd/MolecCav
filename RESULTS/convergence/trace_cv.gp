@@ -135,7 +135,7 @@
 reset
 set term png font "Times, 15"
 set output "/home/segaud/MolecCav/RESULTS/convergence/convergence_ZPE_out.png"
-#set term qt font "Times, 15"
+set term qt font "Times, 15"
 set grid
 show grid
 

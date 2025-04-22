@@ -1,13 +1,18 @@
 #! /bin/bash
 
-rm -f "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
+if [ ! -d "/home/segaud/MolecCav/RESULTS/int_detu/" ]                                                             # d teste l'existence du directory "<...>"
+then
+  mkdir "/home/segaud/MolecCav/RESULTS/int_detu/"
+else
+  rm -f "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
+fi
 
 cd ~/MolecCav
 make all MAIN=App_trnstn_int
 echo -e "reset"                                                                                                 >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
 echo -e "set term qt font \"Times, 12\""                                                                        >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
 echo -e "set grid\nshow grid"                                                                                   >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
-echo -e "\nset title  'Intensities = f(detuning) for small coupling (\lambda = 4e-4 a.u.; w_M = w_{HF}) [a.u.]" >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
+echo -e "\nset title  'Intensities = f(detuning) for small coupling (\lambda = 4e-3 a.u.; w_M = w_{HF}) [a.u.]" >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
 echo -e "set xlabel 'Transition energy [Ha]'"                                                                   >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
 echo -e "set ylabel 'Arbitrary units [a.u.]'"                                                                   >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
 echo -e "\nunset xrange\nunset yrange"                                                                          >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
