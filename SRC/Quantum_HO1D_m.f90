@@ -38,7 +38,7 @@
 !==================================================================================================
 !==================================================================================================
 MODULE Quantum_HO1D_m
-  !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
+  !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT, real64
   USE QDUtil_m                                                                 ! gives Rkind=real64; out_unit=OUTPUT_UNIT; INPUT_UNIT=in_unit; EYE=i and other numbers; TO_LOWERCASE; TO_UPPERCASE;... We thereby use ZERO instead of 0.0_real64
   USE Elem_op_m
   IMPLICIT NONE
@@ -65,7 +65,7 @@ MODULE Quantum_HO1D_m
 
 
   PUBLIC Cavity_mode_t, Read_cavity_mode, Write_cavity_mode,& ! OLD 
-       & Quantum_HO1D_t, Initialize, Action, Write, Deallocate
+       & Quantum_HO1D_t, Initialize, Action, Write, Dealloc
 
   INTERFACE Initialize
     MODULE PROCEDURE MolecCav_Initialize_quantum_HO1D, MolecCav_Initialize_QHO1D_Elem_op
@@ -88,7 +88,7 @@ MODULE Quantum_HO1D_m
   INTERFACE Write
     MODULE PROCEDURE MolecCav_Write_quantum_HO1D
   END INTERFACE
-  INTERFACE Deallocate
+  INTERFACE Dealloc
     MODULE PROCEDURE MolecCav_Deallocate_quantum_HO1D
   END INTERFACE
     
@@ -138,6 +138,9 @@ MODULE Quantum_HO1D_m
       WRITE(out_unit,*) "The <<QHO1D>> argument :"
       CALL Write(QHO1D)
       WRITE(out_unit,*) "The <<Nb>> argument :"//TO_string(Nb)
+      WRITE(out_unit,*) "The <<w>>  argument :"//TO_string(w)
+      WRITE(out_unit,*) "The <<m>>  argument :"//TO_string(m)
+      IF (PRESENT(Dense)) WRITE(out_unit,*) "The <<Dense>> argument : "//TO_string(Dense)
       WRITE(out_unit,*) "--- End arguments of MolecCav_Initialize_quantum_HO1D"
       FLUSH(out_unit)
     END IF
@@ -207,12 +210,12 @@ MODULE Quantum_HO1D_m
     END IF
 
     IF (.NOT. PRESENT(w) .AND. TRIM(TO_lowercase(Operator_type)) == "hamiltonian") THEN
-      WRITE(out_unit,*) "### nan ham"
-      STOP "### nan ham"
+      WRITE(out_unit,*) "### missing w for the H"
+      STOP "### missing w for the H"
     END IF 
     IF ((.NOT. PRESENT(w) .OR. .NOT. PRESENT(m)) .AND. TRIM(TO_lowercase(Operator_type)) == "position") THEN
-      WRITE(out_unit,*) "### nan x"
-      STOP "### nan x"
+      WRITE(out_unit,*) "### missing w or m for the x"
+      STOP "### missing w or m for the x"
     END IF 
     
     !---------------------------------------First steps of the construction of the Operator--------------------------------------
@@ -331,12 +334,14 @@ MODULE Quantum_HO1D_m
     logical, optional, intent(in)    :: Debug                                                                              ! cf. comments in HO1D_parameters_m
 
     integer                          :: i                                                                                  ! loop increments /!\ Fortran counts from 1 to Nb !!! /!\
-    integer                          :: Verbose_local = 25                                                                 ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
-    logical                          :: Debug_local   = .FALSE.
+    integer                          :: Verbose_local                                                                 ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
+    logical                          :: Debug_local
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
-    IF (PRESENT(Verbose)) Verbose_local = Verbose
-    IF (PRESENT(Debug))   Debug_local   = Debug
+    IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
+    ELSE; Verbose_local = 20; END IF 
+    IF (PRESENT(Debug))   THEN; Debug_local   = Debug
+    ELSE; Debug_local = .FALSE.; END IF
 
     IF (Verbose_local > 27) WRITE(out_unit,*) 
     IF (Verbose_local > 27) WRITE(out_unit,*) "----------------------------------Constructing the matrix representation of the 1D&
@@ -392,12 +397,14 @@ MODULE Quantum_HO1D_m
     logical, optional, intent(in)    :: Debug                                                                              ! cf. comments in HO1D_parameters_m
 
     integer                          :: i                                                                                  ! loop increments /!\ Fortran counts from 1 to Nb !!! /!\
-    integer                          :: Verbose_local = 25                                                                 ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
-    logical                          :: Debug_local   = .FALSE.
+    integer                          :: Verbose_local                                                                 ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
+    logical                          :: Debug_local
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
-    IF (PRESENT(Verbose)) Verbose_local = Verbose
-    IF (PRESENT(Debug))   Debug_local   = Debug
+    IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
+    ELSE; Verbose_local = 20; END IF 
+    IF (PRESENT(Debug))   THEN; Debug_local   = Debug
+    ELSE; Debug_local = .FALSE.; END IF
 
     IF (Verbose_local > 27) WRITE(out_unit,*) 
     IF (Verbose_local > 27) WRITE(out_unit,*) "-------------------------------Constructing the matrix representation of the 1D HO&
@@ -476,12 +483,14 @@ MODULE Quantum_HO1D_m
     logical, optional, intent(in)    :: Debug                                                                              ! cf. comments in HO1D_parameters_m
 
     integer                          :: i                                                                                  ! loop increments /!\ Fortran counts from 1 to Nb !!! /!\
-    integer                          :: Verbose_local = 25                                                                 ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
-    logical                          :: Debug_local   = .FALSE.
+    integer                          :: Verbose_local                                                                 ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
+    logical                          :: Debug_local
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
-    IF (PRESENT(Verbose)) Verbose_local = Verbose
-    IF (PRESENT(Debug))   Debug_local   = Debug
+    IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
+    ELSE; Verbose_local = 20; END IF 
+    IF (PRESENT(Debug))   THEN; Debug_local   = Debug
+    ELSE; Debug_local = .FALSE.; END IF
 
     IF (Verbose_local > 27) WRITE(out_unit,*) 
     IF (Verbose_local > 27) WRITE(out_unit,*) "---------------------Constructing the matrix representation of the 1D HO Number of&
@@ -537,12 +546,14 @@ MODULE Quantum_HO1D_m
     logical, optional,    intent(in)    :: Debug                                                                                ! cf. comments in HO1D_parameters_m
 
     integer                             :: Nb
-    integer                             :: Verbose_local = 25                                                                   ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
-    logical                             :: Debug_local   = .FALSE.
+    integer                             :: Verbose_local                                                                   ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
+    logical                             :: Debug_local
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
-    IF (PRESENT(Verbose)) Verbose_local = Verbose
-    IF (PRESENT(Debug))   Debug_local   = Debug
+    IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
+    ELSE; Verbose_local = 20; END IF 
+    IF (PRESENT(Debug))   THEN; Debug_local   = Debug
+    ELSE; Debug_local = .FALSE.; END IF
 
     IF (Verbose_local > 25) WRITE(out_unit,*) 
     IF (Verbose_local > 25) WRITE(out_unit,*) "---------------------------------------COMPUTING ACTION OF THE HO1D OPERATOR OVER &
@@ -562,10 +573,10 @@ MODULE Quantum_HO1D_m
     END IF
     
     !-----------------------------------------------------Checking dimensions----------------------------------------------------
-    ! ALREADY CHECKED IN THE ACTIONS CODED IN ELEM_OP_M ! (fortunately btw, otherwise the \hat{I}d case should have teste above)
+    ! ALREADY CHECKED IN THE ACTIONS CODED IN ELEM_OP_M ! (fortunately btw, otherwise the \hat{I}d case should have test above)
 
     !---------------------------------------------Selection of the calculation method--------------------------------------------
-    IF (QHO1D%Tab_op(i_op)%Operator_type == "identity") THEN 
+    IF (QHO1D%Tab_op(i_op)%Operator_type == "identity") THEN ! N.B. we should have tested i_op == 0, easier and consistent with the algorithmic choices made so far
       Op_psi = Psi
     ELSE
       CALL Action(Op_psi=Op_psi, Elem_op=QHO1D%Tab_op(i_op), Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
@@ -592,20 +603,22 @@ MODULE Quantum_HO1D_m
     USE Elem_op_m
     IMPLICIT NONE
 
-    complex(kind=Rkind),     intent(inout) :: Op_psi(:)
+    complex(kind=Rkind),  intent(inout) :: Op_psi(:)
     TYPE(Quantum_HO1D_t), intent(in)    :: QHO1D
     integer,              intent(in)    :: i_op
-    complex(kind=Rkind),     intent(in)    :: Psi(:)
+    complex(kind=Rkind),  intent(in)    :: Psi(:)
     integer, optional,    intent(in)    :: Verbose                                                                              ! cf. comments in HO1D_parameters_m
     logical, optional,    intent(in)    :: Debug                                                                                ! cf. comments in HO1D_parameters_m
 
     integer                             :: Nb
-    integer                             :: Verbose_local = 25                                                                   ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
-    logical                             :: Debug_local   = .FALSE.
+    integer                             :: Verbose_local                                                                   ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
+    logical                             :: Debug_local
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
-    IF (PRESENT(Verbose)) Verbose_local = Verbose
-    IF (PRESENT(Debug))   Debug_local   = Debug
+    IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
+    ELSE; Verbose_local = 20; END IF 
+    IF (PRESENT(Debug))   THEN; Debug_local   = Debug
+    ELSE; Debug_local = .FALSE.; END IF
 
     IF (Verbose_local > 25) WRITE(out_unit,*) 
     IF (Verbose_local > 25) WRITE(out_unit,*) "---------------------------------------COMPUTING ACTION OF THE HO1D OPERATOR OVER &
@@ -695,12 +708,15 @@ MODULE Quantum_HO1D_m
     integer, optional,    intent(in)    :: Verbose                                                                                 ! cf. comments in HO1D_parameters_m
     logical, optional,    intent(in)    :: Debug                                                                                   ! cf. comments in HO1D_parameters_m
 
-    integer                             :: Verbose_local = 25                                                                      ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
-    logical                             :: Debug_local   = .FALSE.
+    integer                             :: i_op
+    integer                             :: Verbose_local                                                                      ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
+    logical                             :: Debug_local
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
-    IF (PRESENT(Verbose)) Verbose_local = Verbose
-    IF (PRESENT(Debug))   Debug_local   = Debug
+    IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
+    ELSE; Verbose_local = 20; END IF 
+    IF (PRESENT(Debug))   THEN; Debug_local   = Debug
+    ELSE; Debug_local = .FALSE.; END IF
 
     IF (Debug_local) THEN
       WRITE(out_unit,*) "--- The QHO1D to be deallocated :"
@@ -714,11 +730,16 @@ MODULE Quantum_HO1D_m
                                               &ct----------------------------------------------"
   
     QHO1D%Nb = 0
-    QHO1D%w = ZERO
-    QHO1D%m = ZERO
+    QHO1D%w  = ZERO
+    QHO1D%m  = ZERO
+    DO i_op = 0, SIZE(QHO1D%Tab_op)-1
+      IF (QHO1D%Tab_op(i_op)%Dense         .AND. ALLOCATED(QHO1D%Tab_op(i_op)%Dense_val)) DEALLOCATE(QHO1D%Tab_op(i_op)%Dense_val)
+      IF ((.NOT. QHO1D%Tab_op(i_op)%Dense) .AND. ALLOCATED(QHO1D%Tab_op(i_op)%Diag_val))  DEALLOCATE(QHO1D%Tab_op(i_op)%Diag_val)
+      IF ((.NOT. QHO1D%Tab_op(i_op)%Dense) .AND. ALLOCATED(QHO1D%Tab_op(i_op)%Band_val))  DEALLOCATE(QHO1D%Tab_op(i_op)%Band_val)
+    END DO
     IF (ALLOCATED(QHO1D%Tab_op)) DEALLOCATE(QHO1D%Tab_op)
-    QHO1D%Nq = 0
-    QHO1D%Eq_pos = -ONE
+    QHO1D%Nq      = 0
+    QHO1D%Eq_pos  = -ONE
     QHO1D%Scale_q = ZERO
 
     IF (Debug_local) THEN

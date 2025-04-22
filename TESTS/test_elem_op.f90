@@ -626,7 +626,7 @@ PROGRAM test_elem_op
     CALL Write_Vec(Op_psi_complex_ana, out_unit, Size(Op_psi_complex_ana), info="\hat{O}_{dense, \pi}|\Psi_{complex}>(Analitical)")
   END IF
 
-  !----------------------------Testing the Deallocation---------------------------
+  !----------------------------Testing the Deallocation--------------------------- ! maybe should use a non initialized Elem_op so as not to have to change the test if the elem_op type is modified
       !----------------------------Diagonal guy---------------------------
   CALL Dealloc(EO1_diag_1, Verbose=Verbose, Debug=Debug)
   CALL Logical_Test(test_action, EO1_diag_1%Dense, test2=.FALSE., info="Dense")

@@ -39,6 +39,8 @@ PROGRAM test_quantum_ho1d
   integer                       :: Verbose = 0
   logical                       :: Debug   = .TRUE.
 
+  TYPE(Quantum_HO1D_t)          :: QHO1D_non_alloc
+
   TYPE(Quantum_HO1D_t)          :: QHO1D_opt_1_6_1
   TYPE(Quantum_HO1D_t)          :: QHO1D_opt_14_6_1
   TYPE(Quantum_HO1D_t)          :: QHO1D_opt_1_17_1
@@ -57,6 +59,11 @@ PROGRAM test_quantum_ho1d
   real(kind=Rkind), allocatable :: N_HO1D_diag_ana_17(:)
   real(kind=Rkind), allocatable :: N_HO1D_dense_ana_17(:,:)
 
+  real(kind=Rkind)              :: Psi_real(6)
+  complex(kind=Rkind)           :: Psi_complex(6)
+  real(kind=Rkind)              :: Op_psi_real(6)
+  complex(kind=Rkind)           :: Op_psi_complex(6)
+  
   TYPE(test_t)                  :: test_construct
   logical                       :: error_construct = .FALSE.
 
@@ -490,6 +497,36 @@ PROGRAM test_quantum_ho1d
     CALL Write_Mat(QHO1D_dense_1_6_1%Tab_op(3)%Dense_val, out_unit, Size(QHO1D_dense_1_6_1%Tab_op(3)%Dense_val, dim=2),&
                  & info="QHO1D_dense_1_6_1%Tab_op(3)%Dense_val")
   END IF
+
+
+  !-------------------------Action of a Quantum_HO1D object-----------------------
+
+  !-------------------------Deallocate Quantum_HO1D object-----------------------
+  CALL Dealloc(QHO1D_opt_14_6_1, Verbose=Verbose, Debug=Debug)
+  CALL Logical_Test(test_construct, (QHO1D_opt_14_6_1%Nb/=QHO1D_non_alloc%Nb),test2=.FALSE.,info="QHO1D%Nq well deallocated ?")
+  CALL Equal_tensor(error_construct, QHO1D_opt_14_6_1%w, QHO1D_non_alloc%w)
+  CALL Logical_Test(test_construct, test1=error_construct,                    test2=.FALSE.,info="QHO1D%w well deallocated ?")
+  CALL Equal_tensor(error_construct, QHO1D_opt_14_6_1%m, QHO1D_non_alloc%m)
+  CALL Logical_Test(test_construct, test1=error_construct,                    test2=.FALSE.,info="QHO1D%m well deallocated ?")
+  CALL Logical_Test(test_construct, test1=ALLOCATED(QHO1D_opt_14_6_1%Tab_op), test2=.FALSE.,info="Tab_op well deallocated ?")
+  CALL Logical_Test(test_construct, (QHO1D_opt_14_6_1%Nq/=QHO1D_non_alloc%Nq),test2=.FALSE.,info="QHO1D%Nq well deallocated ?")
+  CALL Equal_tensor(error_construct, QHO1D_opt_14_6_1%Eq_pos, QHO1D_non_alloc%Eq_pos)
+  CALL Logical_Test(test_construct, test1=error_construct,                    test2=.FALSE.,info="QHO1D%Eq_pos well deallocated ?")
+  CALL Equal_tensor(error_construct, QHO1D_opt_14_6_1%Scale_q, QHO1D_non_alloc%Scale_q)
+  CALL Logical_Test(test_construct, test1=error_construct,                    test2=.FALSE.,info="QHO1D%Scale_q well deallocated ?")
+
+  CALL Dealloc(QHO1D_dense_1_17_1, Verbose=Verbose, Debug=Debug)
+  CALL Logical_Test(test_construct, (QHO1D_dense_1_17_1%Nb/=QHO1D_non_alloc%Nb),test2=.FALSE.,info="QHO1D%Nq well deallocated ?")
+  CALL Equal_tensor(error_construct, QHO1D_dense_1_17_1%w, QHO1D_non_alloc%w)
+  CALL Logical_Test(test_construct, test1=error_construct,                      test2=.FALSE.,info="QHO1D%w well deallocated ?")
+  CALL Equal_tensor(error_construct, QHO1D_dense_1_17_1%m, QHO1D_non_alloc%m)
+  CALL Logical_Test(test_construct, test1=error_construct,                      test2=.FALSE.,info="QHO1D%m well deallocated ?")
+  CALL Logical_Test(test_construct, test1=ALLOCATED(QHO1D_dense_1_17_1%Tab_op), test2=.FALSE.,info="Tab_op well deallocated ?")
+  CALL Logical_Test(test_construct, (QHO1D_dense_1_17_1%Nq/=QHO1D_non_alloc%Nq),test2=.FALSE.,info="QHO1D%Nq well deallocated ?")
+  CALL Equal_tensor(error_construct, QHO1D_dense_1_17_1%Eq_pos, QHO1D_non_alloc%Eq_pos)
+  CALL Logical_Test(test_construct, test1=error_construct,                      test2=.FALSE.,info="QHO1D%Eq_pos  deallocated ?")
+  CALL Equal_tensor(error_construct, QHO1D_dense_1_17_1%Scale_q, QHO1D_non_alloc%Scale_q)
+  CALL Logical_Test(test_construct, test1=error_construct,                      test2=.FALSE.,info="QHO1D%Scale_q deallocated ?")
 
 
   !-----------------------------------sum up-----------------------------------
