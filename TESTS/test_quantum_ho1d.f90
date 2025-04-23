@@ -67,14 +67,14 @@ PROGRAM test_quantum_ho1d
   complex(kind=Rkind)           :: Op_psi_complex_qho1d(6)
   complex(kind=Rkind)           :: Op_psi_complex_elem_op(6)
   
-  TYPE(test_t)                  :: test_construct
-  logical                       :: error_construct = .FALSE.
+  TYPE(test_t)                  :: test_qho1d
+  logical                       :: error_qho1d = .FALSE.
 
   integer                       :: i, i_op
 
 
   !-----------------------------Test initialization----------------------------
-  CALL Initialize_Test(test_construct, test_name="OUT/test_file_qntm_ho1d")
+  CALL Initialize_Test(test_qho1d, test_name="OUT/test_file_qntm_ho1d")
 
 
   !---------------------------Construct Quantum HO1D to test---------------------------
@@ -190,9 +190,9 @@ PROGRAM test_quantum_ho1d
   !-------------------------------Comparisons I-------------------------------
   !N_HO1D_dense_17%Dense_val(1,1) = 5
 
-  CALL Equal_tensor(error_construct, I_HO1D_diag_ana_17, QHO1D_opt_1_17_1%Tab_op(0)%Diag_val)
-  CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="QHO1D_opt_1_17_1%Tab_op(0)%Diag_val ?")
-  IF (error_construct .AND. Debug) THEN
+  CALL Equal_tensor(error_qho1d, I_HO1D_diag_ana_17, QHO1D_opt_1_17_1%Tab_op(0)%Diag_val)
+  CALL Logical_Test(test_qho1d, test1=error_qho1d, test2=.FALSE., info="QHO1D_opt_1_17_1%Tab_op(0)%Diag_val ?")
+  IF (error_qho1d .AND. Debug) THEN
     CALL Write_Vec(N_HO1D_diag_ana_17, out_unit, Size(N_HO1D_diag_ana_17, dim=1), info="I_HO1D_diag_ana_17")
     CALL Write_Vec(QHO1D_opt_1_17_1%Tab_op(3)%Diag_val, out_unit, Size(QHO1D_opt_1_17_1%Tab_op(3)%Diag_val, dim=&
                   &1), info="QHO1D_opt_1_17_1%Tab_op(3)%Diag_val")
@@ -200,10 +200,10 @@ PROGRAM test_quantum_ho1d
 
   !N_HO1D_dense_17%Dense_val(1,1) = 5
 
-  CALL Equal_tensor(error_construct, I_HO1D_dense_ana_17, QHO1D_dense_1_17_1%Tab_op(0)%Dense_val)
-  CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="I_HO1D_dense_17%De&
+  CALL Equal_tensor(error_qho1d, I_HO1D_dense_ana_17, QHO1D_dense_1_17_1%Tab_op(0)%Dense_val)
+  CALL Logical_Test(test_qho1d, test1=error_qho1d, test2=.FALSE., info="I_HO1D_dense_17%De&
                    &nse_val well initialized ?")
-  IF (error_construct .AND. Debug) THEN
+  IF (error_qho1d .AND. Debug) THEN
     CALL Write_Vec(N_HO1D_diag_ana_17, out_unit, Size(N_HO1D_diag_ana_17, dim=1), info="I_HO1D_diag_ana_17")
     CALL Write_Vec(QHO1D_opt_1_6_1%Tab_op(3)%Diag_val, out_unit, Size(QHO1D_opt_1_6_1%Tab_op(3)%Diag_val, dim=&
                   &1), info="QHO1D_opt_1_17_1%Tab_op(1)%Diag_val")
@@ -213,9 +213,9 @@ PROGRAM test_quantum_ho1d
   !N_HO1D_dense_6%Dense_val(1,1) = 5
   !N_HO1D_diag_6%Diag_val(1) = 5
   
-  CALL Equal_tensor(error_construct, I_HO1D_dense_ana_17(1:6,1:6), QHO1D_dense_1_6_1%Tab_op(0)%Dense_val)
-  CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="QHO1D_opt_1_17_1%I%Diag_val well initialized ?")
-  IF (error_construct .AND. Debug) THEN
+  CALL Equal_tensor(error_qho1d, I_HO1D_dense_ana_17(1:6,1:6), QHO1D_dense_1_6_1%Tab_op(0)%Dense_val)
+  CALL Logical_Test(test_qho1d, test1=error_qho1d, test2=.FALSE., info="QHO1D_opt_1_17_1%I%Diag_val well initialized ?")
+  IF (error_qho1d .AND. Debug) THEN
     CALL Write_Mat(N_HO1D_dense_ana_17(1:6,1:6), out_unit, Size(N_HO1D_dense_ana_17(1:6,1:6), d&
                   &im=2), info="I_HO1D_dense_ana_17(1:6,1:6)")
     CALL Write_Mat(QHO1D_dense_1_17_1%Tab_op(3)%Dense_val, out_unit, Size(QHO1D_dense_1_17_1%Tab_op(3)%Dense_val, dim=2),&
@@ -226,9 +226,9 @@ PROGRAM test_quantum_ho1d
   !N_HO1D_dense_6%Dense_val(1,1) = 5
   !N_HO1D_diag_6%Diag_val(1) = 5
   
-  CALL Equal_tensor(error_construct, N_HO1D_dense_ana_17(1:6,1:6), QHO1D_dense_1_6_1%Tab_op(3)%Dense_val)
-  CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="N_HO1D_dense_6%Dense_val well initialized ?")
-  IF (error_construct .AND. Debug) THEN
+  CALL Equal_tensor(error_qho1d, N_HO1D_dense_ana_17(1:6,1:6), QHO1D_dense_1_6_1%Tab_op(3)%Dense_val)
+  CALL Logical_Test(test_qho1d, test1=error_qho1d, test2=.FALSE., info="N_HO1D_dense_6%Dense_val well initialized ?")
+  IF (error_qho1d .AND. Debug) THEN
     CALL Write_Mat(N_HO1D_dense_ana_17(1:6,1:6), out_unit, Size(N_HO1D_dense_ana_17(1:6,1:6), d&
                   &im=2), info="N_HO1D_dense_ana_17(1:6,1:6)")
     CALL Write_Mat(QHO1D_dense_1_6_1%Tab_op(3)%Dense_val, out_unit, Size(QHO1D_dense_1_6_1%Tab_op(3)%Dense_val, dim=2),&
@@ -244,9 +244,9 @@ PROGRAM test_quantum_ho1d
   !  WRITE(out_unit,*) H_HO1D_diag_ana_14_17(i)
   !END DO
 
-  CALL Equal_tensor(error_construct, H_HO1D_diag_ana_14_17, 14*QHO1D_opt_1_17_1%Tab_op(1)%Diag_val)
-  CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="QHO1D_opt_1_17_1%H%Diag_val well initialized ?")
-  IF (error_construct .AND. Debug) THEN
+  CALL Equal_tensor(error_qho1d, H_HO1D_diag_ana_14_17, 14*QHO1D_opt_1_17_1%Tab_op(1)%Diag_val)
+  CALL Logical_Test(test_qho1d, test1=error_qho1d, test2=.FALSE., info="QHO1D_opt_1_17_1%H%Diag_val well initialized ?")
+  IF (error_qho1d .AND. Debug) THEN
     CALL Write_Vec(H_HO1D_diag_ana_14_17, out_unit, Size(H_HO1D_diag_ana_14_17), info="H_HO1D_diag_ana_14_17")
     CALL Write_Vec(QHO1D_opt_1_17_1%Tab_op(1)%Diag_val, out_unit, Size(QHO1D_opt_1_17_1%Tab_op(1)%Diag_val, dim=1), in&
                   &fo="QHO1D_opt_1_17_1%Tab_op(1)%Diag_val")
@@ -259,9 +259,9 @@ PROGRAM test_quantum_ho1d
   !  WRITE(out_unit,*) QHO1D_opt_14_6_1%Tab_op(1)%Diag_val(i,:)
   !END DO
 
-  CALL Equal_tensor(error_construct, H_HO1D_diag_ana_14_17(1:6), QHO1D_opt_14_6_1%Tab_op(1)%Diag_val)
-  CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="QHO1D_opt_14_6_1%H%Diag_val well initialized ?")
-  IF (error_construct .AND. Debug) THEN
+  CALL Equal_tensor(error_qho1d, H_HO1D_diag_ana_14_17(1:6), QHO1D_opt_14_6_1%Tab_op(1)%Diag_val)
+  CALL Logical_Test(test_qho1d, test1=error_qho1d, test2=.FALSE., info="QHO1D_opt_14_6_1%H%Diag_val well initialized ?")
+  IF (error_qho1d .AND. Debug) THEN
     CALL Write_Vec(H_HO1D_diag_ana_14_17, out_unit, Size(H_HO1D_diag_ana_14_17, dim=1), info="H_HO1D_diag_ana_14_17")
     CALL Write_Vec(QHO1D_opt_14_6_1%Tab_op(1)%Diag_val, out_unit, Size(QHO1D_opt_14_6_1%Tab_op(1)%Diag_val, dim=1), in&
                   &fo="QHO1D_opt_14_6_1%Tab_op(1)%Diag_val")
@@ -274,9 +274,9 @@ PROGRAM test_quantum_ho1d
   !  WRITE(out_unit,*) QHO1D_opt_1_6_1%Tab_op(1)%Diag_val(i,:)
   !END DO
 
-  CALL Equal_tensor(error_construct, H_HO1D_diag_ana_14_17(1:6), 14*QHO1D_opt_1_6_1%Tab_op(1)%Diag_val)
-  CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="QHO1D_opt_1_6_1%H%Diag_val well initialized ?")
-  IF (error_construct .AND. Debug) THEN
+  CALL Equal_tensor(error_qho1d, H_HO1D_diag_ana_14_17(1:6), 14*QHO1D_opt_1_6_1%Tab_op(1)%Diag_val)
+  CALL Logical_Test(test_qho1d, test1=error_qho1d, test2=.FALSE., info="QHO1D_opt_1_6_1%H%Diag_val well initialized ?")
+  IF (error_qho1d .AND. Debug) THEN
     CALL Write_Vec(H_HO1D_diag_ana_14_17, out_unit, Size(H_HO1D_diag_ana_14_17, dim=1), info="H_HO1D_diag_ana_14_17")
     CALL Write_Vec(14*QHO1D_opt_1_6_1%Tab_op(1)%Diag_val, out_unit, Size(QHO1D_opt_1_6_1%Tab_op(1)%Diag_val, dim=1), in&
                   &fo="14*QHO1D_opt_1_6_1%Tab_op(1)%Diag_val")
@@ -291,9 +291,9 @@ PROGRAM test_quantum_ho1d
 
   WRITE(out_unit,*) "H_HO1D_dense_ana_14_17 : "//TO_string(SIZE(H_HO1D_dense_ana_14_17))
   WRITE(out_unit,*) "QHO1D_dense_1_17_1%Tab_op(1)%Dense_val : "//TO_string(SIZE(QHO1D_dense_1_17_1%Tab_op(1)%Dense_val))
-  CALL Equal_tensor(error_construct, H_HO1D_dense_ana_14_17, 14*QHO1D_dense_1_17_1%Tab_op(1)%Dense_val)
-  CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="QHO1D_dense_1_17_1%H%Dense_val well initialized ?")
-  IF (error_construct .AND. Debug) THEN
+  CALL Equal_tensor(error_qho1d, H_HO1D_dense_ana_14_17, 14*QHO1D_dense_1_17_1%Tab_op(1)%Dense_val)
+  CALL Logical_Test(test_qho1d, test1=error_qho1d, test2=.FALSE., info="QHO1D_dense_1_17_1%H%Dense_val well initialized ?")
+  IF (error_qho1d .AND. Debug) THEN
     CALL Write_Mat(H_HO1D_dense_ana_14_17, out_unit, Size(H_HO1D_dense_ana_14_17), info="H_HO1D_dense_ana_14_17")
     CALL Write_Mat(QHO1D_dense_1_17_1%Tab_op(1)%Dense_val, out_unit, Size(QHO1D_dense_1_17_1%Tab_op(1)%Dense_val), in&
                   &fo="QHO1D_dense_1_17_1%Tab_op(1)%Dense_val")
@@ -306,9 +306,9 @@ PROGRAM test_quantum_ho1d
   !  WRITE(out_unit,*) QHO1D_dense_14_6_1%Tab_op(1)%Dense_val(i,:)
   !END DO
 
-  CALL Equal_tensor(error_construct, H_HO1D_dense_ana_14_17(1:6,1:6), QHO1D_dense_14_6_1%Tab_op(1)%Dense_val)
-  CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="QHO1D_dense_14_6_1%H%Dense_val well initialized ?")
-  IF (error_construct .AND. Debug) THEN
+  CALL Equal_tensor(error_qho1d, H_HO1D_dense_ana_14_17(1:6,1:6), QHO1D_dense_14_6_1%Tab_op(1)%Dense_val)
+  CALL Logical_Test(test_qho1d, test1=error_qho1d, test2=.FALSE., info="QHO1D_dense_14_6_1%H%Dense_val well initialized ?")
+  IF (error_qho1d .AND. Debug) THEN
     CALL Write_Mat(H_HO1D_dense_ana_14_17, out_unit, Size(H_HO1D_dense_ana_14_17, dim=2), info="H_HO1D_dense_ana_14_17")
     CALL Write_Mat(QHO1D_dense_14_6_1%Tab_op(1)%Dense_val, out_unit, Size(QHO1D_dense_14_6_1%Tab_op(1)%Dense_val, dim=2), in&
                   &fo="QHO1D_dense_14_6_1%Tab_op(1)%Dense_val")
@@ -321,9 +321,9 @@ PROGRAM test_quantum_ho1d
   !  WRITE(out_unit,*) QHO1D_dense_1_6_1%Tab_op(1)%Dense_val(i,:)
   !END DO
 
-  CALL Equal_tensor(error_construct, H_HO1D_dense_ana_14_17(1:6,1:6), 14*QHO1D_dense_1_6_1%Tab_op(1)%Dense_val)
-  CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="QHO1D_dense_1_6_1%H%Dense_val well initialized ?")
-  IF (error_construct .AND. Debug) THEN
+  CALL Equal_tensor(error_qho1d, H_HO1D_dense_ana_14_17(1:6,1:6), 14*QHO1D_dense_1_6_1%Tab_op(1)%Dense_val)
+  CALL Logical_Test(test_qho1d, test1=error_qho1d, test2=.FALSE., info="QHO1D_dense_1_6_1%H%Dense_val well initialized ?")
+  IF (error_qho1d .AND. Debug) THEN
     CALL Write_Mat(H_HO1D_dense_ana_14_17, out_unit, Size(H_HO1D_dense_ana_14_17, dim=2), info="H_HO1D_dense_ana_14_17")
     CALL Write_Mat(14*QHO1D_dense_1_6_1%Tab_op(1)%Dense_val, out_unit, Size(QHO1D_dense_1_6_1%Tab_op(1)%Dense_val, dim=2), in&
                   &fo="14*QHO1D_dense_1_6_1%Tab_op(1)%Dense_val")
@@ -337,10 +337,10 @@ PROGRAM test_quantum_ho1d
   !  WRITE(out_unit,*) QHO1D_opt_1_17_1%Tab_op(2)%Band_val(i,:)
   !END DO
 
-  CALL Equal_tensor(error_construct, x_HO1D_band_ana_14_17_7, QHO1D_opt_1_17_1%Tab_op(2)%Band_val/SQRT(14*SEVEN))
-  CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="x_HO1D_band_1_17_1&
+  CALL Equal_tensor(error_qho1d, x_HO1D_band_ana_14_17_7, QHO1D_opt_1_17_1%Tab_op(2)%Band_val/SQRT(14*SEVEN))
+  CALL Logical_Test(test_qho1d, test1=error_qho1d, test2=.FALSE., info="x_HO1D_band_1_17_1&
                    &%Band_val well initialized ?")
-  IF (error_construct .AND. Debug) THEN
+  IF (error_qho1d .AND. Debug) THEN
     CALL Write_Mat(x_HO1D_band_ana_14_17_7, out_unit, Size(x_HO1D_band_ana_14_17_7, dim=2), info="x_HO1D_band_ana_14_17_7")
     CALL Write_Mat(QHO1D_opt_1_17_1%Tab_op(2)%Band_val/SQRT(14*SEVEN), out_unit, Size(QHO1D_opt_1_17_1%Tab_op(2)%Band_val, dim=&
                  &2), info="QHO1D_opt_1_17_1%Tab_op(2)%Band_val/SQRT(14*SEVEN)")
@@ -353,10 +353,10 @@ PROGRAM test_quantum_ho1d
   !  WRITE(out_unit,*) QHO1D_opt_1_6_1%Tab_op(2)%Band_val(i,:)
   !END DO
 
-  CALL Equal_tensor(error_construct, x_HO1D_band_ana_14_17_7(1:5,:), QHO1D_opt_1_6_1%Tab_op(2)%Band_val(1:5,:)/SQRT(14*SEVEN)) !/!\ have to truncate at 5 because on the 6-vectors basis set, the tridiagonal matrix have only 5 values on the lower/upper diagonals
-  CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="QHO1D_opt_1_17_1%Tab_op(2)%Band_val/SQRT(14*SEV&
+  CALL Equal_tensor(error_qho1d, x_HO1D_band_ana_14_17_7(1:5,:), QHO1D_opt_1_6_1%Tab_op(2)%Band_val(1:5,:)/SQRT(14*SEVEN)) !/!\ have to truncate at 5 because on the 6-vectors basis set, the tridiagonal matrix have only 5 values on the lower/upper diagonals
+  CALL Logical_Test(test_qho1d, test1=error_qho1d, test2=.FALSE., info="QHO1D_opt_1_17_1%Tab_op(2)%Band_val/SQRT(14*SEV&
                    &EN) well initialized ?")
-  IF (error_construct .AND. Debug) THEN
+  IF (error_qho1d .AND. Debug) THEN
     CALL Write_Mat(x_HO1D_band_ana_14_17_7, out_unit, Size(x_HO1D_band_ana_14_17_7, dim=2), info="x_HO1D_band_ana_14_17_7")
     CALL Write_Mat(QHO1D_opt_1_6_1%Tab_op(2)%Band_val/SQRT(14*SEVEN), out_unit, Size(QHO1D_opt_1_6_1%Tab_op(2)%Band_val/SQRT(&
                   &14*SEVEN), dim=2), info="QHO1D_opt_1_6_1%Tab_op(2)%Band_val/SQRT(14*SEVEN)")
@@ -369,9 +369,9 @@ PROGRAM test_quantum_ho1d
   !  WRITE(out_unit,*) QHO1D_opt_1_6_1%Tab_op(2)%Band_val/SQRT(14*SEVEN)(i,:)
   !END DO
 
-  CALL Equal_tensor(error_construct, x_HO1D_band_ana_14_17_7(1:5,:), QHO1D_opt_14_6_1%Tab_op(2)%Band_val(1:5,:)/SQRT(SEVEN))
-  CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="QHO1D_opt_14_6_1%x(2)%Band_val well initialized ?")
-  IF (error_construct .AND. Debug) THEN
+  CALL Equal_tensor(error_qho1d, x_HO1D_band_ana_14_17_7(1:5,:), QHO1D_opt_14_6_1%Tab_op(2)%Band_val(1:5,:)/SQRT(SEVEN))
+  CALL Logical_Test(test_qho1d, test1=error_qho1d, test2=.FALSE., info="QHO1D_opt_14_6_1%x(2)%Band_val well initialized ?")
+  IF (error_qho1d .AND. Debug) THEN
     CALL Write_Mat(x_HO1D_band_ana_14_17_7, out_unit, Size(x_HO1D_band_ana_14_17_7, dim=2), info="x_HO1D_band_ana_14_17_7")
     CALL Write_Mat(QHO1D_opt_14_6_1%Tab_op(2)%Band_val/SQRT(SEVEN), out_unit, Size(QHO1D_opt_14_6_1%Tab_op(2)%Band_val/SQRT(S&
                   &EVEN), dim=2), info="QHO1D_opt_14_6_1%Tab_op(2)%Band_val/SQRT(14*SEVEN)")
@@ -384,10 +384,10 @@ PROGRAM test_quantum_ho1d
   !  WRITE(out_unit,*) QHO1D_opt_1_6_7%Tab_op(2)%Band_val/SQRT(14*ONE)(i,:)
   !END DO
 
-  CALL Equal_tensor(error_construct, x_HO1D_band_ana_14_17_7(1:5,:), QHO1D_opt_1_6_7%Tab_op(2)%Band_val(1:5,:)/SQRT(14*ONE))
-  CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="x_HO1D_dense_14_17&
+  CALL Equal_tensor(error_qho1d, x_HO1D_band_ana_14_17_7(1:5,:), QHO1D_opt_1_6_7%Tab_op(2)%Band_val(1:5,:)/SQRT(14*ONE))
+  CALL Logical_Test(test_qho1d, test1=error_qho1d, test2=.FALSE., info="x_HO1D_dense_14_17&
                   &_7%Dense_val well initialized ?")
-  IF (error_construct .AND. Debug) THEN
+  IF (error_qho1d .AND. Debug) THEN
     CALL Write_Mat(x_HO1D_band_ana_14_17_7, out_unit, Size(x_HO1D_band_ana_14_17_7, dim=2), info="x_HO1D_band_ana_14_17_7")
     CALL Write_Mat(QHO1D_opt_1_6_7%Tab_op(2)%Band_val/SQRT(14*ONE), out_unit, Size(QHO1D_opt_1_6_7%Tab_op(2)%Band_val/SQRT(14&
                   &*ONE), dim=2), info="QHO1D_opt_1_6_7%Tab_op(2)%Band_val/SQRT(14*ONE)")
@@ -400,10 +400,10 @@ PROGRAM test_quantum_ho1d
   !  WRITE(out_unit,*) QHO1D_dense_1_17_1%Tab_op(2)%Dense_val(i,:)
   !END DO
 
-  CALL Equal_tensor(error_construct, x_HO1D_dense_ana_14_17_7, QHO1D_dense_1_17_1%Tab_op(2)%Dense_val/SQRT(14*SEVEN))
-  CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="x_HO1D_band_1_17_1&
+  CALL Equal_tensor(error_qho1d, x_HO1D_dense_ana_14_17_7, QHO1D_dense_1_17_1%Tab_op(2)%Dense_val/SQRT(14*SEVEN))
+  CALL Logical_Test(test_qho1d, test1=error_qho1d, test2=.FALSE., info="x_HO1D_band_1_17_1&
                    &%Dense_val well initialized ?")
-  IF (error_construct .AND. Debug) THEN
+  IF (error_qho1d .AND. Debug) THEN
     CALL Write_Mat(x_HO1D_dense_ana_14_17_7, out_unit, Size(x_HO1D_dense_ana_14_17_7, dim=2), info="x_HO1D_dense_ana_14_17_7")
     CALL Write_Mat(QHO1D_dense_1_17_1%Tab_op(2)%Dense_val/SQRT(14*SEVEN), out_unit, Size(QHO1D_dense_1_17_1%Tab_op(2)%Dense_val&
                  &, dim=2), info="QHO1D_dense_1_17_1%Tab_op(2)%Dense_val/SQRT(14*SEVEN)")
@@ -416,10 +416,10 @@ PROGRAM test_quantum_ho1d
   !  WRITE(out_unit,*) QHO1D_dense_1_6_1%Tab_op(2)%Dense_val(i,:)
   !END DO
 
-  CALL Equal_tensor(error_construct,x_HO1D_dense_ana_14_17_7(1:5,1:5),QHO1D_dense_1_6_1%Tab_op(2)%Dense_val(1:5,1:5)/SQRT(14*SEVEN)) !/!\ have to truncate at 5 because on the 6-vectors basis set, the tridiagonal matrix have only 5 values on the lower/upper diagonals
-  CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="QHO1D_dense_1_17_1%Tab_op(2)%Dense_val/SQRT(14*&
+  CALL Equal_tensor(error_qho1d,x_HO1D_dense_ana_14_17_7(1:5,1:5),QHO1D_dense_1_6_1%Tab_op(2)%Dense_val(1:5,1:5)/SQRT(14*SEVEN)) !/!\ have to truncate at 5 because on the 6-vectors basis set, the tridiagonal matrix have only 5 values on the lower/upper diagonals
+  CALL Logical_Test(test_qho1d, test1=error_qho1d, test2=.FALSE., info="QHO1D_dense_1_17_1%Tab_op(2)%Dense_val/SQRT(14*&
                    &SEVEN) well initialized ?")
-  IF (error_construct .AND. Debug) THEN
+  IF (error_qho1d .AND. Debug) THEN
     CALL Write_Mat(x_HO1D_dense_ana_14_17_7, out_unit, Size(x_HO1D_dense_ana_14_17_7, dim=2), info="x_HO1D_dense_ana_14_17_7")
     CALL Write_Mat(QHO1D_dense_1_6_1%Tab_op(2)%Dense_val/SQRT(14*SEVEN), out_unit, Size(QHO1D_dense_1_6_1%Tab_op(2)%Dense_val/&
                  & SQRT(14*SEVEN), dim=2), info="QHO1D_dense_1_6_1%Tab_op(2)%Dense_val/SQRT(14*SEVEN)")
@@ -432,9 +432,9 @@ PROGRAM test_quantum_ho1d
   !  WRITE(out_unit,*) QHO1D_dense_1_6_1%Tab_op(2)%Dense_val/SQRT(14*SEVEN)(i,:)
   !END DO
 
-  CALL Equal_tensor(error_construct, x_HO1D_dense_ana_14_17_7(1:5,1:5), QHO1D_dense_14_6_1%Tab_op(2)%Dense_val(1:5,1:5)/SQRT(SEVEN))
-  CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="QHO1D_dense_14_6_1%x%Dense_val well initialized ?")
-  IF (error_construct .AND. Debug) THEN
+  CALL Equal_tensor(error_qho1d, x_HO1D_dense_ana_14_17_7(1:5,1:5), QHO1D_dense_14_6_1%Tab_op(2)%Dense_val(1:5,1:5)/SQRT(SEVEN))
+  CALL Logical_Test(test_qho1d, test1=error_qho1d, test2=.FALSE., info="QHO1D_dense_14_6_1%x%Dense_val well initialized ?")
+  IF (error_qho1d .AND. Debug) THEN
     CALL Write_Mat(x_HO1D_dense_ana_14_17_7, out_unit, Size(x_HO1D_dense_ana_14_17_7, dim=2), info="x_HO1D_dense_ana_14_17_7")
     CALL Write_Mat(QHO1D_dense_14_6_1%Tab_op(2)%Dense_val/SQRT(SEVEN), out_unit, Size(QHO1D_dense_14_6_1%Tab_op(2)%Dense_val/&
                   &SQRT(SEVEN), dim=2), info="QHO1D_dense_14_6_1%Tab_op(2)%Dense_val/SQRT(14*SEVEN)")
@@ -447,10 +447,10 @@ PROGRAM test_quantum_ho1d
   !  WRITE(out_unit,*) QHO1D_dense_1_6_7%Tab_op(2)%Dense_val/SQRT(14*ONE)(i,:)
   !END DO
 
-  CALL Equal_tensor(error_construct, x_HO1D_dense_ana_14_17_7(1:5,1:5), QHO1D_dense_1_6_7%Tab_op(2)%Dense_val(1:5,1:5)/SQRT(14*ONE))
-  CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="x_HO1D_dense_14_17&
+  CALL Equal_tensor(error_qho1d, x_HO1D_dense_ana_14_17_7(1:5,1:5), QHO1D_dense_1_6_7%Tab_op(2)%Dense_val(1:5,1:5)/SQRT(14*ONE))
+  CALL Logical_Test(test_qho1d, test1=error_qho1d, test2=.FALSE., info="x_HO1D_dense_14_17&
                   &_7%Dense_val well initialized ?")
-  IF (error_construct .AND. Debug) THEN
+  IF (error_qho1d .AND. Debug) THEN
     CALL Write_Mat(x_HO1D_dense_ana_14_17_7, out_unit, Size(x_HO1D_dense_ana_14_17_7, dim=2), info="x_HO1D_dense_ana_14_17_7")
     CALL Write_Mat(QHO1D_dense_1_6_7%Tab_op(2)%Dense_val/SQRT(14*ONE), out_unit, Size(QHO1D_dense_1_6_7%Tab_op(2)%Dense_val/S&
                   &QRT(14*ONE), dim=2), info="QHO1D_dense_1_6_7%Tab_op(2)%Dense_val/SQRT(14*ONE)")
@@ -460,10 +460,10 @@ PROGRAM test_quantum_ho1d
   !-------------------------------Comparisons N-------------------------------
   !N_HO1D_dense_17%Dense_val(1,1) = 5
 
-  CALL Equal_tensor(error_construct, N_HO1D_diag_ana_17, QHO1D_opt_1_17_1%Tab_op(3)%Diag_val)
-  CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="N_HO1D_dense_17%De&
+  CALL Equal_tensor(error_qho1d, N_HO1D_diag_ana_17, QHO1D_opt_1_17_1%Tab_op(3)%Diag_val)
+  CALL Logical_Test(test_qho1d, test1=error_qho1d, test2=.FALSE., info="N_HO1D_dense_17%De&
                    &nse_val well initialized ?")
-  IF (error_construct .AND. Debug) THEN
+  IF (error_qho1d .AND. Debug) THEN
     CALL Write_Vec(N_HO1D_diag_ana_17, out_unit, Size(N_HO1D_diag_ana_17, dim=1), info="N_HO1D_diag_ana_17")
     CALL Write_Vec(QHO1D_opt_1_17_1%Tab_op(3)%Diag_val, out_unit, Size(QHO1D_opt_1_17_1%Tab_op(3)%Diag_val, dim=&
                   &1), info="QHO1D_opt_1_17_1%Tab_op(3)%Diag_val")
@@ -471,10 +471,10 @@ PROGRAM test_quantum_ho1d
 
   !N_HO1D_dense_17%Dense_val(1,1) = 5
 
-  CALL Equal_tensor(error_construct, N_HO1D_diag_ana_17(1:6), QHO1D_opt_1_6_1%Tab_op(3)%Diag_val)
-  CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="N_HO1D_dense_17%De&
+  CALL Equal_tensor(error_qho1d, N_HO1D_diag_ana_17(1:6), QHO1D_opt_1_6_1%Tab_op(3)%Diag_val)
+  CALL Logical_Test(test_qho1d, test1=error_qho1d, test2=.FALSE., info="N_HO1D_dense_17%De&
                    &nse_val well initialized ?")
-  IF (error_construct .AND. Debug) THEN
+  IF (error_qho1d .AND. Debug) THEN
     CALL Write_Vec(N_HO1D_diag_ana_17, out_unit, Size(N_HO1D_diag_ana_17, dim=1), info="N_HO1D_diag_ana_17")
     CALL Write_Vec(QHO1D_opt_1_6_1%Tab_op(3)%Diag_val, out_unit, Size(QHO1D_opt_1_6_1%Tab_op(3)%Diag_val, dim=&
                   &1), info="QHO1D_opt_1_6_1%Tab_op(3)%Diag_val")
@@ -484,9 +484,9 @@ PROGRAM test_quantum_ho1d
   !N_HO1D_dense_6%Dense_val(1,1) = 5
   !N_HO1D_diag_6%Diag_val(1) = 5
   
-  CALL Equal_tensor(error_construct, N_HO1D_dense_ana_17, QHO1D_dense_1_17_1%Tab_op(3)%Dense_val)
-  CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="N_HO1D_dense_6%Dense_val well initialized ?")
-  IF (error_construct .AND. Debug) THEN
+  CALL Equal_tensor(error_qho1d, N_HO1D_dense_ana_17, QHO1D_dense_1_17_1%Tab_op(3)%Dense_val)
+  CALL Logical_Test(test_qho1d, test1=error_qho1d, test2=.FALSE., info="N_HO1D_dense_6%Dense_val well initialized ?")
+  IF (error_qho1d .AND. Debug) THEN
     CALL Write_Mat(N_HO1D_dense_ana_17(1:6,1:6), out_unit, Size(N_HO1D_dense_ana_17(1:6,1:6), d&
                   &im=2), info="N_HO1D_dense_ana_17(1:6,1:6)")
     CALL Write_Mat(QHO1D_dense_1_17_1%Tab_op(3)%Dense_val, out_unit, Size(QHO1D_dense_1_17_1%Tab_op(3)%Dense_val, dim=2),&
@@ -497,9 +497,9 @@ PROGRAM test_quantum_ho1d
   !N_HO1D_dense_6%Dense_val(1,1) = 5
   !N_HO1D_diag_6%Diag_val(1) = 5
   
-  CALL Equal_tensor(error_construct, N_HO1D_dense_ana_17(1:6,1:6), QHO1D_dense_1_6_1%Tab_op(3)%Dense_val)
-  CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="N_HO1D_dense_6%Dense_val well initialized ?")
-  IF (error_construct .AND. Debug) THEN
+  CALL Equal_tensor(error_qho1d, N_HO1D_dense_ana_17(1:6,1:6), QHO1D_dense_1_6_1%Tab_op(3)%Dense_val)
+  CALL Logical_Test(test_qho1d, test1=error_qho1d, test2=.FALSE., info="N_HO1D_dense_6%Dense_val well initialized ?")
+  IF (error_qho1d .AND. Debug) THEN
     CALL Write_Mat(N_HO1D_dense_ana_17(1:6,1:6), out_unit, Size(N_HO1D_dense_ana_17(1:6,1:6), d&
                   &im=2), info="N_HO1D_dense_ana_17(1:6,1:6)")
     CALL Write_Mat(QHO1D_dense_1_6_1%Tab_op(3)%Dense_val, out_unit, Size(QHO1D_dense_1_6_1%Tab_op(3)%Dense_val, dim=2),&
@@ -509,60 +509,60 @@ PROGRAM test_quantum_ho1d
 
   !-------------------------Action of a Quantum_HO1D object-----------------------
   CALL Action(Op_psi_real_qho1d,     QHO1D_opt_14_6_1, 0,           Psi_real, Verbose=Verbose, Debug=Debug)
-  CALL Equal_tensor(error_construct, Op_psi_real_qho1d, Psi_real)
-  CALL Logical_Test(test_construct,   test1=error_construct, test2=.FALSE., info="QHO1D"//TO_string(0)//"^{th} operator action on&
+  CALL Equal_tensor(error_qho1d, Op_psi_real_qho1d, Psi_real)
+  CALL Logical_Test(test_qho1d,   test1=error_qho1d, test2=.FALSE., info="QHO1D"//TO_string(0)//"^{th} operator action on&
     & a real rank-one tensor")
   DO i_op = 1, SIZE(QHO1D_dense_14_6_1%Tab_op)-1
     CALL Action(Op_psi_real_qho1d,   QHO1D_opt_14_6_1, i_op,        Psi_real, Verbose=Verbose, Debug=Debug)
     CALL Action(Op_psi_real_elem_op, QHO1D_opt_14_6_1%Tab_op(i_op), Psi_real, Verbose=Verbose, Debug=Debug)
-    CALL Equal_tensor(error_construct, Op_psi_real_qho1d, Op_psi_real_elem_op)
-    CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="QHO1D"//TO_string(i_op)//"^{th} operator action&
+    CALL Equal_tensor(error_qho1d, Op_psi_real_qho1d, Op_psi_real_elem_op)
+    CALL Logical_Test(test_qho1d, test1=error_qho1d, test2=.FALSE., info="QHO1D"//TO_string(i_op)//"^{th} operator action&
     & on a real rank-one tensor")
   END DO
 
   CALL Action(Op_psi_complex_qho1d,     QHO1D_opt_14_6_1, 0,           Psi_complex, Verbose=Verbose, Debug=Debug)
-  CALL Equal_tensor(error_construct, Op_psi_complex_qho1d, Psi_complex)
-  CALL Logical_Test(test_construct,   test1=error_construct, test2=.FALSE., info="QHO1D"//TO_string(0)//"^{th} operator action on&
+  CALL Equal_tensor(error_qho1d, Op_psi_complex_qho1d, Psi_complex)
+  CALL Logical_Test(test_qho1d,   test1=error_qho1d, test2=.FALSE., info="QHO1D"//TO_string(0)//"^{th} operator action on&
     & a complex rank-one tensor")
   DO i_op = 1, SIZE(QHO1D_dense_14_6_1%Tab_op)-1
     CALL Action(Op_psi_complex_qho1d,   QHO1D_opt_14_6_1, i_op,        Psi_complex, Verbose=Verbose, Debug=Debug)
     CALL Action(Op_psi_complex_elem_op, QHO1D_opt_14_6_1%Tab_op(i_op), Psi_complex, Verbose=Verbose, Debug=Debug)
-    CALL Equal_tensor(error_construct, Op_psi_complex_qho1d, Op_psi_complex_elem_op)
-    CALL Logical_Test(test_construct, test1=error_construct, test2=.FALSE., info="QHO1D"//TO_string(i_op)//"^{th} operator action&
+    CALL Equal_tensor(error_qho1d, Op_psi_complex_qho1d, Op_psi_complex_elem_op)
+    CALL Logical_Test(test_qho1d, test1=error_qho1d, test2=.FALSE., info="QHO1D"//TO_string(i_op)//"^{th} operator action&
     & on a complex rank-one tensor")
   END DO
 
 
   !-------------------------Deallocate Quantum_HO1D object-----------------------
   CALL Dealloc(QHO1D_opt_14_6_1, Verbose=Verbose, Debug=Debug)
-  CALL Logical_Test(test_construct, (QHO1D_opt_14_6_1%Nb/=QHO1D_non_alloc%Nb),test2=.FALSE.,info="QHO1D%Nq well deallocated ?")
-  CALL Equal_tensor(error_construct, QHO1D_opt_14_6_1%w, QHO1D_non_alloc%w)
-  CALL Logical_Test(test_construct, test1=error_construct,                    test2=.FALSE.,info="QHO1D%w well deallocated ?")
-  CALL Equal_tensor(error_construct, QHO1D_opt_14_6_1%m, QHO1D_non_alloc%m)
-  CALL Logical_Test(test_construct, test1=error_construct,                    test2=.FALSE.,info="QHO1D%m well deallocated ?")
-  CALL Logical_Test(test_construct, test1=ALLOCATED(QHO1D_opt_14_6_1%Tab_op), test2=.FALSE.,info="Tab_op well deallocated ?")
-  CALL Logical_Test(test_construct, (QHO1D_opt_14_6_1%Nq/=QHO1D_non_alloc%Nq),test2=.FALSE.,info="QHO1D%Nq well deallocated ?")
-  CALL Equal_tensor(error_construct, QHO1D_opt_14_6_1%Eq_pos, QHO1D_non_alloc%Eq_pos)
-  CALL Logical_Test(test_construct, test1=error_construct,                    test2=.FALSE.,info="QHO1D%Eq_pos well deallocated ?")
-  CALL Equal_tensor(error_construct, QHO1D_opt_14_6_1%Scale_q, QHO1D_non_alloc%Scale_q)
-  CALL Logical_Test(test_construct, test1=error_construct,                    test2=.FALSE.,info="QHO1D%Scale_q well deallocated ?")
+  CALL Logical_Test(test_qho1d, (QHO1D_opt_14_6_1%Nb/=QHO1D_non_alloc%Nb),test2=.FALSE.,info="QHO1D%Nq well deallocated ?")
+  CALL Equal_tensor(error_qho1d, QHO1D_opt_14_6_1%w, QHO1D_non_alloc%w)
+  CALL Logical_Test(test_qho1d, test1=error_qho1d,                    test2=.FALSE.,info="QHO1D%w well deallocated ?")
+  CALL Equal_tensor(error_qho1d, QHO1D_opt_14_6_1%m, QHO1D_non_alloc%m)
+  CALL Logical_Test(test_qho1d, test1=error_qho1d,                    test2=.FALSE.,info="QHO1D%m well deallocated ?")
+  CALL Logical_Test(test_qho1d, test1=ALLOCATED(QHO1D_opt_14_6_1%Tab_op), test2=.FALSE.,info="Tab_op well deallocated ?")
+  CALL Logical_Test(test_qho1d, (QHO1D_opt_14_6_1%Nq/=QHO1D_non_alloc%Nq),test2=.FALSE.,info="QHO1D%Nq well deallocated ?")
+  CALL Equal_tensor(error_qho1d, QHO1D_opt_14_6_1%Eq_pos, QHO1D_non_alloc%Eq_pos)
+  CALL Logical_Test(test_qho1d, test1=error_qho1d,                    test2=.FALSE.,info="QHO1D%Eq_pos well deallocated ?")
+  CALL Equal_tensor(error_qho1d, QHO1D_opt_14_6_1%Scale_q, QHO1D_non_alloc%Scale_q)
+  CALL Logical_Test(test_qho1d, test1=error_qho1d,                    test2=.FALSE.,info="QHO1D%Scale_q well deallocated ?")
 
   CALL Dealloc(QHO1D_dense_1_17_1, Verbose=Verbose, Debug=Debug)
-  CALL Logical_Test(test_construct, (QHO1D_dense_1_17_1%Nb/=QHO1D_non_alloc%Nb),test2=.FALSE.,info="QHO1D%Nq well deallocated ?")
-  CALL Equal_tensor(error_construct, QHO1D_dense_1_17_1%w, QHO1D_non_alloc%w)
-  CALL Logical_Test(test_construct, test1=error_construct,                      test2=.FALSE.,info="QHO1D%w well deallocated ?")
-  CALL Equal_tensor(error_construct, QHO1D_dense_1_17_1%m, QHO1D_non_alloc%m)
-  CALL Logical_Test(test_construct, test1=error_construct,                      test2=.FALSE.,info="QHO1D%m well deallocated ?")
-  CALL Logical_Test(test_construct, test1=ALLOCATED(QHO1D_dense_1_17_1%Tab_op), test2=.FALSE.,info="Tab_op well deallocated ?")
-  CALL Logical_Test(test_construct, (QHO1D_dense_1_17_1%Nq/=QHO1D_non_alloc%Nq),test2=.FALSE.,info="QHO1D%Nq well deallocated ?")
-  CALL Equal_tensor(error_construct, QHO1D_dense_1_17_1%Eq_pos, QHO1D_non_alloc%Eq_pos)
-  CALL Logical_Test(test_construct, test1=error_construct,                      test2=.FALSE.,info="QHO1D%Eq_pos  deallocated ?")
-  CALL Equal_tensor(error_construct, QHO1D_dense_1_17_1%Scale_q, QHO1D_non_alloc%Scale_q)
-  CALL Logical_Test(test_construct, test1=error_construct,                      test2=.FALSE.,info="QHO1D%Scale_q deallocated ?")
+  CALL Logical_Test(test_qho1d, (QHO1D_dense_1_17_1%Nb/=QHO1D_non_alloc%Nb),test2=.FALSE.,info="QHO1D%Nq well deallocated ?")
+  CALL Equal_tensor(error_qho1d, QHO1D_dense_1_17_1%w, QHO1D_non_alloc%w)
+  CALL Logical_Test(test_qho1d, test1=error_qho1d,                      test2=.FALSE.,info="QHO1D%w well deallocated ?")
+  CALL Equal_tensor(error_qho1d, QHO1D_dense_1_17_1%m, QHO1D_non_alloc%m)
+  CALL Logical_Test(test_qho1d, test1=error_qho1d,                      test2=.FALSE.,info="QHO1D%m well deallocated ?")
+  CALL Logical_Test(test_qho1d, test1=ALLOCATED(QHO1D_dense_1_17_1%Tab_op), test2=.FALSE.,info="Tab_op well deallocated ?")
+  CALL Logical_Test(test_qho1d, (QHO1D_dense_1_17_1%Nq/=QHO1D_non_alloc%Nq),test2=.FALSE.,info="QHO1D%Nq well deallocated ?")
+  CALL Equal_tensor(error_qho1d, QHO1D_dense_1_17_1%Eq_pos, QHO1D_non_alloc%Eq_pos)
+  CALL Logical_Test(test_qho1d, test1=error_qho1d,                      test2=.FALSE.,info="QHO1D%Eq_pos  deallocated ?")
+  CALL Equal_tensor(error_qho1d, QHO1D_dense_1_17_1%Scale_q, QHO1D_non_alloc%Scale_q)
+  CALL Logical_Test(test_qho1d, test1=error_qho1d,                      test2=.FALSE.,info="QHO1D%Scale_q deallocated ?")
 
 
   !-----------------------------------sum up-----------------------------------
-  CALL Finalize_Test(test_construct)
+  CALL Finalize_Test(test_qho1d)
   
 
 END PROGRAM

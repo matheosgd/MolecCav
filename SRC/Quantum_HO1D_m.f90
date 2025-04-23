@@ -57,10 +57,11 @@ MODULE Quantum_HO1D_m
     integer                      :: Nb      = 0
     real(kind=Rkind)             :: w       = ZERO
     real(kind=Rkind)             :: m       = ZERO
+    integer                      :: Nb_op   = 0
     TYPE(Elem_op_t), allocatable :: Tab_op(:)                                  ! 0 : \hat{Id} ; 1 : \hat{H} ; 2 : \hat{x} ; 3 : \hat{N} ; 4 : \hat{\mu_{mat}} ; 5 : \hat{who knows ?}
     integer                      :: Nq      = 0
     real(kind=Rkind)             :: Eq_pos  = -ONE
-    real(kind=Rkind)             :: Scale_q = ZERO
+    real(kind=Rkind)             :: Scale_q = HUGE(ONE)
   END TYPE
 
 
@@ -104,7 +105,7 @@ MODULE Quantum_HO1D_m
   CONTAINS
 
 
-  SUBROUTINE MolecCav_Initialize_quantum_HO1D(QHO1D, Nb, w, m, Dense, Verbose, Debug) ! here init on the 1D QHO basis : don't need Nq etc. will write later Init_grid or Init_other_basis, maybe called by this one, in this case, the "call" will be determined by the optional arg (Nb, Nq etc.)
+  SUBROUTINE MolecCav_Initialize_quantum_HO1D(QHO1D, Nb, w, m, Nb_op, Dense, Verbose, Debug) ! here init on the 1D QHO basis : don't need Nq etc. will write later Init_grid or Init_other_basis, maybe called by this one, in this case, the "call" will be determined by the optional arg (Nb, Nq etc.)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m
     USE Elem_op_m
@@ -114,6 +115,7 @@ MODULE Quantum_HO1D_m
     integer,              intent(in)    :: Nb
     real(kind=Rkind),     intent(in)    :: w 
     real(kind=Rkind),     intent(in)    :: m 
+    integer, optional,    intent(in)    :: Nb_op
     logical, optional,    intent(in)    :: Dense                                                                         ! cf. comments in HO1D_parameters_m
     integer, optional,    intent(in)    :: Verbose                                                                         ! cf. comments in HO1D_parameters_m
     logical, optional,    intent(in)    :: Debug                                                                           ! cf. comments in HO1D_parameters_m
@@ -149,7 +151,9 @@ MODULE Quantum_HO1D_m
     QHO1D%Nb = Nb
     QHO1D%w  = w
     QHO1D%m  = m
-    ALLOCATE(QHO1D%Tab_op(0:3))
+    IF (PRESENT(Nb_op)) THEN; QHO1D%Nb_op  = Nb_op
+    ELSE; QHO1D%Nb_op  = 4; END IF 
+    ALLOCATE(QHO1D%Tab_op(0:QHO1D%Nb_op-1))
     
     !--------------------------------------Constructing the operators to build-------------------------------------
     IF (PRESENT(Dense)) THEN; Dense_local = Dense
@@ -738,7 +742,7 @@ MODULE Quantum_HO1D_m
     IF (ALLOCATED(QHO1D%Tab_op)) DEALLOCATE(QHO1D%Tab_op)
     QHO1D%Nq      = 0
     QHO1D%Eq_pos  = -ONE
-    QHO1D%Scale_q = ZERO
+    QHO1D%Scale_q = HUGE(ONE)
 
     IF (Debug_local) THEN
       WRITE(out_unit,*)
