@@ -122,7 +122,7 @@ MODULE Elem_op_m
                   &, MolecCav_Write_operator_1D ! OLD INTERFACE 
   END INTERFACE
   INTERFACE Dealloc
-    MODULE PROCEDURE MolecCav_Deallocate_elem_op_R1
+    MODULE PROCEDURE MolecCav_Deallocate_elem_op
   END INTERFACE
 
 
@@ -588,7 +588,7 @@ MODULE Elem_op_m
   END SUBROUTINE MolecCav_Write_elem_op_R1
 
 
-  SUBROUTINE MolecCav_Deallocate_elem_op_R1(Elem_op, Verbose, Debug)
+  SUBROUTINE MolecCav_Deallocate_elem_op(Elem_op, Verbose, Debug)
     USE QDUtil_m
     IMPLICIT NONE 
 
@@ -603,17 +603,16 @@ MODULE Elem_op_m
     IF (PRESENT(Verbose)) Verbose_local = Verbose
     IF (PRESENT(Debug))   Debug_local   = Debug
 
-    !-----------------------------Deallocating the HO1D operator object----------------------------
     IF (Verbose_local > 27) WRITE(out_unit,*)
     IF (Verbose_local > 27) WRITE(out_unit,*) "-----------------------------------------------Deallocating the HO1D_operator obje&
                                               &ct----------------------------------------------"
-  
     IF (Debug_local) THEN
       WRITE(out_unit,*) "--- The HO1D operator to be deallocated :"
       CALL Write(Elem_op)
       WRITE(out_unit,*) "--- End HO1D operator to be deallocated"
     END IF 
 
+    !-----------------------------Deallocating the HO1D operator object----------------------------
     IF (ALLOCATED(Elem_op%Operator_type)) DEALLOCATE(Elem_op%Operator_type)
     Elem_op%Dense           = .FALSE.
     Elem_op%Grid            = .FALSE.
@@ -630,7 +629,7 @@ MODULE Elem_op_m
       WRITE(out_unit,*) "--- End dellocated HO1D operator"
     END IF
 
-  END SUBROUTINE MolecCav_Deallocate_elem_op_R1
+  END SUBROUTINE MolecCav_Deallocate_elem_op
 
 
   SUBROUTINE MolecCav_Construct_Operator_1D(Operator, Operator_type, Dense, Mode, Debug)

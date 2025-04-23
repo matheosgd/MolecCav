@@ -57,7 +57,7 @@ MODULE Quantum_HO1D_m
     integer                      :: Nb      = 0
     real(kind=Rkind)             :: w       = ZERO
     real(kind=Rkind)             :: m       = ZERO
-    TYPE(Elem_op_t), allocatable :: Tab_op(:)                                  ! 0 : \hat{Id} ; 1 : \hat{H} ; 2 : \hat{x} ; 3 : \hat{N} ; 4 : \hat{we will see} ; 
+    TYPE(Elem_op_t), allocatable :: Tab_op(:)                                  ! 0 : \hat{Id} ; 1 : \hat{H} ; 2 : \hat{x} ; 3 : \hat{N} ; 4 : \hat{\mu_{mat}} ; 5 : \hat{who knows ?}
     integer                      :: Nq      = 0
     real(kind=Rkind)             :: Eq_pos  = -ONE
     real(kind=Rkind)             :: Scale_q = ZERO
@@ -733,9 +733,7 @@ MODULE Quantum_HO1D_m
     QHO1D%w  = ZERO
     QHO1D%m  = ZERO
     DO i_op = 0, SIZE(QHO1D%Tab_op)-1
-      IF (QHO1D%Tab_op(i_op)%Dense         .AND. ALLOCATED(QHO1D%Tab_op(i_op)%Dense_val)) DEALLOCATE(QHO1D%Tab_op(i_op)%Dense_val)
-      IF ((.NOT. QHO1D%Tab_op(i_op)%Dense) .AND. ALLOCATED(QHO1D%Tab_op(i_op)%Diag_val))  DEALLOCATE(QHO1D%Tab_op(i_op)%Diag_val)
-      IF ((.NOT. QHO1D%Tab_op(i_op)%Dense) .AND. ALLOCATED(QHO1D%Tab_op(i_op)%Band_val))  DEALLOCATE(QHO1D%Tab_op(i_op)%Band_val)
+      CALL Dealloc(QHO1D%Tab_op(i_op), Verbose=Verbose_local, Debug=Debug_local)
     END DO
     IF (ALLOCATED(QHO1D%Tab_op)) DEALLOCATE(QHO1D%Tab_op)
     QHO1D%Nq      = 0
