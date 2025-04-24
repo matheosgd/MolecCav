@@ -22,11 +22,11 @@ echo -e "set xrange [min:max]"                                                  
 echo -e "#set yrange [0.0249:0.049]"                                                                            >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
 echo -e "#set key left top"                                                                                     >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
 echo -e "\nConv = 21947.46 # 1Ha = Conv.cm-1"                                                                   >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
-echo -e "Gam = 0.3/Conv  # 30cm-1"                                                                              >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
+echo -e "Gam = 0.1/Conv  # 30cm-1"                                                                              >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
 echo -e "set samples 999\nshow samples"                                                                         >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
 echo -e "L(x, x_0, Gam) = ( Gam/(2*pi) ) / ( ((Gam**2)/4) + (x-x_0)**2 )"                                       >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
 
-for I in 0 1 -1 #2 -2
+for I in 0 1 -1 #2 -2 3 -3 4 -4 5 -5 6
 do 
   Detuning=$(echo "$I*0.0002" |bc -l)                                          #/!\ MANDATORY syntax to compute with floats !!!!! /!\ 
   w_C=$(echo "0.0058665+$Detuning" |bc -l)
@@ -65,7 +65,7 @@ do
 
   echo -e "\noffset = 0 #$Detuning*1E12" >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"  
   if [ "$I" == "0" ]; then 
-    echo -e "  plot ( ${GSto1}*L(x, ${Enrgy1}, Gam) + ${GSto2}*L(x, ${Enrgy2}, Gam) + offset) w l lw 2 t 'Detuning = $Detuning'" >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
+    echo -e "  plot ( ${GSto1}*L(x, ${Enrgy1}, Gam) + ${GSto2}*L(x, ${Enrgy2}, Gam) + offset) w l lw 2 lc 'skyblue' t 'Detuning = $Detuning'" >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
   else 
     echo "replot ( ${GSto1}*L(x, ${Enrgy1}, Gam) + ${GSto2}*L(x, ${Enrgy2}, Gam) + offset) w l lw 2 t 'Detuning = $Detuning'"    >> "/home/segaud/MolecCav/RESULTS/int_detu/trace_int_detu_out.gp"
   fi

@@ -5,7 +5,7 @@ then
   mkdir "/home/segaud/MolecCav/RESULTS/int_strength/"
 else
   rm -f "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
-  rm -f "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.txt"
+  rm -f "/home/segaud/MolecCav/RESULTS/int_strength/int_strength_out.txt"
 fi
 
 cd ~/MolecCav
@@ -27,8 +27,8 @@ echo -e "Gam = 0.1/Conv  # 10cm-1"                                              
 echo -e "set samples 800\nshow samples"                                                            >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
 echo -e "L(x, x_0, Gam) = ( Gam/(2*pi) ) / ( ((Gam**2)/4) + (x-x_0)**2 )"                          >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
 
-echo "Coupling strength ---|------------------- Transition energy -------------------|----- Transition intensity -----"                      > "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.txt"
-echo "Coupling strength ---|-- GSto1 --------------------- GSto2 --------------------|-- GSto1 ----------- GSto2 -----"                     >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.txt"
+echo "Coupling strength ---|------------------- Transition energy -------------------|----- Transition intensity --------|-- Summed intensities --"  > "/home/segaud/MolecCav/RESULTS/int_strength/int_strength_out.txt"
+echo "Coupling strength ---|-- GSto1 --------------------- GSto2 --------------------|-- GSto1 ----------- GSto2 --------|----- GSto1 + GSto2 ----" >> "/home/segaud/MolecCav/RESULTS/int_strength/int_strength_out.txt"
 
 for coupling_strength in 0.000 0.002 0.004 0.006 0.008 0.010
 do 
@@ -76,7 +76,8 @@ do
     echo "replot ( ${GSto1}*L(x, ${Enrgy1}, Gam) + ${GSto2}*L(x, ${Enrgy2}, Gam) + offset) w l lw 2 t '\lambda = $coupling_strength'" >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
   fi
 
-  echo "$coupling_strength ---------------|-- $Enrgy1 --- $Enrgy2 --|-- $GSto1 --- $GSto2"                                      >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.txt"
+  Sum=$(echo "$GSto1+$GSto2" |bc -l)
+  echo "$coupling_strength ---------------|-- $Enrgy1 --- $Enrgy2 --|-- $GSto1 --- $GSto2 --|-- 0$Sum"                                >> "/home/segaud/MolecCav/RESULTS/int_strength/int_strength_out.txt"
 
   echo -e "\n Done testing coupling strength"
 done
