@@ -91,6 +91,10 @@ PROGRAM test_quantum_ho1d
   Psi_real    = [ONE, SQRT(TWO), PI, SQRT(TWO), ONE, HALF]
   CALL Normalize(Psi_real)
   Psi_complex = [ONE, SQRT(TWO), PI, SQRT(TWO), ONE, HALF]
+  Psi_complex(1) = Psi_complex(4)*EYE
+  Psi_complex(2) = Psi_complex(4)*EYE
+  Psi_complex(2) = Psi_complex(4)*EYE
+  Psi_complex(5) = Psi_complex(5)*EYE
   CALL Normalize(Psi_complex)
 
   !-------------------------Construct reference matricies-----------------------

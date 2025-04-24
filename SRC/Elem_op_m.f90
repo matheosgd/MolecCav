@@ -552,7 +552,8 @@ MODULE Elem_op_m
     END IF
 
     IF (ALLOCATED(Elem_op%Band_val)) THEN
-      WRITE(out_unit,*) "|The operator is represented using a matrix of size (Elem_op%Nb) :             | ",  SIZE(Elem_op%Band_val)
+      WRITE(out_unit,*) "|The operator is represented using a matrix of size (Elem_op%Nb) :             | "//TO_string(SIZE(Elem_&
+      &op%Band_val, 1))//" * "//TO_string(SIZE(Elem_op%Band_val, 2))
       WRITE(out_unit,*) "|______________________________________________________________________________|_____________________"
       FLUSH(out_unit)
 
@@ -569,11 +570,11 @@ MODULE Elem_op_m
     END IF
 
     IF (ALLOCATED(Elem_op%Dense_val)) THEN
-      WRITE(out_unit,*) "|The operator is represented using a matrix of size (Elem_op%Nb) :            | ",  SIZE(Elem_op%Dense_val)
-      WRITE(out_unit,*) "|_____________________________________________________________________________|_____________________"
+      WRITE(out_unit,*) "|The operator is represented using a matrix of size (Elem_op%Nb) :             | "//TO_string(SIZE(Elem_&
+      &op%Dense_val, 1))//" * "//TO_string(SIZE(Elem_op%Dense_val, 2))
+      WRITE(out_unit,*) "|______________________________________________________________________________|_____________________"
       FLUSH(out_unit)
 
-      WRITE(out_unit,*) "|______________________________________________________________________________|"
       WRITE(out_unit,*) "|The operator's Dense matrix representation has been used, and is              |"
       CALL Write_Mat(Elem_op%Dense_val, out_unit, Size(Elem_op%Dense_val, dim=2), info="Dense_val")
       WRITE(out_unit,*) "|______________________________________________________________________________|"

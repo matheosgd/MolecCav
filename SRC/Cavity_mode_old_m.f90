@@ -46,7 +46,7 @@ MODULE Cavity_mode_old_m
     MODULE PROCEDURE MolecCav_Read_cavity_mode
   END INTERFACE
   INTERFACE Write_cavity_mode
-    MODULE PROCEDURE MolecCav_Write_cavity_mode
+    MODULE PROCEDURE MolecCav_Write_cavity_mode_old
   END INTERFACE
     
 
@@ -138,7 +138,7 @@ MODULE Cavity_mode_old_m
   END SUBROUTINE MolecCav_Read_cavity_mode
 
   
-  SUBROUTINE MolecCav_Write_cavity_mode(Mode)
+  SUBROUTINE MolecCav_Write_cavity_mode_old(Mode)
     TYPE(Cavity_mode_t), intent(in) :: Mode
 
     WRITE(out_unit,*) "____________________________________The associated HO cavity mode___________________________________"
@@ -156,7 +156,7 @@ MODULE Cavity_mode_old_m
     WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
     FLUSH(out_unit)
 
-  END SUBROUTINE MolecCav_Write_cavity_mode
+  END SUBROUTINE MolecCav_Write_cavity_mode_old
 
 
 END MODULE

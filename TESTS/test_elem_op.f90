@@ -56,8 +56,6 @@ PROGRAM test_elem_op
   real(kind=Rkind)              :: Op_psi_real(3)                                                                                ! the resulting vector from the action of a 1D operator upon Psi_1D_R1_real
   real(kind=Rkind)              :: Op_psi_real_ana(3)                                                                            ! the analytical action = hard-coded reference for comparison
 
-  real(kind=Rkind)              :: Norm                                                                                          ! SQRT(Coeff_0_real**2 + Coeff_1_real**2 + Coeff_2_real**2) or using MOD(Coeff_i_complex)**2 instead for complex Psi
-
   complex(kind=Rkind)           :: Coeff_0_complex = ONE*EYE + SQRT(TWO)
   complex(kind=Rkind)           :: Coeff_1_complex = HALF
   complex(kind=Rkind)           :: Coeff_2_complex = PI*EYE
@@ -75,7 +73,6 @@ PROGRAM test_elem_op
 
   !-------------------------Wavefunction initialization (real)------------------------
   Psi_1D_R1_real(:) = [Coeff_0_real, Coeff_1_real, Coeff_2_real]
-  CALL Norm_of(Norm, Psi_1D_R1_real)
   CALL Normalize(Psi_1D_R1_real)
   IF (Debug) THEN
     WRITE(out_unit,*)
@@ -87,7 +84,6 @@ PROGRAM test_elem_op
 
   !-------------------------Wavefunction initialization (complex)------------------------
   Psi_1D_R1_complex(:) = [Coeff_0_complex, Coeff_1_complex, Coeff_2_complex]                                                     ! uses the same basis set as the real WF, but the expansion coefficients are complexes
-  CALL Norm_of(Norm, Psi_1D_R1_complex)
   CALL Normalize(Psi_1D_R1_complex)
   IF (Debug) THEN
     WRITE(out_unit,*)

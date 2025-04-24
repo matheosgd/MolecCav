@@ -98,7 +98,7 @@ MODULE Quantum_HO1D_m
     MODULE PROCEDURE MolecCav_Read_cavity_mode
   END INTERFACE
   INTERFACE Write_cavity_mode ! OLD
-    MODULE PROCEDURE MolecCav_Write_cavity_mode
+    MODULE PROCEDURE MolecCav_Write_cavity_mode_old
   END INTERFACE
 
 
@@ -684,14 +684,19 @@ MODULE Quantum_HO1D_m
     WRITE(out_unit,*) "|Mass associated with the HO (QHO1D%m)                                         | "//TO_string(QHO1D%m)
     IF (ALLOCATED(QHO1D%Tab_op)) THEN 
       WRITE(out_unit,*) "|______________________________________________________________________________|______________________"
+      WRITE(out_unit,*) "|QHO's Tab_op holds the following nb of operators (Size(QHO1D%Tab_op))         | ", Size(QHO1D%Tab_op)
+      WRITE(out_unit,*) "|______________________________________________________________________________|______________________"
       WRITE(out_unit,*) "|The "//TO_string(i_op)//"^{th} operator associated with the HO (QHO1D%Tab_op("//TO_string(i_op)//")) : &
                         &               |"
       WRITE(out_unit,*) "|______________________________________________________________________________|"
       DO i_op = 0, Size(QHO1D%Tab_op)-1
         CALL Write(QHO1D%Tab_op(i_op))
       END DO 
+    ELSE 
+      WRITE(out_unit,*) "|______________________________________________________________________________|______________________"
+      WRITE(out_unit,*) "|QHO's Tab_op is not allocated (QHO1D%Tab_op)                                  | /"
+      WRITE(out_unit,*) "|______________________________________________________________________________|______________________"
     END IF
-    WRITE(out_unit,*) "|______________________________________________________________________________|______________________"
     WRITE(out_unit,*) "|Number of grid points of the QHO DOF (QHO1D%Nq)                               | "//TO_string(QHO1D%Nq)
     WRITE(out_unit,*) "|______________________________________________________________________________|______________________"
     WRITE(out_unit,*) "|Equilibrium position of the HO (QHO1D%Eq_pos)                                 | "//TO_string(QHO1D%Eq_pos)
@@ -842,7 +847,7 @@ MODULE Quantum_HO1D_m
   END SUBROUTINE MolecCav_Read_cavity_mode
 
   
-  SUBROUTINE MolecCav_Write_cavity_mode(Mode)
+  SUBROUTINE MolecCav_Write_cavity_mode_old(Mode)
     TYPE(Cavity_mode_t), intent(in) :: Mode
 
     WRITE(out_unit,*) "____________________________________The associated HO cavity mode___________________________________"
@@ -860,7 +865,7 @@ MODULE Quantum_HO1D_m
     WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
     FLUSH(out_unit)
 
-  END SUBROUTINE MolecCav_Write_cavity_mode
+  END SUBROUTINE MolecCav_Write_cavity_mode_old
 
 
 END MODULE

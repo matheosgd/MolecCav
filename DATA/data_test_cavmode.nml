@@ -1,0 +1,18 @@
+&Cavity_mode
+lambda = 1.0                              !Strength parameter of the coupling between the mode D and the molecule
+Nb = 3                                    !Number of basis vectors associated with the HO D
+w = 0.0058665                             !Eigenpulsation associated with the HO D (maybe HF molecule : 0.005866505831680149)
+m = 1.0                                   !Mass associated with the HO D
+Nq = 1
+Eq_pos = 0.0                              !Equilibrium position of the HO
+Scale_q = 0.0
+/
+
+&HO_1         ! /!\ DO NOT CHANGE THAT NAME for the subroutine being able to read the nml /!\
+D = 1         !Label of the basis/HO/mode/dimension
+Nb = 6        !Number of basis vectors associated with the HO D
+w = 1         !Eigenpulsation associated with the HO D
+m = 1         !Mass associated with the HO D
+lambda = 1    !Strength parameter of the coupling between the mode D and the molecule
+eq_pos = 0    !Equilibrium position of the HO
+/
