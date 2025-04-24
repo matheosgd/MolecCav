@@ -5,11 +5,12 @@ then
   mkdir "/home/segaud/MolecCav/RESULTS/int_strength/"
 else
   rm -f "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
+  rm -f "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.txt"
 fi
 
 cd ~/MolecCav
 make all MAIN=App_trnstn_int
-echo -e "reset"                                                                                    >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
+echo -e "reset"                                                                                     > "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
 echo -e "set term qt font \"Times, 12\""                                                           >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
 echo -e "set grid\nshow grid"                                                                      >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
 echo -e "\nset title  'Intensities = f(coupling\_strength) for resonant case (w = w_{HF}) [a.u.]'" >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
@@ -26,7 +27,10 @@ echo -e "Gam = 0.1/Conv  # 10cm-1"                                              
 echo -e "set samples 800\nshow samples"                                                            >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
 echo -e "L(x, x_0, Gam) = ( Gam/(2*pi) ) / ( ((Gam**2)/4) + (x-x_0)**2 )"                          >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
 
-for coupling_strength in 0.00 0.002 0.004 0.006 0.008 0.01
+echo "Coupling strength ---|------------------- Transition energy -------------------|----- Transition intensity -----"                      > "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.txt"
+echo "Coupling strength ---|-- GSto1 --------------------- GSto2 --------------------|-- GSto1 ----------- GSto2 -----"                     >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.txt"
+
+for coupling_strength in 0.000 0.002 0.004 0.006 0.008 0.010
 do 
   echo -e "\n Doing coupling_strength = $coupling_strength..."
 
@@ -65,12 +69,14 @@ do
 #  Enrgy4="$(grep "Transition energy GSto4" OUT/App_trnstn_int.log)"
 #  Enrgy4="${Enrgy4:27}"
 
-  echo -e "\noffset = 0 #$coupling_strength*1E12" >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"  
-  if [ "$coupling_strength" == 0.00 ]; then 
-    echo -e "  plot ( ${GSto1}*L(x, ${Enrgy1}, Gam) + ${GSto2}*L(x, ${Enrgy2}, Gam) + offset) w l lw 2 t '\lambda = 0'" >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
+  echo -e "\noffset = 0 #$coupling_strength*1E12"                                                                                     >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"  
+  if [ "$coupling_strength" == 0.000 ]; then 
+    echo -e "  plot ( ${GSto1}*L(x, ${Enrgy1}, Gam) + ${GSto2}*L(x, ${Enrgy2}, Gam) + offset) w l lw 2 t '\lambda = 0'"               >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
   else 
     echo "replot ( ${GSto1}*L(x, ${Enrgy1}, Gam) + ${GSto2}*L(x, ${Enrgy2}, Gam) + offset) w l lw 2 t '\lambda = $coupling_strength'" >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
   fi
+
+  echo "$coupling_strength ---------------|-- $Enrgy1 --- $Enrgy2 --|-- $GSto1 --- $GSto2"                                      >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.txt"
 
   echo -e "\n Done testing coupling strength"
 done
