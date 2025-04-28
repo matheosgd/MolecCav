@@ -169,6 +169,9 @@ PROGRAM App_perturbations
   CALL Construct_total_hamiltonian_1p1D_R1(TotH_RuC, CavPosition_RuC, CavH_RuC, Mol1DipMomt, Mol1H, Debug=.FALSE.)
   WRITE(out_unit,*); CALL Write_Mat(TotH_RuC, out_unit, NB, info="TotH_RuC")
 
+  TotH_RuC(4,1) = ZERO
+  TotH_RuC(1,4) = ZERO
+
     !-------------------------------------------------Computation of Eigenstates-------------------------------------------------
   WRITE(out_unit,*); WRITE(out_unit,*) "  ------------------------------------------------Computation of Eigenstates--------------&
   &----------------------------------"
@@ -217,6 +220,9 @@ PROGRAM App_perturbations
   ALLOCATE(TotH_RC(NB, NB))
   CALL Construct_total_hamiltonian_1p1D_R1(TotH_RC, CavPosition_RC, CavH_RC, Mol1DipMomt, Mol1H, Debug=.FALSE.)
   WRITE(out_unit,*); CALL Write_Mat(TotH_RC, out_unit, NB, info="TotH_RC")
+
+  TotH_RC(4,1) = ZERO
+  TotH_RC(1,4) = ZERO
 
     !-------------------------------------------------Computation of Eigenstates-------------------------------------------------
   WRITE(out_unit,*); WRITE(out_unit,*) "  ------------------------------------------------Computation of Eigenstates--------------&
@@ -267,6 +273,9 @@ PROGRAM App_perturbations
   ALLOCATE(TotH_oRuC(NB, NB))
   CALL Construct_total_hamiltonian_1p1D_R1(TotH_oRuC, CavPosition_oRuC, CavH_oRuC, Mol1DipMomt, Mol1H, Debug=.FALSE.)
   WRITE(out_unit,*); CALL Write_Mat(TotH_oRuC, out_unit, NB, info="TotH_oRuC")
+
+  TotH_oRuC(4,1) = ZERO
+  TotH_oRuC(1,4) = ZERO
 
     !-------------------------------------------------Computation of Eigenstates-------------------------------------------------
   WRITE(out_unit,*); WRITE(out_unit,*) "  ------------------------------------------------Computation of Eigenstates-------------&
