@@ -65,6 +65,8 @@ MODULE Quantum_HO1D_m
   END TYPE
 
 
+  PRIVATE 
+
   PUBLIC Cavity_mode_t, Read_cavity_mode, Write_cavity_mode,& ! OLD 
        & Quantum_HO1D_t, Initialize, Action, Write, Dealloc
 
@@ -93,7 +95,6 @@ MODULE Quantum_HO1D_m
     MODULE PROCEDURE MolecCav_Deallocate_quantum_HO1D
   END INTERFACE
     
-
   INTERFACE Read_cavity_mode ! OLD
     MODULE PROCEDURE MolecCav_Read_cavity_mode
   END INTERFACE
