@@ -50,8 +50,8 @@ MODULE Operator_ND_m
   integer, allocatable :: tab_indexes_cav_op(:)                                ! N_cav : nb of DOF of the cavity subsystem = nb of cavity modes
   END TYPE
 
-  TYPE(Matter_mode_t), allocatable :: tab_mat_op(:)
-  TYPE(Cavity_mode_new_t), allocatable :: tab_cav_op(:)
+  TYPE(Matter_mode_t), allocatable :: tab_mat_ops(:)
+  TYPE(Cavity_mode_new_t), allocatable :: tab_cav_ops(:)
 
   PRIVATE
 
@@ -60,8 +60,8 @@ MODULE Operator_ND_m
   INTERFACE Initialize
     MODULE PROCEDURE MolecCav_Initialize_operator_ND
   END INTERFACE
-  INTERFACE Initialize_tabs
-    MODULE PROCEDURE MolecCav_Initialize_tab_operator
+  INTERFACE Initialize_tabs_ops
+    MODULE PROCEDURE MolecCav_Initialize_tabs_operators
   END INTERFACE
   INTERFACE Action
     MODULE PROCEDURE MolecCav_Action_operator_ND_R1_real, MolecCav_Action_operator_ND_R1_complex
@@ -77,7 +77,7 @@ MODULE Operator_ND_m
   CONTAINS
 
 
-  SUBROUTINE MolecCav_Initialize_operator_ND(OpND, N_mat, N_cav, Operators_on_mat, Operators_on_cav, nio, Dense, Verbose, Debug) 
+  SUBROUTINE MolecCav_Initialize_operator_ND(OpND, Mat_operators, Cav_operators, nio, Dense, Verbose, Debug) ! no need for N_mat and N_cav explicitly : they are SIZE(Mat_op and Cav_op)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m
     USE Cavity_mode_m
@@ -85,15 +85,15 @@ MODULE Operator_ND_m
     IMPLICIT NONE
   
     TYPE(Operator_ND_t), intent(inout) :: OpND
-    integer,             intent(in)    :: N_mat
-    integer,             intent(in)    :: N_cav
-    character(len=*),    intent(in)    :: Operators_on_mat(:) ! syntax : 'hxI', not case sensitive, 'x' <=> \otimes
-    character(len=*),    intent(in)    :: Operators_on_cav(:) ! syntax : 'h',   not case sensitive, 'x' <=> \otimes. This exemple means OpND = H_mat_1\otimesI_mat_2\otimesH_cav
+    character(len=*),    intent(in)    :: Mat_operators ! syntax : 'hxI', not case sensitive, 'x' <=> \otimes
+    character(len=*),    intent(in)    :: Cav_operators ! syntax : 'h',   not case sensitive, 'x' <=> \otimes. This exemple means OpND = H_mat1\otimesI_mat2\otimesH_cav
     integer,             intent(in)    :: nio
     logical, optional,   intent(in)    :: Dense                                                                        ! cf. comments in HO1D_parameters_m
     integer, optional,   intent(in)    :: Verbose                                                                      ! cf. comments in HO1D_parameters_m
     logical, optional,   intent(in)    :: Debug                                                                        ! cf. comments in HO1D_parameters_m
 
+    integer                            :: N_mat
+    integer                            :: N_cav
     logical                            :: Dense_local                                                                  ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
     integer                            :: Verbose_local                                                                ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
     logical                            :: Debug_local
@@ -113,28 +113,33 @@ MODULE Operator_ND_m
       WRITE(out_unit,*) "--- Arguments of MolecCav_Initialize_operator_ND :"
       WRITE(out_unit,*) "The <<OpND>> argument :"
       CALL Write(OpND)
-      WRITE(out_unit,*) "The <<N_mat>> argument :"//TO_string(N_mat)
-      WRITE(out_unit,*) "The <<N_cav>>  argument :"//TO_string(N_cav)
+      WRITE(out_unit,*) "The <<Mat_operators>>  argument :"//Mat_operators
+      WRITE(out_unit,*) "The <<Cav_operators>>  argument :"//Cav_operators
+      WRITE(out_unit,*) "=> <<N_mat>> ="//TO_string(SIZE(Mat_operators))
+      WRITE(out_unit,*) "=> <<N_cav>> ="//TO_string(SIZE(Cav_operators))
       IF (PRESENT(Dense)) WRITE(out_unit,*) "The <<Dense>> argument : "//TO_string(Dense)
+      WRITE(out_unit,*) "Are the module's <<tab_mat/cav_ops>> allocated ? "//TO_string(ALLOCATED(tab_mat_ops))//TO_string(ALLOCAT&
+      &ED(tab_cav_ops))
       WRITE(out_unit,*) "--- End arguments of MolecCav_Initialize_operator_ND"
       FLUSH(out_unit)
     END IF
     
-    !------------------------------------------Initializing the parameters of the 1D QHO------------------------------------------
-    ! ON EN EST LA
-    IF (PRESENT(Nb_op)) THEN; OpND%Nb_op  = Nb_op
-    ELSE; OpND%Nb_op  = 4; END IF 
-    ALLOCATE(OpND%Tab_op(0:OpND%Nb_op-1))
-    
-    !--------------------------------------Constructing the operators to build-------------------------------------
+    !------------------------------------------Initializing the procedure------------------------------------------
     IF (PRESENT(Dense)) THEN; Dense_local = Dense
     ELSE; Dense_local = .FALSE.; END IF
 
-    CALL Initialize(OpND%Tab_op(0), "Identity",    Nb=Nb,           Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local)
-    CALL Initialize(OpND%Tab_op(1), "Hamiltonian", Nb=Nb, w=w,      Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local)
-    CALL Initialize(OpND%Tab_op(2), "Position",    Nb=Nb, w=w, m=m, Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local)
-    CALL Initialize(OpND%Tab_op(3), "NbQuanta",    Nb=Nb,           Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local)
+    N_mat = SIZE()
+    N_cav = SIZE()
 
+    IF (.NOT. ALLOCATED(tab_mat_ops) .OR. .NOT. ALLOCATED(tab_cav_ops)) THEN
+      CALL Initialize_tabs_ops(N_mat=N_mat, N_cav=N_cav, Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local)
+    END IF
+    
+    !--------------------------------------Constructing the OpND = parsing the Mat/Cav_operators strings-------------------------------------
+    ALLOCATE(OpND%tab_indexes_mat_op(N_mat))
+    ALLOCATE(OpND%tab_indexes_cav_op(N_cav))
+
+    
     IF (Verbose_local > 20) WRITE(out_unit,*) 
     IF (Verbose_local > 20) WRITE(out_unit,*) "--------------------------------------------------OPERATOR_ND OBJECT INITIALIZED--&
                                               &-----------------------------------------------"; FLUSH(out_unit)
@@ -142,24 +147,23 @@ MODULE Operator_ND_m
   END SUBROUTINE MolecCav_Initialize_operator_ND
 
 
-  SUBROUTINE MolecCav_Initialize_tab_operator(Elem_op, Operator_type, Nb, w, m, Dense, Verbose, Debug)
+  SUBROUTINE MolecCav_Initialize_tabs_operators(N_mat, N_cav, Dense, Verbose, Debug) ! tab_mat_ops, tab_cav_ops are shared in all the module. Modified in fly in this sub. => no need to pass them in argument here
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m
     USE Cavity_mode_m
     USE Matter_mode_m
     IMPLICIT NONE
 
-    TYPE(Elem_op_t),            intent(inout) :: Elem_op                                                                         ! the object of type Elem_op_t to be constructed here
-    character(len=*),           intent(in)    :: Operator_type                                                                   ! ex : "Hamiltonian", "Position", etc. (len=:) Expects to be allocatable, while (len=*) is dedicated to a procedure argument.
-    integer,                    intent(in)    :: Nb                                                                              ! the HO/Cavity mode which the operator is relative to
-    real(kind=Rkind), optional, intent(in)    :: w                                                                               ! the HO/Cavity mode which the operator is relative to
-    real(kind=Rkind), optional, intent(in)    :: m                                                                               ! the HO/Cavity mode which the operator is relative to
-    logical,          optional, intent(in)    :: Dense                                                                           ! if .TRUE. then the matrix storage will not be optimized and it will be stored as a Dense matrix
-    integer,          optional, intent(in)    :: Verbose                                                                         ! cf. comments in HO1D_parameters_m
-    logical,          optional, intent(in)    :: Debug                                                                           ! cf. comments in HO1D_parameters_m
+    integer,           intent(in)    :: N_mat                                                                                    ! the HO/Cavity mode which the operator is relative to
+    integer,           intent(in)    :: N_cav                                                                                    ! the HO/Cavity mode which the operator is relative to
+    logical, optional, intent(in)    :: Dense                                                                                    ! if .TRUE. then the matrix storage will not be optimized and it will be stored as a Dense matrix
+    integer, optional, intent(in)    :: Verbose                                                                                  ! cf. comments in HO1D_parameters_m
+    logical, optional, intent(in)    :: Debug                                                                                    ! cf. comments in HO1D_parameters_m
 
-    integer                                   :: Verbose_local                                                              ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
-    logical                                   :: Debug_local
+    integer                          :: i
+    logical                          :: Dense_local
+    integer                          :: Verbose_local                                                                            ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
+    logical                          :: Debug_local
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
@@ -168,73 +172,54 @@ MODULE Operator_ND_m
     ELSE; Debug_local = .FALSE.; END IF
 
     IF (Verbose_local > 25) WRITE(out_unit,*) 
-    IF (Verbose_local > 25) WRITE(out_unit,*) "--------------------------------------------------INITIALIZING THE HO1D OPERATOR--&
-                                              &------------------------------------------------"; FLUSH(out_unit)
+    IF (Verbose_local > 25) WRITE(out_unit,*) "--------------------------------------------------INITIALIZING THE OPERATORS' TABL&
+    &ES--------------------------------------------------"; FLUSH(out_unit)
 
     IF (Debug_local) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "--- Arguments of MolecCav_Initialize_HO1D_operator :"
-      WRITE(out_unit,*) "The <<Elem_op>> argument :"
-      CALL Write(Elem_op)
-      WRITE(out_unit,*) "The <<Operator_type>> argument : "//Operator_type
-      WRITE(out_unit,*) "The <<Nb>> argument : "//TO_string(Nb)
-      IF (PRESENT(w)) WRITE(out_unit,*) "The <<w>> argument : "//TO_string(w)
-      IF (PRESENT(m)) WRITE(out_unit,*) "The <<m>> argument : "//TO_string(m)
+      WRITE(out_unit,*) "The module's <<tab_mat_ops>> allocated ? "//TO_string(ALLOCATED(tab_mat_ops))
+      WRITE(out_unit,*) "The module's <<tab_cav_ops>> allocated ? "//TO_string(ALLOCATED(tab_cav_ops))
+      WRITE(out_unit,*) "The <<N_mat>> argument : "//TO_string(N_mat)
+      WRITE(out_unit,*) "The <<N_cav>> argument : "//TO_string(N_cav)
       IF (PRESENT(Dense)) WRITE(out_unit,*) "The <<Dense>> argument : "//TO_string(Dense)
       WRITE(out_unit,*) "--- End arguments of MolecCav_Construct_Operator_1D"
       FLUSH(out_unit)
     END IF
-
-    IF (.NOT. PRESENT(w) .AND. TRIM(TO_lowercase(Operator_type)) == "hamiltonian") THEN
-      WRITE(out_unit,*) "### missing w for the H"
-      STOP "### missing w for the H"
-    END IF 
-    IF ((.NOT. PRESENT(w) .OR. .NOT. PRESENT(m)) .AND. TRIM(TO_lowercase(Operator_type)) == "position") THEN
-      WRITE(out_unit,*) "### missing w or m for the x"
-      STOP "### missing w or m for the x"
-    END IF 
     
-    !---------------------------------------First steps of the construction of the Operator--------------------------------------
-    ALLOCATE(character(len=LEN_TRIM(Operator_type)) :: Elem_op%Operator_type)                                                   ! /!\ strings cannot be allocated the exact same way as tables ! /!\
-    Elem_op%Operator_type = TO_lowercase(TRIM(Operator_type))                                                                   ! allocation on assignement (not anymore : supposed to work but caused dynamic allocation random errors at execution). Elem_op_type has the right lengths (no spaces added) thanks to len=* at declaration and it will fit the Op%op_type thanks to len=:, allocatable at declaration of the derived type. 
+    !---------------------------------------First steps of the construction of the tables--------------------------------------
+    IF (PRESENT(Dense)) THEN; Dense_local = Dense
+    ELSE; Dense_local = .FALSE.; END IF
 
-    IF (PRESENT(Dense)) Elem_op%Dense = Dense
+    ALLOCATE(tab_mat_ops(N_mat))
+    ALLOCATE(tab_cav_ops(N_cav))
 
-    !---------------------------------------------Construction of the matrix Operator--------------------------------------------
-    IF (Debug_local) THEN
-      WRITE(out_unit,*); WRITE(out_unit,*) "--- The Elem_op_t object just before construction of its matrix representation"
-      CALL Write(Elem_op)
-      WRITE(out_unit,*) "--- End Elem_op_t object (just before construction of its matrix representation)"
-    END IF 
+    !---------------------------------------------Construction of the whole tables--------------------------------------------
+    DO i = 1, N_mat
+      CALL Initialize(MatMode=tab_mat_ops(i), nio=in_unit, Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local) ! N.B. => nml shall be constructed as Matmode1\Matmode2\...\Cavmode1\...\CavmodeN_cav\
+    END DO
 
-    SELECT CASE (Elem_op%Operator_type)                                                                                         ! TO_lowercase avoid case sensitivity issues
-      CASE ("identity")
-        CALL Initialize_I(Identity=Elem_op,    Nb=Nb,           Verbose=Verbose_local, Debug=Debug_local)
-    
-      CASE ("hamiltonian")
-        CALL Initialize_H(Hamiltonian=Elem_op, Nb=Nb, w=w,      Verbose=Verbose_local, Debug=Debug_local)
-    
-      CASE ("position")
-        CALL Initialize_x(PositionOp=Elem_op,  Nb=Nb, w=w, m=m, Verbose=Verbose_local, Debug=Debug_local)
-      
-      CASE ("nbquanta")
-        CALL Initialize_N(NbQuanta=Elem_op,    Nb=Nb,           Verbose=Verbose_local, Debug=Debug_local)
-
-      CASE DEFAULT
-        WRITE(out_unit,*) "### No Operator type recognized, please check the input of Initialize_HO1D_operator subroutine"
-        STOP "### No Operator type recognized, please verify the input of Initialize_HO1D_operator subroutine"
-    END SELECT
+    DO i = 1, N_cav
+      CALL Initialize(MatMode=tab_cav_ops(i), nio=in_unit, Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local)
+    END DO 
 
     IF (Verbose_local > 26) THEN
       IF (Verbose_local < 28) WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- HO1D operator constructed by MolecCav_Initialize_HO1D_operator :"
-      CALL Write(Elem_op)
-      WRITE(out_unit,*) "--- End HO1D operator constructed by MolecCav_Initialize_HO1D_operator"
+      WRITE(out_unit,*) "--- tabs_ops constructed by MolecCav_Initialize_tabs_operators :"
+      DO i = N_mat
+        WRITE(out_unit,*); WRITE(out_unit,*) "--- tabs_mat_ops"//TO_string(i)//" :"
+        CALL Write(tab_mat_ops(i))
+      END DO 
+      DO i = N_cav
+        WRITE(out_unit,*); WRITE(out_unit,*) "--- tabs_cav_ops"//TO_string(i)//" :"
+        CALL Write(tab_cav_ops(i))
+      END DO 
+      WRITE(out_unit,*) "--- End tabs_ops constructed by MolecCav_Initialize_tabs_operators"
     END IF
 
     IF (Verbose_local > 25) WRITE(out_unit,*) 
-    IF (Verbose_local > 25) WRITE(out_unit,*) "-----------------------------------------------------HO1D OPERATOR INITIALIZED----&
-                                              &------------------------------------------------"; FLUSH(out_unit)
+    IF (Verbose_local > 25) WRITE(out_unit,*) "-----------------------------------------------------OPERATOR'S TABLES INITIALIZED&
+    &----------------------------------------------------"; FLUSH(out_unit)
 
   END SUBROUTINE MolecCav_Initialize_tab_operator
 

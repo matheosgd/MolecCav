@@ -76,7 +76,7 @@ MODULE Cavity_mode_m
   
     TYPE(Cavity_mode_new_t), intent(inout)  :: CavMode
     integer,              intent(in)    :: nio
-    logical, optional,    intent(in)    :: Dense                                                                         ! cf. comments in HO1D_parameters_m
+    logical, optional,    intent(in)    :: Dense                                                                              ! cf. comments in HO1D_parameters_m
     integer, optional,    intent(in)    :: Verbose                                                                         ! cf. comments in HO1D_parameters_m
     logical, optional,    intent(in)    :: Debug                                                                           ! cf. comments in HO1D_parameters_m
 
