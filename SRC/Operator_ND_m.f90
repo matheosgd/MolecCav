@@ -85,13 +85,16 @@ MODULE Operator_ND_m
     IMPLICIT NONE
   
     TYPE(Operator_ND_t), intent(inout) :: OpND
-    character(len=*),    intent(in)    :: Mat_operators ! syntax : 'hxI', not case sensitive, 'x' <=> \otimes
-    character(len=*),    intent(in)    :: Cav_operators ! syntax : 'h',   not case sensitive, 'x' <=> \otimes. This exemple means OpND = H_mat1\otimesI_mat2\otimesH_cav
+    character(len=*),    intent(in)    :: Mat_operators ! syntax : '<op_mode_1>, <op_mode_2>, ..., <op_mode_N_mat>', ex : 'hamiltonian, Identity'. Not case sensitive, ' ' <=> \otimes
+    character(len=*),    intent(in)    :: Cav_operators ! syntax : '<op_mode_1>, <op_mode_2>, ..., <op_mode_N_cav>', ex : 'hamiltonian'.   Not case sensitive, ' ' <=> \otimes. This exemple means OpND = H_mat1\otimesI_mat2\otimesH_cav
     integer,             intent(in)    :: nio
     logical, optional,   intent(in)    :: Dense                                                                        ! cf. comments in HO1D_parameters_m
     integer, optional,   intent(in)    :: Verbose                                                                      ! cf. comments in HO1D_parameters_m
     logical, optional,   intent(in)    :: Debug                                                                        ! cf. comments in HO1D_parameters_m
 
+    integer                            :: i_mode, i_op
+    character(len=*),                  :: Mat_operators_local(:)
+    character(len=*),                  :: Cav_operators_local(:)
     integer                            :: N_mat
     integer                            :: N_cav
     logical                            :: Dense_local                                                                  ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
@@ -115,8 +118,6 @@ MODULE Operator_ND_m
       CALL Write(OpND)
       WRITE(out_unit,*) "The <<Mat_operators>>  argument :"//Mat_operators
       WRITE(out_unit,*) "The <<Cav_operators>>  argument :"//Cav_operators
-      WRITE(out_unit,*) "=> <<N_mat>> ="//TO_string(SIZE(Mat_operators))
-      WRITE(out_unit,*) "=> <<N_cav>> ="//TO_string(SIZE(Cav_operators))
       IF (PRESENT(Dense)) WRITE(out_unit,*) "The <<Dense>> argument : "//TO_string(Dense)
       WRITE(out_unit,*) "Are the module's <<tab_mat/cav_ops>> allocated ? "//TO_string(ALLOCATED(tab_mat_ops))//TO_string(ALLOCAT&
       &ED(tab_cav_ops))
@@ -128,21 +129,57 @@ MODULE Operator_ND_m
     IF (PRESENT(Dense)) THEN; Dense_local = Dense
     ELSE; Dense_local = .FALSE.; END IF
 
-    N_mat = SIZE()
-    N_cav = SIZE()
-
+    IF (LEN_TRIM(Mat_operators)==0) THEN
+      N_mat = 0
+    ELSE
+      N_mat = 1
+      DO i_mode = 1, LEN_TRIM(Mat_operators)
+        IF (Mat_operators(i_mode:i_mode)==',') N_mat = N_mat + 1
+      END DO 
+    END IF 
+    IF (LEN_TRIM(Cav_operators)==0) THEN
+      N_cav = 0
+    ELSE
+      N_cav = 1
+      DO i_mode = 1, LEN_TRIM(Cav_operators)
+        IF (Cav_operators(i_mode:i_mode)==',') N_cav = N_cav + 1
+      END DO 
+    END IF 
+    
     IF (.NOT. ALLOCATED(tab_mat_ops) .OR. .NOT. ALLOCATED(tab_cav_ops)) THEN
       CALL Initialize_tabs_ops(N_mat=N_mat, N_cav=N_cav, Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local)
     END IF
     
     !--------------------------------------Constructing the OpND = parsing the Mat/Cav_operators strings-------------------------------------
+    ALLOCATE(Mat_operators_local(N_mat))
+    ALLOCATE(Cav_operators_local(N_cav))
     ALLOCATE(OpND%tab_indexes_mat_op(N_mat))
     ALLOCATE(OpND%tab_indexes_cav_op(N_cav))
 
-    
+    READ(unit=Mat_operators, fmt=*) Mat_operators_local ! /!\ neither trimmed nor lowercased so far /!\
+    READ(unit=Cav_operators, fmt=*) Cav_operators_local
+
+    DO i_mode = 1, N_mat
+      DO i_op = 0, tab_mat_ops(i_mode)%Nb_op-1
+        IF (TO_lowercase(TRIM(Mat_operators_local(i_mode))) == tab_mat_ops(i_mode)%Tab_op(i_op)%Operator_type) THEN
+          OpND%tab_indexes_mat_op(i_mode) = i_op
+          EXIT 
+        END IF 
+      END DO
+    END DO 
+
+    DO i_mode = 1, N_cav
+      DO i_op = 0, tab_cav_ops(i_mode)%Nb_op-1
+        IF (TO_lowercase(TRIM(Cav_operators_local(i_mode))) == tab_cav_ops(i_mode)%Tab_op(i_op)%Operator_type) THEN
+          OpND%tab_indexes_cav_op(i_mode) = i_op
+          EXIT 
+        END IF 
+      END DO
+    END DO
+
     IF (Verbose_local > 20) WRITE(out_unit,*) 
     IF (Verbose_local > 20) WRITE(out_unit,*) "--------------------------------------------------OPERATOR_ND OBJECT INITIALIZED--&
-                                              &-----------------------------------------------"; FLUSH(out_unit)
+    &-----------------------------------------------"; FLUSH(out_unit)
 
   END SUBROUTINE MolecCav_Initialize_operator_ND
 
@@ -224,7 +261,7 @@ MODULE Operator_ND_m
   END SUBROUTINE MolecCav_Initialize_tab_operator
 
   
-  SUBROUTINE MolecCav_Action_operator_ND_R1_real(Op_psi, OpND, i_op, Psi, Verbose, Debug)
+  SUBROUTINE MolecCav_Action_operator_ND_R1_real(Op_psi, OpND, Psi, Verbose, Debug) ! Psi is ND AND R1
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     USE QDUtil_m
     USE ND_indexes_m
@@ -233,13 +270,11 @@ MODULE Operator_ND_m
     IMPLICIT NONE
 
     real(kind=Rkind),     intent(inout) :: Op_psi(:)
-    TYPE(Operator_ND_t), intent(in)    :: OpND
-    integer,              intent(in)    :: i_op
+    TYPE(Operator_ND_t),  intent(in)    :: OpND
     real(kind=Rkind),     intent(in)    :: Psi(:)
     integer, optional,    intent(in)    :: Verbose                                                                              ! cf. comments in HO1D_parameters_m
     logical, optional,    intent(in)    :: Debug                                                                                ! cf. comments in HO1D_parameters_m
 
-    integer                             :: Nb
     integer                             :: Verbose_local                                                                   ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
     logical                             :: Debug_local
 
@@ -250,15 +285,14 @@ MODULE Operator_ND_m
     ELSE; Debug_local = .FALSE.; END IF
 
     IF (Verbose_local > 25) WRITE(out_unit,*) 
-    IF (Verbose_local > 25) WRITE(out_unit,*) "---------------------------------------COMPUTING ACTION OF THE HO1D OPERATOR OVER &
-                                              &THE R1 WF---------------------------------------"; FLUSH(out_unit)
+    IF (Verbose_local > 25) WRITE(out_unit,*) "---------------------------------------COMPUTING ACTION OF THE OpND OVER &
+                                              &THE R1 ND WF---------------------------------------"; FLUSH(out_unit)
 
     IF (Debug_local) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "--- Arguments of MolecCav_Action_operator_ND :"
       WRITE(out_unit,*) "The <<OpND>> argument :"
       CALL Write(OpND)
-      WRITE(out_unit,*) "The <<i_op>> argument :"//TO_string(i_op)
       WRITE(out_unit,*) "The <<Psi>> argument : "
       CALL Write_Vec(Psi, out_unit, 1, info="Psi")
       WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
@@ -267,7 +301,7 @@ MODULE Operator_ND_m
     END IF
     
     !-----------------------------------------------------Checking dimensions----------------------------------------------------
-    ! ALREADY CHECKED IN THE ACTIONS CODED IN ELEM_OP_M ! (fortunately btw, otherwise the \hat{I}d case should have test above)
+    ! NOT THIS TIME : ND /!\ ALREADY CHECKED IN THE ACTIONS CODED IN ELEM_OP_M ! (fortunately btw, otherwise the \hat{I}d case should have test above)
 
     !---------------------------------------------Selection of the calculation method--------------------------------------------
     IF (OpND%Tab_op(i_op)%Operator_type == "identity") THEN ! N.B. we should have tested i_op == 0, easier and consistent with the algorithmic choices made so far
@@ -361,59 +395,43 @@ MODULE Operator_ND_m
   SUBROUTINE MolecCav_Write_operator_ND(OpND)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m
-    USE Cavity_mode_m
-    USE Matter_mode_m
     IMPLICIT NONE 
     
     TYPE(Operator_ND_t), intent(in) :: OpND
 
-    integer                          :: i_op
-
-    WRITE(out_unit,*) "____________________________________The parameters of the 1D QHO____________________________________"
-    WRITE(out_unit,*) "|Basis set size of the HO (OpND%Nb)                                           | "//TO_string(OpND%Nb)
+    WRITE(out_unit,*) "_______________________________________The ND Operator object_______________________________________"
+    WRITE(out_unit,*) "|The number of matter modes (SIZE(OpND%tab_indexes_mat_op))                    | "//TO_string(SIZE(OpND%ta&
+    &b_indexes_mat_op))
     WRITE(out_unit,*) "|______________________________________________________________________________|______________________"
-    WRITE(out_unit,*) "|Eigenpulsation of the HO (OpND%w)                                            | "//TO_string(OpND%w)
+    WRITE(out_unit,*) "|The number of cavity modes (SIZE(OpND%tab_indexes_cav_op))                    | "//TO_string(SIZE(OpND%ta&
+    &b_indexes_cav_op))
     WRITE(out_unit,*) "|______________________________________________________________________________|______________________"
-    WRITE(out_unit,*) "|Mass associated with the HO (OpND%m)                                         | "//TO_string(OpND%m)
-    IF (ALLOCATED(OpND%Tab_op)) THEN 
-      WRITE(out_unit,*) "|______________________________________________________________________________|______________________"
-      WRITE(out_unit,*) "|QHO's Tab_op holds the following nb of operators (Size(OpND%Tab_op))         | ", Size(OpND%Tab_op)
-      WRITE(out_unit,*) "|______________________________________________________________________________|______________________"
-      WRITE(out_unit,*) "|The "//TO_string(i_op)//"^{th} operator associated with the HO (OpND%Tab_op("//TO_string(i_op)//")) : &
-                        &               |"
-      WRITE(out_unit,*) "|______________________________________________________________________________|"
-      DO i_op = 0, Size(OpND%Tab_op)-1
-        CALL Write(OpND%Tab_op(i_op))
-      END DO 
-    ELSE 
-      WRITE(out_unit,*) "|______________________________________________________________________________|______________________"
-      WRITE(out_unit,*) "|QHO's Tab_op is not allocated (OpND%Tab_op)                                  | /"
-      WRITE(out_unit,*) "|______________________________________________________________________________|______________________"
-    END IF
-    WRITE(out_unit,*) "|Number of grid points of the QHO DOF (OpND%Nq)                               | "//TO_string(OpND%Nq)
-    WRITE(out_unit,*) "|______________________________________________________________________________|______________________"
-    WRITE(out_unit,*) "|Equilibrium position of the HO (OpND%Eq_pos)                                 | "//TO_string(OpND%Eq_pos)
-    WRITE(out_unit,*) "|______________________________________________________________________________|______________________"
-    WRITE(out_unit,*) "|Change in variable coefficient for the DOF grid (OpND%Scale_q)               | "//TO_string(OpND%Scale_q)
-    WRITE(out_unit,*) "|________________________________________End HO1D parameters___________________|______________________"
+    WRITE(out_unit,*) "|The operators taking action on the matter modes (OpND%tab_indexes_mat_op) :   | "
+    CALL Write_Vec(OpND%tab_indexes_mat_op, out_unit, SIZE(OpND%tab_indexes_mat_op), info="tab_indexes_mat_op")
+    WRITE(out_unit,*) "|______________________________________________________________________________|"
+    WRITE(out_unit,*) "|The operators taking action on the cavity modes (OpND%tab_indexes_cav_op) :   | "
+    CALL Write_Vec(OpND%tab_indexes_cav_op, out_unit, SIZE(OpND%tab_indexes_cav_op), info="tab_indexes_cav_op")
+    WRITE(out_unit,*) "|_____________________________________The ND Operator object___________________|"
     FLUSH(out_unit)
 
   END SUBROUTINE MolecCav_Write_operator_ND
 
 
-  SUBROUTINE MolecCav_Deallocate_operator_ND(OpND, Verbose, Debug)
+  SUBROUTINE MolecCav_Deallocate_operator_ND(OpND, All, Verbose, Debug)
     USE QDUtil_m
     USE Cavity_mode_m
     USE Matter_mode_m
     IMPLICIT NONE 
 
     TYPE(Operator_ND_t), intent(inout) :: OpND
-    integer, optional,    intent(in)    :: Verbose                                                                                 ! cf. comments in HO1D_parameters_m
-    logical, optional,    intent(in)    :: Debug                                                                                   ! cf. comments in HO1D_parameters_m
+    logical, optional,   intent(in)    :: All
+    integer, optional,   intent(in)    :: Verbose                                                                                 ! cf. comments in HO1D_parameters_m
+    logical, optional,   intent(in)    :: Debug                                                                                   ! cf. comments in HO1D_parameters_m
 
-    integer                             :: i_op
-    integer                             :: Verbose_local                                                                      ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
-    logical                             :: Debug_local
+    integer                            :: i_op
+    logical                            :: All_local
+    integer                            :: Verbose_local                                                                      ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
+    logical                            :: Debug_local
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
@@ -432,16 +450,8 @@ MODULE Operator_ND_m
     IF (Verbose_local > 27) WRITE(out_unit,*) "-----------------------------------------------Deallocating the OpND obje&
                                               &ct----------------------------------------------"
   
-    OpND%Nb = 0
-    OpND%w  = ZERO
-    OpND%m  = ZERO
-    DO i_op = 0, SIZE(OpND%Tab_op)-1
-      CALL Dealloc(OpND%Tab_op(i_op), Verbose=Verbose_local, Debug=Debug_local)
-    END DO
-    IF (ALLOCATED(OpND%Tab_op)) DEALLOCATE(OpND%Tab_op)
-    OpND%Nq      = 0
-    OpND%Eq_pos  = -ONE
-    OpND%Scale_q = HUGE(ONE)
+    IF (ALLOCATED(OpND%tab_indexes_mat_op)) DEALLOCATE(OpND%tab_indexes_mat_op)
+    IF (ALLOCATED(OpND%tab_indexes_cav_op)) DEALLOCATE(OpND%tab_indexes_cav_op)
 
     IF (Debug_local) THEN
       WRITE(out_unit,*)

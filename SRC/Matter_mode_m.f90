@@ -45,7 +45,7 @@ MODULE Matter_mode_m
 
 
   TYPE, EXTENDS(Quantum_HO1D_t)  :: Matter_mode_t
-    real(kind=Rkind)             :: lambda        = -ONE
+    real(kind=Rkind)             :: lambda = -ONE
     real(kind=Rkind)             :: CoeffsDipMomt(5) !/!\ if want to make it allocatable and move the allocation in the initialize sub, then mind changing the dealloc sub with a deallocate cmd ! (it is not supposed to change anything else in this file)                                                                         ! size of the Taylor expansion arbitrarily decided /hard-coded here 
   END TYPE
 
