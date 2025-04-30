@@ -31,15 +31,26 @@ PROGRAM test_operator_ND
   USE QDUtil_m
   USE Tests_m
   USE Algebra_m
-  !USE Operator_ND_m
+  USE Operator_ND_m
   IMPLICIT NONE
 
 
   integer             :: Verbose = 40
   logical             :: Debug   = .TRUE.
 
-  character(len=39)   :: test
-  character(len=20)   :: Ops(3)
+  TYPE(Operator_ND_t) :: OpND
+  logical             :: Dense   = .FALSE.
+
+  real(kind=Rkind)    :: Psi_ND_R1_real(3)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
+  real(kind=Rkind)    :: Coeff_0_real = ONE
+  real(kind=Rkind)    :: Coeff_1_real = HALF
+  real(kind=Rkind)    :: Coeff_2_real = PI
+  real(kind=Rkind)    :: Op_psi_real(3)                                                                                ! the resulting vector from the action of a 1D operator upon Psi_ND_R1_real
+  complex(kind=Rkind) :: Psi_ND_R1_complex(3)                                                                          ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} BUT with complexes expansion coefficients to make complexe WF. /!\ Not normalized yet !
+  complex(kind=Rkind) :: Coeff_0_complex = ONE*EYE + SQRT(TWO)
+  complex(kind=Rkind) :: Coeff_1_complex = HALF
+  complex(kind=Rkind) :: Coeff_2_complex = PI*EYE
+  complex(kind=Rkind) :: Op_psi_complex(3)                                                                             ! the resulting vector from the action of a 1D operator upon Psi_ND_R1_complex
 
   TYPE(test_t)        :: test_opnd
   logical             :: error_opnd = .FALSE.
@@ -50,25 +61,50 @@ PROGRAM test_operator_ND
   !-----------------------------Test initialization----------------------------
   CALL Initialize_Test(test_opnd, test_name="OUT/test_file_opnd")
 
-  test="hamiltonian ,   position ,Identity     "
-  WRITE(out_unit,*) test 
-  WRITE(out_unit,*) test(4:4)
-  WRITE(out_unit,*) (test=='h')
-  READ(unit=test, fmt=*) Ops
 
-  WRITE(out_unit,*) Ops 
-  WRITE(out_unit,*) Ops(1) 
-  WRITE(out_unit,*) Ops(2)
-  WRITE(out_unit,*) Ops(3)
-  WRITE(out_unit,*) LEN(Ops)
-  WRITE(out_unit,*) LEN_trim(Ops)
-  WRITE(out_unit,*) LEN(Ops(1))
-  WRITE(out_unit,*) LEN_trim(Ops(1))
-  WRITE(out_unit,*) LEN(Ops(2))
-  WRITE(out_unit,*) LEN_trim(Ops(2))
-  WRITE(out_unit,*) LEN(Ops(3))
-  WRITE(out_unit,*) LEN_trim(Ops(3))
+  !-------------------------Matter mode initialization-------------------------
+  CALL Initialize(OpND, "hamiltonian, position, NbQuanta", " ", in_unit, Dense=Dense, Verbose=Verbose, Debug=Debug)
+  IF (Debug) THEN
+    WRITE(out_unit,*)
+    WRITE(out_unit,*) "--------------Matter mode constructed by MolecCav_Initialize_matter_mode--------------"
+    CALL Write(OpND)
+    WRITE(out_unit,*) "------------End Matter mode constructed by MolecCav_Initialize_matter_mode------------"
+  END IF
 
+
+  !-------------------------Wavefunction initialization (real)------------------------
+  Psi_ND_R1_real(:) = [Coeff_0_real, Coeff_1_real, Coeff_2_real]
+  CALL Normalize(Psi_ND_R1_real)
+  IF (Debug) THEN
+    WRITE(out_unit,*)
+    WRITE(out_unit,*) "----------------The matter wavefunction has been initialized as :---------------"
+    CALL Write_Vec(Psi_ND_R1_real, out_unit, Size(Psi_ND_R1_real), info="Psi_ND_R1_real")
+    WRITE(out_unit,*) "-----------------------------End matter wavefunction----------------------------"
+  END IF
+
+
+  !-------------------------Wavefunction initialization (complex)------------------------
+  Psi_ND_R1_complex(:) = [Coeff_0_complex, Coeff_1_complex, Coeff_2_complex]                                                     ! uses the same basis set as the real WF, but the expansion coefficients are complexes
+  CALL Normalize(Psi_ND_R1_complex)
+  IF (Debug) THEN
+    WRITE(out_unit,*)
+    WRITE(out_unit,*) "----------------The matter wavefunction has been initialized as :---------------"
+    CALL Write_Vec(Psi_ND_R1_complex, out_unit, Size(Psi_ND_R1_complex), info="Psi_ND_R1_complex")
+    WRITE(out_unit,*) "-----------------------------End matter wavefunction----------------------------"
+  END IF
+
+
+  !----------------------------Testing the actions---------------------------
+  !DO i = 0, SIZE(MatMode%Tab_op)-1
+   ! CALL Action(Op_psi_real,    MatMode, i, Psi_ND_R1_real,    Verbose=Verbose, Debug=Debug)
+    !CALL Action(Op_psi_complex, MatMode, i, Psi_ND_R1_complex, Verbose=Verbose, Debug=Debug)    
+  !END DO
+
+
+  !----------------------------Testing the actions---------------------------
+  CALL Dealloc(OpND, Verbose=Verbose, Debug=Debug)
+
+  
   !-----------------------------------The tests--------------------------------
 
   CALL Finalize_Test(test_opnd)
