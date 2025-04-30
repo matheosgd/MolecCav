@@ -41,16 +41,16 @@ PROGRAM test_operator_ND
   TYPE(Operator_ND_t) :: OpND
   logical             :: Dense   = .FALSE.
 
-  real(kind=Rkind)    :: Psi_ND_R1_real(3)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
+  real(kind=Rkind)    :: Psi_ND_R1_real(27)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
   real(kind=Rkind)    :: Coeff_0_real = ONE
   real(kind=Rkind)    :: Coeff_1_real = HALF
   real(kind=Rkind)    :: Coeff_2_real = PI
-  real(kind=Rkind)    :: Op_psi_real(3)                                                                                ! the resulting vector from the action of a 1D operator upon Psi_ND_R1_real
-  complex(kind=Rkind) :: Psi_ND_R1_complex(3)                                                                          ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} BUT with complexes expansion coefficients to make complexe WF. /!\ Not normalized yet !
+  real(kind=Rkind)    :: Op_psi_real(27)                                                                                ! the resulting vector from the action of a 1D operator upon Psi_ND_R1_real
+  complex(kind=Rkind) :: Psi_ND_R1_complex(27)                                                                          ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} BUT with complexes expansion coefficients to make complexe WF. /!\ Not normalized yet !
   complex(kind=Rkind) :: Coeff_0_complex = ONE*EYE + SQRT(TWO)
   complex(kind=Rkind) :: Coeff_1_complex = HALF
   complex(kind=Rkind) :: Coeff_2_complex = PI*EYE
-  complex(kind=Rkind) :: Op_psi_complex(3)                                                                             ! the resulting vector from the action of a 1D operator upon Psi_ND_R1_complex
+  complex(kind=Rkind) :: Op_psi_complex(27)                                                                             ! the resulting vector from the action of a 1D operator upon Psi_ND_R1_complex
 
   TYPE(test_t)        :: test_opnd
   logical             :: error_opnd = .FALSE.
@@ -63,7 +63,7 @@ PROGRAM test_operator_ND
 
 
   !-------------------------Matter mode initialization-------------------------
-  CALL Initialize(OpND, "hamiltonian, position, NbQuanta", " ", in_unit, Dense=Dense, Verbose=Verbose, Debug=Debug)
+  CALL Initialize(OpND, " position, NbQuanta", " hamiltonian ", in_unit, Dense=Dense, Verbose=Verbose, Debug=Debug)
   IF (Debug) THEN
     WRITE(out_unit,*)
     WRITE(out_unit,*) "--------------Matter mode constructed by MolecCav_Initialize_matter_mode--------------"
@@ -73,7 +73,9 @@ PROGRAM test_operator_ND
 
 
   !-------------------------Wavefunction initialization (real)------------------------
-  Psi_ND_R1_real(:) = [Coeff_0_real, Coeff_1_real, Coeff_2_real]
+  Psi_ND_R1_real(1) = Coeff_0_real
+  Psi_ND_R1_real(2) = Coeff_1_real
+  Psi_ND_R1_real(3) = Coeff_2_real
   CALL Normalize(Psi_ND_R1_real)
   IF (Debug) THEN
     WRITE(out_unit,*)
@@ -84,7 +86,9 @@ PROGRAM test_operator_ND
 
 
   !-------------------------Wavefunction initialization (complex)------------------------
-  Psi_ND_R1_complex(:) = [Coeff_0_complex, Coeff_1_complex, Coeff_2_complex]                                                     ! uses the same basis set as the real WF, but the expansion coefficients are complexes
+  Psi_ND_R1_complex(1) = Coeff_0_complex                                                     ! uses the same basis set as the real WF, but the expansion coefficients are complexes
+  Psi_ND_R1_complex(2) = Coeff_1_complex                                                     ! uses the same basis set as the real WF, but the expansion coefficients are complexes
+  Psi_ND_R1_complex(3) = Coeff_2_complex                                                     ! uses the same basis set as the real WF, but the expansion coefficients are complexes
   CALL Normalize(Psi_ND_R1_complex)
   IF (Debug) THEN
     WRITE(out_unit,*)
@@ -95,10 +99,7 @@ PROGRAM test_operator_ND
 
 
   !----------------------------Testing the actions---------------------------
-  !DO i = 0, SIZE(MatMode%Tab_op)-1
-   ! CALL Action(Op_psi_real,    MatMode, i, Psi_ND_R1_real,    Verbose=Verbose, Debug=Debug)
-    !CALL Action(Op_psi_complex, MatMode, i, Psi_ND_R1_complex, Verbose=Verbose, Debug=Debug)    
-  !END DO
+  CALL Action(Op_psi_real, OpND, Psi_ND_R1_real, Verbose=Verbose, Debug=Debug)
 
 
   !----------------------------Testing the actions---------------------------

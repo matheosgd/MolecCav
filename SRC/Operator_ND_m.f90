@@ -282,7 +282,13 @@ MODULE Operator_ND_m
     integer, optional,    intent(in)    :: Verbose                                                                              ! cf. comments in HO1D_parameters_m
     logical, optional,    intent(in)    :: Debug                                                                                ! cf. comments in HO1D_parameters_m
 
-    integer                             :: N_tot = 1, i_mode
+    integer                             :: N_mat, N_cav, i_mode, I = 0, i_1, i_3
+    integer,          allocatable       :: Ranks_sizes(:)
+    integer                             :: Reduced_ranks_sizes(3)
+    TYPE(ND_indexes_t)                  :: ND_indexes
+    integer                             :: List_indexes(3)
+    real(kind=Rkind), allocatable       :: Cube(:,:,:), Op_cube(:,:,:)
+    logical                             :: Continue_loop
     integer                             :: Verbose_local                                                                   ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
     logical                             :: Debug_local
 
@@ -310,27 +316,257 @@ MODULE Operator_ND_m
     
     !-----------------------------------------------------Checking dimensions----------------------------------------------------
     ! THE DIMENSIONS OF EACH 1D MATMUL WILL BE TESTED IN THE ACTIONS CODED IN ELEM_OP_M ! (fortunately btw, otherwise the \hat{I}d case should have test above)
-    IF (SIZE(OpND%tab_indexes_mat_op) /= 0) THEN
-      DO i_mode = 1, SIZE(OpND%tab_indexes_mat_op)
-        N_tot = N_tot * tab_mat_ops(OpND%tab_indexes_mat_op(i_mode))%Nb
+    N_mat = SIZE(OpND%tab_indexes_mat_op)
+    N_cav = SIZE(OpND%tab_indexes_cav_op)
+    ALLOCATE(Ranks_sizes(N_mat + N_cav))
+
+    IF (N_mat /= 0) THEN
+      DO i_mode = 1, N_mat
+        Ranks_sizes(i_mode) = tab_mat_ops(i_mode)%Nb
       END DO
     END IF 
-    IF (SIZE(OpND%tab_indexes_cav_op) /= 0) THEN
-      DO i_mode = 1, SIZE(OpND%tab_indexes_cav_op)
-        N_tot = N_tot * tab_cav_ops(OpND%tab_indexes_cav_op(i_mode))%Nb
+    IF (N_cav /= 0) THEN
+      DO i_mode = 1, N_cav
+        Ranks_sizes(N_mat+i_mode) = tab_cav_ops(i_mode)%Nb
       END DO
     END IF 
 
-    IF (SIZE(Psi, dim=1) /= N_tot) THEN
+    IF (SIZE(Psi, dim=1) /= PRODUCT(Ranks_sizes)) THEN
       WRITE(out_unit,*) "### The dimension of the wavevector Psi does not match the dimension product of the operators to"
-      WRITE(out_unit,*) "   Size(Psi, dim=1) = "//TO_string(Size(Psi, dim=1))//"; PRODUCT(Dims) = "//TO_string(N_tot)
+      WRITE(out_unit,*) "   Size(Psi, dim=1) = "//TO_string(Size(Psi, dim=1))//"; PRODUCT(Dims) = "//TO_string(PRODUCT(Ranks_sizes))
       STOP "### The dimension of Psi does not match the dimension product of the operators."
     END IF
+
+    !----------------------------Computation for the first rank----------------------------------    
+      !----------------------------Initializing the ND_indexes object for the 1^{st} dimension/mode----------------------------------
+    Reduced_ranks_sizes = [1, Ranks_sizes(1), PRODUCT(Ranks_sizes(2:N_mat+N_cav))]
+
+    CALL Initialize_ND_indexes(ND_indexes, Reduced_ranks_sizes, Starting_indexes=[1,1,1], Debug=Debug_local)
+    List_indexes = Initialize_List_indexes(ND_indexes)
+
+    IF (Debug_local) CALL Write_Vec(List_indexes, out_unit, 3, info="List_indexes")
+
+      !----------------------------------------Generating the cube--------------------------------------------
+    ALLOCATE(Cube(   ND_indexes%Ranks_sizes(1), ND_indexes%Ranks_sizes(2), ND_indexes%Ranks_sizes(3)))
+    ALLOCATE(Op_cube(ND_indexes%Ranks_sizes(1), ND_indexes%Ranks_sizes(2), ND_indexes%Ranks_sizes(3)))
+
+    DO
+      IF (Debug_local) THEN
+        WRITE(out_unit,*)
+        WRITE(out_unit,*) "After looping "//TO_string(I)//" : I = "//TO_string(I)//"; NB = "//TO_string(ND_indexes%NB)
+        CALL Write_Vec(List_indexes,           out_unit, Size(List_indexes),           info="List_indexes_"//TO_string(I)//" =")
+        CALL Write_Vec(ND_indexes%Ranks_sizes, out_unit, Size(ND_indexes%Ranks_sizes), info="Ranks_sizes    =")
+      END IF
+
+      CALL Increment_indexes(Continue_loop, List_indexes, ND_indexes, Debug=.FALSE.)
+      I = I + 1
+      IF (Debug_local) WRITE(out_unit,*) "--> Continue_loop : "//TO_string(Continue_loop)
+      IF (.NOT. Continue_loop) EXIT 
+      IF (I>ND_indexes%NB) THEN
+        WRITE(out_unit,*) "The looping should not continue when I is greater that NB !"
+        STOP              "The looping should not continue when I is greater that NB !"
+      END IF
+
+      IF (Debug_local) WRITE(out_unit,*)
+      IF (Debug_local) WRITE(out_unit,*) "Looping "//TO_string(I)//" -> I = "//TO_string(I)//"..."
+      Cube(List_indexes(1), List_indexes(2), List_indexes(3)) = Psi(I)
+    END DO
+
+    IF (Debug_local) CALL Write_Mat(Cube(1,:,:), out_unit, ND_indexes%Ranks_sizes(3), info="Cube(1,:,:)")
+
+      !----------------------------------------Applying the operator to the cube--------------------------------------------
+    DO i_3 = 1, ND_indexes%Ranks_sizes(3)
+        CALL Action(Op_psi=Op_cube(1,:,i_3), MatMode=tab_mat_ops(1), i_op=OpND%tab_indexes_mat_op(1), Psi=Cube(i_1,&
+        &:,i_3), Verbose=Verbose, Debug=Debug)
+    END DO 
+
+      !--------------Unfolding the Op_Cube into the new Op_psi for the new operator on the next mode----------------
+    List_indexes = Initialize_List_indexes(ND_indexes)
+    I = 0
+    DO
+      IF (Debug_local) THEN
+        WRITE(out_unit,*)
+        WRITE(out_unit,*) "After looping "//TO_string(I)//" : I = "//TO_string(I)//"; NB = "//TO_string(ND_indexes%NB)
+        CALL Write_Vec(List_indexes,           out_unit, Size(List_indexes),           info="List_indexes_"//TO_string(I)//" =")
+        CALL Write_Vec(ND_indexes%Ranks_sizes, out_unit, Size(ND_indexes%Ranks_sizes), info="Ranks_sizes    =")
+      END IF
+
+      CALL Increment_indexes(Continue_loop, List_indexes, ND_indexes, Debug=.FALSE.)
+      I = I + 1
+      IF (Debug_local) WRITE(out_unit,*) "--> Continue_loop : "//TO_string(Continue_loop)
+      IF (.NOT. Continue_loop) EXIT 
+      IF (I>ND_indexes%NB) THEN
+        WRITE(out_unit,*) "The looping should not continue when I is greater that NB !"
+        STOP              "The looping should not continue when I is greater that NB !"
+      END IF
+
+      IF (Debug_local) WRITE(out_unit,*)
+      IF (Debug_local) WRITE(out_unit,*) "Looping "//TO_string(I)//" -> I = "//TO_string(I)//"..."
+      Op_psi(I) = Op_cube(List_indexes(1), List_indexes(2), List_indexes(3))
+    END DO
+
+    CALL Deallocate_ND_indexes(ND_indexes)
+    DEALLOCATE(Cube); DEALLOCATE(Op_cube)
     
-    !---------------------------------------------Selection of the calculation method--------------------------------------------
+    !----------------------------Computation for the middle ranks----------------------------------    
+    DO i_mode = 2, N_mat + N_cav - 1 ! /!\ traiter les cas i_mode = 1 et max à part !
+      !----------------------------Initializing the ND_indexes object for the i_mode^{th} dimension/mode----------------------------------
+      Reduced_ranks_sizes = [PRODUCT(Ranks_sizes(1:i_mode-1)), Ranks_sizes(i_mode), PRODUCT(Ranks_sizes(i_mode+1:N_mat+N_cav))]
+
+      CALL Initialize_ND_indexes(ND_indexes, Reduced_ranks_sizes, Starting_indexes=[1,1,1], Debug=Debug_local)
+      List_indexes = Initialize_List_indexes(ND_indexes)
+
+      IF (Debug_local) CALL Write_Vec(List_indexes, out_unit, 3, info="List_indexes")
+
+      !----------------------------------------Generating the cube--------------------------------------------
+      ALLOCATE(Cube(   ND_indexes%Ranks_sizes(1), ND_indexes%Ranks_sizes(2), ND_indexes%Ranks_sizes(3)))
+      ALLOCATE(Op_cube(ND_indexes%Ranks_sizes(1), ND_indexes%Ranks_sizes(2), ND_indexes%Ranks_sizes(3)))
+
+      DO
+        IF (Debug_local) THEN
+          WRITE(out_unit,*)
+          WRITE(out_unit,*) "After looping "//TO_string(I)//" : I = "//TO_string(I)//"; NB = "//TO_string(ND_indexes%NB)
+          CALL Write_Vec(List_indexes,           out_unit, Size(List_indexes),           info="List_indexes_"//TO_string(I)//" =")
+          CALL Write_Vec(ND_indexes%Ranks_sizes, out_unit, Size(ND_indexes%Ranks_sizes), info="Ranks_sizes    =")
+        END IF
+
+        CALL Increment_indexes(Continue_loop, List_indexes, ND_indexes, Debug=.FALSE.)
+        I = I + 1
+        IF (Debug_local) WRITE(out_unit,*) "--> Continue_loop : "//TO_string(Continue_loop)
+        IF (.NOT. Continue_loop) EXIT 
+        IF (I>ND_indexes%NB) THEN
+          WRITE(out_unit,*) "The looping should not continue when I is greater that NB !"
+          STOP              "The looping should not continue when I is greater that NB !"
+        END IF
+
+        IF (Debug_local) WRITE(out_unit,*)
+        IF (Debug_local) WRITE(out_unit,*) "Looping "//TO_string(I)//" -> I = "//TO_string(I)//"..."
+        Cube(List_indexes(1), List_indexes(2), List_indexes(3)) = Op_psi(I) ! since already one loop : apply next op on Op_psi and not Psi
+      END DO
+
+      IF (Debug_local) CALL Write_Mat(Cube(1,:,:), out_unit, ND_indexes%Ranks_sizes(3), info="Cube(1,:,:)")
+
+      !----------------------------------------Applying the operator to the cube--------------------------------------------
+      DO i_3 = 1, ND_indexes%Ranks_sizes(3)
+        DO i_1 = 1, ND_indexes%Ranks_sizes(1)
+          IF (i_mode <= N_mat) THEN
+            CALL Action(Op_psi=Op_cube(i_1,:,i_3), MatMode=tab_mat_ops(i_mode), i_op=OpND%tab_indexes_mat_op(i_mode), Psi=Cube(i_1,&
+            &:,i_3), Verbose=Verbose, Debug=Debug)
+          ELSE 
+            CALL Action(Op_psi=Op_cube(i_1,:,i_3), CavMode=tab_cav_ops(i_mode), i_op=OpND%tab_indexes_cav_op(i_mode), Psi=Cube(i_1,&
+            &:,i_3), Verbose=Verbose, Debug=Debug)
+          END IF
+        END DO 
+      END DO 
+
+      !--------------Unfolding the Op_Cube into the new Op_psi for the new operator on the next mode----------------
+      List_indexes = Initialize_List_indexes(ND_indexes)
+      I = 0
+      DO
+        IF (Debug_local) THEN
+          WRITE(out_unit,*)
+          WRITE(out_unit,*) "After looping "//TO_string(I)//" : I = "//TO_string(I)//"; NB = "//TO_string(ND_indexes%NB)
+          CALL Write_Vec(List_indexes,           out_unit, Size(List_indexes),           info="List_indexes_"//TO_string(I)//" =")
+          CALL Write_Vec(ND_indexes%Ranks_sizes, out_unit, Size(ND_indexes%Ranks_sizes), info="Ranks_sizes    =")
+        END IF
+
+        CALL Increment_indexes(Continue_loop, List_indexes, ND_indexes, Debug=.FALSE.)
+        I = I + 1
+        IF (Debug_local) WRITE(out_unit,*) "--> Continue_loop : "//TO_string(Continue_loop)
+        IF (.NOT. Continue_loop) EXIT 
+        IF (I>ND_indexes%NB) THEN
+          WRITE(out_unit,*) "The looping should not continue when I is greater that NB !"
+          STOP              "The looping should not continue when I is greater that NB !"
+        END IF
+
+        IF (Debug_local) WRITE(out_unit,*)
+        IF (Debug_local) WRITE(out_unit,*) "Looping "//TO_string(I)//" -> I = "//TO_string(I)//"..."
+        Op_psi(I) = Op_cube(List_indexes(1), List_indexes(2), List_indexes(3))
+      END DO
+
+      CALL Deallocate_ND_indexes(ND_indexes)
+      DEALLOCATE(Cube); DEALLOCATE(Op_cube)
+    END DO    
+
+    !----------------------------Computation for the final rank----------------------------------    
+      !----------------------------Initializing the ND_indexes object for the i_mode^{th} dimension/mode----------------------------------
+    Reduced_ranks_sizes = [PRODUCT(Ranks_sizes(1:N_mat+N_cav-1)), Ranks_sizes(N_mat+N_cav), 1]
+
+    CALL Initialize_ND_indexes(ND_indexes, Reduced_ranks_sizes, Starting_indexes=[1,1,1], Debug=Debug_local)
+    List_indexes = Initialize_List_indexes(ND_indexes)
+
+    IF (Debug_local) CALL Write_Vec(List_indexes, out_unit, 3, info="List_indexes")
+
+      !----------------------------------------Generating the cube--------------------------------------------
+    ALLOCATE(Cube(   ND_indexes%Ranks_sizes(1), ND_indexes%Ranks_sizes(2), ND_indexes%Ranks_sizes(3)))
+    ALLOCATE(Op_cube(ND_indexes%Ranks_sizes(1), ND_indexes%Ranks_sizes(2), ND_indexes%Ranks_sizes(3)))
+
+    DO
+      IF (Debug_local) THEN
+        WRITE(out_unit,*)
+        WRITE(out_unit,*) "After looping "//TO_string(I)//" : I = "//TO_string(I)//"; NB = "//TO_string(ND_indexes%NB)
+        CALL Write_Vec(List_indexes,           out_unit, Size(List_indexes),           info="List_indexes_"//TO_string(I)//" =")
+        CALL Write_Vec(ND_indexes%Ranks_sizes, out_unit, Size(ND_indexes%Ranks_sizes), info="Ranks_sizes    =")
+      END IF
+
+      CALL Increment_indexes(Continue_loop, List_indexes, ND_indexes, Debug=.FALSE.)
+      I = I + 1
+      IF (Debug_local) WRITE(out_unit,*) "--> Continue_loop : "//TO_string(Continue_loop)
+      IF (.NOT. Continue_loop) EXIT 
+      IF (I>ND_indexes%NB) THEN
+        WRITE(out_unit,*) "The looping should not continue when I is greater that NB !"
+        STOP              "The looping should not continue when I is greater that NB !"
+      END IF
+
+      IF (Debug_local) WRITE(out_unit,*)
+      IF (Debug_local) WRITE(out_unit,*) "Looping "//TO_string(I)//" -> I = "//TO_string(I)//"..."
+      Cube(List_indexes(1), List_indexes(2), List_indexes(3)) = Psi(I)
+    END DO
+
+    IF (Debug_local) CALL Write_Mat(Cube(1,:,:), out_unit, ND_indexes%Ranks_sizes(3), info="Cube(1,:,:)")
+
+      !----------------------------------------Applying the operator to the cube--------------------------------------------
+    DO i_3 = 1, ND_indexes%Ranks_sizes(3)
+      DO i_1 = 1, ND_indexes%Ranks_sizes(1)
+        IF (i_mode <= N_mat) THEN
+          CALL Action(Op_psi=Op_cube(i_1,:,i_3), MatMode=tab_mat_ops(i_mode), i_op=OpND%tab_indexes_mat_op(i_mode), Psi=Cube(i_1,&
+          &:,i_3), Verbose=Verbose, Debug=Debug)
+        ELSE 
+          CALL Action(Op_psi=Op_cube(i_1,:,i_3), CavMode=tab_cav_ops(i_mode), i_op=OpND%tab_indexes_cav_op(i_mode), Psi=Cube(i_1,&
+          &:,i_3), Verbose=Verbose, Debug=Debug)
+        END IF
+      END DO 
+    END DO 
+
+      !--------------Unfolding the Op_Cube into the new Op_psi for the new operator on the next mode----------------
+    List_indexes = Initialize_List_indexes(ND_indexes)
+    I = 0
+    DO
+      IF (Debug_local) THEN
+        WRITE(out_unit,*)
+        WRITE(out_unit,*) "After looping "//TO_string(I)//" : I = "//TO_string(I)//"; NB = "//TO_string(ND_indexes%NB)
+        CALL Write_Vec(List_indexes,           out_unit, Size(List_indexes),           info="List_indexes_"//TO_string(I)//" =")
+        CALL Write_Vec(ND_indexes%Ranks_sizes, out_unit, Size(ND_indexes%Ranks_sizes), info="Ranks_sizes    =")
+      END IF
+
+      CALL Increment_indexes(Continue_loop, List_indexes, ND_indexes, Debug=.FALSE.)
+      I = I + 1
+      IF (Debug_local) WRITE(out_unit,*) "--> Continue_loop : "//TO_string(Continue_loop)
+      IF (.NOT. Continue_loop) EXIT 
+      IF (I>ND_indexes%NB) THEN
+        WRITE(out_unit,*) "The looping should not continue when I is greater that NB !"
+        STOP              "The looping should not continue when I is greater that NB !"
+      END IF
+
+      IF (Debug_local) WRITE(out_unit,*)
+      IF (Debug_local) WRITE(out_unit,*) "Looping "//TO_string(I)//" -> I = "//TO_string(I)//"..."
+      Op_psi(I) = Op_cube(List_indexes(1), List_indexes(2), List_indexes(3))
+    END DO
+
+    CALL Deallocate_ND_indexes(ND_indexes)
+    DEALLOCATE(Cube); DEALLOCATE(Op_cube)
     
-    
-    
+    !--------------Conclusion----------------
     IF (Verbose_local > 26) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "--- Resulting statevector from the action of the HO1D Elem_op on the Psi statevector operand, computed &
