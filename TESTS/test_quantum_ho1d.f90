@@ -91,11 +91,18 @@ PROGRAM test_quantum_ho1d
   Psi_real    = [ONE, SQRT(TWO), PI, SQRT(TWO), ONE, HALF]
   CALL Normalize(Psi_real)
   Psi_complex = [ONE, SQRT(TWO), PI, SQRT(TWO), ONE, HALF]
-  Psi_complex(1) = Psi_complex(4)*EYE
-  Psi_complex(2) = Psi_complex(4)*EYE
-  Psi_complex(2) = Psi_complex(4)*EYE
+  Psi_complex(1) = Psi_complex(2) + Psi_complex(1)*EYE
+  Psi_complex(2) = Psi_complex(2)*EYE
+  Psi_complex(3) = Psi_complex(1) + Psi_complex(3)*EYE
   Psi_complex(5) = Psi_complex(5)*EYE
   CALL Normalize(Psi_complex)
+  
+  IF (Debug) THEN
+    WRITE(out_unit,*)
+    CALL Write_Vec(Psi_real,    out_unit, 1, info="Psi_real")
+    WRITE(out_unit,*)
+    CALL Write_Vec(Psi_complex, out_unit, 1, info="Psi_complex")
+  END IF
 
   !-------------------------Construct reference matricies-----------------------
     !-------------------------I matricies-----------------------

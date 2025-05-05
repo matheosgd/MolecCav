@@ -40,9 +40,9 @@ PROGRAM test_operator_ND
 
   TYPE(Operator_ND_t) :: OpND
   logical             :: Dense   = .FALSE.
-
+  
   real(kind=Rkind)    :: Psi_ND_R1_real(27)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
-  real(kind=Rkind)    :: Coeff_0_real = ONE
+  real(kind=Rkind)    :: Coeff_0_real = SQRT(TWO)
   real(kind=Rkind)    :: Coeff_1_real = HALF
   real(kind=Rkind)    :: Coeff_2_real = PI
   real(kind=Rkind)    :: Op_psi_real(27)                                                                                ! the resulting vector from the action of a 1D operator upon Psi_ND_R1_real
@@ -62,39 +62,41 @@ PROGRAM test_operator_ND
   CALL Initialize_Test(test_opnd, test_name="OUT/test_file_opnd")
 
 
-  !-------------------------Matter mode initialization-------------------------
+  !-------------------------Operator_ND object initialization-------------------------
   CALL Initialize(OpND, " position, NbQuanta", " hamiltonian ", in_unit, Dense=Dense, Verbose=Verbose, Debug=Debug)
   IF (Debug) THEN
     WRITE(out_unit,*)
-    WRITE(out_unit,*) "--------------Matter mode constructed by MolecCav_Initialize_matter_mode--------------"
+    WRITE(out_unit,*) "--------------Operator_ND object constructed by MolecCav_Initialize_operator_ND--------------"
     CALL Write(OpND)
-    WRITE(out_unit,*) "------------End Matter mode constructed by MolecCav_Initialize_matter_mode------------"
+    WRITE(out_unit,*) "------------End Operator_ND object constructed by MolecCav_Initialize_operator_ND------------"
   END IF
 
 
   !-------------------------Wavefunction initialization (real)------------------------
+  Psi_ND_R1_real    = [ (REAL(i, kind=Rkind), i=1, 27) ]
   Psi_ND_R1_real(1) = Coeff_0_real
   Psi_ND_R1_real(2) = Coeff_1_real
   Psi_ND_R1_real(3) = Coeff_2_real
   CALL Normalize(Psi_ND_R1_real)
   IF (Debug) THEN
     WRITE(out_unit,*)
-    WRITE(out_unit,*) "----------------The matter wavefunction has been initialized as :---------------"
+    WRITE(out_unit,*) "----------------The (real) total system wavefunction has been initialized as :---------------"
     CALL Write_Vec(Psi_ND_R1_real, out_unit, Size(Psi_ND_R1_real), info="Psi_ND_R1_real")
-    WRITE(out_unit,*) "-----------------------------End matter wavefunction----------------------------"
+    WRITE(out_unit,*) "-----------------------------End (real) total system wavefunction----------------------------"
   END IF
 
 
   !-------------------------Wavefunction initialization (complex)------------------------
+  Psi_ND_R1_complex    = [ (REAL(i, kind=Rkind), i=1, 27) ]
   Psi_ND_R1_complex(1) = Coeff_0_complex                                                     ! uses the same basis set as the real WF, but the expansion coefficients are complexes
   Psi_ND_R1_complex(2) = Coeff_1_complex                                                     ! uses the same basis set as the real WF, but the expansion coefficients are complexes
   Psi_ND_R1_complex(3) = Coeff_2_complex                                                     ! uses the same basis set as the real WF, but the expansion coefficients are complexes
   CALL Normalize(Psi_ND_R1_complex)
   IF (Debug) THEN
     WRITE(out_unit,*)
-    WRITE(out_unit,*) "----------------The matter wavefunction has been initialized as :---------------"
+    WRITE(out_unit,*) "----------------The (complex) total system wavefunction wavefunction has been initialized as :--------------"
     CALL Write_Vec(Psi_ND_R1_complex, out_unit, Size(Psi_ND_R1_complex), info="Psi_ND_R1_complex")
-    WRITE(out_unit,*) "-----------------------------End matter wavefunction----------------------------"
+    WRITE(out_unit,*) "-----------------------------End (complex) total system wavefunction----------------------------"
   END IF
 
 
