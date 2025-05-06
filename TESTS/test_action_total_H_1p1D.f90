@@ -82,7 +82,7 @@ PROGRAM test_action_total_H_1p1D
     
   
     !----------------------------------Wavefunction initialization---------------------------------
-    b_5(:,1) = [ZERO, ZERO, ZERO]; b_5(:,2) = [ZERO, ZERO, ZERO]
+    b_5 = ZERO
 
     b_0 = b_5
     b_0(1,1) = ONE

@@ -69,9 +69,9 @@ MODULE Elem_op_m
     logical                          :: Dense = .FALSE.                        ! if .TRUE. then the matrix storage will not be optimized and it will be stored as a Dense matrix
     integer                          :: Upper_bandwidth = 0                    ! if type = "Band". Gives the number of additional bands to consider above the diagonal.
     integer                          :: Lower_bandwidth = 0                    ! if type = "Band". Gives the number of additional bands to consider below the diagonal. Ex : Upper_bandwidth=Lower_bandwidth=1 would give a tridiagonal matrix
-    real(kind=Rkind),    allocatable :: Dense_val(:,:)                       ! if type = "Dense"
-    real(kind=Rkind),    allocatable :: Diag_val(:)                          ! if type = "Diagonal"
-    real(kind=Rkind),    allocatable :: Band_val(:,:)                        ! if subtype = "Band". The number of columns will be the number of diagonals to consider
+    real(kind=Rkind),    allocatable :: Dense_val(:,:)                         ! if type = "Dense"
+    real(kind=Rkind),    allocatable :: Diag_val(:)                            ! if type = "Diagonal"
+    real(kind=Rkind),    allocatable :: Band_val(:,:)                          ! if subtype = "Band". The number of columns will be the number of diagonals to consider
   END TYPE
 
   TYPE                               :: Elem_op_t

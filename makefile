@@ -136,26 +136,26 @@ $(info ***********************************************************************)
 .PHONY: ut UT
 # the ".PHONY <string1> <string2> <...>" make command indicates to make that the provided string are neither files nor directories and allows to use them...
 # ... as key-words, ex: as command-line commands
-UT ut: test_algebra.exe test_ND_indexes.exe test_elem_op.exe test_quantum_ho1d.exe test_matter_mode.exe test_cavity_mode.exe test_operator_ND.exe test_action_total_H_1p1D.exe test_construct_total_H_1p1D.exe test_normal_modes_1p1D.exe test_mapping.exe test_transition_intensities.exe
-	./test_algebra.exe                                             > $(OUTPUT_DIR)/test_algebra.log
-	./test_ND_indexes.exe                                          > $(OUTPUT_DIR)/test_ND_indexes.log
-	./test_elem_op.exe                                             > $(OUTPUT_DIR)/test_elem_op.log
-	./test_quantum_ho1d.exe                                        > $(OUTPUT_DIR)/test_quantum_ho1d.log
-	./test_matter_mode.exe            < $(DATA_DIR)/data_test_matmode.nml > $(OUTPUT_DIR)/test_matter_mode.log
-	./test_cavity_mode.exe            < $(DATA_DIR)/data_test_cavmode.nml > $(OUTPUT_DIR)/test_cavity_mode.log
-	./test_operator_ND.exe            < $(DATA_DIR)/data_test_opnd.nml   > $(OUTPUT_DIR)/test_operator_ND.log
-	./test_mapping.exe                < $(DATA_DIR)/data_tests.nml        > $(OUTPUT_DIR)/test_mapping.log
-	./test_action_total_H_1p1D.exe    < $(DATA_DIR)/data_tests.nml        > $(OUTPUT_DIR)/test_action_total_H_1p1D.log
-	./test_construct_total_H_1p1D.exe < $(DATA_DIR)/data_tests.nml        > $(OUTPUT_DIR)/test_construct_total_H_1p1D.log
-	./test_normal_modes_1p1D.exe      < $(DATA_DIR)/data_tests.nml        > $(OUTPUT_DIR)/test_normal_modes_1p1D.log
-	./test_transition_intensities.exe < $(DATA_DIR)/data_tests.nml        > $(OUTPUT_DIR)/test_transition_intensities.log
+UT ut: test_algebra.exe test_ND_indexes.exe test_elem_op.exe test_quantum_ho1d.exe test_matter_mode.exe test_cavity_mode.exe test_operator_ND_1p1D.exe test_action_total_H_1p1D.exe test_construct_total_H_1p1D.exe test_normal_modes_1p1D.exe test_mapping.exe test_transition_intensities.exe
+	./test_algebra.exe                                               > $(OUTPUT_DIR)/test_algebra.log
+	./test_ND_indexes.exe                                            > $(OUTPUT_DIR)/test_ND_indexes.log
+	./test_elem_op.exe                                               > $(OUTPUT_DIR)/test_elem_op.log
+	./test_quantum_ho1d.exe                                          > $(OUTPUT_DIR)/test_quantum_ho1d.log
+	./test_matter_mode.exe            < $(DATA_DIR)/data_test_matmode.nml   > $(OUTPUT_DIR)/test_matter_mode.log
+	./test_cavity_mode.exe            < $(DATA_DIR)/data_test_cavmode.nml   > $(OUTPUT_DIR)/test_cavity_mode.log
+	./test_operator_ND_1p1D.exe       < $(DATA_DIR)/data_test_opnd_1p1d.nml > $(OUTPUT_DIR)/test_operator_ND_1p1D.log
+	./test_mapping.exe                < $(DATA_DIR)/data_tests.nml          > $(OUTPUT_DIR)/test_mapping.log
+	./test_action_total_H_1p1D.exe    < $(DATA_DIR)/data_tests.nml          > $(OUTPUT_DIR)/test_action_total_H_1p1D.log
+	./test_construct_total_H_1p1D.exe < $(DATA_DIR)/data_tests.nml          > $(OUTPUT_DIR)/test_construct_total_H_1p1D.log
+	./test_normal_modes_1p1D.exe      < $(DATA_DIR)/data_tests.nml          > $(OUTPUT_DIR)/test_normal_modes_1p1D.log
+	./test_transition_intensities.exe < $(DATA_DIR)/data_tests.nml          > $(OUTPUT_DIR)/test_transition_intensities.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_algebra.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_ND_indexes.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_elem_op.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_quantum_ho1d.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_matter_mode.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_cavity_mode.log
-	grep "Number of error(s)" $(OUTPUT_DIR)/test_operator_ND.log
+	grep "Number of error(s)" $(OUTPUT_DIR)/test_operator_ND_1p1D.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_mapping.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_action_total_H_1p1D.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_construct_total_H_1p1D.log
