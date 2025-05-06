@@ -56,7 +56,7 @@ MODULE Operator_ND_m
 
   PRIVATE
 
-  PUBLIC Operator_ND_t, Initialize, Action, Write, Dealloc
+  PUBLIC Operator_ND_t, Initialize, Action, Get, Write, Dealloc
 
   INTERFACE Initialize
     MODULE PROCEDURE MolecCav_Initialize_operator_ND
@@ -66,6 +66,9 @@ MODULE Operator_ND_m
   END INTERFACE
   INTERFACE Action
     MODULE PROCEDURE MolecCav_Action_operator_ND_R1_real, MolecCav_Action_operator_ND_R1_complex
+  END INTERFACE
+  INTERFACE Get
+    MODULE PROCEDURE MolecCav_Get_OpND_parameter_integer, MolecCav_Get_OpND_parameter_real
   END INTERFACE
   INTERFACE Write
     MODULE PROCEDURE MolecCav_Write_operator_ND
@@ -240,7 +243,7 @@ MODULE Operator_ND_m
 
     !---------------------------------------------Construction of the whole tables--------------------------------------------
     DO i = 1, N_mat
-      CALL Initialize(MatMode=tab_mat_ops(i), nio=in_unit, Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local) ! N.B. => nml shall be constructed as Matmode1\Matmode2\...\Cavmode1\...\CavmodeN_cav\
+      CALL Initialize(Matmode=tab_mat_ops(i), nio=in_unit, Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local) ! N.B. => nml shall be constructed as OpND1\OpND2\...\Cavmode1\...\CavmodeN_cav\
     END DO
 
     DO i = 1, N_cav
@@ -405,7 +408,6 @@ MODULE Operator_ND_m
   SUBROUTINE MolecCav_Action_operator_ND_R1_complex(Op_psi, OpND, Psi, Verbose, Debug) ! Psi is ND AND R1
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     USE QDUtil_m
-    USE ND_indexes_m
     USE Cavity_mode_m
     USE Matter_mode_m
     IMPLICIT NONE
@@ -489,7 +491,7 @@ MODULE Operator_ND_m
       IF (i_mode <= N_mat) THEN
         DO i_3 = 1, N3
           DO i_1 = 1, N1
-            CALL Action(Op_psi=Op_cube(i_1,:,i_3), MatMode=tab_mat_ops(i_mode), i_op=OpND%tab_indexes_mat_op(i_mode), Psi=Cube(i_1,&
+            CALL Action(Op_psi=Op_cube(i_1,:,i_3), Matmode=tab_mat_ops(i_mode), i_op=OpND%tab_indexes_mat_op(i_mode), Psi=Cube(i_1,&
             &:,i_3), Verbose=Verbose, Debug=.FALSE.)
           END DO 
         END DO 
@@ -536,6 +538,60 @@ MODULE Operator_ND_m
   END SUBROUTINE MolecCav_Action_operator_ND_R1_complex
 
   
+  SUBROUTINE MolecCav_Get_OpND_parameter_integer(Parameter_value, Parameter_name, Subsystem, i_mode)
+    USE QDUtil_m
+    USE Matter_mode_m
+    USE Cavity_mode_m
+    IMPLICIT NONE 
+
+    integer,             intent(inout) :: Parameter_value                                                                            ! the current values of the indexes for each dimension
+    character(len=*),    intent(in)    :: Parameter_name
+    character(len=*),    intent(in)    :: Subsystem
+    integer,             intent(in)    :: i_mode
+
+    IF (TO_lowercase(TRIM(Subsystem)) == "matter") THEN
+      CALL Get(Parameter_value, tab_mat_ops(i_mode), Parameter_name)
+
+    ELSE IF (TO_lowercase(TRIM(Subsystem)) == "cavity") THEN
+      CALL Get(Parameter_value, tab_mat_ops(i_mode), Parameter_name)
+    
+    ELSE 
+      WRITE(out_unit,*) "### No Subsystem name recognized, please verify the input of Get_OpND_parameter_integer subroutine"
+      WRITE(out_unit,*) "    Expected : Matter or Cavity ; Subsystem = "//Subsystem
+      STOP "### No Operator type recognized, please verify the input of Get_OpND_parameter_integer subroutine"
+    
+    END IF
+
+  END SUBROUTINE MolecCav_Get_OpND_parameter_integer
+
+
+  SUBROUTINE MolecCav_Get_OpND_parameter_real(Parameter_value, Parameter_name, Subsystem, i_mode)
+    USE QDUtil_m
+    USE Matter_mode_m
+    USE Cavity_mode_m
+    IMPLICIT NONE 
+
+    real(kind=Rkind),    intent(inout) :: Parameter_value                                                                            ! the current values of the indexes for each dimension
+    character(len=*),    intent(in)    :: Parameter_name
+    character(len=*),    intent(in)    :: Subsystem
+    integer,             intent(in)    :: i_mode
+
+    IF (TO_lowercase(TRIM(Subsystem)) == "matter") THEN
+      CALL Get(Parameter_value, tab_mat_ops(i_mode), Parameter_name)
+
+    ELSE IF (TO_lowercase(TRIM(Subsystem)) == "cavity") THEN
+      CALL Get(Parameter_value, tab_mat_ops(i_mode), Parameter_name)
+    
+    ELSE 
+      WRITE(out_unit,*) "### No Subsystem name recognized, please verify the input of Get_OpND_parameter_integer subroutine"
+      WRITE(out_unit,*) "    Expected : Matter or Cavity ; Subsystem = "//Subsystem
+      STOP "### No Operator type recognized, please verify the input of Get_OpND_parameter_integer subroutine"
+    
+    END IF
+
+  END SUBROUTINE MolecCav_Get_OpND_parameter_real
+
+
   SUBROUTINE MolecCav_Write_operator_ND(OpND)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m

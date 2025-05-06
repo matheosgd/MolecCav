@@ -49,13 +49,18 @@ MODULE Cavity_mode_m
   END TYPE
 
 
-  PUBLIC Cavity_mode_new_t, Initialize, Action, Write, Dealloc
+  PRIVATE 
+  
+  PUBLIC Cavity_mode_new_t, Initialize, Action, Get, Write, Dealloc
 
   INTERFACE Initialize
     MODULE PROCEDURE MolecCav_Initialize_Cavity_mode
   END INTERFACE
   INTERFACE Action
     MODULE PROCEDURE MolecCav_Action_Cavity_mode_R1_real, MolecCav_Action_Cavity_R1_complex
+  END INTERFACE
+  INTERFACE Get
+    MODULE PROCEDURE MolecCav_Get_CavMode_parameter_integer, MolecCav_Get_CavMOde_parameter_real
   END INTERFACE
   INTERFACE Write
     MODULE PROCEDURE MolecCav_Write_Cavity_mode
@@ -314,6 +319,36 @@ MODULE Cavity_mode_m
   END SUBROUTINE MolecCav_Action_Cavity_R1_complex
 
   
+  SUBROUTINE MolecCav_Get_CavMode_parameter_integer(Parameter_value, CavMode, Parameter_name)
+    USE QDUtil_m
+    IMPLICIT NONE 
+
+    integer,              intent(inout) :: Parameter_value                                                                            ! the current values of the indexes for each dimension
+    TYPE(Cavity_mode_new_t), intent(in)    :: CavMode
+    character(len=*),     intent(in)    :: Parameter_name
+
+    CALL Get(Parameter_value, CavMode%Quantum_HO1D_t, Parameter_name)
+
+  END SUBROUTINE MolecCav_Get_CavMode_parameter_integer
+
+
+  SUBROUTINE MolecCav_Get_CavMode_parameter_real(Parameter_value, CavMode, Parameter_name)
+    USE QDUtil_m
+    IMPLICIT NONE 
+
+    real(kind=Rkind),     intent(inout) :: Parameter_value                                                                            ! the current values of the indexes for each dimension
+    TYPE(Cavity_mode_new_t), intent(in)    :: CavMode
+    character(len=*),     intent(in)    :: Parameter_name
+
+    IF (TO_lowercase(TRIM(Parameter_name)) == "lambda") THEN
+      Parameter_value = CavMode%lambda
+    ELSE 
+      CALL Get(Parameter_value, CavMode%Quantum_HO1D_t, Parameter_name)
+    END IF
+
+  END SUBROUTINE MolecCav_Get_CavMode_parameter_real
+
+
   SUBROUTINE MolecCav_Write_Cavity_mode(CavMode)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m

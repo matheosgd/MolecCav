@@ -67,6 +67,9 @@ PROGRAM test_quantum_ho1d
   complex(kind=Rkind)           :: Op_psi_complex_qho1d(6)
   complex(kind=Rkind)           :: Op_psi_complex_elem_op(6)
   
+  integer                      :: Param_integer
+  real(kind=Rkind)             :: Param_real
+
   TYPE(test_t)                  :: test_qho1d
   logical                       :: error_qho1d = .FALSE.
 
@@ -542,6 +545,23 @@ PROGRAM test_quantum_ho1d
     CALL Logical_Test(test_qho1d, test1=error_qho1d, test2=.FALSE., info="QHO1D"//TO_string(i_op)//"^{th} operator action&
     & on a complex rank-one tensor")
   END DO
+
+
+  !-------------------------Get a parameter from a Quantum_HO1D object-----------------------
+  CALL Get(Param_integer,      QHO1D_opt_14_6_1, "Nb")
+  CALL Logical_Test(test_qho1d, (Param_integer/=QHO1D_opt_14_6_1%Nb),test2=.FALSE.,info="Get Nb ?")
+  CALL Get(Param_real,       QHO1D_opt_14_6_1, "w")
+  CALL Logical_Test(test_qho1d, (Param_real/=QHO1D_opt_14_6_1%w),test2=.FALSE.,info="Get w ?")
+  CALL Get(Param_real,       QHO1D_opt_14_6_1, "m")
+  CALL Logical_Test(test_qho1d, (Param_real/=QHO1D_opt_14_6_1%m),test2=.FALSE.,info="Get m ?")
+  CALL Get(Param_integer,   QHO1D_opt_14_6_1, "Nb_op")
+  CALL Logical_Test(test_qho1d, (Param_integer/=QHO1D_opt_14_6_1%Nb_op),test2=.FALSE.,info="Get Nb_op ?")
+  CALL Get(Param_integer,      QHO1D_opt_14_6_1, "Nq")
+  CALL Logical_Test(test_qho1d, (Param_integer/=QHO1D_opt_14_6_1%Nq),test2=.FALSE.,info="Get Nq ?")
+  CALL Get(Param_real,  QHO1D_opt_14_6_1, "Eq_pos")
+  CALL Logical_Test(test_qho1d, (Param_real/=QHO1D_opt_14_6_1%Eq_pos),test2=.FALSE.,info="Get Eq_pos ?")
+  CALL Get(Param_real, QHO1D_opt_14_6_1, "Scale_q")
+  CALL Logical_Test(test_qho1d, (Param_real/=QHO1D_opt_14_6_1%Scale_q),test2=.FALSE.,info="Get Scale_q ?")
 
 
   !-------------------------Deallocate Quantum_HO1D object-----------------------

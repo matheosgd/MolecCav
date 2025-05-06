@@ -52,6 +52,9 @@ PROGRAM test_matter_mode
   complex(kind=Rkind) :: Coeff_2_complex = PI*EYE
   complex(kind=Rkind) :: Op_psi_complex(3)                                                                             ! the resulting vector from the action of a 1D operator upon Psi_1D_R1_complex
 
+  integer             :: Param_integer
+  real(kind=Rkind)    :: Param_real
+
   TYPE(test_t)        :: test_matmode
   logical             :: error_matmode = .FALSE.
 
@@ -104,7 +107,25 @@ PROGRAM test_matter_mode
   !----------------------------Testing the actions---------------------------
   CALL Dealloc(MatMode, Verbose=Verbose, Debug=Debug)
 
-  
+
+  !----------------------------Testing the Get---------------------------
+  CALL Get(Param_real,       MatMode, "lambda")
+  CALL Logical_Test(test_MatMode, (Param_real/=MatMode%lambda),test2=.FALSE.,info="Get lambda ?")
+  CALL Get(Param_integer,      MatMode, "Nb")
+  CALL Logical_Test(test_MatMode, (Param_integer/=MatMode%Nb),test2=.FALSE.,info="Get Nb ?")
+  CALL Get(Param_real,       MatMode, "w")
+  CALL Logical_Test(test_MatMode, (Param_real/=MatMode%w),test2=.FALSE.,info="Get w ?")
+  CALL Get(Param_real,       MatMode, "m")
+  CALL Logical_Test(test_MatMode, (Param_real/=MatMode%m),test2=.FALSE.,info="Get m ?")
+  CALL Get(Param_integer,   MatMode, "Nb_op")
+  CALL Logical_Test(test_MatMode, (Param_integer/=MatMode%Nb_op),test2=.FALSE.,info="Get Nb_op ?")
+  CALL Get(Param_integer,      MatMode, "Nq")
+  CALL Logical_Test(test_MatMode, (Param_integer/=MatMode%Nq),test2=.FALSE.,info="Get Nq ?")
+  CALL Get(Param_real,  MatMode, "Eq_pos")
+  CALL Logical_Test(test_MatMode, (Param_real/=MatMode%Eq_pos),test2=.FALSE.,info="Get Eq_pos ?")
+  CALL Get(Param_real, MatMode, "Scale_q")
+  CALL Logical_Test(test_MatMode, (Param_real/=MatMode%Scale_q),test2=.FALSE.,info="Get Scale_q ?")
+
   !-----------------------------------The tests--------------------------------
 
   CALL Finalize_Test(test_matmode)

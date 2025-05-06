@@ -52,14 +52,13 @@ PROGRAM test_cavity_mode
   complex(kind=Rkind) :: Coeff_2_complex = PI*EYE
   complex(kind=Rkind) :: Op_psi_complex(3)                                                                             ! the resulting vector from the action of a 1D operator upon Psi_1D_R1_complex
 
+  integer             :: Param_integer
+  real(kind=Rkind)    :: Param_real
+
   TYPE(test_t)        :: test_cavmode
   logical             :: error_cavmode = .FALSE.
 
   integer             :: i, i_op
-
-  !############ OLD ####################
-  TYPE(Cavity_mode_t) :: Cavity_mode_1
-  logical             :: error = .FALSE.
 
 
   !-----------------------------Test initialization----------------------------
@@ -105,7 +104,25 @@ PROGRAM test_cavity_mode
   END DO
 
 
-  !----------------------------Testing the actions---------------------------
+  !----------------------------Testing the Get---------------------------
+  CALL Get(Param_real,       CavMode, "lambda")
+  CALL Logical_Test(test_cavmode, (Param_real/=CavMode%lambda),test2=.FALSE.,info="Get lambda ?")
+  CALL Get(Param_integer,      CavMode, "Nb")
+  CALL Logical_Test(test_cavmode, (Param_integer/=CavMode%Nb),test2=.FALSE.,info="Get Nb ?")
+  CALL Get(Param_real,       CavMode, "w")
+  CALL Logical_Test(test_cavmode, (Param_real/=CavMode%w),test2=.FALSE.,info="Get w ?")
+  CALL Get(Param_real,       CavMode, "m")
+  CALL Logical_Test(test_cavmode, (Param_real/=CavMode%m),test2=.FALSE.,info="Get m ?")
+  CALL Get(Param_integer,   CavMode, "Nb_op")
+  CALL Logical_Test(test_cavmode, (Param_integer/=CavMode%Nb_op),test2=.FALSE.,info="Get Nb_op ?")
+  CALL Get(Param_integer,      CavMode, "Nq")
+  CALL Logical_Test(test_cavmode, (Param_integer/=CavMode%Nq),test2=.FALSE.,info="Get Nq ?")
+  CALL Get(Param_real,  CavMode, "Eq_pos")
+  CALL Logical_Test(test_cavmode, (Param_real/=CavMode%Eq_pos),test2=.FALSE.,info="Get Eq_pos ?")
+  CALL Get(Param_real, CavMode, "Scale_q")
+  CALL Logical_Test(test_cavmode, (Param_real/=CavMode%Scale_q),test2=.FALSE.,info="Get Scale_q ?")
+
+  !----------------------------Testing the deallocation---------------------------
   CALL Dealloc(CavMode, Verbose=Verbose, Debug=Debug)
 
 

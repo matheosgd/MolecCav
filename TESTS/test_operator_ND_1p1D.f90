@@ -42,7 +42,12 @@ PROGRAM test_operator_ND_1p1D
   TYPE(Operator_ND_t) :: MatHxCavI
   TYPE(Operator_ND_t) :: MatIxCavH
   TYPE(Operator_ND_t) :: DipMomtxCavPos
-  
+  real(kind=Rkind)    :: Matw
+  real(kind=Rkind)    :: Matm
+  real(kind=Rkind)    :: Cavw
+  real(kind=Rkind)    :: Cavlambda
+  real(kind=Rkind)    :: CoeffDipMomt
+
   real(kind=Rkind)    :: b_0(6)                                                                ! six vectors of the HO basis set |00>, |10>, |20>, |01>, |11>, |21> 
   real(kind=Rkind)    :: b_1(6)
   real(kind=Rkind)    :: b_2(6)
@@ -143,40 +148,62 @@ PROGRAM test_operator_ND_1p1D
   CALL Logical_Test(test_opnd, ANY(MatHxCavI%tab_indexes_mat_op/=[1]), test2=.FALSE., info="MatHxCavI%tab_mat_op")
   CALL Logical_Test(test_opnd, ANY(MatHxCavI%tab_indexes_cav_op/=[0]), test2=.FALSE., info="MatHxCavI%tab_cav_op")
 
-  CALL Logical_Test(test_opnd, ANY(MatIxCavH%tab_indexes_cav_op/=[0]), test2=.FALSE., info="MatIxCavH%tab_cav_op")
+  CALL Logical_Test(test_opnd, ANY(MatIxCavH%tab_indexes_mat_op/=[0]), test2=.FALSE., info="MatIxCavH%tab_mat_op")
   CALL Logical_Test(test_opnd, ANY(MatIxCavH%tab_indexes_cav_op/=[1]), test2=.FALSE., info="MatIxCavH%tab_cav_op")
 
-  CALL Logical_Test(test_opnd, ANY(DipMomtxCavPos%tab_indexes_cav_op/=[4]), test2=.FALSE., info="DipMomtxCavPos%tab_cav_op")
+  CALL Logical_Test(test_opnd, ANY(DipMomtxCavPos%tab_indexes_mat_op/=[4]), test2=.FALSE., info="DipMomtxCavPos%tab_mat_op")
   CALL Logical_Test(test_opnd, ANY(DipMomtxCavPos%tab_indexes_cav_op/=[2]), test2=.FALSE., info="DipMomtxCavPos%tab_cav_op")
 
 
   !----------------------------Testing the actions---------------------------
-  CALL Action(Op_psi_R1_real, MatHxCavI, Psi_R1_real, Verbose=Verbose, Debug=Debug)
+  CALL Action(Op_psi_R1_real, MatHxCavI,      Psi_R1_real, Debug=Debug)
+  CALL Action(Op_psi_R1_real, MatIxCavH,      Op_psi_R1_real, Debug=Debug)
+  CALL Action(Op_psi_R1_real, DipMomtxCavPos, Op_psi_R1_real, Debug=Debug)
+  CALL Get(Matw, "w", "Matter", 1)
+  CALL Get(Matm, "m", "Matter", 1)
+  CALL Get(Cavw_loc, "w", "Cavity", 1)
+  CALL Get(Cavlambda_loc, "lambda", "Cavity", 1)
+  CoeffDipMomt_loc = ONE ! assumed linear here
+  CALL Construct_ana_TotH_psi(Ana_op_psi_R1_real, Matw, Matm, Cavw_loc, Cavlambda_loc, CoeffDipMomt_loc, Psi_R1_real, Debug_opt=Debug)
+  CALL Equal_R_R_matrix(error_opnd, Ana_op_psi_R1_real, Psi_R1_real)
+  CALL Logical_Test(test_opnd, error_opnd, test2=.FALSE., info="TotH_Psi_R1_real")
+
+  CALL Action(Op_psi_R1_complex, MatHxCavI,      Psi_R1_complex, Debug=Debug)
+  CALL Action(Op_psi_R1_complex, MatIxCavH,      Op_psi_R1_complex, Debug=Debug)
+  CALL Action(Op_psi_R1_complex, DipMomtxCavPos, Op_psi_R1_complex, Debug=Debug)
+  CALL Construct_ana_TotH_psi(Ana_op_psi_R1_complex, Matw, Matm, Cavw_loc, Cavlambda_loc, CoeffDipMomt_loc, Psi_R1_complex, Debug_opt=Debug)
+  CALL Equal_R_R_matrix(error_opnd, Ana_op_psi_R1_complex, Psi_R1_complex)
+  CALL Logical_Test(test_opnd, error_opnd, test2=.FALSE., info="TotH_Psi_R1_complex")
 
 
-  !----------------------------Testing the actions---------------------------
-  CALL Dealloc(MatHxCavI, Verbose=Verbose, Debug=Debug)
+  !----------------------------Testing the writing---------------------------
+  CALL Write(MatHxCavI)
 
   
-  !-----------------------------------The tests--------------------------------
-
+  !----------------------------Testing the deallocation---------------------------
+  CALL Dealloc(MatHxCavI, Verbose=Verbose, Debug=Debug)
+  CALL Logical_Test(test_opnd, ALLOCATED(MatHxCavI%tab_indexes_mat_op), test2=.FALSE., info="OpND%tab_mat deallocated ?")
+  CALL Logical_Test(test_opnd, ALLOCATED(MatHxCavI%tab_indexes_cav_op), test2=.FALSE., info="OpND%tab_cav deallocated ?")
+  
   CALL Finalize_Test(test_opnd)
 
 
   CONTAINS
 
 
-  SUBROUTINE Construct_ana_TotH_psi(Ana_TotH_psi_R1_real, Matter_DOF_loc, Cavity_mode_loc, Coeff_dip_mo_loc, Psi_loc, &
-    &Debug_opt)
+  SUBROUTINE Construct_ana_TotH_psi_real(Ana_TotH_psi_R1_real, Matw_loc, Matm_loc, Cavw_loc, Cavlambda_loc, CoeffDipMomt_loc, Psi&
+    &, Debug_opt)
     USE QDUtil_m
     USE Algebra_m
     IMPLICIT NONE 
 
     real(kind=Rkind),    intent(inout) :: Ana_TotH_psi_R1_real(3,2)
-    TYPE(Cavity_mode_t), intent(in)    :: Matter_DOF_loc
-    TYPE(Cavity_mode_t), intent(in)    :: Cavity_mode_loc
-    real(kind=Rkind),    intent(in)    :: Coeff_dip_mo_loc
-    real(kind=Rkind),    intent(in)    :: Psi_loc(3,2)
+    real(kind=Rkind),    intent(in)    :: Matw_loc
+    real(kind=Rkind),    intent(in)    :: Matm_loc
+    real(kind=Rkind),    intent(in)    :: Cavw_loc
+    real(kind=Rkind),    intent(in)    :: Cavlambda_loc
+    real(kind=Rkind),    intent(in)    :: CoeffDipMomt_loc
+    real(kind=Rkind),    intent(in)    :: Psi(3,2)
     logical, optional,   intent(in)    :: Debug_opt
 
     logical                            :: Debug_local = .FALSE.
@@ -184,31 +211,75 @@ PROGRAM test_operator_ND_1p1D
 
     IF (PRESENT(Debug_opt)) Debug_local = Debug_opt
 
-    CALL Norm_of(Norm_local, Psi_loc)
+    CALL Norm_of(Norm_local, Psi)
 
-    Ana_TotH_psi_R1_real(1,1) = (  Matter_DOF_loc%w +   Cavity_mode_loc%w)*Psi_loc(1,1) + Cavity_mo&
-    &de_loc%lambda*Coeff_dip_mo_loc*Psi_loc(2,2)*SQRT(Cavity_mode_loc%w/(Matter_DOF_loc%w*Matter_DOF_loc%m))
-    Ana_TotH_psi_R1_real(2,1) = (3*Matter_DOF_loc%w +   Cavity_mode_loc%w)*Psi_loc(2,1) + Cavity_mo&
-    &de_loc%lambda*Coeff_dip_mo_loc*SQRT(Cavity_mode_loc%w/(Matter_DOF_loc%w*Matter_DOF_loc%m))*(Psi&
-    &_loc(1,2) + SQRT(TWO)*Psi_loc(3,2))
-    Ana_TotH_psi_R1_real(3,1) = (5*Matter_DOF_loc%w +   Cavity_mode_loc%w)*Psi_loc(3,1) + Cavity_mo&
-    &de_loc%lambda*Coeff_dip_mo_loc*SQRT(TWO)*Psi_loc(2,2)*SQRT(Cavity_mode_loc%w/(Matter_DOF_loc%w*&
-    &Matter_DOF_loc%m))
-    Ana_TotH_psi_R1_real(1,2) = (  Matter_DOF_loc%w + 3*Cavity_mode_loc%w)*Psi_loc(1,2) + Cavity_mo&
-    &de_loc%lambda*Coeff_dip_mo_loc*Psi_loc(2,1)*SQRT(Cavity_mode_loc%w/(Matter_DOF_loc%w*Matter_DOF_loc%m))
-    Ana_TotH_psi_R1_real(2,2) = (3*Matter_DOF_loc%w + 3*Cavity_mode_loc%w)*Psi_loc(2,2) + Cavity_mo&
-    &de_loc%lambda*Coeff_dip_mo_loc*SQRT(Cavity_mode_loc%w/(Matter_DOF_loc%w*Matter_DOF_loc%m))*(Psi&
-    &_loc(1,1) + SQRT(TWO)*Psi_loc(3,1))
-    Ana_TotH_psi_R1_real(3,2) = (5*Matter_DOF_loc%w + 3*Cavity_mode_loc%w)*Psi_loc(3,2) + Cavity_mo&
-    &de_loc%lambda*Coeff_dip_mo_loc*SQRT(TWO)*Psi_loc(2,1)*SQRT(Cavity_mode_loc%w/(Matter_DOF_loc%w*Matter_DOF_loc%m))
+    Ana_TotH_psi_R1_real(1,1) = (  Matw_loc +   Cavm)*Psi(1,1) + Cavlambda_loc*CoeffDipMomt_loc*Psi(2,2)*SQRT(Cavm/(Matw_loc*Matm&
+    &_loc))
+    Ana_TotH_psi_R1_real(2,1) = (3*Matw_loc +   Cavm)*Psi(2,1) + Cavlambda_loc*CoeffDipMomt_loc*SQRT(Cavm/(Matw_loc*Matm_loc))*(P&
+    &si(1,2) + SQRT(TWO)*Psi(3,2))
+    Ana_TotH_psi_R1_real(3,1) = (5*Matw_loc +   Cavm)*Psi(3,1) + Cavlambda_loc*CoeffDipMomt_loc*SQRT(TWO)*Psi(2,2)*SQRT(Cavm/(Mat&
+    &w_loc*Matm))
+    Ana_TotH_psi_R1_real(1,2) = (  Matw_loc + 3*Cavm)*Psi(1,2) + Cavlambda_loc*CoeffDipMomt_loc*Psi(2,1)*SQRT(Cavm/(Matw_loc*Matm&
+    &_loc))
+    Ana_TotH_psi_R1_real(2,2) = (3*Matw_loc + 3*Cavm)*Psi(2,2) + Cavlambda_loc*CoeffDipMomt_loc*SQRT(Cavm/(Matw_loc*Matm_loc))*(P&
+    &si(1,1) + SQRT(TWO)*Psi(3,1))
+    Ana_TotH_psi_R1_real(3,2) = (5*Matw_loc + 3*Cavm)*Psi(3,2) + Cavlambda_loc*CoeffDipMomt_loc*SQRT(TWO)*Psi(2,1)*SQRT(Cavm/(Mat&
+    &w_loc*Matm))
     
     Ana_TotH_psi_R1_real = Ana_TotH_psi_R1_real / (2*Norm_local)
 
     IF (Debug_local) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "Norm of the operand Psi_loc = ", TO_string(Norm_local)
+      WRITE(out_unit,*) "Norm of the operand Psi = ", TO_string(Norm_local)
       WRITE(out_unit,*) "Resulting matrix of the TotH action over the operand :"
       CALL Write_Mat(Ana_TotH_psi_R1_real, out_unit, Size(Ana_TotH_psi_R1_real), info="Ana_TotH_psi_R1_real")
+    END IF
+
+  END SUBROUTINE
+
+
+  SUBROUTINE Construct_ana_TotH_psi_complex(Ana_TotH_psi_R1_complex, Matw_loc, Matm_loc, Cavw_loc, Cavlambda_loc, CoeffDipMomt_loc, Psi&
+    &, Debug_opt)
+    USE QDUtil_m
+    USE Algebra_m
+    IMPLICIT NONE 
+
+    complex(kind=Rkind),    intent(inout) :: Ana_TotH_psi_R1_complex(3,2)
+    real(kind=Rkind),    intent(in)    :: Matw_loc
+    real(kind=Rkind),    intent(in)    :: Matm_loc
+    real(kind=Rkind),    intent(in)    :: Cavw_loc
+    real(kind=Rkind),    intent(in)    :: Cavlambda_loc
+    real(kind=Rkind),    intent(in)    :: CoeffDipMomt_loc
+    real(kind=Rkind),    intent(in)    :: Psi(3,2)
+    logical, optional,   intent(in)    :: Debug_opt
+
+    logical                            :: Debug_local = .FALSE.
+    real(kind=Rkind)                   :: Norm_local
+
+    IF (PRESENT(Debug_opt)) Debug_local = Debug_opt
+
+    CALL Norm_of(Norm_local, Psi)
+
+    Ana_TotH_psi_R1_complex(1,1) = (  Matw_loc +   Cavm)*Psi(1,1) + Cavlambda_loc*CoeffDipMomt_loc*Psi(2,2)*SQRT(Cavm/(Matw_loc*M&
+    &atm_loc))
+    Ana_TotH_psi_R1_complex(2,1) = (3*Matw_loc +   Cavm)*Psi(2,1) + Cavlambda_loc*CoeffDipMomt_loc*SQRT(Cavm/(Matw_loc*Matm_loc))&
+    &*(Psi(1,2) + SQRT(TWO)*Psi(3,2))
+    Ana_TotH_psi_R1_complex(3,1) = (5*Matw_loc +   Cavm)*Psi(3,1) + Cavlambda_loc*CoeffDipMomt_loc*SQRT(TWO)*Psi(2,2)*SQRT(Cavm/(&
+    &Matw_loc*Matm))
+    Ana_TotH_psi_R1_complex(1,2) = (  Matw_loc + 3*Cavm)*Psi(1,2) + Cavlambda_loc*CoeffDipMomt_loc*Psi(2,1)*SQRT(Cavm/(Matw_loc*M&
+    &atm_loc))
+    Ana_TotH_psi_R1_complex(2,2) = (3*Matw_loc + 3*Cavm)*Psi(2,2) + Cavlambda_loc*CoeffDipMomt_loc*SQRT(Cavm/(Matw_loc*Matm_loc))&
+    &*(Psi(1,1) + SQRT(TWO)*Psi(3,1))
+    Ana_TotH_psi_R1_complex(3,2) = (5*Matw_loc + 3*Cavm)*Psi(3,2) + Cavlambda_loc*CoeffDipMomt_loc*SQRT(TWO)*Psi(2,1)*SQRT(Cavm/(&
+    &Matw_loc*Matm))
+    
+    Ana_TotH_psi_R1_complex = Ana_TotH_psi_R1_complex / (2*Norm_local)
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "Norm of the operand Psi = ", TO_string(Norm_local)
+      WRITE(out_unit,*) "Resulting matrix of the TotH action over the operand :"
+      CALL Write_Mat(Ana_TotH_psi_R1_complex, out_unit, Size(Ana_TotH_psi_R1_complex), info="Ana_TotH_psi_R1_complex")
     END IF
 
   END SUBROUTINE

@@ -68,7 +68,7 @@ MODULE Quantum_HO1D_m
   PRIVATE 
 
   PUBLIC Cavity_mode_t, Read_cavity_mode, Write_cavity_mode,& ! OLD 
-       & Quantum_HO1D_t, Initialize, Action, Write, Dealloc
+       & Quantum_HO1D_t, Initialize, Action, Get, Write, Dealloc
 
   INTERFACE Initialize
     MODULE PROCEDURE MolecCav_Initialize_quantum_HO1D, MolecCav_Initialize_QHO1D_Elem_op
@@ -87,6 +87,9 @@ MODULE Quantum_HO1D_m
   END INTERFACE
   INTERFACE Action
     MODULE PROCEDURE MolecCav_Action_quantum_HO1D_R1_real, MolecCav_Action_quantum_HO1D_R1_complex
+  END INTERFACE
+  INTERFACE Get
+    MODULE PROCEDURE MolecCav_Get_QHO1D_parameter_integer, MolecCav_Get_QHO1D_parameter_real
   END INTERFACE
   INTERFACE Write
     MODULE PROCEDURE MolecCav_Write_quantum_HO1D
@@ -667,6 +670,63 @@ MODULE Quantum_HO1D_m
   END SUBROUTINE MolecCav_Action_quantum_HO1D_R1_complex
 
   
+  SUBROUTINE MolecCav_Get_QHO1D_parameter_integer(Parameter_value, QHO1D, Parameter_name)
+    USE QDUtil_m
+    IMPLICIT NONE 
+
+    integer,              intent(inout) :: Parameter_value                                                                            ! the current values of the indexes for each dimension
+    TYPE(Quantum_HO1D_t), intent(in)    :: QHO1D
+    character(len=*),     intent(in)    :: Parameter_name
+
+    SELECT CASE (TO_lowercase(TRIM(Parameter_name)))                         ! TO_lowercase avoid case sensitivity issues
+      CASE ("nb")
+        Parameter_value = QHO1D%Nb
+  
+      CASE ("nb_op")
+        Parameter_value = QHO1D%Nb_op
+    
+      CASE ("nq")
+        Parameter_value = QHO1D%Nq
+
+      CASE DEFAULT
+        WRITE(out_unit,*) "No Parameter name recognized, please verify the input of Get_QHO1D_parameter_integer subroutine"
+        STOP "### No Operator type recognized, please verify the input of Get_QHO1D_parameter_integer subroutine"
+
+    END SELECT
+
+  END SUBROUTINE MolecCav_Get_QHO1D_parameter_integer
+
+
+  SUBROUTINE MolecCav_Get_QHO1D_parameter_real(Parameter_value, QHO1D, Parameter_name)
+    USE QDUtil_m
+    IMPLICIT NONE 
+
+    real(kind=Rkind),     intent(inout) :: Parameter_value                                                                            ! the current values of the indexes for each dimension
+    TYPE(Quantum_HO1D_t), intent(in)    :: QHO1D
+    character(len=*),     intent(in)    :: Parameter_name
+
+    SELECT CASE (TO_lowercase(TRIM(Parameter_name)))                         ! TO_lowercase avoid case sensitivity issues
+      CASE ("w")
+        Parameter_value = QHO1D%w
+  
+      CASE ("m")
+        Parameter_value = QHO1D%m
+    
+      CASE ("eq_pos")
+        Parameter_value = QHO1D%Eq_pos
+
+      CASE ("scale_q")
+        Parameter_value = QHO1D%Scale_q
+
+      CASE DEFAULT
+        WRITE(out_unit,*) "No Parameter name recognized, please verify the input of Get_QHO1D_parameter_integer subroutine"
+        STOP "### No Operator type recognized, please verify the input of Get_QHO1D_parameter_integer subroutine"
+
+    END SELECT
+
+  END SUBROUTINE MolecCav_Get_QHO1D_parameter_real
+
+
   SUBROUTINE MolecCav_Write_quantum_HO1D(QHO1D)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m

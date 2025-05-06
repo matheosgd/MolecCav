@@ -386,6 +386,8 @@ $(OBJ_DIR)/test_ND_indexes.o             : $(LIBA)
 $(OBJ_DIR)/test_mapping.o                : $(LIBA)
 $(OBJ_DIR)/test_transition_intensities.o : $(LIBA)
 
+$(OBJ_DIR)/Operator_ND_m.o               : $(OBJ_DIR)/Cavity_mode_m.o 
+$(OBJ_DIR)/Operator_ND_m.o               : $(OBJ_DIR)/Matter_mode_m.o 
 $(OBJ_DIR)/Cavity_mode.o                 : $(OBJ_DIR)/Quantum_HO1D_m.o 
 $(OBJ_DIR)/Matter_mode_m.o               : $(OBJ_DIR)/Quantum_HO1D_m.o 
 $(OBJ_DIR)/Quantum_HO1D_m.o              : $(OBJ_DIR)/Elem_op_m.o

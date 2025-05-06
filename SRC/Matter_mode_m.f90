@@ -50,7 +50,9 @@ MODULE Matter_mode_m
   END TYPE
 
 
-  PUBLIC Matter_mode_t, Initialize, Action, Write, Dealloc
+  PRIVATE 
+  
+  PUBLIC Matter_mode_t, Initialize, Action, Get, Write, Dealloc
 
   INTERFACE Initialize
     MODULE PROCEDURE MolecCav_Initialize_matter_mode
@@ -60,6 +62,9 @@ MODULE Matter_mode_m
   END INTERFACE
   INTERFACE Action
     MODULE PROCEDURE MolecCav_Action_matter_mode_R1_real, MolecCav_Action_matter_R1_complex
+  END INTERFACE
+  INTERFACE Get
+    MODULE PROCEDURE MolecCav_Get_MatMode_parameter_integer, MolecCav_Get_MatMode_parameter_real
   END INTERFACE
   INTERFACE Write
     MODULE PROCEDURE MolecCav_Write_matter_mode
@@ -393,6 +398,36 @@ MODULE Matter_mode_m
   END SUBROUTINE MolecCav_Action_matter_R1_complex
 
   
+  SUBROUTINE MolecCav_Get_MatMode_parameter_integer(Parameter_value, MatMode, Parameter_name)
+    USE QDUtil_m
+    IMPLICIT NONE 
+
+    integer,             intent(inout) :: Parameter_value                                                                            ! the current values of the indexes for each dimension
+    TYPE(Matter_mode_t), intent(in)    :: MatMode
+    character(len=*),    intent(in)    :: Parameter_name
+
+    CALL Get(Parameter_value, MatMode%Quantum_HO1D_t, Parameter_name)
+
+  END SUBROUTINE MolecCav_Get_MatMode_parameter_integer
+
+
+  SUBROUTINE MolecCav_Get_MatMode_parameter_real(Parameter_value, MatMode, Parameter_name)
+    USE QDUtil_m
+    IMPLICIT NONE 
+
+    real(kind=Rkind),     intent(inout) :: Parameter_value                                                                            ! the current values of the indexes for each dimension
+    TYPE(Matter_mode_t), intent(in)    :: MatMode
+    character(len=*),     intent(in)    :: Parameter_name
+
+    IF (TO_lowercase(TRIM(Parameter_name)) == "lambda") THEN
+      Parameter_value = MatMode%lambda
+    ELSE 
+      CALL Get(Parameter_value, MatMode%Quantum_HO1D_t, Parameter_name)
+    END IF
+
+  END SUBROUTINE MolecCav_Get_MatMode_parameter_real
+
+
   SUBROUTINE MolecCav_Write_matter_mode(MatMode)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m
