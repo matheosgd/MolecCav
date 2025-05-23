@@ -553,7 +553,7 @@ MODULE Operator_ND_m
       CALL Get(Parameter_value, tab_mat_ops(i_mode), Parameter_name)
 
     ELSE IF (TO_lowercase(TRIM(Subsystem)) == "cavity") THEN
-      CALL Get(Parameter_value, tab_mat_ops(i_mode), Parameter_name)
+      CALL Get(Parameter_value, tab_cav_ops(i_mode), Parameter_name)
     
     ELSE 
       WRITE(out_unit,*) "### No Subsystem name recognized, please verify the input of Get_OpND_parameter_integer subroutine"

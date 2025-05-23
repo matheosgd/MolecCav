@@ -176,7 +176,7 @@ MODULE Matter_mode_m
     
       !---------------Construction of the Quantum_HO1D_t type object-----------
     CALL Initialize(MatMode%Quantum_HO1D_t, Nb, w, m, Nb_op=5, Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local)
-    !### TEMPORARY ###
+    !### TEMPORARY ### (until we implement the grid)
     MatMode%Nq      = Nq ! so far they are not affected in the Initialize_quantum_HO1D, which takes care of representations upon the basis, later these 3 lines will be in a sub in QHO1D_m
     MatMode%Eq_pos  = Eq_pos
     MatMode%Scale_q = Scale_q

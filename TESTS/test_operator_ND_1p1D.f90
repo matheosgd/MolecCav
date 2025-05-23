@@ -63,11 +63,11 @@ PROGRAM test_operator_ND_1p1D
   real(kind=Rkind)    :: Coeff_5 = ONE
   real(kind=Rkind)    :: Coeffs(0:5)                                                             ! /!\ the indexes are here renamed to match the indexes of the basis vectors and coefficients ! the elements starts from 0 to 5 and not from 1 to 6 !!! /!\
 
-  real(kind=Rkind)    :: Psi_R1_real(6)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
-  real(kind=Rkind)    :: Op_psi_R1_real(6)                                                                                ! the resulting vector from the action of a 1D operator upon Psi_ND_R1_real
+  real(kind=Rkind)    ::        Psi_R1_real(6)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
+  real(kind=Rkind)    ::     Op_psi_R1_real(6)                                                                                ! the resulting vector from the action of a 1D operator upon Psi_ND_R1_real
   real(kind=Rkind)    :: Ana_op_psi_R1_real(6)                                                                                ! the resulting vector from the action of a 1D operator upon Psi_ND_R1_real
-  complex(kind=Rkind) :: Psi_R1_complex(6)                                                                          ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} BUT with complexes expansion coefficients to make complexe WF. /!\ Not normalized yet !
-  complex(kind=Rkind) :: Op_psi_R1_complex(6)                                                                             ! the resulting vector from the action of a 1D operator upon Psi_ND_R1_complex
+  complex(kind=Rkind) ::        Psi_R1_complex(6)                                                                          ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} BUT with complexes expansion coefficients to make complexe WF. /!\ Not normalized yet !
+  complex(kind=Rkind) ::     Op_psi_R1_complex(6)                                                                             ! the resulting vector from the action of a 1D operator upon Psi_ND_R1_complex
   complex(kind=Rkind) :: Ana_op_psi_R1_complex(6)                                                                             ! the resulting vector from the action of a 1D operator upon Psi_ND_R1_complex
 
   TYPE(test_t)        :: test_opnd
@@ -99,8 +99,8 @@ PROGRAM test_operator_ND_1p1D
   Coeffs = [Coeff_0, Coeff_1, Coeff_2, Coeff_3, Coeff_4, Coeff_5]                                ! /!\ the indexes are here renamed to match the indexes of the basis vectors and coefficients ! the elements starts from 0 to 5 and not from 1 to 6 !!! /!\
 
   Psi_R1_real    = Coeffs(0)*b_0 + Coeffs(1)*b_1 + Coeffs(2)*b_2 + Coeffs(3)*b_3 + Coeffs(4)*b_4 + Coeffs(5)*b_5
-  Psi_R1_complex = Coeffs(0)*b_0 + Coeffs(1)*b_1 + Coeffs(2)*b_2 + Coeffs(3)*b_3 + Coeffs(4)*b_4 + Coeffs(5)*b_5
   CALL Normalize(Psi_R1_real)
+  Psi_R1_complex = Coeffs(0)*EYE*b_0 +Coeffs(1)*b_1 +Coeffs(2)*b_2 +(Coeffs(3)+Coeffs(1)*EYE)*b_3 +Coeffs(4)*EYE*b_4 +Coeffs(5)*b_5
   CALL Normalize(Psi_R1_complex)
 
   IF (Debug) THEN
@@ -156,22 +156,24 @@ PROGRAM test_operator_ND_1p1D
 
 
   !----------------------------Testing the actions---------------------------
-  CALL Action(Op_psi_R1_real, MatHxCavI,      Psi_R1_real, Debug=Debug)
-  CALL Action(Op_psi_R1_real, MatIxCavH,      Op_psi_R1_real, Debug=Debug)
-  CALL Action(Op_psi_R1_real, DipMomtxCavPos, Op_psi_R1_real, Debug=Debug)
   CALL Get(Matw, "w", "Matter", 1)
   CALL Get(Matm, "m", "Matter", 1)
-  CALL Get(Cavw_loc, "w", "Cavity", 1)
-  CALL Get(Cavlambda_loc, "lambda", "Cavity", 1)
-  CoeffDipMomt_loc = ONE ! assumed linear here
-  CALL Construct_ana_TotH_psi(Ana_op_psi_R1_real, Matw, Matm, Cavw_loc, Cavlambda_loc, CoeffDipMomt_loc, Psi_R1_real, Debug_opt=Debug)
+  CALL Get(Cavw, "w", "Cavity", 1)
+  CALL Get(Cavlambda, "lambda", "Cavity", 1)
+  CoeffDipMomt = ONE ! assumed linear here
+
+  CALL Action(Op_psi_R1_real, MatHxCavI,         Psi_R1_real, Debug=Debug)
+  CALL Action(Op_psi_R1_real, MatIxCavH,      Op_psi_R1_real, Debug=Debug)
+  CALL Action(Op_psi_R1_real, DipMomtxCavPos, Op_psi_R1_real, Debug=Debug) ! at the end we have the resulting action of the total 1p1D hamiltonian upon Psi_R1_real  
+  CALL Construct_ana_TotH_psi(Ana_op_psi_R1_real, Matw, Matm, Cavw, Cavlambda, CoeffDipMomt, Psi_R1_real, Debug_opt=Debug)
   CALL Equal_R_R_matrix(error_opnd, Ana_op_psi_R1_real, Psi_R1_real)
   CALL Logical_Test(test_opnd, error_opnd, test2=.FALSE., info="TotH_Psi_R1_real")
 
-  CALL Action(Op_psi_R1_complex, MatHxCavI,      Psi_R1_complex, Debug=Debug)
+
+  CALL Action(Op_psi_R1_complex, MatHxCavI,         Psi_R1_complex, Debug=Debug)
   CALL Action(Op_psi_R1_complex, MatIxCavH,      Op_psi_R1_complex, Debug=Debug)
   CALL Action(Op_psi_R1_complex, DipMomtxCavPos, Op_psi_R1_complex, Debug=Debug)
-  CALL Construct_ana_TotH_psi(Ana_op_psi_R1_complex, Matw, Matm, Cavw_loc, Cavlambda_loc, CoeffDipMomt_loc, Psi_R1_complex, Debug_opt=Debug)
+  CALL Construct_ana_TotH_psi(Ana_op_psi_R1_complex, Matw, Matm, Cavw, Cavlambda, CoeffDipMomt, Psi_R1_complex, Debug_opt=Debug)
   CALL Equal_R_R_matrix(error_opnd, Ana_op_psi_R1_complex, Psi_R1_complex)
   CALL Logical_Test(test_opnd, error_opnd, test2=.FALSE., info="TotH_Psi_R1_complex")
 
@@ -197,36 +199,38 @@ PROGRAM test_operator_ND_1p1D
     USE Algebra_m
     IMPLICIT NONE 
 
-    real(kind=Rkind),    intent(inout) :: Ana_TotH_psi_R1_real(3,2)
+    real(kind=Rkind),    intent(inout) :: Ana_TotH_psi_R1_real(6)
     real(kind=Rkind),    intent(in)    :: Matw_loc
     real(kind=Rkind),    intent(in)    :: Matm_loc
     real(kind=Rkind),    intent(in)    :: Cavw_loc
     real(kind=Rkind),    intent(in)    :: Cavlambda_loc
     real(kind=Rkind),    intent(in)    :: CoeffDipMomt_loc
-    real(kind=Rkind),    intent(in)    :: Psi(3,2)
+    real(kind=Rkind),    intent(in)    :: Psi(6)
     logical, optional,   intent(in)    :: Debug_opt
 
+    real                               :: A ! analysitcal coupling term
     logical                            :: Debug_local = .FALSE.
     real(kind=Rkind)                   :: Norm_local
 
-    IF (PRESENT(Debug_opt)) Debug_local = Debug_opt
+    IF (PRESENT(Debug_opt)) THEN; Debug_local = Debug_opt
+    ELSE; Debug_local = .FALSE.; END IF 
 
-    CALL Norm_of(Norm_local, Psi)
+    A = Cavlambda_loc * CoeffDipMomt_loc * SQRT(Cavw_loc / (Matw_loc*Matm_loc))
 
-    Ana_TotH_psi_R1_real(1,1) = (  Matw_loc +   Cavm)*Psi(1,1) + Cavlambda_loc*CoeffDipMomt_loc*Psi(2,2)*SQRT(Cavm/(Matw_loc*Matm&
-    &_loc))
-    Ana_TotH_psi_R1_real(2,1) = (3*Matw_loc +   Cavm)*Psi(2,1) + Cavlambda_loc*CoeffDipMomt_loc*SQRT(Cavm/(Matw_loc*Matm_loc))*(P&
-    &si(1,2) + SQRT(TWO)*Psi(3,2))
-    Ana_TotH_psi_R1_real(3,1) = (5*Matw_loc +   Cavm)*Psi(3,1) + Cavlambda_loc*CoeffDipMomt_loc*SQRT(TWO)*Psi(2,2)*SQRT(Cavm/(Mat&
-    &w_loc*Matm))
-    Ana_TotH_psi_R1_real(1,2) = (  Matw_loc + 3*Cavm)*Psi(1,2) + Cavlambda_loc*CoeffDipMomt_loc*Psi(2,1)*SQRT(Cavm/(Matw_loc*Matm&
-    &_loc))
-    Ana_TotH_psi_R1_real(2,2) = (3*Matw_loc + 3*Cavm)*Psi(2,2) + Cavlambda_loc*CoeffDipMomt_loc*SQRT(Cavm/(Matw_loc*Matm_loc))*(P&
-    &si(1,1) + SQRT(TWO)*Psi(3,1))
-    Ana_TotH_psi_R1_real(3,2) = (5*Matw_loc + 3*Cavm)*Psi(3,2) + Cavlambda_loc*CoeffDipMomt_loc*SQRT(TWO)*Psi(2,1)*SQRT(Cavm/(Mat&
-    &w_loc*Matm))
+    Ana_TotH_psi_R1_real(1) = (  Matw_loc +   Cavw_loc)*Psi(1) + Cavlambda_loc*CoeffDipMomt_loc*Psi(2,2)*SQRT(Cavw_loc/(Matw_&
+    &loc*Matm_loc))
+    Ana_TotH_psi_R1_real(2) = (  Matw_loc + 3*Cavw_loc)*Psi(2) + Cavlambda_loc*CoeffDipMomt_loc*SQRT(Cavw_loc/(Matw_loc*Matm_&
+    &loc))*(Psi(1,2) + SQRT(TWO)*Psi(3,2))
+    Ana_TotH_psi_R1_real(3) = (  Matw_loc + 5*Cavw_loc)*Psi(3) + Cavlambda_loc*CoeffDipMomt_loc*SQRT(TWO)*Psi(2,2)*SQRT(Cavw_&
+    &loc/(Matw_loc*Matm))
+    Ana_TotH_psi_R1_real(4) = (1*Matw_loc +   Cavw_loc)*Psi(4) + Cavlambda_loc*CoeffDipMomt_loc*Psi(2,1)*SQRT(Cavw_loc/(Matw_&
+    &loc*Matm_loc))
+    Ana_TotH_psi_R1_real(5) = (3*Matw_loc + 3*Cavw_loc)*Psi(5) + Cavlambda_loc*CoeffDipMomt_loc*SQRT(Cavw_loc/(Matw_loc*Matm_&
+    &loc))*(Psi(1,1) + SQRT(TWO)*Psi(3,1))
+    Ana_TotH_psi_R1_real(6) = (5*Matw_loc + 3*Cavw_loc)*Psi(6) + Cavlambda_loc*CoeffDipMomt_loc*SQRT(TWO)*Psi(2,1)*SQRT(Cavw_&
+    &loc/(Matw_loc*Matm))
     
-    Ana_TotH_psi_R1_real = Ana_TotH_psi_R1_real / (2*Norm_local)
+    Ana_TotH_psi_R1_real = Ana_TotH_psi_R1_real / 2
 
     IF (Debug_local) THEN
       WRITE(out_unit,*)
@@ -238,8 +242,8 @@ PROGRAM test_operator_ND_1p1D
   END SUBROUTINE
 
 
-  SUBROUTINE Construct_ana_TotH_psi_complex(Ana_TotH_psi_R1_complex, Matw_loc, Matm_loc, Cavw_loc, Cavlambda_loc, CoeffDipMomt_loc, Psi&
-    &, Debug_opt)
+  SUBROUTINE Construct_ana_TotH_psi_complex(Ana_TotH_psi_R1_complex, Matw_loc, Matm_loc, Cavw_loc, Cavlambda_loc, CoeffDipMomt_lo&
+    &c, Psi, Debug_opt)
     USE QDUtil_m
     USE Algebra_m
     IMPLICIT NONE 
@@ -260,18 +264,18 @@ PROGRAM test_operator_ND_1p1D
 
     CALL Norm_of(Norm_local, Psi)
 
-    Ana_TotH_psi_R1_complex(1,1) = (  Matw_loc +   Cavm)*Psi(1,1) + Cavlambda_loc*CoeffDipMomt_loc*Psi(2,2)*SQRT(Cavm/(Matw_loc*M&
-    &atm_loc))
-    Ana_TotH_psi_R1_complex(2,1) = (3*Matw_loc +   Cavm)*Psi(2,1) + Cavlambda_loc*CoeffDipMomt_loc*SQRT(Cavm/(Matw_loc*Matm_loc))&
-    &*(Psi(1,2) + SQRT(TWO)*Psi(3,2))
-    Ana_TotH_psi_R1_complex(3,1) = (5*Matw_loc +   Cavm)*Psi(3,1) + Cavlambda_loc*CoeffDipMomt_loc*SQRT(TWO)*Psi(2,2)*SQRT(Cavm/(&
-    &Matw_loc*Matm))
-    Ana_TotH_psi_R1_complex(1,2) = (  Matw_loc + 3*Cavm)*Psi(1,2) + Cavlambda_loc*CoeffDipMomt_loc*Psi(2,1)*SQRT(Cavm/(Matw_loc*M&
-    &atm_loc))
-    Ana_TotH_psi_R1_complex(2,2) = (3*Matw_loc + 3*Cavm)*Psi(2,2) + Cavlambda_loc*CoeffDipMomt_loc*SQRT(Cavm/(Matw_loc*Matm_loc))&
-    &*(Psi(1,1) + SQRT(TWO)*Psi(3,1))
-    Ana_TotH_psi_R1_complex(3,2) = (5*Matw_loc + 3*Cavm)*Psi(3,2) + Cavlambda_loc*CoeffDipMomt_loc*SQRT(TWO)*Psi(2,1)*SQRT(Cavm/(&
-    &Matw_loc*Matm))
+    Ana_TotH_psi_R1_complex(1,1) = (  Matw_loc +   Cavw_loc)*Psi(1,1) + Cavlambda_loc*CoeffDipMomt_loc*Psi(2,2)*SQRT(Cavw_loc/(Ma&
+    &tw_loc*Matm_loc))
+    Ana_TotH_psi_R1_complex(2,1) = (3*Matw_loc +   Cavw_loc)*Psi(2,1) + Cavlambda_loc*CoeffDipMomt_loc*SQRT(Cavw_loc/(Matw_loc*Ma&
+    &tm_loc))*(Psi(1,2) + SQRT(TWO)*Psi(3,2))
+    Ana_TotH_psi_R1_complex(3,1) = (5*Matw_loc +   Cavw_loc)*Psi(3,1) + Cavlambda_loc*CoeffDipMomt_loc*SQRT(TWO)*Psi(2,2)*SQRT(Ca&
+    &vw_loc/(Matw_loc*Matm))
+    Ana_TotH_psi_R1_complex(1,2) = (  Matw_loc + 3*Cavw_loc)*Psi(1,2) + Cavlambda_loc*CoeffDipMomt_loc*Psi(2,1)*SQRT(Cavw_loc/(Ma&
+    &tw_loc*Matm_loc))
+    Ana_TotH_psi_R1_complex(2,2) = (3*Matw_loc + 3*Cavw_loc)*Psi(2,2) + Cavlambda_loc*CoeffDipMomt_loc*SQRT(Cavw_loc/(Matw_loc*Ma&
+    &tm_loc))*(Psi(1,1) + SQRT(TWO)*Psi(3,1))
+    Ana_TotH_psi_R1_complex(3,2) = (5*Matw_loc + 3*Cavw_loc)*Psi(3,2) + Cavlambda_loc*CoeffDipMomt_loc*SQRT(TWO)*Psi(2,1)*SQRT(Ca&
+    &vw_loc/(Matw_loc*Matm))
     
     Ana_TotH_psi_R1_complex = Ana_TotH_psi_R1_complex / (2*Norm_local)
 
