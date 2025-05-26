@@ -274,7 +274,6 @@ MODULE Operator_ND_m
   SUBROUTINE MolecCav_Action_operator_ND_R1_real(Op_psi, OpND, Psi, Verbose, Debug) ! Psi is ND AND R1
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     USE QDUtil_m
-    USE ND_indexes_m
     USE Cavity_mode_m
     USE Matter_mode_m
     IMPLICIT NONE
@@ -336,17 +335,24 @@ MODULE Operator_ND_m
 
     !----------------------------Computation using reshape----------------------------------    
       !-----------------------Initialization befor the first loop---------------------------    
-    N1 = 1
-    N2 = Ranks_sizes(1)
-    N3 = NB / N2
-
+!--to compute from first mode to last-!
+!    N1 = 1                           !
+!    N2 = Ranks_sizes(1)              ! 
+!    N3 = NB / N2                     !
+!-------------------------------------!
+!--to compute from last mode to last--!
+    N3 = 1                            !
+    N2 = Ranks_sizes(N_mat + N_cav)   !
+    N1 = NB / N2                      !
+!-------------------------------------!
     ALLOCATE(Cube(   N1, N2, N3))
     ALLOCATE(Op_cube(N1, N2, N3))
 
     Cube = RESHAPE(Psi, [N1, N2, N3])
 
 
-    DO i_mode = 1, N_mat + N_cav
+!    DO i_mode = 1, N_mat + N_cav     ! from first mode to last
+    DO i_mode = N_mat + N_cav, 1, -1 ! from last mode to first
       IF (Debug_local) WRITE(out_unit,*)
       IF (Debug_local) CALL Write_Mat(Cube(1,:,:), out_unit, N3, info="Cube(1,:,:) before i_mode = "//TO_string(i_mode))
       IF (Debug_local) WRITE(out_unit,*)
@@ -370,13 +376,20 @@ MODULE Operator_ND_m
           END DO 
         END DO 
       END IF
-      IF (i_mode == N_mat + N_cav) EXIT
+!      IF (i_mode == N_mat + N_cav) EXIT ! from first mode to last
+      IF (i_mode == 1) EXIT ! from last mode to first
   
       !-----------------------Reinitialization for next loop-----------------------------    
       DEALLOCATE(Cube)
-      N1 = N1 * N2
-      N2 = Ranks_sizes(i_mode + 1)
-      N3 = N3 / N2
+!--to compute from first mode to last--!
+!      N1 = N1 * N2                    !
+!      N2 = Ranks_sizes(i_mode + 1)    !
+!      N3 = N3 / N2                    !
+!--------------------------------------!
+      N3 = N3 * N2                     !
+      N2 = Ranks_sizes(i_mode - 1)     !
+      N1 = N1 / N2                     !
+!--------------------------------------!
       ALLOCATE(Cube(N1,N2,N3))
       Cube = RESHAPE(Op_cube, [N1, N2, N3])
       DEALLOCATE(Op_cube)
@@ -390,16 +403,16 @@ MODULE Operator_ND_m
     Op_psi = RESHAPE(Op_cube, [NB])
   
     !--------------Conclusion----------------
-    IF (Verbose_local > 26) THEN
+    IF (Verbose_local > 0) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- Resulting statevector from the action of the HO1D Elem_op on the Psi statevector operand, computed &
-                        &by Action_HO1D_operator_R1 :"
+      WRITE(out_unit,*) "--- Resulting statevector from the action of the ND Operator on the Psi statevector operand, computed &
+                        &by MolecCav_Action_operator_ND_R1_real :"
       CALL Write_Vec(Op_psi, out_unit, 1, info="Op_Psi")
-      WRITE(out_unit,*) "--- End resulting statevector computed by Action_HO1D_operator_R1"
+      WRITE(out_unit,*) "--- End resulting statevector computed by MolecCav_Action_operator_ND_R1_real"
     END IF
   
     IF (Verbose_local > 25) WRITE(out_unit,*) 
-    IF (Verbose_local > 25) WRITE(out_unit,*) "----------------------------------------ACTION OF THE HO1D OPERATOR OVER THE R1 WF&
+    IF (Verbose_local > 25) WRITE(out_unit,*) "----------------------------------------ACTION OF THE ND OPERATOR OVER THE R1 WF&
                                               & COMPUTED---------------------------------------"; FLUSH(out_unit)
   
   END SUBROUTINE MolecCav_Action_operator_ND_R1_real
@@ -523,12 +536,12 @@ MODULE Operator_ND_m
     Op_psi = RESHAPE(Op_cube, [NB])
   
     !--------------Conclusion----------------
-    IF (Verbose_local > 26) THEN
+    IF (Verbose_local > 0) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- Resulting statevector from the action of the HO1D Elem_op on the Psi statevector operand, computed &
-                        &by Action_HO1D_operator_R1 :"
+      WRITE(out_unit,*) "--- Resulting statevector from the action of the ND Operator on the Psi statevector operand, computed &
+                        &by MolecCav_Action_operator_ND_R1_complex :"
       CALL Write_Vec(Op_psi, out_unit, 1, info="Op_Psi")
-      WRITE(out_unit,*) "--- End resulting statevector computed by Action_HO1D_operator_R1"
+      WRITE(out_unit,*) "--- End resulting statevector computed by MolecCav_Action_operator_ND_R1_complex"
     END IF
   
     IF (Verbose_local > 25) WRITE(out_unit,*) 
@@ -580,7 +593,7 @@ MODULE Operator_ND_m
       CALL Get(Parameter_value, tab_mat_ops(i_mode), Parameter_name)
 
     ELSE IF (TO_lowercase(TRIM(Subsystem)) == "cavity") THEN
-      CALL Get(Parameter_value, tab_mat_ops(i_mode), Parameter_name)
+      CALL Get(Parameter_value, tab_cav_ops(i_mode), Parameter_name)
     
     ELSE 
       WRITE(out_unit,*) "### No Subsystem name recognized, please verify the input of Get_OpND_parameter_integer subroutine"
