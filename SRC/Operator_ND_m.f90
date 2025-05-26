@@ -354,8 +354,6 @@ MODULE Operator_ND_m
 !    DO i_mode = 1, N_mat + N_cav     ! from first mode to last
     DO i_mode = N_mat + N_cav, 1, -1 ! from last mode to first
       IF (Debug_local) WRITE(out_unit,*)
-      IF (Debug_local) CALL Write_Mat(Cube(1,:,:), out_unit, N3, info="Cube(1,:,:) before i_mode = "//TO_string(i_mode))
-      IF (Debug_local) WRITE(out_unit,*)
       IF (Debug_local) WRITE(out_unit,*) "--- i_mode = "//TO_string(i_mode)
       IF (Debug_local) WRITE(out_unit,*)
       IF (Debug_local) WRITE(out_unit,*) "N1, N2, N3 = "//TO_string(N1)//", "//TO_string(N2)//", "//TO_string(N3)
@@ -365,14 +363,14 @@ MODULE Operator_ND_m
         DO i_3 = 1, N3
           DO i_1 = 1, N1
             CALL Action(Op_psi=Op_cube(i_1,:,i_3), MatMode=tab_mat_ops(i_mode), i_op=OpND%tab_indexes_mat_op(i_mode), Psi=Cube(i_1,&
-            &:,i_3), Verbose=Verbose, Debug=.FALSE.)
+            &:,i_3), Verbose=Verbose, Debug=Debug_local)
           END DO 
         END DO 
       ELSE 
         DO i_3 = 1, N3
           DO i_1 = 1, N1
             CALL Action(Op_psi=Op_cube(i_1,:,i_3), CavMode=tab_cav_ops(i_mode-N_mat), i_op=OpND%tab_indexes_cav_op(i_mode-N_mat),&
-            & Psi=Cube(i_1,:,i_3), Verbose=Verbose, Debug=.FALSE.)
+            & Psi=Cube(i_1,:,i_3), Verbose=Verbose, Debug=Debug_local)
           END DO 
         END DO 
       END IF
@@ -397,9 +395,6 @@ MODULE Operator_ND_m
     END DO 
 
       !-----------------------Recovering Op_psi (R1)-----------------------------    
-    IF (Debug_local) WRITE(out_unit,*)
-    IF (Debug_local) CALL Write_Mat(Cube(1,:,:), out_unit, N3, info="Cube(1,:,:) after last loop")
-
     Op_psi = RESHAPE(Op_cube, [NB])
   
     !--------------Conclusion----------------
@@ -494,8 +489,6 @@ MODULE Operator_ND_m
 
     DO i_mode = 1, N_mat + N_cav
       IF (Debug_local) WRITE(out_unit,*)
-      IF (Debug_local) CALL Write_Mat(Cube(1,:,:), out_unit, N3, info="Cube(1,:,:) before i_mode = "//TO_string(i_mode))
-      IF (Debug_local) WRITE(out_unit,*)
       IF (Debug_local) WRITE(out_unit,*) "--- i_mode = "//TO_string(i_mode)
       IF (Debug_local) WRITE(out_unit,*)
       IF (Debug_local) WRITE(out_unit,*) "N1, N2, N3 = "//TO_string(N1)//", "//TO_string(N2)//", "//TO_string(N3)
@@ -505,14 +498,14 @@ MODULE Operator_ND_m
         DO i_3 = 1, N3
           DO i_1 = 1, N1
             CALL Action(Op_psi=Op_cube(i_1,:,i_3), Matmode=tab_mat_ops(i_mode), i_op=OpND%tab_indexes_mat_op(i_mode), Psi=Cube(i_1,&
-            &:,i_3), Verbose=Verbose, Debug=.FALSE.)
+            &:,i_3), Verbose=Verbose, Debug=Debug_local)
           END DO 
         END DO 
       ELSE 
         DO i_3 = 1, N3
           DO i_1 = 1, N1
             CALL Action(Op_psi=Op_cube(i_1,:,i_3), CavMode=tab_cav_ops(i_mode-N_mat), i_op=OpND%tab_indexes_cav_op(i_mode-N_mat),&
-            & Psi=Cube(i_1,:,i_3), Verbose=Verbose, Debug=.FALSE.)
+            & Psi=Cube(i_1,:,i_3), Verbose=Verbose, Debug=Debug_local)
           END DO 
         END DO 
         IF (i_mode == N_mat + N_cav) EXIT
@@ -530,9 +523,6 @@ MODULE Operator_ND_m
     END DO 
 
       !-----------------------Recovering Op_psi (R1)-----------------------------    
-    IF (Debug_local) WRITE(out_unit,*)
-    IF (Debug_local) CALL Write_Mat(Cube(1,:,:), out_unit, N3, info="Cube(1,:,:) after last loop")
-
     Op_psi = RESHAPE(Op_cube, [NB])
   
     !--------------Conclusion----------------
