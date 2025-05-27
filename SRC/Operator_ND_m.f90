@@ -340,7 +340,7 @@ MODULE Operator_ND_m
 !    N2 = Ranks_sizes(1)              ! 
 !    N3 = NB / N2                     !
 !-------------------------------------!
-!--to compute from last mode to last--!
+!--to compute from last mode to first-!
     N3 = 1                            !
     N2 = Ranks_sizes(N_mat + N_cav)   !
     N1 = NB / N2                      !
@@ -398,7 +398,7 @@ MODULE Operator_ND_m
     Op_psi = RESHAPE(Op_cube, [NB])
   
     !--------------Conclusion----------------
-    IF (Verbose_local > 0) THEN
+    IF (Debug_local) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "--- Resulting statevector from the action of the ND Operator on the Psi statevector operand, computed &
                         &by MolecCav_Action_operator_ND_R1_real :"

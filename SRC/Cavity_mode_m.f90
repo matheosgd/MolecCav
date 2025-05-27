@@ -243,7 +243,7 @@ MODULE Cavity_mode_m
     !---------------------------------------------Selection of the calculation method--------------------------------------------
     CALL Action(Op_psi=Op_psi, QHO1D=CavMode%Quantum_HO1D_t, i_op=i_op, Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
 
-    IF (Verbose_local > 26) THEN
+    IF (Debug_local) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "--- Resulting statevector from the action of the HO1D Elem_op on the Psi statevector operand, computed &
                         &by Action_HO1D_operator_R1 :"
@@ -304,7 +304,7 @@ MODULE Cavity_mode_m
     !---------------------------------------------Selection of the calculation method--------------------------------------------
     CALL Action(Op_psi=Op_psi, QHO1D=CavMode%Quantum_HO1D_t, i_op=i_op, Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
 
-    IF (Verbose_local > 26) THEN
+    IF (Debug_local) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "--- Resulting statevector from the action of the HO1D Elem_op on the Psi statevector operand, computed &
                         &by Action_HO1D_operator_R1 :"

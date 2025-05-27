@@ -55,20 +55,24 @@ PROGRAM test_operator_ND_2p1D
   real(kind=Rkind)    :: Cavlambda
   real(kind=Rkind)    :: CoeffDipMomt1
   real(kind=Rkind)    :: CoeffDipMomt2
+  integer             :: Mat1Nb
+  integer             :: Mat2Nb
+  integer             :: CavNb
+  integer             :: NB
 
-  real(kind=Rkind)    ::    Phi(12)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
-  real(kind=Rkind)    :: Op_phi(12)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
-  real(kind=Rkind)    :: TotH(12,12)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
-  real(kind=Rkind)    :: REigval(12)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
-  real(kind=Rkind)    :: REigvec(12,12)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
+  real(kind=Rkind), allocatable ::    Phi(:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
+  real(kind=Rkind), allocatable :: Op_phi(:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
+  real(kind=Rkind), allocatable :: TotH(:,:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
+  real(kind=Rkind), allocatable :: Eigenenergies(:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
+  real(kind=Rkind), allocatable :: Eigenstates(:,:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
 
-  real(kind=Rkind)    :: Ana_Normal_modes(3)
-  real(kind=Rkind)    :: Ana_Eigenenergies(12)
+  real(kind=Rkind)              :: Ana_Normal_modes(0:2)
+  real(kind=Rkind), allocatable :: Ana_Eigenenergies(:)
 
   TYPE(test_t)        :: test_opnd
   logical             :: error_opnd = .FALSE.
 
-  integer             :: J
+  integer             :: J, i_1, i_2, i_3, min_index
 
 
   !-----------------------------Test initialization----------------------------
@@ -145,6 +149,11 @@ PROGRAM test_operator_ND_2p1D
   CALL Get(Cavlambda,  "lambda", "Cavity", 1)
   CoeffDipMomt1 = ONE ! assumed linear here
   CoeffDipMomt2 = ONE ! assumed linear here
+  CALL Get(Mat1Nb, "Nb", "Matter", 1)
+  CALL Get(Mat2Nb, "Nb", "Matter", 2)
+  CALL Get(CavNb,  "Nb", "Cavity", 1)
+  NB = Mat1Nb * Mat2Nb * CavNb
+
   IF (Debug) THEN
     WRITE(out_unit,*)
     WRITE(out_unit,*) "--- System paramaters"
@@ -158,10 +167,19 @@ PROGRAM test_operator_ND_2p1D
     WRITE(out_unit,*) "Cavlambda     = "//TO_string(Cavlambda)
     WRITE(out_unit,*) "CoeffDipMomt1 = "//TO_string(CoeffDipMomt1)
     WRITE(out_unit,*) "CoeffDipMomt2 = "//TO_string(CoeffDipMomt2)
+    WRITE(out_unit,*) "Mat1Nb        = "//TO_string(Mat1Nb)
+    WRITE(out_unit,*) "Mat2Nb        = "//TO_string(Mat2Nb)
+    WRITE(out_unit,*) "CavNb         = "//TO_string(CavNb)
+    WRITE(out_unit,*) "NB            = "//TO_string(NB)
   END IF 
 
+  ALLOCATE(Phi(NB))
+  ALLOCATE(Op_phi(NB))
+  ALLOCATE(TotH(NB,NB))
+  ALLOCATE(Eigenenergies(NB))
+  ALLOCATE(Eigenstates(NB,NB))
   TotH = ZERO
-  DO J = 1, 12
+  DO J = 1, NB
     Phi = ZERO
     Phi(J) = ONE
 
@@ -179,21 +197,21 @@ PROGRAM test_operator_ND_2p1D
     
     Op_phi = ZERO
     CALL Action(Op_phi, DipMomtxIxPos, Phi, Verbose=Verbose, Debug=.FALSE.)
-    TotH(:,J) = TotH(:,J) + Op_phi
+    TotH(:,J) = TotH(:,J) + Op_phi * Cavw * Mat1lambda * Cavlambda * CoeffDipMomt1
     
     Op_phi = ZERO
     CALL Action(Op_phi, IxDipMomtxPos, Phi, Verbose=Verbose, Debug=.FALSE.)
-    TotH(:,J) = TotH(:,J) + Op_phi
+    TotH(:,J) = TotH(:,J) + Op_phi * Cavw * Mat2lambda * Cavlambda * CoeffDipMomt2
   END DO
   IF (Debug) WRITE(out_unit,*)
-  IF (Debug) CALL Write_Mat(TotH, out_unit, 12, info="TotH")
+  IF (Debug) CALL Write_Mat(TotH, out_unit, NB, info="TotH")
 
-  CALL diagonalization(TotH, REigval, REigvec)
+  CALL diagonalization(TotH, Eigenenergies, Eigenstates)
   IF (Debug) WRITE(out_unit,*)
-  IF (Debug) CALL Write_Vec(REigval, out_unit, 12, info="EigenEnergies")
+  IF (Debug) CALL Write_Vec(Eigenenergies(1:12), out_unit, 1, info="EigenEnergies(1:12)")
   
   CALL Construct_Ana_Normal_modes(Ana_Normal_modes, Mat1w, Mat2w, Mat1m, Mat2m, Cavw, Mat1lambda, Mat2lambda, Cavlambda, CoeffDip&
-  &Momt1, CoeffDipMomt2, Debug)
+  &Momt1, CoeffDipMomt2, Debug_opt=.FALSE.)
   IF (Debug) WRITE(out_unit,*)
   IF (Debug) CALL Write_Vec(Ana_Normal_modes, out_unit, 1, info="Ana_Normal_modes")
 
@@ -203,9 +221,35 @@ PROGRAM test_operator_ND_2p1D
 !   procedure of the code :                                                        !
 !   \bigl\{\ket{000}, \ket{100}, \ket{200}, \ket{010}, \ket{110}, \ket{210},       !
 !         {\ket{001}, \ket{101}, \ket{201}, \ket{011}, \ket{111}, \ket{211}\bigl\}.!
+!   EVEN THOUGH the basis set is not the one used on the code /!!!!!\ It is the    !
+!   normal coordinates and not the HO basis anymore ! /!\                          !
 !  /!\            /!\            /!\            /!\            /!\            /!\  !
 !----------------------------------------------------------------------------------!
 
+  ALLOCATE(Ana_Eigenenergies(0:NB-1))
+  J = 0
+  DO i_3 = 0, CavNb-1
+    DO i_2 = 0, Mat2Nb-1
+      DO i_1 = 0, Mat1Nb-1
+        CALL Compute_Ana_Eigenenergie(Ana_Eigenenergies(J), i_1, i_2, i_3, Ana_Normal_modes(0), Ana_Normal_modes(1)&
+        &, Ana_Normal_modes(2), Debug_opt=.FALSE.)
+        J = J + 1
+      END DO
+    END DO
+  END DO
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) CALL Write_Vec(Ana_Eigenenergies, out_unit, 1, info="Ana_Eigenenergies")
+
+  DO J = 1, 12
+    min_index = MINLOC(Ana_Eigenenergies, dim=1) - 1 ! "-1" because MINLOC does not take into account that the indexes were renamed (?)
+    CALL Equal_tensor(error_opnd, EigenEnergies(J), Ana_Eigenenergies(min_index))
+    CALL Logical_Test(test_opnd, error_opnd, test2=.FALSE., info="State "//TO_string(J-1))
+    IF (Debug .OR. error_opnd) THEN
+      WRITE(out_unit,*) "J, EigenEnergies(J), Ana_Eigenenergies(min_index) = "//TO_string(J)//", "//TO_string(EigenEnergies(J))//&
+      &", "//TO_string(Ana_Eigenenergies(min_index))
+    END IF
+    Ana_Eigenenergies(min_index) = HUGE(1)
+  END DO
 
 
   !----------------------------Testing the writing---------------------------
@@ -287,6 +331,7 @@ PROGRAM test_operator_ND_2p1D
     END IF
 
     CALL diagonalization(MWH, N_modes, N_coos)
+    N_modes = SQRT(N_modes)
 
     IF (Debug_local) THEN
       WRITE(out_unit,*)
@@ -301,16 +346,16 @@ PROGRAM test_operator_ND_2p1D
     USE QDUtil_m
     IMPLICIT NONE 
 
-    real(kind=Rkind),    intent(inout) :: E
-    real(kind=Rkind),    intent(in)    :: n1
-    real(kind=Rkind),    intent(in)    :: n2
-    real(kind=Rkind),    intent(in)    :: n3
-    real(kind=Rkind),    intent(in)    :: w1
-    real(kind=Rkind),    intent(in)    :: w2
-    real(kind=Rkind),    intent(in)    :: w3
-    logical, optional,   intent(in)    :: Debug_opt
+    real(kind=Rkind),  intent(inout) :: E
+    integer,           intent(in)    :: n1
+    integer,           intent(in)    :: n2
+    integer,           intent(in)    :: n3
+    real(kind=Rkind),  intent(in)    :: w1
+    real(kind=Rkind),  intent(in)    :: w2
+    real(kind=Rkind),  intent(in)    :: w3
+    logical, optional, intent(in)    :: Debug_opt
 
-    logical                            :: Debug_local = .FALSE.
+    logical                          :: Debug_local = .FALSE.
 
 
     IF (PRESENT(Debug_opt)) THEN; Debug_local = Debug_opt
@@ -320,30 +365,15 @@ PROGRAM test_operator_ND_2p1D
     IF (Debug_local) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "--- Arguments given to Compute_Ana_Eigenenergie"
-      WRITE(out_unit,*) "n1 = "//TO_string(n1)
-      WRITE(out_unit,*) "n2 = "//TO_string(n2)
-      WRITE(out_unit,*) "n3 = "//TO_string(n3)
-      WRITE(out_unit,*) "w1 = "//TO_string(w1)
-      WRITE(out_unit,*) "w2 = "//TO_string(w2)
-      WRITE(out_unit,*) "w3 = "//TO_string(w3)
+      WRITE(out_unit,*) "n1, n2, n3 = "//TO_string(n1)//", "//TO_string(n2)//", "//TO_string(n3)
+      WRITE(out_unit,*) "w1, w2, w3 = "//TO_string(w1)//", "//TO_string(w2)//", "//TO_string(w3)
     END IF 
 
-    E = w1*(n1 + HALF) + w2*(n2 + HALF) + w3*(n3 + HALF) +
-    IF (Debug_local) THEN
-      WRITE(out_unit,*)
-      WRITE(out_unit,*) "Analytical MWH :"
-      CALL Write_Mat(MWH, out_unit, Size(MWH), info="MWH")
-    END IF
+    E = w1*(REAL(n1, Rkind) + HALF) + w2*(REAL(n2, Rkind) + HALF) + w3*(REAL(n3, Rkind) + HALF)
+    IF (Debug_local) WRITE(out_unit,*)
+    IF (Debug_local) WRITE(out_unit,*) "E_{|"//TO_string(n1)//TO_string(n2)//TO_string(n3)//">} = "//TO_string(E)
 
-    CALL diagonalization(MWH, N_modes, N_coos)
-
-    IF (Debug_local) THEN
-      WRITE(out_unit,*)
-      WRITE(out_unit,*) "Normal modes resulting from MWH diagonalization :"
-      CALL Write_Vec(N_modes, out_unit, 1, info="Normal modes")
-    END IF
-
-  END SUBROUTINE Construct_Ana_Normal_modes
+  END SUBROUTINE Compute_Ana_Eigenenergie
 
 
 END PROGRAM

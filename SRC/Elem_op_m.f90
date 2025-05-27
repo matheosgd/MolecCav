@@ -205,7 +205,7 @@ MODULE Elem_op_m
       STOP "### None of this operator's matrices are allocated. Please check its initalization."
     END IF
 
-    IF (Verbose_local > 26) THEN
+    IF (Debug_local) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "--- Resulting statevector from the action of the HO1D Elem_op on the Psi statevector operand, computed &
                         &by Action_HO1D_operator_R1 :"
@@ -393,7 +393,7 @@ MODULE Elem_op_m
       STOP "### None of this operator's matrices are allocated. Please check its initalization."
     END IF
 
-    IF (Verbose_local > 26) THEN
+    IF (Debug_local) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "--- Resulting statevector from the action of the HO1D Elem_op on the Psi statevector operand, computed &
                         &by Action_HO1D_operator_R1 :"

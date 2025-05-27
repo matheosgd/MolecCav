@@ -590,7 +590,7 @@ MODULE Quantum_HO1D_m
       CALL Action(Op_psi=Op_psi, Elem_op=QHO1D%Tab_op(i_op), Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
     END IF
 
-    IF (Verbose_local > 26) THEN
+    IF (Debug_local) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "--- Resulting statevector from the action of the HO1D Elem_op on the Psi statevector operand, computed &
                         &by Action_HO1D_operator_R1 :"
@@ -655,7 +655,7 @@ MODULE Quantum_HO1D_m
       CALL Action(Op_psi=Op_psi, Elem_op=QHO1D%Tab_op(i_op), Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
     END IF
 
-    IF (Verbose_local > 26) THEN
+    IF (Debug_local) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "--- Resulting statevector from the action of the HO1D Elem_op on the Psi statevector operand, computed &
                         &by Action_HO1D_operator_R1 :"
