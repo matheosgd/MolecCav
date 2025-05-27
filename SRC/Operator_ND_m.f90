@@ -550,7 +550,7 @@ MODULE Operator_ND_m
     integer,             intent(inout) :: Parameter_value                                                                            ! the current values of the indexes for each dimension
     character(len=*),    intent(in)    :: Parameter_name
     character(len=*),    intent(in)    :: Subsystem
-    integer,             intent(in)    :: i_mode
+    integer,             intent(in)    :: i_mode ! the number of the mode INSIDE the subsystem, not among the total system modes ! (the number of the 2nd cavity mode is 2, not 2+the number of matter modes)
 
     IF (TO_lowercase(TRIM(Subsystem)) == "matter") THEN
       CALL Get(Parameter_value, tab_mat_ops(i_mode), Parameter_name)

@@ -37,7 +37,7 @@ PROGRAM test_operator_ND_2p1D
 
 
   integer             :: Verbose = 50
-  logical             :: Debug   = .FALSE.
+  logical             :: Debug   = .TRUE.
 
   logical             :: Dense   = .FALSE.
   TYPE(Operator_ND_t) :: HxIxI
@@ -45,17 +45,25 @@ PROGRAM test_operator_ND_2p1D
   TYPE(Operator_ND_t) :: IxIxH
   TYPE(Operator_ND_t) :: DipMomtxIxPos
   TYPE(Operator_ND_t) :: IxDipMomtxPos
-  real(kind=Rkind)    :: Matw
-  real(kind=Rkind)    :: Matm
+  real(kind=Rkind)    :: Mat1w
+  real(kind=Rkind)    :: Mat2w
+  real(kind=Rkind)    :: Mat1m
+  real(kind=Rkind)    :: Mat2m
   real(kind=Rkind)    :: Cavw
+  real(kind=Rkind)    :: Mat1lambda
+  real(kind=Rkind)    :: Mat2lambda
   real(kind=Rkind)    :: Cavlambda
-  real(kind=Rkind)    :: CoeffDipMomt
+  real(kind=Rkind)    :: CoeffDipMomt1
+  real(kind=Rkind)    :: CoeffDipMomt2
 
   real(kind=Rkind)    ::    Phi(12)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
   real(kind=Rkind)    :: Op_phi(12)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
   real(kind=Rkind)    :: TotH(12,12)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
   real(kind=Rkind)    :: REigval(12)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
   real(kind=Rkind)    :: REigvec(12,12)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
+
+  real(kind=Rkind)    :: Ana_Normal_modes(3)
+  real(kind=Rkind)    :: Ana_Eigenenergies(12)
 
   TYPE(test_t)        :: test_opnd
   logical             :: error_opnd = .FALSE.
@@ -127,19 +135,29 @@ PROGRAM test_operator_ND_2p1D
 
 
   !----------------------------Testing the actions---------------------------
-  CALL Get(Matw, "w", "Matter", 1)
-  CALL Get(Matm, "m", "Matter", 1)
-  CALL Get(Cavw, "w", "Cavity", 1)
-  CALL Get(Cavlambda, "lambda", "Cavity", 1)
-  CoeffDipMomt = ONE ! assumed linear here
+  CALL Get(Mat1w, "w", "Matter", 1)
+  CALL Get(Mat2w, "w", "Matter", 2)
+  CALL Get(Cavw,  "w", "Cavity", 1)
+  CALL Get(Mat1m, "m", "Matter", 1)
+  CALL Get(Mat2m, "m", "Matter", 2)
+  CALL Get(Mat1lambda, "lambda", "Matter", 1)
+  CALL Get(Mat2lambda, "lambda", "Matter", 2)
+  CALL Get(Cavlambda,  "lambda", "Cavity", 1)
+  CoeffDipMomt1 = ONE ! assumed linear here
+  CoeffDipMomt2 = ONE ! assumed linear here
   IF (Debug) THEN
     WRITE(out_unit,*)
     WRITE(out_unit,*) "--- System paramaters"
-    WRITE(out_unit,*) "Matw         = "//TO_string(Matw)
-    WRITE(out_unit,*) "Matm         = "//TO_string(Matm)
-    WRITE(out_unit,*) "Cavw         = "//TO_string(Cavw)
-    WRITE(out_unit,*) "Cavlambda    = "//TO_string(Cavlambda)
-    WRITE(out_unit,*) "CoeffDipMomt = "//TO_string(CoeffDipMomt)
+    WRITE(out_unit,*) "Mat1w         = "//TO_string(Mat1w)
+    WRITE(out_unit,*) "Mat2w         = "//TO_string(Mat2w)
+    WRITE(out_unit,*) "Mat1m         = "//TO_string(Mat1m)
+    WRITE(out_unit,*) "Mat2m         = "//TO_string(Mat2m)
+    WRITE(out_unit,*) "Cavw          = "//TO_string(Cavw)
+    WRITE(out_unit,*) "Mat1lambda    = "//TO_string(Mat1lambda)
+    WRITE(out_unit,*) "Mat2lambda    = "//TO_string(Mat2lambda)
+    WRITE(out_unit,*) "Cavlambda     = "//TO_string(Cavlambda)
+    WRITE(out_unit,*) "CoeffDipMomt1 = "//TO_string(CoeffDipMomt1)
+    WRITE(out_unit,*) "CoeffDipMomt2 = "//TO_string(CoeffDipMomt2)
   END IF 
 
   TotH = ZERO
@@ -148,27 +166,47 @@ PROGRAM test_operator_ND_2p1D
     Phi(J) = ONE
 
     Op_phi = ZERO
-    CALL Action(Op_phi, HxIxI, Phi, Verbose=Verbose, Debug=Debug)
+    CALL Action(Op_phi, HxIxI, Phi, Verbose=Verbose, Debug=.FALSE.)
     TotH(:,J) = TotH(:,J) + Op_phi
 
     Op_phi = ZERO
-    CALL Action(Op_phi, IxHxI, Phi, Verbose=Verbose, Debug=Debug)
+    CALL Action(Op_phi, IxHxI, Phi, Verbose=Verbose, Debug=.FALSE.)
     TotH(:,J) = TotH(:,J) + Op_phi
     
     Op_phi = ZERO
-    CALL Action(Op_phi, IxIxH, Phi, Verbose=Verbose, Debug=Debug)
+    CALL Action(Op_phi, IxIxH, Phi, Verbose=Verbose, Debug=.FALSE.)
     TotH(:,J) = TotH(:,J) + Op_phi
     
     Op_phi = ZERO
-    CALL Action(Op_phi, DipMomtxIxPos, Phi, Verbose=Verbose, Debug=Debug)
+    CALL Action(Op_phi, DipMomtxIxPos, Phi, Verbose=Verbose, Debug=.FALSE.)
     TotH(:,J) = TotH(:,J) + Op_phi
     
     Op_phi = ZERO
-    CALL Action(Op_phi, IxDipMomtxPos, Phi, Verbose=Verbose, Debug=Debug)
+    CALL Action(Op_phi, IxDipMomtxPos, Phi, Verbose=Verbose, Debug=.FALSE.)
     TotH(:,J) = TotH(:,J) + Op_phi
   END DO
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) CALL Write_Mat(TotH, out_unit, 12, info="TotH")
 
-  CALL Write_Mat(TotH, out_unit, 12, info="TotH")
+  CALL diagonalization(TotH, REigval, REigvec)
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) CALL Write_Vec(REigval, out_unit, 12, info="EigenEnergies")
+  
+  CALL Construct_Ana_Normal_modes(Ana_Normal_modes, Mat1w, Mat2w, Mat1m, Mat2m, Cavw, Mat1lambda, Mat2lambda, Cavlambda, CoeffDip&
+  &Momt1, CoeffDipMomt2, Debug)
+  IF (Debug) WRITE(out_unit,*)
+  IF (Debug) CALL Write_Vec(Ana_Normal_modes, out_unit, 1, info="Ana_Normal_modes")
+
+!----------------------------------------------------------------------------------!
+!  /!\            /!\            /!\            /!\            /!\            /!\  !
+!   Here we will use the basis vectors in the same order as used in the Action     !
+!   procedure of the code :                                                        !
+!   \bigl\{\ket{000}, \ket{100}, \ket{200}, \ket{010}, \ket{110}, \ket{210},       !
+!         {\ket{001}, \ket{101}, \ket{201}, \ket{011}, \ket{111}, \ket{211}\bigl\}.!
+!  /!\            /!\            /!\            /!\            /!\            /!\  !
+!----------------------------------------------------------------------------------!
+
+
 
   !----------------------------Testing the writing---------------------------
   CALL Write(IxDipMomtxPos)
@@ -185,107 +223,127 @@ PROGRAM test_operator_ND_2p1D
   CONTAINS
 
 
-  SUBROUTINE Construct_ana_TotH_psi_real(Ana_TotH_psi_R1_real, Matw_loc, Matm_loc, Cavw_loc, Cavlambda_loc, CoeffDipMomt_loc, Psi&
-    &, Debug_opt)
+  SUBROUTINE Construct_Ana_Normal_modes(N_modes, Mat1w_loc, Mat2w_loc, Mat1m_loc, Mat2m_loc, Cavw_loc, Mat1lambda_loc, &
+    &Mat2lambda_loc, Cavlambda_loc, CoeffDipMomt1_loc, CoeffDipMomt2_loc, Debug_opt)
     USE QDUtil_m
     IMPLICIT NONE 
-!----------------------------------------------------------------------------------!
-!  /!\            /!\            /!\            /!\            /!\            /!\  !
-!   The following analytical form of the WF resulting from the action of the       !
-!   H_{tot}^{1p1D} on the R1 \Psi^{1p1D} is done assuming the Psi is written on    !
-!   the same basis set than inside the code i.e. the eigenvectors of the           !
-!   H_{tot}^{1p1D} are set in the same order as used in the Action procedure :     !
-!   \bigl\{\ket{00}, \ket{10}, \ket{20}, \ket{01}, \ket{11}, \ket{21}\bigl\}.      !
-!   This has to be taken into account as writing the analytical hamiltonian matrix !
-!   and as applying it to the WF vector (pay attention to the coefficients order)  !
-!  /!\            /!\            /!\            /!\            /!\            /!\  !
-!----------------------------------------------------------------------------------!
 
-    real(kind=Rkind),    intent(inout) :: Ana_TotH_psi_R1_real(12)
-    real(kind=Rkind),    intent(in)    :: Matw_loc
-    real(kind=Rkind),    intent(in)    :: Matm_loc
+    real(kind=Rkind),    intent(inout) :: N_modes(3)
+    real(kind=Rkind),    intent(in)    :: Mat1w_loc
+    real(kind=Rkind),    intent(in)    :: Mat2w_loc
+    real(kind=Rkind),    intent(in)    :: Mat1m_loc
+    real(kind=Rkind),    intent(in)    :: Mat2m_loc
     real(kind=Rkind),    intent(in)    :: Cavw_loc
+    real(kind=Rkind),    intent(in)    :: Mat1lambda_loc
+    real(kind=Rkind),    intent(in)    :: Mat2lambda_loc
     real(kind=Rkind),    intent(in)    :: Cavlambda_loc
-    real(kind=Rkind),    intent(in)    :: CoeffDipMomt_loc
-    real(kind=Rkind),    intent(in)    :: Psi(12)
+    real(kind=Rkind),    intent(in)    :: CoeffDipMomt1_loc
+    real(kind=Rkind),    intent(in)    :: CoeffDipMomt2_loc
     logical, optional,   intent(in)    :: Debug_opt
 
-    real(kind=Rkind)                   :: A                     ! analytical coupling term
+    real(kind=Rkind)                   :: L1, L2 ! analytical coupling terms
+    real(kind=Rkind)                   :: MWH(3,3)
+    real(kind=Rkind)                   :: N_coos(3,3)
     logical                            :: Debug_local = .FALSE.
+
 
     IF (PRESENT(Debug_opt)) THEN; Debug_local = Debug_opt
     ELSE; Debug_local = .FALSE.; END IF 
 
-    A = Cavlambda_loc * CoeffDipMomt_loc * SQRT(Cavw_loc / (Matw_loc*Matm_loc))
 
-    Ana_TotH_psi_R1_real(1) =   (  Matw_loc +   Cavw_loc)*Psi(1) + A * Psi(5)
-    Ana_TotH_psi_R1_real(2) =   (3*Matw_loc +   Cavw_loc)*Psi(2) + A * ( Psi(4) + SQRT(TWO)*Psi(12) )
-    Ana_TotH_psi_R1_real(3) =   (5*Matw_loc +   Cavw_loc)*Psi(3) + A * SQRT(TWO) * Psi(5)
-    Ana_TotH_psi_R1_real(4) =   (  Matw_loc + 3*Cavw_loc)*Psi(4) + A * Psi(2)
-    Ana_TotH_psi_R1_real(5) = 3*(  Matw_loc +   Cavw_loc)*Psi(5) + A * ( Psi(1) + SQRT(TWO)*Psi(3) )
-    Ana_TotH_psi_R1_real(12) =   (5*Matw_loc + 3*Cavw_loc)*Psi(12) + A * SQRT(TWO) * Psi(2)
-    
-    Ana_TotH_psi_R1_real = Ana_TotH_psi_R1_real / 2
+    L1 = Cavlambda_loc * Mat1lambda_loc * CoeffDipMomt1_loc * Cavw_loc / SQRT(Mat1m_loc)
+    L2 = Cavlambda_loc * Mat2lambda_loc * CoeffDipMomt2_loc * Cavw_loc / SQRT(Mat2m_loc)
 
     IF (Debug_local) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "Resulting matrix of the TotH action over the operand :"
-      CALL Write_Vec(Ana_TotH_psi_R1_real, out_unit, Size(Ana_TotH_psi_R1_real), info="Ana_TotH_psi_R1_real")
+      WRITE(out_unit,*) "--- System paramaters given to Construct_Ana_Normal_modes"
+      WRITE(out_unit,*) "Mat1w_loc         = "//TO_string(Mat1w_loc)
+      WRITE(out_unit,*) "Mat2w_loc         = "//TO_string(Mat2w_loc)
+      WRITE(out_unit,*) "Mat1m_loc         = "//TO_string(Mat1m_loc)
+      WRITE(out_unit,*) "Mat2m_loc         = "//TO_string(Mat2m_loc)
+      WRITE(out_unit,*) "Cavw_loc          = "//TO_string(Cavw_loc)
+      WRITE(out_unit,*) "Mat1lambda_loc    = "//TO_string(Mat1lambda_loc)
+      WRITE(out_unit,*) "Mat2lambda_loc    = "//TO_string(Mat2lambda_loc)
+      WRITE(out_unit,*) "Cavlambda_loc     = "//TO_string(Cavlambda_loc)
+      WRITE(out_unit,*) "CoeffDipMomt1_loc = "//TO_string(CoeffDipMomt1_loc)
+      WRITE(out_unit,*) "CoeffDipMomt2_loc = "//TO_string(CoeffDipMomt2_loc)
+      WRITE(out_unit,*) "L1                = "//TO_string(L1)
+      WRITE(out_unit,*) "L2                = "//TO_string(L2)
+    END IF 
+
+    MWH      = ZERO
+    MWH(1,1) = Mat1w**2
+    MWH(2,2) = Mat2w**2
+    MWH(3,3) = Cavw **2
+    MWH(1,3) = L1
+    MWH(3,1) = L1
+    MWH(2,3) = L2
+    MWH(3,2) = L2
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "Analytical MWH :"
+      CALL Write_Mat(MWH, out_unit, Size(MWH), info="MWH")
     END IF
 
-  END SUBROUTINE
+    CALL diagonalization(MWH, N_modes, N_coos)
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "Normal modes resulting from MWH diagonalization :"
+      CALL Write_Vec(N_modes, out_unit, 1, info="Normal modes")
+    END IF
+
+  END SUBROUTINE Construct_Ana_Normal_modes
 
 
-  SUBROUTINE Construct_ana_TotH_psi_complex(Ana_TotH_psi_R1_complex, Matw_loc, Matm_loc, Cavw_loc, Cavlambda_loc, CoeffDipMomt_lo&
-    &c, Psi, Debug_opt)
+  SUBROUTINE Compute_Ana_Eigenenergie(E, n1, n2, n3, w1, w2, w3, Debug_opt)
     USE QDUtil_m
     IMPLICIT NONE 
-!----------------------------------------------------------------------------------!
-!  /!\            /!\            /!\            /!\            /!\            /!\  !
-!   The following analytical form of the WF resulting from the action of the       !
-!   H_{tot}^{1p1D} on the R1 \Psi^{1p1D} is done assuming the Psi is written on    !
-!   the same basis set than inside the code i.e. the eigenvectors of the           !
-!   H_{tot}^{1p1D} are set in the same order as used in the Action procedure :     !
-!   \bigl\{\ket{00}, \ket{10}, \ket{20}, \ket{01}, \ket{11}, \ket{21}\bigl\}.      !
-!   This has to be taken into account as writing the analytical hamiltonian matrix !
-!   and as applying it to the WF vector (pay attention to the coefficients order)  !
-!  /!\            /!\            /!\            /!\            /!\            /!\  !
-!----------------------------------------------------------------------------------!
 
-    complex(kind=Rkind), intent(inout) :: Ana_TotH_psi_R1_complex(12)
-    real(kind=Rkind),    intent(in)    :: Matw_loc
-    real(kind=Rkind),    intent(in)    :: Matm_loc
-    real(kind=Rkind),    intent(in)    :: Cavw_loc
-    real(kind=Rkind),    intent(in)    :: Cavlambda_loc
-    real(kind=Rkind),    intent(in)    :: CoeffDipMomt_loc
-    complex(kind=Rkind), intent(in)    :: Psi(12)
+    real(kind=Rkind),    intent(inout) :: E
+    real(kind=Rkind),    intent(in)    :: n1
+    real(kind=Rkind),    intent(in)    :: n2
+    real(kind=Rkind),    intent(in)    :: n3
+    real(kind=Rkind),    intent(in)    :: w1
+    real(kind=Rkind),    intent(in)    :: w2
+    real(kind=Rkind),    intent(in)    :: w3
     logical, optional,   intent(in)    :: Debug_opt
 
-    real(kind=Rkind)                   :: A ! analytical coupling term
     logical                            :: Debug_local = .FALSE.
+
 
     IF (PRESENT(Debug_opt)) THEN; Debug_local = Debug_opt
     ELSE; Debug_local = .FALSE.; END IF 
 
-    A = Cavlambda_loc * CoeffDipMomt_loc * SQRT(Cavw_loc / (Matw_loc*Matm_loc))
-    IF (Debug_local) WRITE(out_unit,*) "A = "//TO_string(A)
-
-    Ana_TotH_psi_R1_complex(1) =   (  Matw_loc +   Cavw_loc)*Psi(1) + A * Psi(5)
-    Ana_TotH_psi_R1_complex(2) =   (3*Matw_loc +   Cavw_loc)*Psi(2) + A * ( Psi(4) + SQRT(TWO)*Psi(12) )
-    Ana_TotH_psi_R1_complex(3) =   (5*Matw_loc +   Cavw_loc)*Psi(3) + A * SQRT(TWO) * Psi(5)
-    Ana_TotH_psi_R1_complex(4) =   (  Matw_loc + 3*Cavw_loc)*Psi(4) + A * Psi(2)
-    Ana_TotH_psi_R1_complex(5) = 3*(  Matw_loc +   Cavw_loc)*Psi(5) + A * ( Psi(1) + SQRT(TWO)*Psi(3) )
-    Ana_TotH_psi_R1_complex(12) =   (5*Matw_loc + 3*Cavw_loc)*Psi(12) + A * SQRT(TWO) * Psi(2)
-    
-    Ana_TotH_psi_R1_complex = Ana_TotH_psi_R1_complex / 2
 
     IF (Debug_local) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "Resulting matrix of the TotH action over the operand :"
-      CALL Write_Vec(Ana_TotH_psi_R1_complex, out_unit, Size(Ana_TotH_psi_R1_complex), info="Ana_TotH_psi_R1_complex")
+      WRITE(out_unit,*) "--- Arguments given to Compute_Ana_Eigenenergie"
+      WRITE(out_unit,*) "n1 = "//TO_string(n1)
+      WRITE(out_unit,*) "n2 = "//TO_string(n2)
+      WRITE(out_unit,*) "n3 = "//TO_string(n3)
+      WRITE(out_unit,*) "w1 = "//TO_string(w1)
+      WRITE(out_unit,*) "w2 = "//TO_string(w2)
+      WRITE(out_unit,*) "w3 = "//TO_string(w3)
+    END IF 
+
+    E = w1*(n1 + HALF) + w2*(n2 + HALF) + w3*(n3 + HALF) +
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "Analytical MWH :"
+      CALL Write_Mat(MWH, out_unit, Size(MWH), info="MWH")
     END IF
 
-  END SUBROUTINE
+    CALL diagonalization(MWH, N_modes, N_coos)
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "Normal modes resulting from MWH diagonalization :"
+      CALL Write_Vec(N_modes, out_unit, 1, info="Normal modes")
+    END IF
+
+  END SUBROUTINE Construct_Ana_Normal_modes
 
 
 END PROGRAM
