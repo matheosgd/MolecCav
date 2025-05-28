@@ -180,7 +180,7 @@ MODULE Operator_ND_m
         IF (TO_lowercase(TRIM(Cav_operators_local(i_mode))) == tab_cav_ops(i_mode)%Tab_op(i_op)%Operator_type) THEN
           OpND%tab_indexes_cav_op(i_mode) = i_op
           EXIT 
-        ELSE IF (i_op == tab_mat_ops(i_mode)%Nb_op-1) THEN
+        ELSE IF (i_op == tab_cav_ops(i_mode)%Nb_op-1) THEN
           WRITE(out_unit,*) "### No operator name recognized. Please check arguments of MolecCav_Initialize_operator_ND"
           STOP "### No operator name recognized in MolecCav_Initialize_operator_ND"
         END IF 

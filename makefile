@@ -136,7 +136,7 @@ $(info ***********************************************************************)
 .PHONY: ut UT
 # the ".PHONY <string1> <string2> <...>" make command indicates to make that the provided string are neither files nor directories and allows to use them...
 # ... as key-words, ex: as command-line commands
-UT ut: test_algebra.exe test_ND_indexes.exe test_elem_op.exe test_quantum_ho1d.exe test_matter_mode.exe test_cavity_mode.exe test_operator_ND_1p1D.exe test_operator_ND_2p1D.exe test_action_total_H_1p1D.exe test_construct_total_H_1p1D.exe test_normal_modes_1p1D.exe test_mapping.exe test_transition_intensities.exe
+UT ut: test_algebra.exe test_ND_indexes.exe test_elem_op.exe test_quantum_ho1d.exe test_matter_mode.exe test_cavity_mode.exe test_operator_ND_1p1D.exe test_operator_ND_2p1D.exe test_operator_ND_1p2D.exe test_operator_ND_3p0D.exe test_action_total_H_1p1D.exe test_construct_total_H_1p1D.exe test_normal_modes_1p1D.exe test_mapping.exe test_transition_intensities.exe
 	./test_algebra.exe                                               > $(OUTPUT_DIR)/test_algebra.log
 	./test_ND_indexes.exe                                            > $(OUTPUT_DIR)/test_ND_indexes.log
 	./test_elem_op.exe                                               > $(OUTPUT_DIR)/test_elem_op.log
@@ -145,6 +145,8 @@ UT ut: test_algebra.exe test_ND_indexes.exe test_elem_op.exe test_quantum_ho1d.e
 	./test_cavity_mode.exe            < $(DATA_DIR)/data_test_cavmode.nml   > $(OUTPUT_DIR)/test_cavity_mode.log
 	./test_operator_ND_1p1D.exe       < $(DATA_DIR)/data_test_opnd_1p1d.nml > $(OUTPUT_DIR)/test_operator_ND_1p1D.log
 	./test_operator_ND_2p1D.exe       < $(DATA_DIR)/data_test_opnd_2p1d.nml > $(OUTPUT_DIR)/test_operator_ND_2p1D.log
+	./test_operator_ND_1p2D.exe       < $(DATA_DIR)/data_test_opnd_1p2d.nml > $(OUTPUT_DIR)/test_operator_ND_1p2D.log
+	./test_operator_ND_3p0D.exe       < $(DATA_DIR)/data_test_opnd_3p0d.nml > $(OUTPUT_DIR)/test_operator_ND_3p0D.log
 	./test_mapping.exe                < $(DATA_DIR)/data_tests.nml          > $(OUTPUT_DIR)/test_mapping.log
 	./test_action_total_H_1p1D.exe    < $(DATA_DIR)/data_tests.nml          > $(OUTPUT_DIR)/test_action_total_H_1p1D.log
 	./test_construct_total_H_1p1D.exe < $(DATA_DIR)/data_tests.nml          > $(OUTPUT_DIR)/test_construct_total_H_1p1D.log
@@ -158,6 +160,8 @@ UT ut: test_algebra.exe test_ND_indexes.exe test_elem_op.exe test_quantum_ho1d.e
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_cavity_mode.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_operator_ND_1p1D.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_operator_ND_2p1D.log
+	grep "Number of error(s)" $(OUTPUT_DIR)/test_operator_ND_1p2D.log
+	grep "Number of error(s)" $(OUTPUT_DIR)/test_operator_ND_3p0D.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_mapping.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_action_total_H_1p1D.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_construct_total_H_1p1D.log
