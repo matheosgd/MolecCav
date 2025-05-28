@@ -26,7 +26,7 @@
 ! SOFTWARE.
 !==================================================================================================
 !==================================================================================================
-PROGRAM test_operator_ND_3p0D
+PROGRAM test_operator_ND_0p3D
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real124
   USE QDUtil_m
   USE Tests_m
@@ -36,21 +36,18 @@ PROGRAM test_operator_ND_3p0D
 
 
   integer             :: Verbose = 50
-  logical             :: Debug   = .FALSE.
+  logical             :: Debug   = .TRUE.
 
   logical             :: Dense   = .FALSE.
   TYPE(Operator_ND_t) :: HxIxI
   TYPE(Operator_ND_t) :: IxHxI
   TYPE(Operator_ND_t) :: IxIxH
-  real(kind=Rkind)    :: Mat1w
-  real(kind=Rkind)    :: Mat2w
-  real(kind=Rkind)    :: Mat3w
-  real(kind=Rkind)    :: Mat1m
-  real(kind=Rkind)    :: Mat2m
-  real(kind=Rkind)    :: Mat3m
-  integer             :: Mat1Nb
-  integer             :: Mat2Nb
-  integer             :: Mat3Nb
+  real(kind=Rkind)    :: Cav1w
+  real(kind=Rkind)    :: Cav2w
+  real(kind=Rkind)    :: Cav3w
+  integer             :: Cav1Nb
+  integer             :: Cav2Nb
+  integer             :: Cav3Nb
   integer             :: NB
 
   real(kind=Rkind), allocatable ::    Phi(:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
@@ -69,11 +66,11 @@ PROGRAM test_operator_ND_3p0D
 
 
   !-----------------------------Test initialization----------------------------
-  CALL Initialize_Test(test_opnd, test_name="OUT/test_file_opnd_3p0D")
+  CALL Initialize_Test(test_opnd, test_name="OUT/test_file_opnd_0p3D")
 
 
   !-------------------------Operator_ND object initialization-------------------------
-  CALL Initialize(HxIxI, "Hamiltonian, identity, identity ", "", in_unit, Dense=Dense, Verbose=Verbose, Debug=.FALSE.)
+  CALL Initialize(HxIxI,"" , "Hamiltonian, identity, identity ", in_unit, Dense=Dense, Verbose=Verbose, Debug=.FALSE.)
   IF (Debug) THEN
     WRITE(out_unit,*)
     WRITE(out_unit,*) "--------------Operator_ND object constructed by MolecCav_Initialize_operator_ND--------------"
@@ -81,7 +78,7 @@ PROGRAM test_operator_ND_3p0D
     WRITE(out_unit,*) "------------End Operator_ND object constructed by MolecCav_Initialize_operator_ND------------"
   END IF
 
-  CALL Initialize(IxHxI, "identity, Hamiltonian, identity", "", in_unit, Dense=Dense, Verbose=Verbose, Debug=.FALSE.)
+  CALL Initialize(IxHxI,"" , "identity, Hamiltonian, identity", in_unit, Dense=Dense, Verbose=Verbose, Debug=.FALSE.)
   IF (Debug) THEN
     WRITE(out_unit,*)
     WRITE(out_unit,*) "--------------Operator_ND object constructed by MolecCav_Initialize_operator_ND--------------"
@@ -89,7 +86,7 @@ PROGRAM test_operator_ND_3p0D
     WRITE(out_unit,*) "------------End Operator_ND object constructed by MolecCav_Initialize_operator_ND------------"
   END IF
 
-  CALL Initialize(IxIxH, "identity, identity, Hamiltonian", "", in_unit, Dense=Dense, Verbose=Verbose, Debug=.FALSE.)
+  CALL Initialize(IxIxH,"" , "identity, identity, Hamiltonian", in_unit, Dense=Dense, Verbose=Verbose, Debug=.FALSE.)
   IF (Debug) THEN
     WRITE(out_unit,*)
     WRITE(out_unit,*) "--------------Operator_ND object constructed by MolecCav_Initialize_operator_ND--------------"
@@ -99,40 +96,34 @@ PROGRAM test_operator_ND_3p0D
 
 
   !----------------------------Testing the initialization---------------------------
-  CALL Logical_Test(test_opnd, ANY(HxIxI%tab_indexes_mat_op/=[1,0,0]), test2=.FALSE., info="HxIxI%tab_mat_op")
-  CALL Logical_Test(test_opnd, SIZE(HxIxI%tab_indexes_cav_op)/=0,      test2=.FALSE., info="HxIxI%tab_cav_op")
+  CALL Logical_Test(test_opnd, SIZE(HxIxI%tab_indexes_mat_op)/=0,       test2=.FALSE., info="HxIxI%tab_mat_op")
+  CALL Logical_Test(test_opnd, ANY( HxIxI%tab_indexes_cav_op/=[1,0,0]), test2=.FALSE., info="HxIxI%tab_cav_op")
 
-  CALL Logical_Test(test_opnd, ANY(IxHxI%tab_indexes_mat_op/=[0,1,0]), test2=.FALSE., info="IxHxI%tab_mat_op")
-  CALL Logical_Test(test_opnd, SIZE(IxHxI%tab_indexes_cav_op)/=0,      test2=.FALSE., info="IxHxI%tab_cav_op")
+  CALL Logical_Test(test_opnd, SIZE(IxHxI%tab_indexes_mat_op)/=0,       test2=.FALSE., info="IxHxI%tab_mat_op")
+  CALL Logical_Test(test_opnd, ANY( IxHxI%tab_indexes_cav_op/=[0,1,0]), test2=.FALSE., info="IxHxI%tab_cav_op")
 
-  CALL Logical_Test(test_opnd, ANY(IxIxH%tab_indexes_mat_op/=[0,0,1]), test2=.FALSE., info="IxIxH%tab_mat_op")
-  CALL Logical_Test(test_opnd, SIZE(IxIxH%tab_indexes_cav_op)/=0,      test2=.FALSE., info="IxIxH%tab_cav_op")
+  CALL Logical_Test(test_opnd, SIZE(IxIxH%tab_indexes_mat_op)/=0,       test2=.FALSE., info="IxIxH%tab_mat_op")
+  CALL Logical_Test(test_opnd, ANY( IxIxH%tab_indexes_cav_op/=[0,0,1]), test2=.FALSE., info="IxIxH%tab_cav_op")
 
 
   !----------------------------Testing the actions---------------------------
-  CALL Get(Mat1w, "w", "Matter", 1)
-  CALL Get(Mat2w, "w", "Matter", 2)
-  CALL Get(Mat3w, "w", "Matter", 3)
-  CALL Get(Mat1m, "m", "Matter", 1)
-  CALL Get(Mat2m, "m", "Matter", 2)
-  CALL Get(Mat3m, "m", "Matter", 3)
-  CALL Get(Mat1Nb,  "Nb", "Matter", 1)
-  CALL Get(Mat2Nb,  "Nb", "Matter", 2)
-  CALL Get(Mat3Nb,  "Nb", "Matter", 3)
-  NB = Mat1Nb * Mat2Nb * Mat3Nb
+  CALL Get(Cav1w,  "w",  "Cavity", 1)
+  CALL Get(Cav2w,  "w",  "Cavity", 2)
+  CALL Get(Cav3w,  "w",  "Cavity", 3)
+  CALL Get(Cav1Nb, "Nb", "Cavity", 1)
+  CALL Get(Cav2Nb, "Nb", "Cavity", 2)
+  CALL Get(Cav3Nb, "Nb", "Cavity", 3)
+  NB = Cav1Nb * Cav2Nb * Cav3Nb
 
   IF (Debug) THEN
     WRITE(out_unit,*)
     WRITE(out_unit,*) "--- System parameters"
-    WRITE(out_unit,*) "Mat1w  = "//TO_string(Mat1w)
-    WRITE(out_unit,*) "Mat2w  = "//TO_string(Mat2w)
-    WRITE(out_unit,*) "Mat3w  = "//TO_string(Mat3w)
-    WRITE(out_unit,*) "Mat1m  = "//TO_string(Mat1m)
-    WRITE(out_unit,*) "Mat2m  = "//TO_string(Mat2m)
-    WRITE(out_unit,*) "Mat3m  = "//TO_string(Mat3m)
-    WRITE(out_unit,*) "Mat1Nb = "//TO_string(Mat1Nb)
-    WRITE(out_unit,*) "Mat2Nb = "//TO_string(Mat2Nb)
-    WRITE(out_unit,*) "Mat3Nb = "//TO_string(Mat3Nb)
+    WRITE(out_unit,*) "Cav1w  = "//TO_string(Cav1w)
+    WRITE(out_unit,*) "Cav2w  = "//TO_string(Cav2w)
+    WRITE(out_unit,*) "Cav3w  = "//TO_string(Cav3w)
+    WRITE(out_unit,*) "Cav1Nb = "//TO_string(Cav1Nb)
+    WRITE(out_unit,*) "Cav2Nb = "//TO_string(Cav2Nb)
+    WRITE(out_unit,*) "Cav3Nb = "//TO_string(Cav3Nb)
     WRITE(out_unit,*) "NB     = "//TO_string(NB)
   END IF 
 
@@ -168,7 +159,7 @@ PROGRAM test_operator_ND_3p0D
   
   CALL Compute_Normal_modes(N_modes, Eigenenergies(1:4), Debug_opt=.FALSE.)
   
-  Modes_freq = [Mat1w, Mat2w, Mat3w]
+  Modes_freq = [Cav1w, Cav2w, Cav3w]
 
   DO J = 1, 3
     min_index = MINLOC(Modes_freq, dim=1)

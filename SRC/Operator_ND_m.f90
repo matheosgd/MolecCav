@@ -135,6 +135,11 @@ MODULE Operator_ND_m
 
     IF (LEN_TRIM(Mat_operators)==0) THEN
       N_mat = 0
+      WRITE(out_unit,*) "########################## WARNING ########################## WARNING ########################## WARNING #&
+                      &########################"
+      WRITE(out_unit,*) "                          The code is now used without any matter mode to compute : cavity alone "
+      WRITE(out_unit,*) "########################## WARNING ########################## WARNING ########################## WARNING #&
+                      &########################"
     ELSE
       N_mat = 1
       DO i_mode = 1, LEN_TRIM(Mat_operators)
@@ -143,6 +148,11 @@ MODULE Operator_ND_m
     END IF 
     IF (LEN_TRIM(Cav_operators)==0) THEN
       N_cav = 0
+      WRITE(out_unit,*) "########################## WARNING ########################## WARNING ########################## WARNING #&
+                      &########################"
+      WRITE(out_unit,*) "                          The code is now used without any cavity mode to compute : matter alone "
+      WRITE(out_unit,*) "########################## WARNING ########################## WARNING ########################## WARNING #&
+                      &########################"
     ELSE
       N_cav = 1
       DO i_mode = 1, LEN_TRIM(Cav_operators)
@@ -608,7 +618,7 @@ MODULE Operator_ND_m
       &b_indexes_mat_op))
       WRITE(out_unit,*) "|______________________________________________________________________________|______________________"
       FLUSH(out_unit)
-      IF (SIZE(OpND%tab_indexes_cav_op) /= 0) THEN
+      IF (SIZE(OpND%tab_indexes_mat_op) /= 0) THEN
         WRITE(out_unit,*) "|The operators taking action on the matter modes (OpND%tab_indexes_mat_op) :   | "
         CALL Write_Vec(OpND%tab_indexes_mat_op, out_unit, SIZE(OpND%tab_indexes_mat_op), info="tab_indexes_mat_op")
       ELSE
@@ -621,7 +631,7 @@ MODULE Operator_ND_m
       WRITE(out_unit,*) "|______________________________________________________________________________|"
     END IF
     FLUSH(out_unit)
-    IF (ALLOCATED(OpND%tab_indexes_mat_op)) THEN
+    IF (ALLOCATED(OpND%tab_indexes_cav_op)) THEN
       WRITE(out_unit,*) "|The number of cavity modes (SIZE(OpND%tab_indexes_cav_op))                    | "//TO_string(SIZE(OpND%ta&
       &b_indexes_cav_op))
       WRITE(out_unit,*) "|______________________________________________________________________________|______________________"

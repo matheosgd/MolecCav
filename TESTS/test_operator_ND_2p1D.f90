@@ -146,7 +146,7 @@ PROGRAM test_operator_ND_2p1D
   CALL Get(Mat1lambda, "lambda", "Matter", 1)
   CALL Get(Mat2lambda, "lambda", "Matter", 2)
   CALL Get(Cavlambda,  "lambda", "Cavity", 1)
-  CoeffDipMomt1 = ONE ! assumed linear here
+  CoeffDipMomt1 = ONE ! assumed linear here (used only for the analytical part)
   CoeffDipMomt2 = ONE ! assumed linear here
   CALL Get(Mat1Nb, "Nb", "Matter", 1)
   CALL Get(Mat2Nb, "Nb", "Matter", 2)
@@ -155,7 +155,7 @@ PROGRAM test_operator_ND_2p1D
 
   IF (Debug) THEN
     WRITE(out_unit,*)
-    WRITE(out_unit,*) "--- System paramaters"
+    WRITE(out_unit,*) "--- System parameters"
     WRITE(out_unit,*) "Mat1w         = "//TO_string(Mat1w)
     WRITE(out_unit,*) "Mat2w         = "//TO_string(Mat2w)
     WRITE(out_unit,*) "Mat1m         = "//TO_string(Mat1m)
@@ -299,7 +299,7 @@ PROGRAM test_operator_ND_2p1D
 
     IF (Debug_local) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- System paramaters given to Construct_Ana_Normal_modes"
+      WRITE(out_unit,*) "--- System parameters given to Construct_Ana_Normal_modes"
       WRITE(out_unit,*) "Mat1w_loc         = "//TO_string(Mat1w_loc)
       WRITE(out_unit,*) "Mat2w_loc         = "//TO_string(Mat2w_loc)
       WRITE(out_unit,*) "Mat1m_loc         = "//TO_string(Mat1m_loc)

@@ -37,7 +37,7 @@ PROGRAM test_operator_ND_1p1D
 
 
   integer             :: Verbose = 40
-  logical             :: Debug   = .TRUE.
+  logical             :: Debug   = .FALSE.
 
   logical             :: Dense   = .FALSE.
   TYPE(Operator_ND_t) :: MatHxCavI
@@ -124,10 +124,10 @@ PROGRAM test_operator_ND_1p1D
   CALL Get(Matm, "m", "Matter", 1)
   CALL Get(Cavw, "w", "Cavity", 1)
   CALL Get(Cavlambda, "lambda", "Cavity", 1)
-  CoeffDipMomt = ONE ! assumed linear here
+  CoeffDipMomt = ONE ! assumed linear here (used only for the analytical part)
   IF (Debug) THEN
     WRITE(out_unit,*)
-    WRITE(out_unit,*) "--- System paramaters"
+    WRITE(out_unit,*) "--- System parameters"
     WRITE(out_unit,*) "Matw         = "//TO_string(Matw)
     WRITE(out_unit,*) "Matm         = "//TO_string(Matm)
     WRITE(out_unit,*) "Cavw         = "//TO_string(Cavw)

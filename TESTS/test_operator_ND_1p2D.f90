@@ -36,7 +36,7 @@ PROGRAM test_operator_ND_1p2D
 
 
   integer             :: Verbose = 50
-  logical             :: Debug   = .TRUE.
+  logical             :: Debug   = .FALSE.
 
   logical             :: Dense   = .FALSE.
   TYPE(Operator_ND_t) :: HxIxI
@@ -143,7 +143,7 @@ PROGRAM test_operator_ND_1p2D
   CALL Get(Matlambda,  "lambda", "Matter", 1)
   CALL Get(Cav1lambda, "lambda", "Cavity", 1)
   CALL Get(Cav2lambda, "lambda", "Cavity", 2)
-  CoeffDipMomt = ONE ! assumed linear here
+  CoeffDipMomt = ONE ! assumed linear here (used only for the analytical part)
   CALL Get(MatNb,  "Nb", "Matter", 1)
   CALL Get(Cav1Nb, "Nb", "Cavity", 1)
   CALL Get(Cav2Nb, "Nb", "Cavity", 2)
@@ -151,7 +151,7 @@ PROGRAM test_operator_ND_1p2D
 
   IF (Debug) THEN
     WRITE(out_unit,*)
-    WRITE(out_unit,*) "--- System paramaters"
+    WRITE(out_unit,*) "--- System parameters"
     WRITE(out_unit,*) "Matw         = "//TO_string(Matw)
     WRITE(out_unit,*) "Matm         = "//TO_string(Matm)
     WRITE(out_unit,*) "Cav1w        = "//TO_string(Cav1w)
@@ -292,7 +292,7 @@ PROGRAM test_operator_ND_1p2D
 
     IF (Debug_local) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- System paramaters given to Construct_Ana_Normal_modes"
+      WRITE(out_unit,*) "--- System parameters given to Construct_Ana_Normal_modes"
       WRITE(out_unit,*) "Matw_loc         = "//TO_string(Matw_loc)
       WRITE(out_unit,*) "Matm_loc         = "//TO_string(Matm_loc)
       WRITE(out_unit,*) "Cav1w_loc        = "//TO_string(Cav1w_loc)
