@@ -1,4 +1,4 @@
-!--- FIRST OPND
+!--- NEEED ONLY ONE NML FOR ALL OPERATORS (related to the same modes) !!!
 &Matter_mode
 lambda = 1.0                              !Strength parameter of the coupling between the mode D and the molecule
 CoeffsDipMomt = 0.0, 1.0, 0.0,  0.0,  0.0 !The n-derivatives of the matter dipole moment with respect to this mode's DOF i.e. the coefficients of its Taylor expansion
@@ -19,48 +19,3 @@ Nq = 1
 Eq_pos = 0.0                              !Equilibrium position of the HO
 Scale_q = 0.0
 /
-
-!--- SECOND OPND
-&Matter_mode
-lambda = 1.0                              !Strength parameter of the coupling between the mode D and the molecule
-CoeffsDipMomt = 0.0, 1.0, 0.0,  0.0,  0.0 !The n-derivatives of the matter dipole moment with respect to this mode's DOF i.e. the coefficients of its Taylor expansion
-Nb = 3                                    !Number of basis vectors associated with the HO D
-w = 0.0058665                             !Eigenpulsation associated with the HO D (maybe HF molecule : 0.005866505831680149)
-m = 1744.60504565                         !Mass associated with the HO D
-Nq = 1
-Eq_pos = 0.0                              !Equilibrium position of the HO
-Scale_q = 0.0
-/
-
-&Cavity_mode
-lambda = 1.0                              !Strength parameter of the coupling between the mode D and the molecule
-Nb = 2                                    !Number of basis vectors associated with the HO D
-w = 0.0068665                             !Eigenpulsation associated with the HO D (maybe HF molecule : 0.005866505831680149)
-m = 1.0                                   !Mass associated with the HO D
-Nq = 1
-Eq_pos = 0.0                              !Equilibrium position of the HO
-Scale_q = 0.0
-/
-
-!--- THIRD OPND
-&Matter_mode
-lambda = 1.0                              !Strength parameter of the coupling between the mode D and the molecule
-CoeffsDipMomt = 0.0, 1.0, 0.0,  0.0,  0.0 !The n-derivatives of the matter dipole moment with respect to this mode's DOF i.e. the coefficients of its Taylor expansion
-Nb = 3                                    !Number of basis vectors associated with the HO D
-w = 0.0058665                             !Eigenpulsation associated with the HO D (maybe HF molecule : 0.005866505831680149)
-m = 1744.60504565                         !Mass associated with the HO D
-Nq = 1
-Eq_pos = 0.0                              !Equilibrium position of the HO
-Scale_q = 0.0
-/
-
-&Cavity_mode
-lambda = 1.0                              !Strength parameter of the coupling between the mode D and the molecule
-Nb = 2                                    !Number of basis vectors associated with the HO D
-w = 0.0068665                             !Eigenpulsation associated with the HO D (maybe HF molecule : 0.005866505831680149)
-m = 1.0                                   !Mass associated with the HO D
-Nq = 1
-Eq_pos = 0.0                              !Equilibrium position of the HO
-Scale_q = 0.0
-/
-

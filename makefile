@@ -108,7 +108,7 @@ FFLAGS   += -J$(MOD_DIR) $(EXTMod)
 # to these optional aguments are added : "-J" which indicates the DIRECTORY (and not all the path of the .mod files) where to STORE the .mod files of the...
 # ...lib. after compilation (at the contrary of "-I" which indicates where to FIND the needed ones); and the path towards the .mod files of the external...
 # ...library(ies).
-SRCFILES = Tests_m.f90 Algebra_m.f90 ND_indexes_m.f90 Mapping_m.f90 Cavity_mode_old_m.f90 Elem_op_m.f90 Quantum_HO1D_m.f90 Matter_mode_m.f90 Cavity_mode_m.f90 Operator_ND_m.f90 Operator_2D_m.f90 Total_hamiltonian_m.f90 Psi_analysis_m.f90
+SRCFILES = Tests_m.f90 Algebra_m.f90 ND_indexes_m.f90 Mapping_m.f90 Cavity_mode_old_m.f90 Elem_op_m.f90 Quantum_HO1D_m.f90 Matter_mode_m.f90 Cavity_mode_m.f90 Operator_ND_m.f90 Sum_of_products_m.f90 Operator_2D_m.f90 Total_hamiltonian_m.f90 Psi_analysis_m.f90
 # the list of all the .f90 source files OF THE LIBRARY (only the modules, not the test/app programs) to be compiled
 OBJ0     = ${SRCFILES:.f90=.o}
 # this syntax looks like a list slicing in python : change the .f90 string of the var to .o : it allows to change the extension of the file from .f90 to .o
@@ -396,6 +396,7 @@ $(OBJ_DIR)/test_ND_indexes.o             : $(LIBA)
 $(OBJ_DIR)/test_mapping.o                : $(LIBA)
 $(OBJ_DIR)/test_transition_intensities.o : $(LIBA)
 
+$(OBJ_DIR)/Sum_of_products.o             : $(OBJ_DIR)/Operator_ND_m.o 
 $(OBJ_DIR)/Operator_ND_m.o               : $(OBJ_DIR)/Cavity_mode_m.o 
 $(OBJ_DIR)/Operator_ND_m.o               : $(OBJ_DIR)/Matter_mode_m.o 
 $(OBJ_DIR)/Cavity_mode.o                 : $(OBJ_DIR)/Quantum_HO1D_m.o 

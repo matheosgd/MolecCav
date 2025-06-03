@@ -160,6 +160,20 @@ MODULE Operator_ND_m
       END DO 
     END IF 
     
+    IF (ALLOCATED(tab_mat_ops) .AND. ALLOCATED(tab_cav_ops)) THEN
+      IF (SIZE(tab_mat_ops)/=N_mat) THEN
+        WRITE(out_unit,*) "### The number of declared matter modes is not consistent with the one previously declared at last cal&
+        &l of Initialize_operator_ND."
+        WRITE(out_unit,*) "    Please check arguments to keep consistency in the system's size along the simulation."
+        STOP "### The number of declared matter modes is not consistent with the one previously declared."
+      ELSE IF (SIZE(tab_cav_ops)/=N_cav) THEN
+        WRITE(out_unit,*) "### The number of declared cavity modes is not consistent with the one previously declared at last cal&
+        &l of Initialize_operator_ND."
+        WRITE(out_unit,*) "    Please check arguments to keep consistency in the system's size along the simulation."
+        STOP "### The number of declared cavity modes is not consistent with the one previously declared."
+      END IF
+    END IF
+
     IF (.NOT. ALLOCATED(tab_mat_ops) .OR. .NOT. ALLOCATED(tab_cav_ops)) THEN
       CALL Initialize_tabs_ops(N_mat=N_mat, N_cav=N_cav, Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local)
     END IF

@@ -8,6 +8,7 @@ Eq_pos = 0.0                              !Equilibrium position of the HO
 Scale_q = 0.0
 /
 
+!OLD
 &HO_1         ! /!\ DO NOT CHANGE THAT NAME for the subroutine being able to read the nml /!\
 D = 1         !Label of the basis/HO/mode/dimension
 Nb = 6        !Number of basis vectors associated with the HO D
