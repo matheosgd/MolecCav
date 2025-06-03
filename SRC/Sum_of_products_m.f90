@@ -45,7 +45,7 @@ MODULE Sum_of_products_m
 
 
   TYPE                               :: Sum_of_products_t                      ! N_mat, N_cav canNOT be part of the derived type because they are not specific of one operator_ND, but parameters of the whole system/calculation. All OpND will have the same. (therefore only one namelist per mode is needed, and not one per mode and oOND)
-    integer                          :: N_products                             ! the number of terms in the sum of product operator
+    integer                          :: N_products = 0                         ! the number of terms in the sum of product operator
     TYPE(Operator_ND_t), allocatable :: tab_opnd(:)                            ! the list of the product terms in the sum, which one being an OpND
   END TYPE
 
@@ -89,11 +89,14 @@ MODULE Sum_of_products_m
     integer, optional,   intent(in)        :: Verbose                                                                      ! cf. comments in HO1D_parameters_m
     logical, optional,   intent(in)        :: Debug                                                                        ! cf. comments in HO1D_parameters_m
 
-    ! integer                            :: i_mode, i_op
-    logical                            :: Dense_local                                                                  ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
-    integer                            :: Verbose_local                                                                ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
-    logical                            :: Debug_local
+    integer                                :: N_products
+    integer                                :: err_io
+    logical                                :: Dense_local                                                                  ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
+    integer                                :: Verbose_local                                                                ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
+    logical                                :: Debug_local
     
+    NAMELIST /Sum_of_products/ N_products
+
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
     ELSE; Verbose_local = 20; END IF 
@@ -101,22 +104,73 @@ MODULE Sum_of_products_m
     ELSE; Debug_local = .FALSE.; END IF
 
     IF (Verbose_local > 20) WRITE(out_unit,*) 
-    IF (Verbose_local > 20) WRITE(out_unit,*) "-------------------------------------------------INITIALIZING THE OPERATOR_ND OBJE&
-                                              &CT-------------------------------------------------"; FLUSH(out_unit)
+    IF (Verbose_local > 20) WRITE(out_unit,*) "-------------------------------------------------INITIALIZING THE SUM OF PRODUCT O&
+                                              &PERATOR OBJECT-------------------------------------------------"; FLUSH(out_unit)
 
     IF (Debug_local) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "--- Arguments of MolecCav_Initialize_Sum_of_product :"
-      WRITE(out_unit,*) "The <<OpND>> argument :"
-      CALL Write(OpND)
-      WRITE(out_unit,*) "The <<Mat_operators>>  argument :"//Mat_operators
-      WRITE(out_unit,*) "The <<Cav_operators>>  argument :"//Cav_operators
+      WRITE(out_unit,*) "The <<SumProduct>> argument :"
+      ! CALL Write(SumProduct)
       IF (PRESENT(Dense)) WRITE(out_unit,*) "The <<Dense>> argument : "//TO_string(Dense)
-      WRITE(out_unit,*) "Are the module's <<tab_mat/cav_ops>> allocated ? "//TO_string(ALLOCATED(tab_mat_ops))//TO_string(ALLOCAT&
-      &ED(tab_cav_ops))
       WRITE(out_unit,*) "--- End arguments of MolecCav_Initialize_Sum_of_product"
       FLUSH(out_unit)
     END IF
+    
+    !----------------------Initialization to default values--------------------
+    N_products = 0
+
+    !------------------------------Reading of the nml--------------------------
+    WRITE(out_unit,*) 
+    WRITE(out_unit,*) '********************************************************************************'
+    WRITE(out_unit,*) '************************** READING THE NUMBER OF OPND **************************'
+    WRITE(out_unit,*) '********************************************************************************'
+    
+    READ(nio, nml = Sum_of_products, iostat = err_io)                                     ! assign the values read in the nml to the declared list of parameters
+
+    IF (Debug) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "-----------------------The namelist parameters are read as----------------------"
+      WRITE(out_unit, nml = Sum_of_products)
+      WRITE(out_unit,*) "-------------------------End of the namelist parameters-------------------------"
+    END IF
+    
+      !------------------------------Check reading error-------------------------
+    IF(err_io /= 0) THEN
+      WRITE(out_unit,*) ''
+      WRITE(out_unit,*) '###################################################################'
+      WRITE(out_unit,*) '##### Error in MolecCav_Initialize_Sum_of_product (err_io/=0) #####'
+      WRITE(out_unit,*) '###################################################################'
+      WRITE(out_unit,*) '####################### err_io = ', err_io, '######################'
+      STOP '######################### Check basis data ########################'
+    END IF
+
+    IF (N_products == 0) THEN
+      WRITE(out_unit,*) "### The number of ND Operators in the sum of product operator CANNOT be 0 (what are are you going to stu&
+      &dy if there is no operator ???). Please check the data file '.nml'"
+      STOP "### The number of ND Operators in the sum of product operator CANNOT be 0 (what are are you going to study if there i&
+      &s no operator ???). Please check the data file '.nml'"
+    END IF
+    
+    !---------------Construction of the table of OpND composing the sum of product operator-----------
+    SumProduct%N_products = N_products 
+    ALLOCATE(SumProduct%tab_opnd(SumProduct%N_products))
+
+    WRITE(out_unit,*) 
+    WRITE(out_unit,*) '********************************************************************************'
+    WRITE(out_unit,*) '************************** QHO1D CONSTRUCTED *************************'
+    WRITE(out_unit,*) '********************************************************************************'
+
+    IF (Debug) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "--------------Matter mode constructed by MolecCav_Initialize_matter_mode--------------"
+      CALL Write(MatMode)
+      WRITE(out_unit,*) "------------End Matter mode constructed by MolecCav_Initialize_matter_mode------------"
+    END IF
+
+    !------------------------------------------Completing the matter mode------------------------------------------
+    MatMode%lambda        = lambda
+    MatMode%CoeffsDipMomt = CoeffsDipMomt
     
     !------------------------------------------Initializing the procedure------------------------------------------
     IF (PRESENT(Dense)) THEN; Dense_local = Dense
