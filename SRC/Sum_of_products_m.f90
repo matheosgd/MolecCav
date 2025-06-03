@@ -89,7 +89,9 @@ MODULE Sum_of_products_m
     integer, optional,   intent(in)        :: Verbose                                                                      ! cf. comments in HO1D_parameters_m
     logical, optional,   intent(in)        :: Debug                                                                        ! cf. comments in HO1D_parameters_m
 
-    integer                                :: N_products
+    integer                                :: N_products, i_product
+    character(len=:), allocatable          :: Mat_operators ! syntax : '<op_mode_1>, <op_mode_2>, ..., <op_mode_N_mat>', ex : 'hamiltonian, Identity'. Not case sensitive, ' ' <=> \otimes
+    character(len=:), allocatable          :: Cav_operators ! syntax : '<op_mode_1>, <op_mode_2>, ..., <op_mode_N_cav>', ex : 'hamiltonian'.   Not case sensitive, ' ' <=> \otimes. This exemple means OpND = H_mat1\otimesI_mat2\otimesH_cav
     integer                                :: err_io
     logical                                :: Dense_local                                                                  ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
     integer                                :: Verbose_local                                                                ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
@@ -153,110 +155,33 @@ MODULE Sum_of_products_m
     END IF
     
     !---------------Construction of the table of OpND composing the sum of product operator-----------
+    IF (PRESENT(Dense)) THEN; Dense_local = Dense
+    ELSE; Dense_local = .FALSE.; END IF
+
     SumProduct%N_products = N_products 
     ALLOCATE(SumProduct%tab_opnd(SumProduct%N_products))
 
+    DO i_product = 1, N_products
+      CALL Read_product(Mat_operators, Cav_operators, nio, Verbose=Verbose_local, Debug=Debug_local)
+      CALL Initialize(SumProduct%tab_opnd(i_product), Mat_operators, Cav_operators, nio, Dense_local, Verbose_local, Debug_local)
+      DEALLOCATE(Mat_operators); DEALLOCATE(Cav_operators)
+    END DO
+
     WRITE(out_unit,*) 
     WRITE(out_unit,*) '********************************************************************************'
-    WRITE(out_unit,*) '************************** QHO1D CONSTRUCTED *************************'
+    WRITE(out_unit,*) '************************** SUM OF PRODUCTS CONSTRUCTED *************************'
     WRITE(out_unit,*) '********************************************************************************'
 
     IF (Debug) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--------------Matter mode constructed by MolecCav_Initialize_matter_mode--------------"
-      CALL Write(MatMode)
-      WRITE(out_unit,*) "------------End Matter mode constructed by MolecCav_Initialize_matter_mode------------"
-    END IF
-
-    !------------------------------------------Completing the matter mode------------------------------------------
-    MatMode%lambda        = lambda
-    MatMode%CoeffsDipMomt = CoeffsDipMomt
-    
-    !------------------------------------------Initializing the procedure------------------------------------------
-    IF (PRESENT(Dense)) THEN; Dense_local = Dense
-    ELSE; Dense_local = .FALSE.; END IF
-
-    IF (LEN_TRIM(Mat_operators)==0) THEN
-      N_mat = 0
-      WRITE(out_unit,*) "########################## WARNING ########################## WARNING ########################## WARNING #&
-                      &########################"
-      WRITE(out_unit,*) "                          The code is now used without any matter mode to compute : cavity alone "
-      WRITE(out_unit,*) "########################## WARNING ########################## WARNING ########################## WARNING #&
-                      &########################"
-    ELSE
-      N_mat = 1
-      DO i_mode = 1, LEN_TRIM(Mat_operators)
-        IF (Mat_operators(i_mode:i_mode)==',') N_mat = N_mat + 1
-      END DO 
-    END IF 
-    IF (LEN_TRIM(Cav_operators)==0) THEN
-      N_cav = 0
-      WRITE(out_unit,*) "########################## WARNING ########################## WARNING ########################## WARNING #&
-                      &########################"
-      WRITE(out_unit,*) "                          The code is now used without any cavity mode to compute : matter alone "
-      WRITE(out_unit,*) "########################## WARNING ########################## WARNING ########################## WARNING #&
-                      &########################"
-    ELSE
-      N_cav = 1
-      DO i_mode = 1, LEN_TRIM(Cav_operators)
-        IF (Cav_operators(i_mode:i_mode)==',') N_cav = N_cav + 1
-      END DO 
-    END IF 
-    
-    IF (ALLOCATED(tab_mat_ops) .AND. ALLOCATED(tab_cav_ops)) THEN
-      IF (SIZE(tab_mat_ops)/=N_mat) THEN
-        WRITE(out_unit,*) "### The number of declared matter modes is not consistent with the one previously declared at last cal&
-        &l of Initialize_operator_ND."
-        WRITE(out_unit,*) "    Please check arguments to keep consistency in the system's size along the simulation."
-        STOP "### The number of declared matter modes is not consistent with the one previously declared."
-      ELSE IF (SIZE(tab_cav_ops)/=N_cav) THEN
-        WRITE(out_unit,*) "### The number of declared cavity modes is not consistent with the one previously declared at last cal&
-        &l of Initialize_operator_ND."
-        WRITE(out_unit,*) "    Please check arguments to keep consistency in the system's size along the simulation."
-        STOP "### The number of declared cavity modes is not consistent with the one previously declared."
-      END IF
-    END IF
-
-    IF (.NOT. ALLOCATED(tab_mat_ops) .OR. .NOT. ALLOCATED(tab_cav_ops)) THEN
-      CALL Initialize_tabs_ops(N_mat=N_mat, N_cav=N_cav, Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local)
+      WRITE(out_unit,*) "--------------Sum of products constructed by MolecCav_Initialize_Sum_of_product--------------"
+      ! CALL Write(SumProduct)
+      WRITE(out_unit,*) "------------End Sum of products constructed by MolecCav_Initialize_Sum_of_product------------"
     END IF
     
-    !--------------------------------------Constructing the OpND = parsing the Mat/Cav_operators strings-------------------------------------
-    ALLOCATE(Mat_operators_local(N_mat))
-    ALLOCATE(Cav_operators_local(N_cav))
-    ALLOCATE(OpND%tab_indexes_mat_op(N_mat))
-    ALLOCATE(OpND%tab_indexes_cav_op(N_cav))
-
-    READ(unit=Mat_operators, fmt=*) Mat_operators_local ! /!\ neither trimmed nor lowercased so far /!\
-    READ(unit=Cav_operators, fmt=*) Cav_operators_local
-
-    DO i_mode = 1, N_mat
-      DO i_op = 0, tab_mat_ops(i_mode)%Nb_op-1
-        IF (TO_lowercase(TRIM(Mat_operators_local(i_mode))) == tab_mat_ops(i_mode)%Tab_op(i_op)%Operator_type) THEN
-          OpND%tab_indexes_mat_op(i_mode) = i_op
-          EXIT 
-        ELSE IF (i_op == tab_mat_ops(i_mode)%Nb_op-1) THEN
-          WRITE(out_unit,*) "### No operator name recognized. Please check arguments of MolecCav_Initialize_operator_ND"
-          STOP "### No operator name recognized in MolecCav_Initialize_operator_ND"
-        END IF 
-      END DO
-    END DO 
-
-    DO i_mode = 1, N_cav
-      DO i_op = 0, tab_cav_ops(i_mode)%Nb_op-1
-        IF (TO_lowercase(TRIM(Cav_operators_local(i_mode))) == tab_cav_ops(i_mode)%Tab_op(i_op)%Operator_type) THEN
-          OpND%tab_indexes_cav_op(i_mode) = i_op
-          EXIT 
-        ELSE IF (i_op == tab_cav_ops(i_mode)%Nb_op-1) THEN
-          WRITE(out_unit,*) "### No operator name recognized. Please check arguments of MolecCav_Initialize_operator_ND"
-          STOP "### No operator name recognized in MolecCav_Initialize_operator_ND"
-        END IF 
-      END DO
-    END DO
-
     IF (Verbose_local > 20) WRITE(out_unit,*) 
-    IF (Verbose_local > 20) WRITE(out_unit,*) "--------------------------------------------------OPERATOR_ND OBJECT INITIALIZED--&
-    &-----------------------------------------------"; FLUSH(out_unit)
+    IF (Verbose_local > 20) WRITE(out_unit,*) "--------------------------------------------------SUM OF PRODUCTS OPERATOR INITIAL&
+    &IZED-------------------------------------------------"; FLUSH(out_unit)
 
   END SUBROUTINE MolecCav_Initialize_Sum_of_product
 
