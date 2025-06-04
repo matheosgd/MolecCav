@@ -37,25 +37,29 @@
 ! Write_HO1D_parameters : displays values of the type in the output.
 !==================================================================================================
 !==================================================================================================
-MODULE SUM_OF_PRODUCTS_m
+MODULE Sum_of_products_m
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT, real64
   USE QDUtil_m                                                                 ! gives Rkind=real64; out_unit=OUTPUT_UNIT; INPUT_UNIT=in_unit; EYE=i and other numbers; TO_LOWERCASE; TO_UPPERCASE;... We thereby use ZERO instead of 0.0_real64
   USE Operator_ND_m
   IMPLICIT NONE
 
 
-  TYPE                               :: SUM_OF_PRODUCTS_t                      ! N_mat, N_cav canNOT be part of the derived type because they are not specific of one operator_ND, but parameters of the whole system/calculation. All OpND will have the same. (therefore only one namelist per mode is needed, and not one per mode and oOND)
+  TYPE                               :: Sum_of_products_t                      ! N_mat, N_cav canNOT be part of the derived type because they are not specific of one operator_ND, but parameters of the whole system/calculation. All OpND will have the same. (therefore only one namelist per mode is needed, and not one per mode and oOND)
     integer                          :: N_products = 0                         ! the number of terms in the sum of product operator
     TYPE(Operator_ND_t), allocatable :: tab_opnd(:)                            ! the list of the product terms in the sum, which one being an OpND
+    real(kind=Rkind),    allocatable :: tab_coeffs(:)
   END TYPE
 
 
   PRIVATE
 
-  PUBLIC SUM_OF_PRODUCTS_t, Initialize!, Action, Get, Write, Dealloc
+  PUBLIC Sum_of_products_t, Initialize_totH, Initialize_sop!, Action, Get, Write, Dealloc
 
-    INTERFACE Initialize
-      MODULE PROCEDURE MolecCav_Initialize_Sum_of_product
+    INTERFACE Initialize_totH
+      MODULE PROCEDURE MolecCav_Initialize_total_hamiltonian
+     END INTERFACE
+    INTERFACE Initialize_sop
+      MODULE PROCEDURE MolecCav_Initialize_sum_of_product
     END INTERFACE
     INTERFACE Read_pdt
       MODULE PROCEDURE MolecCav_Read_product
@@ -77,27 +81,29 @@ MODULE SUM_OF_PRODUCTS_m
   CONTAINS
 
 
-  SUBROUTINE MolecCav_Initialize_Sum_of_product(SumProduct, nio, Dense, Verbose, Debug) ! no need for N_mat and N_cav explicitly : they are SIZE(Mat_op and Cav_op)
+  SUBROUTINE MolecCav_Initialize_total_hamiltonian(TotH, nio, Dense, Verbose, Debug) ! no need for N_mat and N_cav explicitly : they are SIZE(Mat_op and Cav_op)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m
     USE Operator_ND_m
     IMPLICIT NONE
   
-    TYPE(SUM_OF_PRODUCTS_t), intent(inout) :: SumProduct
+    TYPE(Sum_of_products_t), intent(inout) :: TotH
     integer,             intent(in)        :: nio
     logical, optional,   intent(in)        :: Dense                                                                        ! cf. comments in HO1D_parameters_m
     integer, optional,   intent(in)        :: Verbose                                                                      ! cf. comments in HO1D_parameters_m
     logical, optional,   intent(in)        :: Debug                                                                        ! cf. comments in HO1D_parameters_m
 
-    integer                                :: N_products, i_product
+    integer                                :: N_mat, N_cav, i_product, i_mat, i_cav
+    real(kind=Rkind), allocatable          :: tab_coeffs(:)
     character(len=:), allocatable          :: Mat_operators ! syntax : '<op_mode_1>, <op_mode_2>, ..., <op_mode_N_mat>', ex : 'hamiltonian, Identity'. Not case sensitive, ' ' <=> \otimes
     character(len=:), allocatable          :: Cav_operators ! syntax : '<op_mode_1>, <op_mode_2>, ..., <op_mode_N_cav>', ex : 'hamiltonian'.   Not case sensitive, ' ' <=> \otimes. This exemple means OpND = H_mat1\otimesI_mat2\otimesH_cav
+    real(kind=Rkind)                       :: Cavw, Cavlambda, Matlambda
     integer                                :: err_io
     logical                                :: Dense_local                                                                  ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
     integer                                :: Verbose_local                                                                ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
     logical                                :: Debug_local
     
-    NAMELIST /SUM_OF_PRODUCTS/ N_products
+    NAMELIST /TOTAL_HAMILTONIAN/ N_mat, N_cav
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
@@ -105,17 +111,169 @@ MODULE SUM_OF_PRODUCTS_m
     IF (PRESENT(Debug))   THEN; Debug_local   = Debug
     ELSE; Debug_local = .FALSE.; END IF
 
-    IF (Verbose_local > 20) WRITE(out_unit,*) 
-    IF (Verbose_local > 20) WRITE(out_unit,*) "-------------------------------------------------INITIALIZING THE SUM OF PRODUCT O&
-                                              &PERATOR OBJECT-------------------------------------------------"; FLUSH(out_unit)
+    IF (Debug_local) WRITE(out_unit,*) 
+    IF (Debug_local) WRITE(out_unit,*) "-------------------------------------------------INITIALIZING THE TOTAL HAMILTONIA&
+                                              &N OBJECT-------------------------------------------------"; FLUSH(out_unit)
 
     IF (Debug_local) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- Arguments of MolecCav_Initialize_Sum_of_product :"
+      WRITE(out_unit,*) "--- Arguments of MolecCav_Initialize_total_hamiltonian :"
+      WRITE(out_unit,*) "The <<TotH>> argument :"
+      ! CALL Write(TotH)
+      IF (PRESENT(Dense)) WRITE(out_unit,*) "The <<Dense>> argument : "//TO_string(Dense)
+      WRITE(out_unit,*) "--- End arguments of MolecCav_Initialize_total_hamiltonian"
+      FLUSH(out_unit)
+    END IF
+    
+    !----------------------Initialization to default values--------------------
+    N_mat = 0
+    N_cav = 0
+
+    !------------------------------Reading of the nml--------------------------
+    WRITE(out_unit,*) 
+    WRITE(out_unit,*) '********************************************************************************'
+    WRITE(out_unit,*) '************************** READING THE NUMBER OF MODES *************************'
+    WRITE(out_unit,*) '********************************************************************************'
+    
+    READ(nio, nml = TOTAL_HAMILTONIAN, iostat = err_io)                                     ! assign the values read in the nml to the declared list of parameters
+
+    IF (Debug) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "-----------------------The namelist parameters are read as----------------------"
+      WRITE(out_unit, nml = TOTAL_HAMILTONIAN)
+      WRITE(out_unit,*) "-------------------------End of the namelist parameters-------------------------"
+    END IF
+    
+      !------------------------------Check reading error-------------------------
+    IF(err_io /= 0) THEN
+      WRITE(out_unit,*) ''
+      WRITE(out_unit,*) '###################################################################'
+      WRITE(out_unit,*) '##### Error in MolecCav_Initialize_total_hamiltonian (err_io/=0) #####'
+      WRITE(out_unit,*) '###################################################################'
+      WRITE(out_unit,*) '####################### err_io = ', err_io, '######################'
+      STOP '######################### Check basis data ########################'
+    END IF
+
+    IF (N_mat == 0 .AND. N_cav == 0) THEN
+      WRITE(out_unit,*) "### The number of modes of the system CANNOT be 0 (what are are you going to stu&
+      &dy if there is nothing to ???). Please check the data file '.nml'"
+      STOP "### The number of modes of the system CANNOT be 0 (what are are you going to study if there i&
+      &s nothing ???). Please check the data file '.nml'"
+    END IF
+    
+    !---------------Construction of the table of coefficients of the sum-----------
+    TotH%N_products = N_mat + N_cav + N_mat * N_cav 
+
+    ALLOCATE(TotH%tab_opnd(TotH%N_products))
+    ALLOCATE(TotH%tab_coeffs(TotH%N_products))
+    tab_coeffs = 1
+
+    !---------------Construction of the table of OpND composing the sum of product operator-----------
+    IF (PRESENT(Dense)) THEN; Dense_local = Dense
+    ELSE; Dense_local = .FALSE.; END IF
+
+      !##### matter hamiltonians #####
+    ALLOCATE(character(len=11 + 10*(N_mat-1)) :: Mat_operators)                                                   ! 11 ("hamiltonian") + (N_mat-1)*8 ("identity") + (N_mat-1)*2 (", ")
+    ALLOCATE(character(len=8  + 10*(N_cav-1)) :: Cav_operators)                                                   ! 8  ("identity")    + (N_mat-1)*8 ("identity") + (N_mat-1)*2 (", ")
+    Mat_operators = "Hamiltonian"//REPEAT(", Identity", N_mat-1)
+    Cav_operators = "Identity"//REPEAT(", Identity", N_cav)
+    CALL Initialize(TotH%tab_opnd(1), Mat_operators, Cav_operators, nio, Dense_local, Verbose_local, Debug_local)
+
+    DO i_product = 2, N_mat
+      Mat_operators = "Identity"//REPEAT(", Identity", i_product-2)//", Hamiltonian"//REPEAT(", Identity", N_mat-i_product)
+      CALL Initialize(TotH%tab_opnd(i_product), Mat_operators, Cav_operators, nio, Dense_local, Verbose_local, Debug_local)
+    END DO
+    DEALLOCATE(Mat_operators); DEALLOCATE(Cav_operators)
+
+      !##### cavity hamiltonians #####
+    ALLOCATE(character(len=8  + 10*(N_mat-1)) :: Mat_operators)                                                   ! 8  ("identity")    + (N_mat-1)*8 ("identity") + (N_mat-1)*2 (", ")
+    ALLOCATE(character(len=11 + 10*(N_cav-1)) :: Cav_operators)                                                   ! 11 ("hamiltonian") + (N_mat-1)*8 ("identity") + (N_mat-1)*2 (", ")
+    Mat_operators = "Identity"//REPEAT(", Identity", N_mat)
+    Cav_operators = "Hamiltonian"//REPEAT(", Identity", N_cav-1)
+    CALL Initialize(TotH%tab_opnd(N_mat+1), Mat_operators, Cav_operators, nio, Dense_local, Verbose_local, Debug_local)
+
+    DO i_product = 2, N_cav
+      Cav_operators = "Identity"//REPEAT(", Identity", i_product-2)//", Hamiltonian"//REPEAT(", Identity", N_cav-i_product)
+      CALL Initialize(TotH%tab_opnd(N_mat+i_product), Mat_operators, Cav_operators, nio, Dense_local, Verbose_local, Debug_local)
+    END DO
+    DEALLOCATE(Mat_operators); DEALLOCATE(Cav_operators)
+
+      !##### coupling terms #####
+    ALLOCATE(character(len=7 + 10*(N_mat-1)) :: Mat_operators)                                                   ! 11 ("hamiltonian") + (N_mat-1)*8 ("identity") + (N_mat-1)*2 (", ")
+    ALLOCATE(character(len=8 + 10*(N_cav-1)) :: Cav_operators)                                                   ! 8  ("identity")    + (N_mat-1)*8 ("identity") + (N_mat-1)*2 (", ")
+    Mat_operators = "DipMomt"//REPEAT(", Identity", N_mat-1)
+    Cav_operators = "Position"//REPEAT(", Identity", N_cav)
+    CALL Initialize(TotH%tab_opnd(1), Mat_operators, Cav_operators, nio, Dense_local, Verbose_local, Debug_local)
+
+    i_product = N_mat + N_cav + 1
+    DO i_cav = 2, N_cav
+      Cav_operators = "Identity"//REPEAT(", Identity", i_product-2)//", Position"//REPEAT(", Identity", N_cav-i_product)
+      CALL Get(Cavw, "w", "Cavity", i_cav)
+      CALL Get(Cavlambda, "lambda", "Cavity", i_cav)
+      DO i_mat = 2, N_mat
+        Mat_operators = "Identity"//REPEAT(", Identity", i_product-2)//", DipMomt"//REPEAT(", Identity", N_mat-i_product)
+        CALL Get(Matlambda, "lambda", "Matter", i_mat)
+        CALL Initialize(TotH%tab_opnd(i_product), Mat_operators, Cav_operators, nio, Dense_local, Verbose_local, Debug_local)
+        TotH%tab_coeffs(i_product) = Cavlambda * Matlambda * Cavw
+      END DO
+    END DO
+    DEALLOCATE(Mat_operators); DEALLOCATE(Cav_operators)
+
+    IF (Debug) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "--------------Sum of products constructed by MolecCav_Initialize_total_hamiltonian--------------"
+      ! CALL Write(SumProduct)
+      WRITE(out_unit,*) "------------End Sum of products constructed by MolecCav_Initialize_total_hamiltonian------------"
+    END IF
+    
+    IF (Debug_local) WRITE(out_unit,*) 
+    IF (Debug_local) WRITE(out_unit,*) "--------------------------------------------------TOTAL HAMILTONIAN OPERATOR INITIALIZED-&
+    &------------------------------------------------"; FLUSH(out_unit)
+
+  END SUBROUTINE MolecCav_Initialize_total_hamiltonian
+
+
+  SUBROUTINE MolecCav_Initialize_sum_of_product(SumProduct, nio, Dense, Verbose, Debug) ! no need for N_mat and N_cav explicitly : they are SIZE(Mat_op and Cav_op)
+    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
+    USE QDUtil_m
+    USE Operator_ND_m
+    IMPLICIT NONE
+  
+    TYPE(Sum_of_products_t), intent(inout) :: SumProduct
+    integer,             intent(in)        :: nio
+    logical, optional,   intent(in)        :: Dense                                                                        ! cf. comments in HO1D_parameters_m
+    integer, optional,   intent(in)        :: Verbose                                                                      ! cf. comments in HO1D_parameters_m
+    logical, optional,   intent(in)        :: Debug                                                                        ! cf. comments in HO1D_parameters_m
+
+    integer                                :: N_products, i_product
+    real(kind=Rkind), allocatable          :: tab_coeffs(:)
+    character(len=:), allocatable          :: Mat_operators ! syntax : '<op_mode_1>, <op_mode_2>, ..., <op_mode_N_mat>', ex : 'hamiltonian, Identity'. Not case sensitive, ' ' <=> \otimes
+    character(len=:), allocatable          :: Cav_operators ! syntax : '<op_mode_1>, <op_mode_2>, ..., <op_mode_N_cav>', ex : 'hamiltonian'.   Not case sensitive, ' ' <=> \otimes. This exemple means OpND = H_mat1\otimesI_mat2\otimesH_cav
+    integer                                :: err_io_1, err_io_2
+    logical                                :: Dense_local                                                                  ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
+    integer                                :: Verbose_local                                                                ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
+    logical                                :: Debug_local
+    
+    NAMELIST /NUMBER_OF_PRODUCTS/ N_products
+    NAMELIST /COEFFS_SUM_OF_PRODUCTS/ tab_coeffs
+
+    !------------------------------------------------------Debugging options-----------------------------------------------------
+    IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
+    ELSE; Verbose_local = 20; END IF 
+    IF (PRESENT(Debug))   THEN; Debug_local   = Debug
+    ELSE; Debug_local = .FALSE.; END IF
+
+    IF (Debug_local) WRITE(out_unit,*) 
+    IF (Debug_local) WRITE(out_unit,*) "-------------------------------------------------INITIALIZING THE SUM OF PRODUCT OPERATOR&
+                                              & OBJECT-------------------------------------------------"; FLUSH(out_unit)
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "--- Arguments of MolecCav_Initialize_sum_of_product :"
       WRITE(out_unit,*) "The <<SumProduct>> argument :"
       ! CALL Write(SumProduct)
       IF (PRESENT(Dense)) WRITE(out_unit,*) "The <<Dense>> argument : "//TO_string(Dense)
-      WRITE(out_unit,*) "--- End arguments of MolecCav_Initialize_Sum_of_product"
+      WRITE(out_unit,*) "--- End arguments of MolecCav_Initialize_sum_of_product"
       FLUSH(out_unit)
     END IF
     
@@ -128,22 +286,22 @@ MODULE SUM_OF_PRODUCTS_m
     WRITE(out_unit,*) '************************** READING THE NUMBER OF OPND **************************'
     WRITE(out_unit,*) '********************************************************************************'
     
-    READ(nio, nml = SUM_OF_PRODUCTS, iostat = err_io)                                     ! assign the values read in the nml to the declared list of parameters
+    READ(nio, nml = NUMBER_OF_PRODUCTS, iostat = err_io_1)                                     ! assign the values read in the nml to the declared list of parameters
 
     IF (Debug) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "-----------------------The namelist parameters are read as----------------------"
-      WRITE(out_unit, nml = SUM_OF_PRODUCTS)
+      WRITE(out_unit, nml = NUMBER_OF_PRODUCTS)
       WRITE(out_unit,*) "-------------------------End of the namelist parameters-------------------------"
     END IF
     
       !------------------------------Check reading error-------------------------
-    IF(err_io /= 0) THEN
+    IF(err_io_1 /= 0) THEN
       WRITE(out_unit,*) ''
       WRITE(out_unit,*) '###################################################################'
-      WRITE(out_unit,*) '##### Error in MolecCav_Initialize_Sum_of_product (err_io/=0) #####'
+      WRITE(out_unit,*) '##### Error in MolecCav_Initialize_sum_of_product (err_io_1/=0) #####'
       WRITE(out_unit,*) '###################################################################'
-      WRITE(out_unit,*) '####################### err_io = ', err_io, '######################'
+      WRITE(out_unit,*) '####################### err_io_1 = ', err_io_1, '######################'
       STOP '######################### Check basis data ########################'
     END IF
 
@@ -154,11 +312,43 @@ MODULE SUM_OF_PRODUCTS_m
       &s no operator ???). Please check the data file '.nml'"
     END IF
     
+    !---------------Construction of the table of coefficients of the sum-----------
+    SumProduct%N_products = N_products 
+    ALLOCATE(SumProduct%tab_coeffs(SumProduct%N_products))
+    ALLOCATE(tab_coeffs(SumProduct%N_products))
+    tab_coeffs = 0
+
+    !------------------------------Reading of the nml--------------------------
+    WRITE(out_unit,*) 
+    WRITE(out_unit,*) '********************************************************************************'
+    WRITE(out_unit,*) '********************** READING THE COEFFICIENTS OF THE SUM *********************'
+    WRITE(out_unit,*) '********************************************************************************'
+    
+    READ(nio, nml = COEFFS_SUM_OF_PRODUCTS, iostat = err_io_2)                                     ! assign the values read in the nml to the declared list of parameters
+
+    IF (Debug) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "-----------------------The namelist parameters are read as----------------------"
+      WRITE(out_unit, nml = COEFFS_SUM_OF_PRODUCTS)
+      WRITE(out_unit,*) "-------------------------End of the namelist parameters-------------------------"
+    END IF
+    
+      !------------------------------Check reading error-------------------------
+    IF(err_io_2 /= 0) THEN
+      WRITE(out_unit,*) ''
+      WRITE(out_unit,*) '###################################################################'
+      WRITE(out_unit,*) '##### Error in MolecCav_Initialize_sum_of_product (err_io_2/=0) #####'
+      WRITE(out_unit,*) '###################################################################'
+      WRITE(out_unit,*) '####################### err_io_2 = ', err_io_2, '######################'
+      STOP '######################### Check basis data ########################'
+    END IF
+
+    SumProduct%tab_coeffs = tab_coeffs
+
     !---------------Construction of the table of OpND composing the sum of product operator-----------
     IF (PRESENT(Dense)) THEN; Dense_local = Dense
     ELSE; Dense_local = .FALSE.; END IF
 
-    SumProduct%N_products = N_products 
     ALLOCATE(SumProduct%tab_opnd(SumProduct%N_products))
 
     DO i_product = 1, N_products
@@ -174,16 +364,16 @@ MODULE SUM_OF_PRODUCTS_m
 
     IF (Debug) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--------------Sum of products constructed by MolecCav_Initialize_Sum_of_product--------------"
+      WRITE(out_unit,*) "--------------Sum of products constructed by MolecCav_Initialize_sum_of_product--------------"
       ! CALL Write(SumProduct)
-      WRITE(out_unit,*) "------------End Sum of products constructed by MolecCav_Initialize_Sum_of_product------------"
+      WRITE(out_unit,*) "------------End Sum of products constructed by MolecCav_Initialize_sum_of_product------------"
     END IF
     
-    IF (Verbose_local > 20) WRITE(out_unit,*) 
-    IF (Verbose_local > 20) WRITE(out_unit,*) "--------------------------------------------------SUM OF PRODUCTS OPERATOR INITIAL&
+    IF (Debug_local) WRITE(out_unit,*) 
+    IF (Debug_local) WRITE(out_unit,*) "--------------------------------------------------SUM OF PRODUCTS OPERATOR INITIAL&
     &IZED-------------------------------------------------"; FLUSH(out_unit)
 
-  END SUBROUTINE MolecCav_Initialize_Sum_of_product
+  END SUBROUTINE MolecCav_Initialize_sum_of_product
 
 
   SUBROUTINE MolecCav_Read_product(Mat_operators, Cav_operators, nio, Verbose, Debug)
@@ -212,8 +402,8 @@ MODULE SUM_OF_PRODUCTS_m
     IF (PRESENT(Debug))   THEN; Debug_local   = Debug
     ELSE; Debug_local = .FALSE.; END IF
 
-    IF (Verbose_local > 20) WRITE(out_unit,*) 
-    IF (Verbose_local > 20) WRITE(out_unit,*) "-------------------------------------------------READING ONE PRODUCT OF THE SUM OF&
+    IF (Debug_local) WRITE(out_unit,*) 
+    IF (Debug_local) WRITE(out_unit,*) "-------------------------------------------------READING ONE PRODUCT OF THE SUM OF&
                                               & PRODUCT OPERATOR-------------------------------------------------"; FLUSH(out_unit)
 
     IF (Debug_local) THEN
@@ -261,8 +451,8 @@ MODULE SUM_OF_PRODUCTS_m
     END IF
     
     !---------------Construction of the two strings-----------
-    ALLOCATE(Mat_operators(LEN_TRIM(Mat_operators_local)))
-    ALLOCATE(Cav_operators(LEN_TRIM(Cav_operators_local)))
+    ALLOCATE(character(len=LEN_TRIM(Mat_operators_local)) :: Mat_operators)                                                   ! /!\ strings cannot be allocated the exact same way as tables ! /!\
+    ALLOCATE(character(len=LEN_TRIM(Cav_operators_local)) :: Cav_operators)                                                   ! /!\ strings cannot be allocated the exact same way as tables ! /!\
 
     Mat_operators = TO_lowercase(TRIM(Mat_operators_local))
     Cav_operators = TO_lowercase(TRIM(Cav_operators_local))

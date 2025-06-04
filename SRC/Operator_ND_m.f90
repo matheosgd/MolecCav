@@ -91,7 +91,7 @@ MODULE Operator_ND_m
     TYPE(Operator_ND_t), intent(inout) :: OpND
     character(len=*),    intent(in)    :: Mat_operators ! syntax : '<op_mode_1>, <op_mode_2>, ..., <op_mode_N_mat>', ex : 'hamiltonian, Identity'. Not case sensitive, ' ' <=> \otimes
     character(len=*),    intent(in)    :: Cav_operators ! syntax : '<op_mode_1>, <op_mode_2>, ..., <op_mode_N_cav>', ex : 'hamiltonian'.   Not case sensitive, ' ' <=> \otimes. This exemple means OpND = H_mat1\otimesI_mat2\otimesH_cav
-    integer,             intent(in)    :: nio
+    integer,             intent(in)    :: nio           ! Used only to initialize tab_mat_ops and tab_cav_ops, i.e. ONLY ONCE !!!
     logical, optional,   intent(in)    :: Dense                                                                        ! cf. comments in HO1D_parameters_m
     integer, optional,   intent(in)    :: Verbose                                                                      ! cf. comments in HO1D_parameters_m
     logical, optional,   intent(in)    :: Debug                                                                        ! cf. comments in HO1D_parameters_m
@@ -133,6 +133,7 @@ MODULE Operator_ND_m
     IF (PRESENT(Dense)) THEN; Dense_local = Dense
     ELSE; Dense_local = .FALSE.; END IF
 
+    !######### Here has only purpose to compute N_mat and N_cav using the OpND declaration. Maybe these two paramaters will passed as arguments later, through a potential Basis_ND_t general object #########
     IF (LEN_TRIM(Mat_operators)==0) THEN
       N_mat = 0
       WRITE(out_unit,*) "########################## WARNING ########################## WARNING ########################## WARNING #&
@@ -159,7 +160,8 @@ MODULE Operator_ND_m
         IF (Cav_operators(i_mode:i_mode)==',') N_cav = N_cav + 1
       END DO 
     END IF 
-    
+    !######################################################################################################################################################################################################### 
+  
     IF (ALLOCATED(tab_mat_ops) .AND. ALLOCATED(tab_cav_ops)) THEN
       IF (SIZE(tab_mat_ops)/=N_mat) THEN
         WRITE(out_unit,*) "### The number of declared matter modes is not consistent with the one previously declared at last cal&
@@ -227,6 +229,7 @@ MODULE Operator_ND_m
 
     integer,           intent(in)    :: N_mat                                                                                    ! the HO/Cavity mode which the operator is relative to
     integer,           intent(in)    :: N_cav                                                                                    ! the HO/Cavity mode which the operator is relative to
+    ! integer,           intent(in)    :: nio ! TO ADD /!\ in the call initialize also and in the call of this sub just above
     logical, optional, intent(in)    :: Dense                                                                                    ! if .TRUE. then the matrix storage will not be optimized and it will be stored as a Dense matrix
     integer, optional, intent(in)    :: Verbose                                                                                  ! cf. comments in HO1D_parameters_m
     logical, optional, intent(in)    :: Debug                                                                                    ! cf. comments in HO1D_parameters_m
@@ -576,6 +579,12 @@ MODULE Operator_ND_m
     character(len=*),    intent(in)    :: Subsystem
     integer,             intent(in)    :: i_mode ! the number of the mode INSIDE the subsystem, not among the total system modes ! (the number of the 2nd cavity mode is 2, not 2+the number of matter modes)
 
+    IF (.NOT. ALLOCATED(tab_mat_ops) .OR. .NOT. ALLOCATED(tab_cav_ops)) THEN
+      WRITE(out_unit,*) "### The tab_<subsystem>_ops are not allocated, and the Get procedure can be used only after the tab_<sub&
+      &system>_ops have been initialised. Please CALL Initialize an OpND before using Get."
+      STOP "### The Get procedure cannot be used as long as the tab_<subsystem>_ops are not allocated."
+    END IF
+
     IF (TO_lowercase(TRIM(Subsystem)) == "matter") THEN
       CALL Get(Parameter_value, tab_mat_ops(i_mode), Parameter_name)
 
@@ -603,6 +612,12 @@ MODULE Operator_ND_m
     character(len=*),    intent(in)    :: Subsystem
     integer,             intent(in)    :: i_mode
 
+    IF (.NOT. ALLOCATED(tab_mat_ops) .OR. .NOT. ALLOCATED(tab_cav_ops)) THEN
+      WRITE(out_unit,*) "### The tab_<subsystem>_ops are not allocated, and the Get procedure can be used only after the tab_<sub&
+      &system>_ops have been initialised. Please CALL Initialize an OpND before using Get."
+      STOP "### The Get procedure cannot be used as long as the tab_<subsystem>_ops are not allocated."
+    END IF
+    
     IF (TO_lowercase(TRIM(Subsystem)) == "matter") THEN
       CALL Get(Parameter_value, tab_mat_ops(i_mode), Parameter_name)
 
