@@ -37,14 +37,14 @@
 ! Write_HO1D_parameters : displays values of the type in the output.
 !==================================================================================================
 !==================================================================================================
-MODULE Sum_of_products_m
+MODULE SUM_OF_PRODUCTS_m
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT, real64
   USE QDUtil_m                                                                 ! gives Rkind=real64; out_unit=OUTPUT_UNIT; INPUT_UNIT=in_unit; EYE=i and other numbers; TO_LOWERCASE; TO_UPPERCASE;... We thereby use ZERO instead of 0.0_real64
   USE Operator_ND_m
   IMPLICIT NONE
 
 
-  TYPE                               :: Sum_of_products_t                      ! N_mat, N_cav canNOT be part of the derived type because they are not specific of one operator_ND, but parameters of the whole system/calculation. All OpND will have the same. (therefore only one namelist per mode is needed, and not one per mode and oOND)
+  TYPE                               :: SUM_OF_PRODUCTS_t                      ! N_mat, N_cav canNOT be part of the derived type because they are not specific of one operator_ND, but parameters of the whole system/calculation. All OpND will have the same. (therefore only one namelist per mode is needed, and not one per mode and oOND)
     integer                          :: N_products = 0                         ! the number of terms in the sum of product operator
     TYPE(Operator_ND_t), allocatable :: tab_opnd(:)                            ! the list of the product terms in the sum, which one being an OpND
   END TYPE
@@ -52,14 +52,14 @@ MODULE Sum_of_products_m
 
   PRIVATE
 
-  PUBLIC Sum_of_products_t!, Initialize, Action, Get, Write, Dealloc
+  PUBLIC SUM_OF_PRODUCTS_t, Initialize!, Action, Get, Write, Dealloc
 
-!   INTERFACE Initialize
-!     MODULE PROCEDURE MolecCav_Initialize_operator_ND
-!   END INTERFACE
-!   INTERFACE Initialize_tabs_ops
-!     MODULE PROCEDURE MolecCav_Initialize_tabs_operators
-!   END INTERFACE
+    INTERFACE Initialize
+      MODULE PROCEDURE MolecCav_Initialize_Sum_of_product
+    END INTERFACE
+    INTERFACE Read_pdt
+      MODULE PROCEDURE MolecCav_Read_product
+    END INTERFACE
 !   INTERFACE Action
 !     MODULE PROCEDURE MolecCav_Action_operator_ND_R1_real, MolecCav_Action_operator_ND_R1_complex
 !   END INTERFACE
@@ -83,7 +83,7 @@ MODULE Sum_of_products_m
     USE Operator_ND_m
     IMPLICIT NONE
   
-    TYPE(Sum_of_products_t), intent(inout) :: SumProduct
+    TYPE(SUM_OF_PRODUCTS_t), intent(inout) :: SumProduct
     integer,             intent(in)        :: nio
     logical, optional,   intent(in)        :: Dense                                                                        ! cf. comments in HO1D_parameters_m
     integer, optional,   intent(in)        :: Verbose                                                                      ! cf. comments in HO1D_parameters_m
@@ -97,7 +97,7 @@ MODULE Sum_of_products_m
     integer                                :: Verbose_local                                                                ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
     logical                                :: Debug_local
     
-    NAMELIST /Sum_of_products/ N_products
+    NAMELIST /SUM_OF_PRODUCTS/ N_products
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
@@ -128,12 +128,12 @@ MODULE Sum_of_products_m
     WRITE(out_unit,*) '************************** READING THE NUMBER OF OPND **************************'
     WRITE(out_unit,*) '********************************************************************************'
     
-    READ(nio, nml = Sum_of_products, iostat = err_io)                                     ! assign the values read in the nml to the declared list of parameters
+    READ(nio, nml = SUM_OF_PRODUCTS, iostat = err_io)                                     ! assign the values read in the nml to the declared list of parameters
 
     IF (Debug) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "-----------------------The namelist parameters are read as----------------------"
-      WRITE(out_unit, nml = Sum_of_products)
+      WRITE(out_unit, nml = SUM_OF_PRODUCTS)
       WRITE(out_unit,*) "-------------------------End of the namelist parameters-------------------------"
     END IF
     
@@ -162,7 +162,7 @@ MODULE Sum_of_products_m
     ALLOCATE(SumProduct%tab_opnd(SumProduct%N_products))
 
     DO i_product = 1, N_products
-      CALL Read_product(Mat_operators, Cav_operators, nio, Verbose=Verbose_local, Debug=Debug_local)
+      CALL Read_pdt(Mat_operators, Cav_operators, nio, Verbose=Verbose_local, Debug=Debug_local)
       CALL Initialize(SumProduct%tab_opnd(i_product), Mat_operators, Cav_operators, nio, Dense_local, Verbose_local, Debug_local)
       DEALLOCATE(Mat_operators); DEALLOCATE(Cav_operators)
     END DO
@@ -184,6 +184,103 @@ MODULE Sum_of_products_m
     &IZED-------------------------------------------------"; FLUSH(out_unit)
 
   END SUBROUTINE MolecCav_Initialize_Sum_of_product
+
+
+  SUBROUTINE MolecCav_Read_product(Mat_operators, Cav_operators, nio, Verbose, Debug)
+    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
+    USE QDUtil_m
+    USE Operator_ND_m
+    IMPLICIT NONE
+  
+    character(len=:), allocatable, intent(inout) :: Mat_operators
+    character(len=:), allocatable, intent(inout) :: Cav_operators
+    integer,                       intent(in)    :: nio
+    integer, optional,             intent(in)    :: Verbose                                                                         ! cf. comments in HO1D_parameters_m
+    logical, optional,             intent(in)    :: Debug                                                                           ! cf. comments in HO1D_parameters_m
+
+    character(len=200)                           :: Mat_operators_local
+    character(len=200)                           :: Cav_operators_local
+    integer                                      :: err_io
+    integer                                      :: Verbose_local                                                              ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
+    logical                                      :: Debug_local
+
+    NAMELIST /PRODUCT_OF_OP1D/ Mat_operators_local, Cav_operators_local
+
+    !------------------------------------------------------Debugging options-----------------------------------------------------
+    IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
+    ELSE; Verbose_local = 20; END IF 
+    IF (PRESENT(Debug))   THEN; Debug_local   = Debug
+    ELSE; Debug_local = .FALSE.; END IF
+
+    IF (Verbose_local > 20) WRITE(out_unit,*) 
+    IF (Verbose_local > 20) WRITE(out_unit,*) "-------------------------------------------------READING ONE PRODUCT OF THE SUM OF&
+                                              & PRODUCT OPERATOR-------------------------------------------------"; FLUSH(out_unit)
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "--- Arguments of MolecCav_Read_product :"
+      WRITE(out_unit,*) "Is the <<Mat_operators>> argument already allocated ?"//TO_string(ALLOCATED(Mat_operators))
+      WRITE(out_unit,*) "Is the <<Cav_operators>> argument already allocated ?"//TO_string(ALLOCATED(Cav_operators))
+      WRITE(out_unit,*) "--- End arguments of MolecCav_Read_product"
+      FLUSH(out_unit)
+    END IF
+    
+    IF (ALLOCATED(Mat_operators) .OR. ALLOCATED(Cav_operators)) THEN
+      WRITE(out_unit,*) "### Please mind that Mat_operator and Cav_operator have not to be already allocated when call the Read_p&
+      &roduct procedure."
+      STOP "### Mat_operator and Cav_operator already allocated at the Read_product call."
+    END IF 
+
+    !----------------------Initialization to default values--------------------
+    Mat_operators_local = ""
+    Cav_operators_local = ""
+
+    !------------------------------Reading of the nml--------------------------
+    WRITE(out_unit,*) 
+    WRITE(out_unit,*) '********************************************************************************'
+    WRITE(out_unit,*) '************************** READING THE PRODUCT_OF_OP1D *************************'
+    WRITE(out_unit,*) '********************************************************************************'
+    
+    READ(nio, nml = PRODUCT_OF_OP1D, iostat = err_io)                                     ! assign the values read in the nml to the declared list of parameters
+
+    IF (Debug) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "-----------------------The namelist parameters are read as----------------------"
+      WRITE(out_unit, nml = PRODUCT_OF_OP1D)
+      WRITE(out_unit,*) "-------------------------End of the namelist parameters-------------------------"
+    END IF
+    
+    !------------------------------Check reading error-------------------------
+    IF(err_io < 0) THEN
+      WRITE(out_unit,*) ''
+      WRITE(out_unit,*) '#######################################################'
+      WRITE(out_unit,*) '########## Error in Read_product (err_io/=0) ##########'
+      WRITE(out_unit,*) '#######################################################'
+      WRITE(out_unit,*) '################# err_io = ', err_io, '################'
+      STOP '################### Check basis data ##################'
+    END IF
+    
+    !---------------Construction of the two strings-----------
+    ALLOCATE(Mat_operators(LEN_TRIM(Mat_operators_local)))
+    ALLOCATE(Cav_operators(LEN_TRIM(Cav_operators_local)))
+
+    Mat_operators = TO_lowercase(TRIM(Mat_operators_local))
+    Cav_operators = TO_lowercase(TRIM(Cav_operators_local))
+
+    WRITE(out_unit,*) 
+    WRITE(out_unit,*) '********************************************************************************'
+    WRITE(out_unit,*) '********************************** PRODUCT READ ********************************'
+    WRITE(out_unit,*) '********************************************************************************'
+
+    IF (Debug) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "--------------Op1D product read by MolecCav_MolecCav_Read_product--------------"
+      WRITE(out_unit,*) "Mat_operator : "//Mat_operators
+      WRITE(out_unit,*) "Cav_operator : "//Cav_operators
+      WRITE(out_unit,*) "------------End Op1D product read by MolecCav_MolecCav_Read_product------------"
+    END IF
+
+  END SUBROUTINE MolecCav_Read_product
 
 
 END MODULE
