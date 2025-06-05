@@ -681,23 +681,25 @@ MODULE Operator_ND_m
   END SUBROUTINE MolecCav_Write_operator_ND
 
 
-  SUBROUTINE MolecCav_Deallocate_operator_ND(OpND, All, Verbose, Debug)
+  SUBROUTINE MolecCav_Deallocate_operator_ND(OpND, Dealloc_all, Verbose, Debug)
     USE QDUtil_m
     USE Cavity_mode_m
     USE Matter_mode_m
     IMPLICIT NONE 
 
     TYPE(Operator_ND_t), intent(inout) :: OpND
-    logical, optional,   intent(in)    :: All
+    logical, optional,   intent(in)    :: Dealloc_all !shall be improved later : separate sub to dealloc tab_subsys_ops, not to need to target an any opnd to access it
     integer, optional,   intent(in)    :: Verbose                                                                                 ! cf. comments in HO1D_parameters_m
     logical, optional,   intent(in)    :: Debug                                                                                   ! cf. comments in HO1D_parameters_m
 
     integer                            :: i_op
-    logical                            :: All_local
+    logical                            :: Dealloc_all_local
     integer                            :: Verbose_local                                                                      ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
     logical                            :: Debug_local
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
+    IF (PRESENT(Dealloc_all)) THEN; Dealloc_all_local = Dealloc_all
+    ELSE; Dealloc_all_local = .FALSE.; END IF 
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
     ELSE; Verbose_local = 20; END IF 
     IF (PRESENT(Debug))   THEN; Debug_local   = Debug
@@ -716,6 +718,20 @@ MODULE Operator_ND_m
   
     IF (ALLOCATED(OpND%tab_indexes_mat_op)) DEALLOCATE(OpND%tab_indexes_mat_op)
     IF (ALLOCATED(OpND%tab_indexes_cav_op)) DEALLOCATE(OpND%tab_indexes_cav_op)
+
+    IF (Dealloc_all_local .AND. ALLOCATED(tab_mat_ops)) THEN
+      DO i_op = 1, SIZE(tab_mat_ops)
+        CALL Dealloc(tab_mat_ops(i_op), Verbose=Verbose_local, Debug=Debug_local)
+      END DO
+      DEALLOCATE(tab_mat_ops)
+    END IF 
+    IF (Dealloc_all_local .AND. ALLOCATED(tab_cav_ops)) THEN
+      DO i_op = 1, SIZE(tab_cav_ops)
+        CALL Dealloc(tab_cav_ops(i_op), Verbose=Verbose_local, Debug=Debug_local)
+      END DO
+      DEALLOCATE(tab_cav_ops)
+      WRITE(out_unit,*) "### WARNING : the tab_mat_ops and the tab_cav_ops tables have been deallocated. WARNING ###"
+    END IF 
 
     IF (Debug_local) THEN
       WRITE(out_unit,*)
