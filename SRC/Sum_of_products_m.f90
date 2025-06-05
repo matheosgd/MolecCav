@@ -53,23 +53,23 @@ MODULE Sum_of_products_m
 
   PRIVATE
 
-  PUBLIC Sum_of_products_t, Initialize_totH, Initialize_sop, Write, Dealloc!, Action, Get
+  PUBLIC Sum_of_products_t, Initialize_totH, Initialize_sop, Get, Write, Dealloc!, Action
 
     INTERFACE Initialize_totH
       MODULE PROCEDURE MolecCav_Initialize_total_hamiltonian
      END INTERFACE
-    INTERFACE Initialize_sop
+    INTERFACE Initialize_sop !/!\/!\/!\ NEVER HAVE BEEN TESTES /!\/!\/!\
       MODULE PROCEDURE MolecCav_Initialize_sum_of_products
     END INTERFACE
-    INTERFACE Read_pdt
+    INTERFACE Read_pdt !/!\/!\/!\ NEVER HAVE BEEN TESTES /!\/!\/!\
       MODULE PROCEDURE MolecCav_Read_products
     END INTERFACE
 !   INTERFACE Action
 !     MODULE PROCEDURE MolecCav_Action_operator_ND_R1_real, MolecCav_Action_operator_ND_R1_complex
 !   END INTERFACE
-  !  INTERFACE Get
-  !    MODULE PROCEDURE MolecCav_Get_SOP_parameter_integer, MolecCav_Get_SOP_parameter_real
-  !  END INTERFACE
+   INTERFACE Get
+     MODULE PROCEDURE MolecCav_Get_SOP_parameter_integer
+   END INTERFACE
    INTERFACE Write
      MODULE PROCEDURE MolecCav_Write_sum_of_products
    END INTERFACE
@@ -93,7 +93,7 @@ MODULE Sum_of_products_m
     integer, optional,   intent(in)        :: Verbose                                                                      ! cf. comments in HO1D_parameters_m
     logical, optional,   intent(in)        :: Debug                                                                        ! cf. comments in HO1D_parameters_m
 
-    integer                                :: N_mat, N_cav, i_products, i_mat, i_cav
+    integer                                :: N_mat, N_cav, i_product, i_mat, i_cav
     real(kind=Rkind), allocatable          :: tab_coeffs(:)
     character(len=:), allocatable          :: Mat_operators ! syntax : '<op_mode_1>, <op_mode_2>, ..., <op_mode_N_mat>', ex : 'hamiltonian, Identity'. Not case sensitive, ' ' <=> \otimes
     character(len=:), allocatable          :: Cav_operators ! syntax : '<op_mode_1>, <op_mode_2>, ..., <op_mode_N_cav>', ex : 'hamiltonian'.   Not case sensitive, ' ' <=> \otimes. This exemple means OpND = H_mat1\otimesI_mat2\otimesH_cav
@@ -169,7 +169,7 @@ MODULE Sum_of_products_m
     IF (Debug_local) WRITE(out_unit,*) 
     IF (Debug_local) WRITE(out_unit,*) "TotH%N_products : "//TO_string(TotH%N_products)
     IF (Debug_local) WRITE(out_unit,*) "TotH%N_products : "//TO_string(TotH%N_products)
-    tab_coeffs = 1
+    TotH%tab_coeffs = 1
 
     !---------------Construction of the table of OpND composing the sum of products operator-----------
     IF (PRESENT(Dense)) THEN; Dense_local = Dense
@@ -178,49 +178,119 @@ MODULE Sum_of_products_m
       !##### matter hamiltonians #####
     ALLOCATE(character(len=11 + 10*(N_mat-1)) :: Mat_operators)                                                   ! 11 ("hamiltonian") + (N_mat-1)*8 ("identity") + (N_mat-1)*2 (", ")
     ALLOCATE(character(len=8  + 10*(N_cav-1)) :: Cav_operators)                                                   ! 8  ("identity")    + (N_mat-1)*8 ("identity") + (N_mat-1)*2 (", ")
-    Mat_operators = "Hamiltonian"//REPEAT(", Identity", N_mat-1)
-    Cav_operators = "Identity"//REPEAT(", Identity", N_cav)
-    CALL Initialize(TotH%tab_opnd(1), Mat_operators, Cav_operators, nio, Dense_local, Verbose_local, Debug_local)
+    Mat_operators = ""
+    Cav_operators = ""
+    IF (N_mat > 0) Mat_operators = "Hamiltonian"//REPEAT(", Identity", N_mat-1)
+    IF (N_cav > 0) Cav_operators = "Identity"//REPEAT(", Identity", N_cav-1)
+    IF (N_mat > 0) CALL Initialize(TotH%tab_opnd(1), Mat_operators, Cav_operators, nio, Dense_local, Verbose_local, Debug_local)
 
-    DO i_products = 2, N_mat
-      Mat_operators = "Identity"//REPEAT(", Identity", i_products-2)//", Hamiltonian"//REPEAT(", Identity", N_mat-i_products)
-      CALL Initialize(TotH%tab_opnd(i_products), Mat_operators, Cav_operators, nio, Dense_local, Verbose_local, Debug_local)
+    DO i_product = 2, N_mat
+      Mat_operators = "Identity"//REPEAT(", Identity", i_product-2)//", Hamiltonian"//REPEAT(", Identity", N_mat-i_product)
+      CALL Initialize(TotH%tab_opnd(i_product), Mat_operators, Cav_operators, nio, Dense_local, Verbose_local, Debug_local)
     END DO
     DEALLOCATE(Mat_operators); DEALLOCATE(Cav_operators)
 
       !##### cavity hamiltonians #####
-    ALLOCATE(character(len=8  + 10*(N_mat-1)) :: Mat_operators)                                                   ! 8  ("identity")    + (N_mat-1)*8 ("identity") + (N_mat-1)*2 (", ")
-    ALLOCATE(character(len=11 + 10*(N_cav-1)) :: Cav_operators)                                                   ! 11 ("hamiltonian") + (N_mat-1)*8 ("identity") + (N_mat-1)*2 (", ")
-    Mat_operators = "Identity"//REPEAT(", Identity", N_mat)
-    Cav_operators = "Hamiltonian"//REPEAT(", Identity", N_cav-1)
+    ALLOCATE(character(len=MAX(8  + 10*(N_mat-1), 0)) :: Mat_operators)                                                   ! 8  ("identity")    + (N_mat-1)*8 ("identity") + (N_mat-1)*2 (", ")
+    ALLOCATE(character(len=11 + 10*(N_cav-1))         :: Cav_operators)                                                   ! 11 ("hamiltonian") + (N_mat-1)*8 ("identity") + (N_mat-1)*2 (", ")
+    Mat_operators = ""
+    Cav_operators = ""
+    IF (N_mat > 0) Mat_operators = "Identity"//REPEAT(", Identity", N_mat-1)
+    IF (N_cav > 0) Cav_operators = "Hamiltonian"//REPEAT(", Identity", N_cav-1)
     CALL Initialize(TotH%tab_opnd(N_mat+1), Mat_operators, Cav_operators, nio, Dense_local, Verbose_local, Debug_local)
 
-    DO i_products = 2, N_cav
-      Cav_operators = "Identity"//REPEAT(", Identity", i_products-2)//", Hamiltonian"//REPEAT(", Identity", N_cav-i_products)
-      CALL Initialize(TotH%tab_opnd(N_mat+i_products), Mat_operators, Cav_operators, nio, Dense_local, Verbose_local, Debug_local)
+    DO i_product = 2, N_cav
+      Cav_operators = "Identity"//REPEAT(", Identity", i_product-2)//", Hamiltonian"//REPEAT(", Identity", N_cav-i_product)
+      CALL Initialize(TotH%tab_opnd(N_mat+i_product), Mat_operators, Cav_operators, nio, Dense_local, Verbose_local, Debug_local)
     END DO
     DEALLOCATE(Mat_operators); DEALLOCATE(Cav_operators)
+
+    !   !##### coupling terms #####
+    ! ALLOCATE(character(len=7 + 10*(N_mat-1)) :: Mat_operators)                                                   ! 11 ("hamiltonian") + (N_mat-1)*8 ("identity") + (N_mat-1)*2 (", ")
+    ! ALLOCATE(character(len=8 + 10*(N_cav-1)) :: Cav_operators)                                                   ! 8  ("identity")    + (N_mat-1)*8 ("identity") + (N_mat-1)*2 (", ")
+    ! Mat_operators = "DipMomt"//REPEAT(", Identity", N_mat-1)
+    ! Cav_operators = "Position"//REPEAT(", Identity", N_cav-1)
+    ! CALL Initialize(TotH%tab_opnd(N_mat+N_cav+1), Mat_operators, Cav_operators, nio, Dense_local, Verbose_local, Debug_local)
+    
+    ! CALL Get(Cavw, "w", "Cavity", 1)
+    ! CALL Get(Cavlambda, "lambda", "Cavity", 1)
+    ! CALL Get(Matlambda, "lambda", "Matter", 1)
+    ! TotH%tab_coeffs(N_mat + N_cav + 1) = Cavlambda * Matlambda * Cavw
+    ! IF (Debug_local) THEN
+    !   WRITE(out_unit,*)
+    !   WRITE(out_unit,*) "--- System parameters for the coupling term between the 1^{st} matter mode and &
+    !   &the 1^{st} cavity mode :"
+    !   WRITE(out_unit,*) "Cavw = "//TO_string(Cavw)
+    !   WRITE(out_unit,*) "Cavlambda = "//TO_string(Cavlambda)
+    !   WRITE(out_unit,*) "Matlambda = "//TO_string(Matlambda)
+    !   WRITE(out_unit,*) "Mat_operators = "//Mat_operators
+    !   WRITE(out_unit,*) "Cav_operators = "//Cav_operators
+    ! END IF
+
+    ! i_product = N_mat + N_cav + 2
+    ! DO i_cav = 2, N_cav
+    !   Cav_operators = "Identity"//REPEAT(", Identity", i_product-2)//", Position"//REPEAT(", Identity", N_cav-i_product)
+    !   CALL Get(Cavw, "w", "Cavity", i_cav)
+    !   CALL Get(Cavlambda, "lambda", "Cavity", i_cav)
+    !   DO i_mat = 2, N_mat
+    !     Mat_operators = "Identity"//REPEAT(", Identity", i_product-2)//", DipMomt"//REPEAT(", Identity", N_mat-i_product)
+    !     CALL Get(Matlambda, "lambda", "Matter", i_mat)
+    !     CALL Initialize(TotH%tab_opnd(i_product), Mat_operators, Cav_operators, nio, Dense_local, Verbose_local, Debug_local)
+    !     TotH%tab_coeffs(i_product) = Cavlambda * Matlambda * Cavw
+
+    !     IF (Debug_local) THEN
+    !       WRITE(out_unit,*)
+    !       WRITE(out_unit,*) "--- System parameters for the coupling term between the "//TO_string(i_mat)//"^{th} matter mode and &
+    !       &the "//TO_string(i_cav)//"^{th} cavity mode :"
+    !       WRITE(out_unit,*) "Cavw = "//TO_string(Cavw)
+    !       WRITE(out_unit,*) "Cavlambda = "//TO_string(Cavlambda)
+    !       WRITE(out_unit,*) "Matlambda = "//TO_string(Matlambda)
+    !       WRITE(out_unit,*) "Mat_operators = "//Mat_operators
+    !       WRITE(out_unit,*) "Cav_operators = "//Cav_operators
+    !     END IF
+
+    !   END DO
+    ! END DO
+    ! DEALLOCATE(Mat_operators); DEALLOCATE(Cav_operators)
 
       !##### coupling terms #####
-    ALLOCATE(character(len=7 + 10*(N_mat-1)) :: Mat_operators)                                                   ! 11 ("hamiltonian") + (N_mat-1)*8 ("identity") + (N_mat-1)*2 (", ")
-    ALLOCATE(character(len=8 + 10*(N_cav-1)) :: Cav_operators)                                                   ! 8  ("identity")    + (N_mat-1)*8 ("identity") + (N_mat-1)*2 (", ")
-    Mat_operators = "DipMomt"//REPEAT(", Identity", N_mat-1)
-    Cav_operators = "Position"//REPEAT(", Identity", N_cav)
-    CALL Initialize(TotH%tab_opnd(1), Mat_operators, Cav_operators, nio, Dense_local, Verbose_local, Debug_local)
-
-    i_products = N_mat + N_cav + 1
-    DO i_cav = 2, N_cav
-      Cav_operators = "Identity"//REPEAT(", Identity", i_products-2)//", Position"//REPEAT(", Identity", N_cav-i_products)
-      CALL Get(Cavw, "w", "Cavity", i_cav)
-      CALL Get(Cavlambda, "lambda", "Cavity", i_cav)
-      DO i_mat = 2, N_mat
-        Mat_operators = "Identity"//REPEAT(", Identity", i_products-2)//", DipMomt"//REPEAT(", Identity", N_mat-i_products)
+    IF (N_mat > 0) ALLOCATE(character(len=7 + 10*(N_mat-1)) :: Mat_operators)                                                   ! 11 ("hamiltonian") + (N_mat-1)*8 ("identity") + (N_mat-1)*2 (", ")
+    IF (N_cav > 0) ALLOCATE(character(len=8 + 10*(N_cav-1)) :: Cav_operators)                                                   ! 8  ("identity")    + (N_mat-1)*8 ("identity") + (N_mat-1)*2 (", ")
+    i_product = N_mat + N_cav + 1
+    DO i_cav = 1, N_cav ! if ncav or nmat == 0, the program does not even enter in the loops : make perfectly sens since there is then no couplings !
+      DO i_mat = 1, N_mat
+        IF (i_mat == 1) THEN
+          Mat_operators = "DipMomt"//REPEAT(", Identity", N_mat-1)
+        ELSE 
+          Mat_operators = "Identity"//REPEAT(", Identity", i_mat-2)//", DipMomt"//REPEAT(", Identity", N_mat-i_mat)
+        END IF 
+        IF (i_cav == 1) THEN
+          Cav_operators = "Position"//REPEAT(", Identity", N_cav-1)
+        ELSE 
+          Cav_operators = "Identity"//REPEAT(", Identity", i_cav-2)//", Position"//REPEAT(", Identity", N_cav-i_cav)
+        END IF 
+        CALL Get(Cavw, "w", "Cavity", i_cav)
+        CALL Get(Cavlambda, "lambda", "Cavity", i_cav)
         CALL Get(Matlambda, "lambda", "Matter", i_mat)
-        CALL Initialize(TotH%tab_opnd(i_products), Mat_operators, Cav_operators, nio, Dense_local, Verbose_local, Debug_local)
-        TotH%tab_coeffs(i_products) = Cavlambda * Matlambda * Cavw
+
+        IF (Debug_local) THEN
+          WRITE(out_unit,*)
+          WRITE(out_unit,*) "--- System parameters for the coupling term between the "//TO_string(i_mat)//"^{th} matter mode and &
+          &the "//TO_string(i_cav)//"^{th} cavity mode :"
+          WRITE(out_unit,*) "Cavw          = "//TO_string(Cavw)
+          WRITE(out_unit,*) "Cavlambda     = "//TO_string(Cavlambda)
+          WRITE(out_unit,*) "Matlambda     = "//TO_string(Matlambda)
+          WRITE(out_unit,*) "Mat_operators = "//Mat_operators
+          WRITE(out_unit,*) "Cav_operators = "//Cav_operators
+        END IF
+
+        CALL Initialize(TotH%tab_opnd(i_product), Mat_operators, Cav_operators, nio, Dense_local, Verbose_local, Debug_local)
+        TotH%tab_coeffs(i_product) = Cavlambda * Matlambda * Cavw
+        i_product = i_product + 1
       END DO
     END DO
-    DEALLOCATE(Mat_operators); DEALLOCATE(Cav_operators)
+    IF (ALLOCATED(Mat_operators)) DEALLOCATE(Mat_operators)
+    IF (ALLOCATED(Cav_operators)) DEALLOCATE(Cav_operators)
 
     IF (Debug) THEN
       WRITE(out_unit,*)
@@ -248,7 +318,7 @@ MODULE Sum_of_products_m
     integer, optional,   intent(in)        :: Verbose                                                                      ! cf. comments in HO1D_parameters_m
     logical, optional,   intent(in)        :: Debug                                                                        ! cf. comments in HO1D_parameters_m
 
-    integer                                :: N_products, i_products
+    integer                                :: N_products, i_product
     real(kind=Rkind), allocatable          :: tab_coeffs(:)
     character(len=:), allocatable          :: Mat_operators ! syntax : '<op_mode_1>, <op_mode_2>, ..., <op_mode_N_mat>', ex : 'hamiltonian, Identity'. Not case sensitive, ' ' <=> \otimes
     character(len=:), allocatable          :: Cav_operators ! syntax : '<op_mode_1>, <op_mode_2>, ..., <op_mode_N_cav>', ex : 'hamiltonian'.   Not case sensitive, ' ' <=> \otimes. This exemple means OpND = H_mat1\otimesI_mat2\otimesH_cav
@@ -354,9 +424,9 @@ MODULE Sum_of_products_m
 
     ALLOCATE(SumProduct%tab_opnd(SumProduct%N_products))
 
-    DO i_products = 1, N_products
+    DO i_product = 1, N_products
       CALL Read_pdt(Mat_operators, Cav_operators, nio, Verbose=Verbose_local, Debug=Debug_local)
-      CALL Initialize(SumProduct%tab_opnd(i_products), Mat_operators, Cav_operators, nio, Dense_local, Verbose_local, Debug_local)
+      CALL Initialize(SumProduct%tab_opnd(i_product), Mat_operators, Cav_operators, nio, Dense_local, Verbose_local, Debug_local)
       DEALLOCATE(Mat_operators); DEALLOCATE(Cav_operators)
     END DO
 
@@ -476,36 +546,23 @@ MODULE Sum_of_products_m
   END SUBROUTINE MolecCav_Read_products
 
 
-  ! SUBROUTINE MolecCav_Get_SOP_parameter_integer(Parameter_value, Parameter_name, Subsystem, i_mode, SumProduct)
-  !   USE QDUtil_m
-  !   USE Operator_ND_m
-  !   IMPLICIT NONE 
+  SUBROUTINE MolecCav_Get_SOP_parameter_integer(Parameter_value, SumProduct, Parameter_name)
+    USE QDUtil_m
+    USE Operator_ND_m
+    IMPLICIT NONE 
 
-  !   integer,             intent(inout) :: Parameter_value                                                                            ! the current values of the indexes for each dimension
-  !   character(len=*),    intent(in)    :: Parameter_name
-  !   character(len=*),    intent(in)    :: Subsystem
-  !   integer,             intent(in)    :: i_mode ! the number of the mode INSIDE the subsystem, not among the total system modes ! (the number of the 2nd cavity mode is 2, not 2+the number of matter modes)
-  !   TYPE(Sum_of_products_t), optional, intent(in) :: SumProduct
+    integer,                 intent(inout) :: Parameter_value                                                                            ! the current values of the indexes for each dimension
+    TYPE(Sum_of_products_t), intent(in)    :: SumProduct
+    character(len=*),        intent(in)    :: Parameter_name
 
-  !   CALL Get(Parameter_value, Parameter_name, Subsystem, i_mode)
+    IF (TO_lowercase(TRIM(Parameter_name)) == "n_product") THEN
+      Parameter_value = SumProduct%N_products
+    ELSE 
+      WRITE(out_unit,*) "Parameter_name not recognized at MolecCav_Get_SOP_parameter_integer."
+      STOP "Parameter_name not recognized at MolecCav_Get_SOP_parameter_integer"
+    END IF
 
-  ! END SUBROUTINE MolecCav_Get_SOP_parameter_integer
-
-
-  ! SUBROUTINE MolecCav_Get_SOP_parameter_real(Parameter_value, Parameter_name, Subsystem, i_mode, SumProduct)
-  !   USE QDUtil_m
-  !   USE Operator_ND_m
-  !   IMPLICIT NONE 
-
-  !   real(kind=Rkind),    intent(inout) :: Parameter_value                                                                            ! the current values of the indexes for each dimension
-  !   character(len=*),    intent(in)    :: Parameter_name
-  !   character(len=*),    intent(in)    :: Subsystem
-  !   integer,             intent(in)    :: i_mode
-  !   TYPE(Sum_of_products_t), optional, intent(in) :: SumProduct
-
-  !   CALL Get(Parameter_value, Parameter_name, Subsystem, i_mode)
-
-  ! END SUBROUTINE MolecCav_Get_SOP_parameter_real
+  END SUBROUTINE MolecCav_Get_SOP_parameter_integer
 
 
   SUBROUTINE MolecCav_Write_sum_of_products(SumProduct)
@@ -516,7 +573,7 @@ MODULE Sum_of_products_m
     
     TYPE(Sum_of_products_t), intent(in) :: SumProduct
 
-    integer                             :: i_products
+    integer                             :: i_product
 
     WRITE(out_unit,*) "_________________________________The Sum of products Operator object__________________________________"
     WRITE(out_unit,*) "|The number of products in the sum (SumProduct%N_products)                     | "//TO_string(SumProduct&
@@ -525,9 +582,9 @@ MODULE Sum_of_products_m
     FLUSH(out_unit)
     IF (ALLOCATED(SumProduct%tab_opnd)) THEN
       WRITE(out_unit,*) "|The list of products (ND_operators_t) in the sum (SumProduct%tab_opnd) :      |"
-      DO i_products = 1, SIZE(SumProduct%tab_opnd)
-        WRITE(out_unit,*) "|"//TO_string(i_products)//"^{th} TERM OF THE SUM :                             |"
-        CALL Write(SumProduct%tab_opnd(i_products))
+      DO i_product = 1, SIZE(SumProduct%tab_opnd)
+        WRITE(out_unit,*) "|"//TO_string(i_product)//"^{th} TERM OF THE SUM :"
+        CALL Write(SumProduct%tab_opnd(i_product))
       END DO
     ELSE 
       WRITE(out_unit,*) "| The sum of products is not allocated (SumProduct%tab_opnd)                   |"

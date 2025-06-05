@@ -26,7 +26,7 @@
 ! SOFTWARE.
 !==================================================================================================
 !==================================================================================================
-PROGRAM test_sum_of_products_1p1D
+PROGRAM test_sum_of_products_2p1D
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
   USE QDUtil_m
   USE Sum_of_products_m
