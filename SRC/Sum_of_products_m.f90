@@ -546,6 +546,83 @@ MODULE Sum_of_products_m
   END SUBROUTINE MolecCav_Read_products
 
 
+  SUBROUTINE MolecCav_Action_SOP_R1_real(Op_psi, SumProduct, Psi, Verbose, Debug) ! Psi is ND AND R1
+    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
+    USE QDUtil_m
+    USE Operator_ND_m
+    IMPLICIT NONE
+
+    real(kind=Rkind),        intent(inout) :: Op_psi(:)
+    TYPE(Sum_of_products_t), intent(in)    :: SumProduct
+    real(kind=Rkind),        intent(in)    :: Psi(:)
+    integer, optional,       intent(in)    :: Verbose                                                                              ! cf. comments in HO1D_parameters_m
+    logical, optional,       intent(in)    :: Debug                                                                                ! cf. comments in HO1D_parameters_m
+
+    integer                                :: i_product
+    real(kind=Rkind), allocatable          :: Op_psi_local(:)
+    integer,          allocatable          :: Ranks_sizes(:)
+    real(kind=Rkind), allocatable          :: Cube(:,:,:), Op_cube(:,:,:)
+    integer                                :: Verbose_local                                                                   ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
+    logical                                :: Debug_local
+
+    !------------------------------------------------------Debugging options-----------------------------------------------------
+    IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
+    ELSE; Verbose_local = 20; END IF 
+    IF (PRESENT(Debug))   THEN; Debug_local   = Debug
+    ELSE; Debug_local = .FALSE.; END IF
+
+    IF (Verbose_local > 25) WRITE(out_unit,*) 
+    IF (Verbose_local > 25) WRITE(out_unit,*) "---------------------------------------COMPUTING ACTION OF THE SOP OVER &
+                                              &THE R1 ND WF---------------------------------------"; FLUSH(out_unit)
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "--- Arguments of MolecCav_Action_SOP_R1_real :"
+      WRITE(out_unit,*) "The <<SumProduct>> argument :"
+      CALL Write(SumProduct)
+      WRITE(out_unit,*) "The <<Psi>> argument : "
+      CALL Write_Vec(Psi, out_unit, 1, info="Psi")
+      WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
+      WRITE(out_unit,*) "--- End arguments of MolecCav_Action_SOP_R1_real"
+      FLUSH(out_unit)
+    END IF
+    
+    !-----------------------------------------------------Checking dimensions----------------------------------------------------
+    ! THE DIMENSIONS OF EACH 1D MATMUL WILL BE TESTED IN THE ACTIONS CODED IN ELEM_OP_M !
+
+    IF (SIZE(SumProduct%tab_opnd) /= SIZE(SumProduct%tab_coeffs)) THEN
+      WRITE(out_unit,*) "The number of products in the sum should match the number of coefficients of the SumProduct object !"
+      WRITE(out_unit,*) "SumProduct%tab_opnd   = "//TO_string(SIZE(SumProduct%tab_opnd))
+      WRITE(out_unit,*) "SumProduct%tab_coeffs = "//TO_string(SIZE(SumProduct%tab_coeffs))
+      STOP "The number of products in the sum should match the number of coefficients of the SumProduct object !"
+    END IF 
+
+    !----------------------------Computation---------------------------------- 
+    ALLOCATE(Op_psi_local(SIZE(Op_psi)))
+    Op_psi       = ZERO
+    Op_psi_local = ZERO
+
+    DO i_product = 1, SIZE(SumProduct%tab_opnd)
+      CALL Action(Op_psi_local, SumProduct%tab_opnd(i_product), Psi, Verbose=Verbose, Debug=Debug)
+      Op_psi = Op_psi + Op_psi_local * SumProduct%tab_coeffs(i_product)
+    END DO
+
+    !--------------Conclusion----------------
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "--- Resulting statevector from the action of the ND Operator on the Psi statevector operand, computed &
+                        &by MolecCav_Action_SOP_R1_real :"
+      CALL Write_Vec(Op_psi, out_unit, 1, info="Op_Psi")
+      WRITE(out_unit,*) "--- End resulting statevector computed by MolecCav_Action_SOP_R1_real"
+    END IF
+  
+    IF (Debug_local) WRITE(out_unit,*) 
+    IF (Debug_local) WRITE(out_unit,*) "----------------------------------------ACTION OF THE ND OPERATOR OVER THE R1 WF&
+                                              & COMPUTED---------------------------------------"; FLUSH(out_unit)
+  
+  END SUBROUTINE MolecCav_Action_SOP_R1_real
+
+  
   SUBROUTINE MolecCav_Get_SOP_parameter_integer(Parameter_value, SumProduct, Parameter_name)
     USE QDUtil_m
     USE Operator_ND_m
