@@ -136,10 +136,13 @@ $(info ***********************************************************************)
 .PHONY: ut UT
 # the ".PHONY <string1> <string2> <...>" make command indicates to make that the provided string are neither files nor directories and allows to use them...
 # ... as key-words, ex: as command-line commands
-UT ut: test_sum_of_products_1p1D.exe test_sum_of_products_2p1D.exe test_sum_of_products_0p3D.exe
-	./test_sum_of_products_1p1D.exe   < $(DATA_DIR)/data_test_sop_1p1d.nml  > $(OUTPUT_DIR)/test_sum_of_products_1p1D.log
-	./test_sum_of_products_2p1D.exe   < $(DATA_DIR)/data_test_sop_2p1d.nml  > $(OUTPUT_DIR)/test_sum_of_products_2p1D.log
-	./test_sum_of_products_0p3D.exe   < $(DATA_DIR)/data_test_sop_0p3d.nml  > $(OUTPUT_DIR)/test_sum_of_products_0p3D.log
+UT ut: test_operator_ND_1p1D.exe test_operator_ND_2p1D.exe test_operator_ND_0p3D.exe test_sum_of_products_1p1D.exe test_sum_of_products_2p1D.exe test_sum_of_products_0p3D.exe
+	./test_operator_ND_1p1D.exe       < $(DATA_DIR)/data_test_opnd_1p1d.nml  > $(OUTPUT_DIR)/test_operator_ND_1p1D.log
+	./test_operator_ND_2p1D.exe       < $(DATA_DIR)/data_test_opnd_2p1d.nml  > $(OUTPUT_DIR)/test_operator_ND_2p1D.log
+	./test_operator_ND_0p3D.exe       < $(DATA_DIR)/data_test_opnd_0p3d.nml  > $(OUTPUT_DIR)/test_operator_ND_0p3D.log
+	./test_sum_of_products_1p1D.exe   < $(DATA_DIR)/data_test_sop_1p1d.nml   > $(OUTPUT_DIR)/test_sum_of_products_1p1D.log
+	./test_sum_of_products_2p1D.exe   < $(DATA_DIR)/data_test_sop_2p1d.nml   > $(OUTPUT_DIR)/test_sum_of_products_2p1D.log
+	./test_sum_of_products_0p3D.exe   < $(DATA_DIR)/data_test_sop_0p3d.nml   > $(OUTPUT_DIR)/test_sum_of_products_0p3D.log
 	@echo "Done Tests"
 # here is the actual definition of the command. It is declared as "UT" OR "ut" to make it cass-insensitive (both can be used to call it). NB: UT = Utility Test
 # the first line instruction is understood by Make as "see these files". It will search the make file for where they are defined i.e. for their...

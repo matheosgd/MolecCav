@@ -143,6 +143,9 @@ PROGRAM test_operator_ND_1p1D
   CALL Equal_tensor(error_opnd, Ana_op_psi_R1_real, Op_psi_R1_real)
   CALL Logical_Test(test_opnd, error_opnd, test2=.FALSE., info="TotH_Psi_R1_real")
   IF (Debug) THEN
+  ! IF (.TRUE.) THEN
+    WRITE(out_unit,*)
+    WRITE(out_unit,*) "*** RESULTING WF VECTOR FROM ACTION OF TOTH ON PSI_R1_REAL"
     CALL Write_Vec(Op_psi_R1_real, out_unit, 1, info="Op_psi_R1_real")
     WRITE(out_unit,*)
     CALL Write_Vec(Ana_op_psi_R1_real, out_unit, 1, info="Ana_op_psi_R1_real")
@@ -157,6 +160,9 @@ PROGRAM test_operator_ND_1p1D
   CALL Equal_tensor(error_opnd, Ana_op_psi_R1_complex, Op_psi_R1_complex)
   CALL Logical_Test(test_opnd, error_opnd, test2=.FALSE., info="TotH_Psi_R1_complex")
   IF (Debug) THEN
+  ! IF (.TRUE.) THEN
+    WRITE(out_unit,*)
+    WRITE(out_unit,*) "*** RESULTING WF VECTOR FROM ACTION OF TOTH ON PSI_R1_COMPLEX"
     CALL Write_Vec(Op_psi_R1_complex, out_unit, 1, info="Op_psi_R1_complex")
     WRITE(out_unit,*)
     CALL Write_Vec(Ana_op_psi_R1_complex, out_unit, 1, info="Ana_op_psi_R1_complex")

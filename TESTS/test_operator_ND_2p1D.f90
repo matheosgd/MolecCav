@@ -204,10 +204,18 @@ PROGRAM test_operator_ND_2p1D
   END DO
   IF (Debug) WRITE(out_unit,*)
   IF (Debug) CALL Write_Mat(TotH, out_unit, NB, info="TotH")
+  !### Used to easily test the well working action of sum of products module ###
+  ! WRITE(out_unit,*)  
+  ! WRITE(out_unit,*) "*** RESULTING WF VECTOR FROM ACTION OF TOTH ON PSI_R1_COMPLEX"
+  ! CALL Write_Mat(TotH, out_unit, NB, info="TotH")
 
   CALL diagonalization(TotH, Eigenenergies, Eigenstates)
   IF (Debug) WRITE(out_unit,*)
   IF (Debug) CALL Write_Vec(Eigenenergies(1:12), out_unit, 1, info="EigenEnergies(1:12)")
+  !### Used to easily test the well working action of sum of products module ###
+  ! WRITE(out_unit,*)
+  ! WRITE(out_unit,*) "*** RESULTING WF VECTOR FROM ACTION OF TOTH ON PSI_R1_COMPLEX"
+  ! CALL Write_Vec(Eigenenergies(1:12), out_unit, 1, info="EigenEnergies(1:12)")
   
   CALL Construct_Ana_Normal_modes(Ana_Normal_modes, Mat1w, Mat2w, Mat1m, Mat2m, Cavw, Mat1lambda, Mat2lambda, Cavlambda, CoeffDip&
   &Momt1, CoeffDipMomt2, Debug_opt=.FALSE.)
