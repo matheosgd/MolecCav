@@ -33,43 +33,27 @@ PROGRAM test_sum_of_products_0p3D
   IMPLICIT NONE
 
 
-  integer             :: Verbose = 40
-  logical             :: Debug   = .TRUE.
+  integer                          :: Verbose = 40
+  logical                          :: Debug   = .FALSE.
 
-  logical                 :: Dense   = .FALSE.
-  TYPE(Sum_of_products_t) :: TotH
-  ! TYPE(Operator_ND_t) :: MatIxCavH
-  ! TYPE(Operator_ND_t) :: DipMomtxCavPos
-  ! real(kind=Rkind)    :: Matw
-  ! real(kind=Rkind)    :: Matm
-  ! real(kind=Rkind)    :: Cavw
-  ! real(kind=Rkind)    :: Cavlambda
-  ! real(kind=Rkind)    :: CoeffDipMomt
+  logical                          :: Dense   = .FALSE.
+  TYPE(Sum_of_products_t)          :: TotH
+  TYPE(Sum_of_products_t)          :: DipMomt
 
-  ! real(kind=Rkind)    ::        Psi_R1_real(6)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
-  ! real(kind=Rkind)    ::      InterPsi_real_1(6)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
-  ! real(kind=Rkind)    ::      InterPsi_real_2(6)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
-  ! real(kind=Rkind)    ::      InterPsi_real_3(6)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
-  ! real(kind=Rkind)    ::     Op_psi_R1_real(6)                                                                                ! the resulting vector from the action of a 1D operator upon Psi_ND_R1_real
-  ! real(kind=Rkind)    :: Ana_op_psi_R1_real(6)                                                                                ! the resulting vector from the action of a 1D operator upon Psi_ND_R1_real
-  ! complex(kind=Rkind) ::        Psi_R1_complex(6)                                                                          ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} BUT with complexes expansion coefficients to make complexe WF. /!\ Not normalized yet !
-  ! complex(kind=Rkind) ::      InterPsi_complex_1(6)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
-  ! complex(kind=Rkind) ::      InterPsi_complex_2(6)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
-  ! complex(kind=Rkind) ::      InterPsi_complex_3(6)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
-  ! complex(kind=Rkind) ::     Op_psi_R1_complex(6)                                                                             ! the resulting vector from the action of a 1D operator upon Psi_ND_R1_complex
-  ! complex(kind=Rkind) :: Ana_op_psi_R1_complex(6)                                                                             ! the resulting vector from the action of a 1D operator upon Psi_ND_R1_complex
+  integer                          :: Cav1Nb
+  integer                          :: Cav2Nb
+  integer                          :: Cav3Nb
+  integer                          :: NB
 
-  ! integer             :: i, i_op
+  real(kind=Rkind),    allocatable ::    Phi(:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
+  complex(kind=Rkind), allocatable ::    Phi_complex(:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
+  complex(kind=Rkind), allocatable :: Op_phi_complex(:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
+  
+  real(kind=Rkind), allocatable    :: TotH_matrix(:,:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
+  real(kind=Rkind), allocatable    :: Eigenenergies(:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
+  real(kind=Rkind), allocatable    :: Eigenstates(:,:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
 
-
-!   !----------------------------------Wavefunction initialization---------------------------------
-!   Psi_R1_real = [SQRT(TWO), HALF, PI, ONETENTH, TWELVE, ONE]                                ! /!\ the indexes are here renamed to match the indexes of the basis vectors and coefficients ! the elements starts from 0 to 5 and not from 1 to 6 !!! /!\
-! !  Psi_R1_real = [ONE, TWO, THREE, FOUR, FIVE, SIX]
-!   CALL Normalize(Psi_R1_real)
-!   Psi_R1_complex = [SQRT(TWO)*EYE, COMPLEX(HALF, Rkind), COMPLEX(PI, Rkind), COMPLEX(ONETENTH, Rkind)+HALF*EYE, TW&
-!   &ELVE*EYE, COMPLEX(ONE, Rkind)]
-! !  Psi_R1_complex = [ONE*EYE, TWO*EYE, THREE*EYE, FOUR*EYE, FIVE*EYE, SIX*EYE]
-!   CALL Normalize(Psi_R1_complex)
+  integer                          :: J, i_1, i_2, i_3, min_index
 
 
   !-------------------------Sum_of_products operators initialization-------------------------
@@ -81,29 +65,55 @@ PROGRAM test_sum_of_products_0p3D
     WRITE(out_unit,*) "------------End TotH object constructed by MolecCav_Initialize_total_hamiltonian------------"
   END IF
 
+  CALL Initialize_dipmomt(DipMomt, in_unit, Dense=Dense, Verbose=Verbose, Debug=.TRUE.)
+  IF (Debug) THEN
+    WRITE(out_unit,*)
+    WRITE(out_unit,*) "--------------DipMomt object constructed by MolecCav_Initialize_dipmomt--------------"
+    CALL Write(DipMomt)
+    WRITE(out_unit,*) "------------End DipMomt object constructed by MolecCav_Initialize_dipmomt------------"
+  END IF
+
+  
+  !----------------------------------Wavefunction initialization---------------------------------
+  CALL Get(Cav1Nb, "Nb", "Cavity", 1)
+  CALL Get(Cav2Nb, "Nb", "Cavity", 2)
+  CALL Get(Cav3Nb, "Nb", "Cavity", 3)
+  NB = Cav1Nb * Cav2Nb * Cav3Nb
+
+  ALLOCATE(Phi(NB))
+  ALLOCATE(TotH_matrix(NB,NB))
+  ALLOCATE(Phi_complex(NB))
+  ALLOCATE(Op_phi_complex(NB))
+
+  Phi_complex = ZERO
+  DO J = 1, SIZE(Phi_complex)
+    Phi_complex(J) = J*HALF + J*EYE  
+  END DO
+
+
   !----------------------------Testing the actions---------------------------
-  ! CALL Get(Matw, "w", "Matter", 1)
-  ! CALL Get(Matm, "m", "Matter", 1)
-  ! CALL Get(Cavw, "w", "Cavity", 1)
-  ! CALL Get(Cavlambda, "lambda", "Cavity", 1)
-  ! CoeffDipMomt = ONE ! assumed linear here (used only for the analytical part)
-  ! IF (Debug) THEN
-  !   WRITE(out_unit,*)
-  !   WRITE(out_unit,*) "--- System parameters"
-  !   WRITE(out_unit,*) "Matw         = "//TO_string(Matw)
-  !   WRITE(out_unit,*) "Matm         = "//TO_string(Matm)
-  !   WRITE(out_unit,*) "Cavw         = "//TO_string(Cavw)
-  !   WRITE(out_unit,*) "Cavlambda    = "//TO_string(Cavlambda)
-  !   WRITE(out_unit,*) "CoeffDipMomt = "//TO_string(CoeffDipMomt)
-  ! END IF 
+  TotH_matrix = ZERO
+  DO J = 1, NB
+    Phi = ZERO
+    Phi(J) = ONE
+    CALL Action(TotH_matrix(:,J), TotH, Phi, Verbose=Verbose, Debug=Debug)
+  END DO
 
-  ! CALL Action(InterPsi_real_1, MatHxCavI,      Psi_R1_real, Verbose=Verbose, Debug=Debug)
-  ! CALL Action(InterPsi_real_2, MatIxCavH,      Psi_R1_real, Verbose=Verbose, Debug=Debug)
-  ! CALL Action(InterPsi_real_3, DipMomtxCavPos, Psi_R1_real, Verbose=Verbose, Debug=Debug) ! at the end we have the resulting action of the total 1p1D hamiltonian upon Psi_R1_real  
+  WRITE(out_unit,*)
+  WRITE(out_unit,*) "*** RESULTING MATRIX OF TOTH"
+  CALL Write_Mat(TotH_matrix, out_unit, NB, info="TotH_matrix")
 
-  ! CALL Action(InterPsi_complex_1, MatHxCavI,      Psi_R1_complex, Verbose=Verbose, Debug=Debug)
-  ! CALL Action(InterPsi_complex_2, MatIxCavH,      Psi_R1_complex, Verbose=Verbose, Debug=Debug)
-  ! CALL Action(InterPsi_complex_3, DipMomtxCavPos, Psi_R1_complex, Verbose=Verbose, Debug=Debug)
+  ALLOCATE(Eigenenergies(NB))
+  ALLOCATE(Eigenstates(NB,NB))
+
+  CALL diagonalization(TotH_matrix, Eigenenergies, Eigenstates)
+  WRITE(out_unit,*)
+  CALL Write_Vec(Eigenenergies(1:4), out_unit, 1, info="EigenEnergies(1:4)")
+
+  CALL Action(Op_phi_complex, TotH, Phi_complex, Verbose=Verbose, Debug=Debug)
+  WRITE(out_unit,*)
+  WRITE(out_unit,*) "*** RESULTING WF VECTOR FROM ACTION OF TOTH ON PHI COMPLEX"
+  CALL Write_Vec(Op_phi_complex, out_unit, 1, info="TotH_Phi_complex")
 
 
   !----------------------------Testing the writing---------------------------

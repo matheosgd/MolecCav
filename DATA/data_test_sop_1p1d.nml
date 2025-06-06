@@ -24,3 +24,8 @@ Nq = 1
 Eq_pos = 0.0                              !Equilibrium position of the HO
 Scale_q = 0.0
 /
+
+&DIPOLE_MOMENT !Please keep the same parameters as in total_hamiltonian, this point will be simplified later
+N_mat = 1
+N_cav = 1
+/

@@ -53,10 +53,13 @@ MODULE Sum_of_products_m
 
   PRIVATE
 
-  PUBLIC Sum_of_products_t, Initialize_totH, Initialize_sop, Action, Get, Write, Dealloc
+  PUBLIC Sum_of_products_t, Initialize_totH, Initialize_dipmomt, Initialize_sop, Action, Get, Write, Dealloc
 
     INTERFACE Initialize_totH
       MODULE PROCEDURE MolecCav_Initialize_total_hamiltonian
+     END INTERFACE
+    INTERFACE Initialize_dipmomt
+      MODULE PROCEDURE MolecCav_Initialize_dipole_moment
      END INTERFACE
     INTERFACE Initialize_sop !/!\/!\/!\ NEVER HAVE BEEN TESTES /!\/!\/!\
       MODULE PROCEDURE MolecCav_Initialize_sum_of_products
@@ -88,10 +91,10 @@ MODULE Sum_of_products_m
     IMPLICIT NONE
   
     TYPE(Sum_of_products_t), intent(inout) :: TotH
-    integer,             intent(in)        :: nio
-    logical, optional,   intent(in)        :: Dense                                                                        ! cf. comments in HO1D_parameters_m
-    integer, optional,   intent(in)        :: Verbose                                                                      ! cf. comments in HO1D_parameters_m
-    logical, optional,   intent(in)        :: Debug                                                                        ! cf. comments in HO1D_parameters_m
+    integer,                 intent(in)    :: nio
+    logical, optional,       intent(in)    :: Dense                                                                        ! cf. comments in HO1D_parameters_m
+    integer, optional,       intent(in)    :: Verbose                                                                      ! cf. comments in HO1D_parameters_m
+    logical, optional,       intent(in)    :: Debug                                                                        ! cf. comments in HO1D_parameters_m
 
     integer                                :: N_mat, N_cav, i_product, i_mat, i_cav
     real(kind=Rkind), allocatable          :: tab_coeffs(:)
@@ -168,7 +171,6 @@ MODULE Sum_of_products_m
     ALLOCATE(TotH%tab_coeffs(TotH%N_products))
     IF (Debug_local) WRITE(out_unit,*) 
     IF (Debug_local) WRITE(out_unit,*) "TotH%N_products : "//TO_string(TotH%N_products)
-    IF (Debug_local) WRITE(out_unit,*) "TotH%N_products : "//TO_string(TotH%N_products)
     TotH%tab_coeffs = 1
 
     !---------------Construction of the table of OpND composing the sum of products operator-----------
@@ -176,8 +178,8 @@ MODULE Sum_of_products_m
     ELSE; Dense_local = .FALSE.; END IF
 
       !##### matter hamiltonians #####
-    ALLOCATE(character(len=11 + 10*(N_mat-1)) :: Mat_operators)                                                   ! 11 ("hamiltonian") + (N_mat-1)*8 ("identity") + (N_mat-1)*2 (", ")
-    ALLOCATE(character(len=8  + 10*(N_cav-1)) :: Cav_operators)                                                   ! 8  ("identity")    + (N_mat-1)*8 ("identity") + (N_mat-1)*2 (", ")
+    ALLOCATE(character(len=    11 + 10*(N_mat-1)    ) :: Mat_operators)                                                   ! 11 ("hamiltonian") + (N_mat-1)*8 ("identity") + (N_mat-1)*2 (", ")
+    ALLOCATE(character(len=MAX(8  + 10*(N_cav-1), 0)) :: Cav_operators)                                                   ! 8  ("identity")    + (N_mat-1)*8 ("identity") + (N_mat-1)*2 (", ")
     Mat_operators = ""
     Cav_operators = ""
     IF (N_mat > 0) Mat_operators = "Hamiltonian"//REPEAT(", Identity", N_mat-1)
@@ -204,54 +206,6 @@ MODULE Sum_of_products_m
       CALL Initialize(TotH%tab_opnd(N_mat+i_product), Mat_operators, Cav_operators, nio, Dense_local, Verbose_local, Debug_local)
     END DO
     DEALLOCATE(Mat_operators); DEALLOCATE(Cav_operators)
-
-    !   !##### coupling terms #####
-    ! ALLOCATE(character(len=7 + 10*(N_mat-1)) :: Mat_operators)                                                   ! 11 ("hamiltonian") + (N_mat-1)*8 ("identity") + (N_mat-1)*2 (", ")
-    ! ALLOCATE(character(len=8 + 10*(N_cav-1)) :: Cav_operators)                                                   ! 8  ("identity")    + (N_mat-1)*8 ("identity") + (N_mat-1)*2 (", ")
-    ! Mat_operators = "DipMomt"//REPEAT(", Identity", N_mat-1)
-    ! Cav_operators = "Position"//REPEAT(", Identity", N_cav-1)
-    ! CALL Initialize(TotH%tab_opnd(N_mat+N_cav+1), Mat_operators, Cav_operators, nio, Dense_local, Verbose_local, Debug_local)
-    
-    ! CALL Get(Cavw, "w", "Cavity", 1)
-    ! CALL Get(Cavlambda, "lambda", "Cavity", 1)
-    ! CALL Get(Matlambda, "lambda", "Matter", 1)
-    ! TotH%tab_coeffs(N_mat + N_cav + 1) = Cavlambda * Matlambda * Cavw
-    ! IF (Debug_local) THEN
-    !   WRITE(out_unit,*)
-    !   WRITE(out_unit,*) "--- System parameters for the coupling term between the 1^{st} matter mode and &
-    !   &the 1^{st} cavity mode :"
-    !   WRITE(out_unit,*) "Cavw = "//TO_string(Cavw)
-    !   WRITE(out_unit,*) "Cavlambda = "//TO_string(Cavlambda)
-    !   WRITE(out_unit,*) "Matlambda = "//TO_string(Matlambda)
-    !   WRITE(out_unit,*) "Mat_operators = "//Mat_operators
-    !   WRITE(out_unit,*) "Cav_operators = "//Cav_operators
-    ! END IF
-
-    ! i_product = N_mat + N_cav + 2
-    ! DO i_cav = 2, N_cav
-    !   Cav_operators = "Identity"//REPEAT(", Identity", i_product-2)//", Position"//REPEAT(", Identity", N_cav-i_product)
-    !   CALL Get(Cavw, "w", "Cavity", i_cav)
-    !   CALL Get(Cavlambda, "lambda", "Cavity", i_cav)
-    !   DO i_mat = 2, N_mat
-    !     Mat_operators = "Identity"//REPEAT(", Identity", i_product-2)//", DipMomt"//REPEAT(", Identity", N_mat-i_product)
-    !     CALL Get(Matlambda, "lambda", "Matter", i_mat)
-    !     CALL Initialize(TotH%tab_opnd(i_product), Mat_operators, Cav_operators, nio, Dense_local, Verbose_local, Debug_local)
-    !     TotH%tab_coeffs(i_product) = Cavlambda * Matlambda * Cavw
-
-    !     IF (Debug_local) THEN
-    !       WRITE(out_unit,*)
-    !       WRITE(out_unit,*) "--- System parameters for the coupling term between the "//TO_string(i_mat)//"^{th} matter mode and &
-    !       &the "//TO_string(i_cav)//"^{th} cavity mode :"
-    !       WRITE(out_unit,*) "Cavw = "//TO_string(Cavw)
-    !       WRITE(out_unit,*) "Cavlambda = "//TO_string(Cavlambda)
-    !       WRITE(out_unit,*) "Matlambda = "//TO_string(Matlambda)
-    !       WRITE(out_unit,*) "Mat_operators = "//Mat_operators
-    !       WRITE(out_unit,*) "Cav_operators = "//Cav_operators
-    !     END IF
-
-    !   END DO
-    ! END DO
-    ! DEALLOCATE(Mat_operators); DEALLOCATE(Cav_operators)
 
       !##### coupling terms #####
     IF (N_mat > 0) ALLOCATE(character(len=7 + 10*(N_mat-1)) :: Mat_operators)                                                   ! 11 ("hamiltonian") + (N_mat-1)*8 ("identity") + (N_mat-1)*2 (", ")
@@ -306,6 +260,128 @@ MODULE Sum_of_products_m
   END SUBROUTINE MolecCav_Initialize_total_hamiltonian
 
 
+  SUBROUTINE MolecCav_Initialize_dipole_moment(DipMomt, nio, Dense, Verbose, Debug) ! no need for N_mat and N_cav explicitly : they are SIZE(Mat_op and Cav_op)
+    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
+    USE QDUtil_m
+    USE Operator_ND_m
+    IMPLICIT NONE
+  
+    TYPE(Sum_of_products_t), intent(inout) :: DipMomt
+    integer,             intent(in)        :: nio
+    logical, optional,   intent(in)        :: Dense                                                                        ! cf. comments in HO1D_parameters_m
+    integer, optional,   intent(in)        :: Verbose                                                                      ! cf. comments in HO1D_parameters_m
+    logical, optional,   intent(in)        :: Debug                                                                        ! cf. comments in HO1D_parameters_m
+
+    integer                                :: N_mat, N_cav, i_product, i_mat, i_cav
+    real(kind=Rkind), allocatable          :: tab_coeffs(:)
+    character(len=:), allocatable          :: Mat_operators ! syntax : '<op_mode_1>, <op_mode_2>, ..., <op_mode_N_mat>', ex : 'hamiltonian, Identity'. Not case sensitive, ' ' <=> \otimes
+    character(len=:), allocatable          :: Cav_operators ! syntax : '<op_mode_1>, <op_mode_2>, ..., <op_mode_N_cav>', ex : 'hamiltonian'.   Not case sensitive, ' ' <=> \otimes. This exemple means OpND = H_mat1\otimesI_mat2\otimesH_cav
+    real(kind=Rkind)                       :: Cavw, Cavlambda, Matlambda
+    integer                                :: err_io
+    logical                                :: Dense_local                                                                  ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
+    integer                                :: Verbose_local                                                                ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
+    logical                                :: Debug_local
+    
+    NAMELIST /DIPOLE_MOMENT/ N_mat, N_cav
+
+    !------------------------------------------------------Debugging options-----------------------------------------------------
+    IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
+    ELSE; Verbose_local = 20; END IF 
+    IF (PRESENT(Debug))   THEN; Debug_local   = Debug
+    ELSE; Debug_local = .FALSE.; END IF
+
+    IF (Debug_local) WRITE(out_unit,*) 
+    IF (Debug_local) WRITE(out_unit,*) "-------------------------------------------------INITIALIZING THE DIPOLE MOMENT OBJECT---&
+                                              &----------------------------------------------"; FLUSH(out_unit)
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "--- Arguments of MolecCav_Initialize_dipole_moment :"
+      WRITE(out_unit,*) "The <<DipMomt>> argument :"
+      CALL Write(DipMomt)
+      IF (PRESENT(Dense)) WRITE(out_unit,*) "The <<Dense>> argument : "//TO_string(Dense)
+      WRITE(out_unit,*) "--- End arguments of MolecCav_Initialize_dipole_moment"
+      FLUSH(out_unit)
+    END IF
+    
+    !----------------------Initialization to default values--------------------
+    N_mat = 0
+    N_cav = 0
+
+    !------------------------------Reading of the nml--------------------------
+    WRITE(out_unit,*) 
+    WRITE(out_unit,*) '********************************************************************************'
+    WRITE(out_unit,*) '************************** READING THE NUMBER OF MODES *************************'
+    WRITE(out_unit,*) '********************************************************************************'
+    
+    READ(nio, nml = DIPOLE_MOMENT, iostat = err_io)                                     ! assign the values read in the nml to the declared list of parameters
+
+    IF (Debug) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "-----------------------The namelist parameters are read as----------------------"
+      WRITE(out_unit, nml = DIPOLE_MOMENT)
+      WRITE(out_unit,*) "-------------------------End of the namelist parameters-------------------------"
+    END IF
+    
+      !------------------------------Check reading error-------------------------
+    IF(err_io /= 0) THEN
+      WRITE(out_unit,*) ''
+      WRITE(out_unit,*) '###################################################################'
+      WRITE(out_unit,*) '###### Error in MolecCav_Initialize_dipole_moment (err_io/=0) #####'
+      WRITE(out_unit,*) '###################################################################'
+      WRITE(out_unit,*) '####################### err_io = ', err_io, '######################'
+      STOP '######################### Check basis data ########################'
+    END IF
+
+    IF (N_mat == 0) THEN
+      WRITE(out_unit,*) "### The number of matter modes CANNOT be 0 to construct the global matter dipole moment ! Please check t&
+      &he data file '.nml'"
+      STOP "### The number of matter modes CANNOT be 0 to construct the global matter dipole moment ! Please check the data file &
+      &'.nml'"
+    END IF
+    
+    !---------------Construction of the table of coefficients of the sum-----------
+    DipMomt%N_products = N_mat 
+
+    ALLOCATE(DipMomt%tab_opnd(DipMomt%N_products))
+    ALLOCATE(DipMomt%tab_coeffs(DipMomt%N_products))
+    IF (Debug_local) WRITE(out_unit,*) 
+    IF (Debug_local) WRITE(out_unit,*) "DipMomt%N_products : "//TO_string(DipMomt%N_products)
+    DipMomt%tab_coeffs = 1
+
+    !---------------Construction of the table of OpND composing the sum of products operator-----------
+    IF (PRESENT(Dense)) THEN; Dense_local = Dense
+    ELSE; Dense_local = .FALSE.; END IF
+
+      !##### matter modes #####
+    ALLOCATE(character(len=    7 + 10*(N_mat-1)    ) :: Mat_operators)                                                   ! 11 ("hamiltonian") + (N_mat-1)*8 ("identity") + (N_mat-1)*2 (", ")
+    ALLOCATE(character(len=MAX(8 + 10*(N_cav-1), 0)) :: Cav_operators)                                                   ! 8  ("identity")    + (N_mat-1)*8 ("identity") + (N_mat-1)*2 (", ")
+    Mat_operators = ""
+    Cav_operators = ""
+    Mat_operators                = "DipMomt"//REPEAT(", Identity", N_mat-1)
+    IF (N_cav > 0) Cav_operators = "Identity"//REPEAT(", Identity", N_cav-1)
+    CALL Initialize(DipMomt%tab_opnd(1), Mat_operators, Cav_operators, nio, Dense_local, Verbose_local, Debug_local)
+
+    DO i_product = 2, N_mat
+      Mat_operators = "Identity"//REPEAT(", Identity", i_product-2)//", DipMomt"//REPEAT(", Identity", N_mat-i_product)
+      CALL Initialize(DipMomt%tab_opnd(i_product), Mat_operators, Cav_operators, nio, Dense_local, Verbose_local, Debug_local)
+    END DO
+    DEALLOCATE(Mat_operators); DEALLOCATE(Cav_operators)
+
+    IF (Debug) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "--------------Sum of products constructed by MolecCav_Initialize_dipole_moment--------------"
+      CALL Write(DipMomt)
+      WRITE(out_unit,*) "------------End Sum of products constructed by MolecCav_Initialize_dipole_moment------------"
+    END IF
+    
+    IF (Debug_local) WRITE(out_unit,*) 
+    IF (Debug_local) WRITE(out_unit,*) "--------------------------------------------------DIPOLE MOMENT OPERATOR INITIALIZED-&
+    &------------------------------------------------"; FLUSH(out_unit)
+
+  END SUBROUTINE MolecCav_Initialize_dipole_moment
+
+
   SUBROUTINE MolecCav_Initialize_sum_of_products(SumProduct, nio, Dense, Verbose, Debug) ! no need for N_mat and N_cav explicitly : they are SIZE(Mat_op and Cav_op)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m
@@ -313,10 +389,10 @@ MODULE Sum_of_products_m
     IMPLICIT NONE
   
     TYPE(Sum_of_products_t), intent(inout) :: SumProduct
-    integer,             intent(in)        :: nio
-    logical, optional,   intent(in)        :: Dense                                                                        ! cf. comments in HO1D_parameters_m
-    integer, optional,   intent(in)        :: Verbose                                                                      ! cf. comments in HO1D_parameters_m
-    logical, optional,   intent(in)        :: Debug                                                                        ! cf. comments in HO1D_parameters_m
+    integer,                 intent(in)    :: nio
+    logical, optional,       intent(in)    :: Dense                                                                        ! cf. comments in HO1D_parameters_m
+    integer, optional,       intent(in)    :: Verbose                                                                      ! cf. comments in HO1D_parameters_m
+    logical, optional,       intent(in)    :: Debug                                                                        ! cf. comments in HO1D_parameters_m
 
     integer                                :: N_products, i_product
     real(kind=Rkind), allocatable          :: tab_coeffs(:)

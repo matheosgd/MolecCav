@@ -33,25 +33,27 @@ PROGRAM test_sum_of_products_2p1D
   IMPLICIT NONE
 
 
-  integer                       :: Verbose = 40
-  logical                       :: Debug   = .TRUE.
+  integer                          :: Verbose = 40
+  logical                          :: Debug   = .TRUE.
 
-  logical                       :: Dense   = .FALSE.
-  TYPE(Sum_of_products_t)       :: TotH
-  real(kind=Rkind), allocatable :: TotH_matrix(:,:)
-  real(kind=Rkind), allocatable :: Eigenenergies(:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
-  real(kind=Rkind), allocatable :: Eigenstates(:,:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
+  logical                          :: Dense   = .FALSE.
+  TYPE(Sum_of_products_t)          :: TotH
+  TYPE(Sum_of_products_t)          :: DipMomt
 
-  integer                       :: Mat1Nb
-  integer                       :: Mat2Nb
-  integer                       :: CavNb
-  integer                       :: NB
+  integer                          :: Mat1Nb
+  integer                          :: Mat2Nb
+  integer                          :: CavNb
+  integer                          :: NB
 
-  real(kind=Rkind), allocatable ::    Phi(:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
-  real(kind=Rkind), allocatable ::    Phi_complex(:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
-  real(kind=Rkind), allocatable :: Op_phi_complex(:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
+  real(kind=Rkind),    allocatable ::    Phi(:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
+  complex(kind=Rkind), allocatable ::    Phi_complex(:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
+  complex(kind=Rkind), allocatable :: Op_phi_complex(:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
 
-  integer                       :: J, i_1, i_2, i_3, min_index
+  real(kind=Rkind), allocatable    :: TotH_matrix(:,:)
+  real(kind=Rkind), allocatable    :: Eigenenergies(:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
+  real(kind=Rkind), allocatable    :: Eigenstates(:,:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
+
+  integer                          :: J, i_1, i_2, i_3, min_index
 
 
   !-------------------------Sum_of_products operators initialization-------------------------
@@ -63,7 +65,15 @@ PROGRAM test_sum_of_products_2p1D
     WRITE(out_unit,*) "------------End TotH object constructed by MolecCav_Initialize_total_hamiltonian------------"
   END IF
 
+  CALL Initialize_dipmomt(DipMomt, in_unit, Dense=Dense, Verbose=Verbose, Debug=.TRUE.)
+  IF (Debug) THEN
+    WRITE(out_unit,*)
+    WRITE(out_unit,*) "--------------DipMomt object constructed by MolecCav_Initialize_dipmomt--------------"
+    CALL Write(DipMomt)
+    WRITE(out_unit,*) "------------End DipMomt object constructed by MolecCav_Initialize_dipmomt------------"
+  END IF
 
+  
   !----------------------------------Wavefunction initialization---------------------------------
   CALL Get(Mat1Nb, "Nb", "Matter", 1)
   CALL Get(Mat2Nb, "Nb", "Matter", 2)
@@ -79,6 +89,7 @@ PROGRAM test_sum_of_products_2p1D
   DO J = 1, SIZE(Phi_complex)
     Phi_complex(J) = J*HALF + J*EYE  
   END DO
+
 
   !----------------------------Testing the actions---------------------------
   TotH_matrix = ZERO
@@ -104,6 +115,7 @@ PROGRAM test_sum_of_products_2p1D
   WRITE(out_unit,*)
   WRITE(out_unit,*) "*** RESULTING WF VECTOR FROM ACTION OF TOTH ON PHI COMPLEX"
   CALL Write_Vec(Op_phi_complex, out_unit, 1, info="TotH_Phi_complex")
+
 
   !----------------------------Testing the writing---------------------------
   CALL Write(TotH)

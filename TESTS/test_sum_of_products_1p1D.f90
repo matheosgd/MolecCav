@@ -39,6 +39,7 @@ PROGRAM test_sum_of_products_1p1D
 
   logical                 :: Dense   = .FALSE.
   TYPE(Sum_of_products_t) :: TotH
+  TYPE(Sum_of_products_t) :: DipMomt
 
   real(kind=Rkind)        ::    Psi_R1_real(6)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
   real(kind=Rkind)        :: Op_psi_R1_real(6)                                                                                ! the resulting vector from the action of a 1D operator upon Psi_ND_R1_real
@@ -63,6 +64,15 @@ PROGRAM test_sum_of_products_1p1D
     WRITE(out_unit,*) "------------End TotH object constructed by MolecCav_Initialize_total_hamiltonian------------"
   END IF
 
+  CALL Initialize_dipmomt(DipMomt, in_unit, Dense=Dense, Verbose=Verbose, Debug=.TRUE.)
+  IF (Debug) THEN
+    WRITE(out_unit,*)
+    WRITE(out_unit,*) "--------------DipMomt object constructed by MolecCav_Initialize_dipmomt--------------"
+    CALL Write(DipMomt)
+    WRITE(out_unit,*) "------------End DipMomt object constructed by MolecCav_Initialize_dipmomt------------"
+  END IF
+
+  
   !----------------------------Testing the actions---------------------------
   CALL Action(Op_psi_R1_real, TotH, Psi_R1_real, Verbose=Verbose, Debug=Debug) ! at the end we have the resulting action of the total 1p1D hamiltonian upon Psi_R1_real  
   WRITE(out_unit,*)

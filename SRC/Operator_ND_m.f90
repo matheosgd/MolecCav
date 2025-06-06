@@ -332,7 +332,10 @@ MODULE Operator_ND_m
       WRITE(out_unit,*) "--- Arguments of MolecCav_Action_operator_ND :"
       WRITE(out_unit,*) "The <<OpND>> argument :"
       !CALL Write(OpND)
-      WRITE(out_unit,*) "tab mat op : "//TO_string(OpND%tab_indexes_mat_op)//" ; tab mat op : "//TO_string(OpND%tab_indexes_cav_op)
+      IF (SIZE(OpND%tab_indexes_mat_op)==0) WRITE(out_unit,*) "tab mat op : $\empty$"
+      IF (SIZE(OpND%tab_indexes_mat_op)/=0) WRITE(out_unit,*) "tab mat op : "//TO_string(OpND%tab_indexes_mat_op)
+      IF (SIZE(OpND%tab_indexes_cav_op)==0) WRITE(out_unit,*) "tab cav op : $\empty$"
+      IF (SIZE(OpND%tab_indexes_cav_op)/=0) WRITE(out_unit,*) "tab cav op : "//TO_string(OpND%tab_indexes_cav_op)
       WRITE(out_unit,*) "The <<Psi>> argument : "
       CALL Write_Vec(Psi, out_unit, 1, info="Psi")
       WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
@@ -474,7 +477,10 @@ MODULE Operator_ND_m
       WRITE(out_unit,*) "--- Arguments of MolecCav_Action_operator_ND :"
       WRITE(out_unit,*) "The <<OpND>> argument :"
       !CALL Write(OpND)
-      WRITE(out_unit,*) "tab mat op : "//TO_string(OpND%tab_indexes_mat_op)//" ; tab mat op : "//TO_string(OpND%tab_indexes_cav_op)
+      IF (SIZE(OpND%tab_indexes_mat_op)==0) WRITE(out_unit,*) "tab mat op : $\empty$"
+      IF (SIZE(OpND%tab_indexes_mat_op)/=0) WRITE(out_unit,*) "tab mat op : "//TO_string(OpND%tab_indexes_mat_op)
+      IF (SIZE(OpND%tab_indexes_cav_op)==0) WRITE(out_unit,*) "tab cav op : $\empty$"
+      IF (SIZE(OpND%tab_indexes_cav_op)/=0) WRITE(out_unit,*) "tab cav op : "//TO_string(OpND%tab_indexes_cav_op)
       WRITE(out_unit,*) "The <<Psi>> argument : "
       CALL Write_Vec(Psi, out_unit, 1, info="Psi")
       WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
