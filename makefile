@@ -108,7 +108,7 @@ FFLAGS   += -J$(MOD_DIR) $(EXTMod)
 # to these optional aguments are added : "-J" which indicates the DIRECTORY (and not all the path of the .mod files) where to STORE the .mod files of the...
 # ...lib. after compilation (at the contrary of "-I" which indicates where to FIND the needed ones); and the path towards the .mod files of the external...
 # ...library(ies).
-SRCFILES = Tests_m.f90 Algebra_m.f90 ND_indexes_m.f90 Mapping_m.f90 Cavity_mode_old_m.f90 Elem_op_m.f90 Quantum_HO1D_m.f90 Matter_mode_m.f90 Cavity_mode_m.f90 Operator_ND_m.f90 Sum_of_products_m.f90 Operator_2D_m.f90 Total_hamiltonian_m.f90 Psi_analysis_m.f90
+SRCFILES = Tests_m.f90 Algebra_m.f90 ND_indexes_m.f90 Mapping_m.f90 Cavity_mode_old_m.f90 Elem_op_m.f90 Quantum_HO1D_m.f90 Matter_mode_m.f90 Cavity_mode_m.f90 Operator_ND_m.f90 Sum_of_products_m.f90 Transition_spectrum_m.f90 Operator_2D_m.f90 Total_hamiltonian_m.f90 Psi_analysis_m.f90
 # the list of all the .f90 source files OF THE LIBRARY (only the modules, not the test/app programs) to be compiled
 OBJ0     = ${SRCFILES:.f90=.o}
 # this syntax looks like a list slicing in python : change the .f90 string of the var to .o : it allows to change the extension of the file from .f90 to .o
@@ -136,36 +136,38 @@ $(info ***********************************************************************)
 .PHONY: ut UT
 # the ".PHONY <string1> <string2> <...>" make command indicates to make that the provided string are neither files nor directories and allows to use them...
 # ... as key-words, ex: as command-line commands
-UT ut: test_algebra.exe test_ND_indexes.exe test_elem_op.exe test_quantum_ho1d.exe test_matter_mode.exe test_cavity_mode.exe test_operator_ND_1p1D.exe test_operator_ND_2p1D.exe test_operator_ND_1p2D.exe test_operator_ND_3p0D.exe test_sum_of_products_1p1D.exe test_operator_ND_0p3D.exe test_action_total_H_1p1D.exe test_construct_total_H_1p1D.exe test_normal_modes_1p1D.exe test_mapping.exe test_transition_intensities.exe
-	./test_algebra.exe                                               > $(OUTPUT_DIR)/test_algebra.log
-	./test_ND_indexes.exe                                            > $(OUTPUT_DIR)/test_ND_indexes.log
-	./test_elem_op.exe                                               > $(OUTPUT_DIR)/test_elem_op.log
-	./test_quantum_ho1d.exe                                          > $(OUTPUT_DIR)/test_quantum_ho1d.log
-	./test_matter_mode.exe            < $(DATA_DIR)/data_test_matmode.nml   > $(OUTPUT_DIR)/test_matter_mode.log
-	./test_cavity_mode.exe            < $(DATA_DIR)/data_test_cavmode.nml   > $(OUTPUT_DIR)/test_cavity_mode.log
-	./test_operator_ND_1p1D.exe       < $(DATA_DIR)/data_test_opnd_1p1d.nml > $(OUTPUT_DIR)/test_operator_ND_1p1D.log
-	./test_operator_ND_2p1D.exe       < $(DATA_DIR)/data_test_opnd_2p1d.nml > $(OUTPUT_DIR)/test_operator_ND_2p1D.log
-	./test_operator_ND_1p2D.exe       < $(DATA_DIR)/data_test_opnd_1p2d.nml > $(OUTPUT_DIR)/test_operator_ND_1p2D.log
-	./test_operator_ND_3p0D.exe       < $(DATA_DIR)/data_test_opnd_3p0d.nml > $(OUTPUT_DIR)/test_operator_ND_3p0D.log
-	./test_operator_ND_0p3D.exe       < $(DATA_DIR)/data_test_opnd_0p3d.nml > $(OUTPUT_DIR)/test_operator_ND_0p3D.log
-	./test_sum_of_products_1p1D.exe   < $(DATA_DIR)/data_test_sop_1p1d.nml  > $(OUTPUT_DIR)/test_sum_of_products_1p1D.log
-	./test_mapping.exe                < $(DATA_DIR)/data_tests.nml          > $(OUTPUT_DIR)/test_mapping.log
-	./test_action_total_H_1p1D.exe    < $(DATA_DIR)/data_tests.nml          > $(OUTPUT_DIR)/test_action_total_H_1p1D.log
-	./test_construct_total_H_1p1D.exe < $(DATA_DIR)/data_tests.nml          > $(OUTPUT_DIR)/test_construct_total_H_1p1D.log
-	./test_normal_modes_1p1D.exe      < $(DATA_DIR)/data_tests.nml          > $(OUTPUT_DIR)/test_normal_modes_1p1D.log
-	./test_transition_intensities.exe < $(DATA_DIR)/data_tests.nml          > $(OUTPUT_DIR)/test_transition_intensities.log
+UT ut: test_algebra.exe test_ND_indexes.exe test_elem_op.exe test_quantum_ho1d.exe test_matter_mode.exe test_cavity_mode.exe test_operator_ND_1p1D.exe test_operator_ND_2p1D.exe test_operator_ND_1p2D.exe test_operator_ND_3p0D.exe test_sum_of_products_1p1D.exe test_operator_ND_0p3D.exe test_transition_spectrum.exe test_action_total_H_1p1D.exe test_construct_total_H_1p1D.exe test_normal_modes_1p1D.exe test_mapping.exe test_transition_intensities.exe
+	./test_algebra.exe                                                 > $(OUTPUT_DIR)/test_algebra.log
+	./test_ND_indexes.exe                                              > $(OUTPUT_DIR)/test_ND_indexes.log
+	./test_elem_op.exe                                                 > $(OUTPUT_DIR)/test_elem_op.log
+	./test_quantum_ho1d.exe                                            > $(OUTPUT_DIR)/test_quantum_ho1d.log
+	./test_matter_mode.exe            < $(DATA_DIR)/data_test_matmode.nml     > $(OUTPUT_DIR)/test_matter_mode.log
+	./test_cavity_mode.exe            < $(DATA_DIR)/data_test_cavmode.nml     > $(OUTPUT_DIR)/test_cavity_mode.log
+	./test_operator_ND_1p1D.exe       < $(DATA_DIR)/data_test_opnd_1p1d.nml   > $(OUTPUT_DIR)/test_operator_ND_1p1D.log
+	./test_operator_ND_2p1D.exe       < $(DATA_DIR)/data_test_opnd_2p1d.nml   > $(OUTPUT_DIR)/test_operator_ND_2p1D.log
+	./test_operator_ND_1p2D.exe       < $(DATA_DIR)/data_test_opnd_1p2d.nml   > $(OUTPUT_DIR)/test_operator_ND_1p2D.log
+	./test_operator_ND_3p0D.exe       < $(DATA_DIR)/data_test_opnd_3p0d.nml   > $(OUTPUT_DIR)/test_operator_ND_3p0D.log
+	./test_operator_ND_0p3D.exe       < $(DATA_DIR)/data_test_opnd_0p3d.nml   > $(OUTPUT_DIR)/test_operator_ND_0p3D.log
+	./test_sum_of_products_1p1D.exe   < $(DATA_DIR)/data_test_sop_1p1d.nml    > $(OUTPUT_DIR)/test_sum_of_products_1p1D.log
+	./test_transition_spectrum.exe    < $(DATA_DIR)/data_test_trstns_spec.nml > $(OUTPUT_DIR)/test_transition_spectrum.log
+	./test_mapping.exe                < $(DATA_DIR)/data_tests.nml            > $(OUTPUT_DIR)/test_mapping.log
+	./test_action_total_H_1p1D.exe    < $(DATA_DIR)/data_tests.nml            > $(OUTPUT_DIR)/test_action_total_H_1p1D.log
+	./test_construct_total_H_1p1D.exe < $(DATA_DIR)/data_tests.nml            > $(OUTPUT_DIR)/test_construct_total_H_1p1D.log
+	./test_normal_modes_1p1D.exe      < $(DATA_DIR)/data_tests.nml            > $(OUTPUT_DIR)/test_normal_modes_1p1D.log
+	./test_transition_intensities.exe < $(DATA_DIR)/data_tests.nml            > $(OUTPUT_DIR)/test_transition_intensities.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_algebra.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_ND_indexes.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_elem_op.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_quantum_ho1d.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_matter_mode.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_cavity_mode.log
-	grep "Number of error(s)" $(OUTPUT_DIR)/test_operator_ND_1p1D.log
+	grep "Number of error(s)" $(OUTPUT_DIR)/test_operator_ND_1p1D.log 
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_operator_ND_2p1D.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_operator_ND_1p2D.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_operator_ND_3p0D.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_operator_ND_0p3D.log
 #	grep "Number of error(s)" $(OUTPUT_DIR)/test_sum_of_products_1p1D.log
+#	grep "Number of error(s)" $(OUTPUT_DIR)/test_transition_spectrum.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_mapping.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_action_total_H_1p1D.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_construct_total_H_1p1D.log

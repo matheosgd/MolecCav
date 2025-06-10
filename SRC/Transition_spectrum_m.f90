@@ -48,7 +48,7 @@ MODULE Transition_spectrum_m
 
   PRIVATE
 
-  PUBLIC Transition_spectrum_t!, Initialize, Alloc
+  PUBLIC Transition_spectrum_t, Initialize, Alloc
 
   INTERFACE Initialize
     MODULE PROCEDURE MolecCav_Initialize_transition_matrix_0K
@@ -71,50 +71,83 @@ MODULE Transition_spectrum_m
     TYPE(Transition_spectrum_t), intent(inout) :: TranSpec
     real(kind=Rkind),            intent(in)    :: REigvec(:,:)
     TYPE(Sum_of_products_t),     intent(in)    :: DipMomt
-    real(kind=Rkind), optional,  intent(in)    :: E_threshold
-    real(kind=Rkind), optional,  intent(in)    :: REigval(:)
-    integer,          optional,  intent(in)    :: Nb_states
+    real(kind=Rkind), optional,  intent(in)    :: E_threshold ! for the state selection
+    real(kind=Rkind), optional,  intent(in)    :: REigval(:)  ! for the state selection
+    integer,          optional,  intent(in)    :: Nb_states   ! for the state selection
     integer, optional,           intent(in)    :: Verbose
     logical, optional,           intent(in)    :: Debug
 
-    real(kind=Rkind), allocatable      :: InitPsi_1p1D(:,:)
-    real(kind=Rkind), allocatable      :: FinPsi_1p1D(:,:)
-    real(kind=Rkind), allocatable      :: Intermediary(:,:)  
-    integer                            :: Nb_M, Nb_C, i_C, N, I, J
+    real(kind=Rkind), allocatable      :: InitPsi(:) ! ?
+    real(kind=Rkind), allocatable      :: DipMomt_GS(:)  ! action of the dipole moment upon the ground state
+    real(kind=Rkind), allocatable      :: Intermediary(:) ! ?  
+    integer                            :: Nb_M, Nb_C, i_C, N, I, J ! ?
     integer                            :: Verbose_local
     logical                            :: Debug_local
 
-    !###################### WE ARE HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEE ######################
-    IF (PRESENT(Debug)) Debug_local = Debug
+    !------------------------------------------------------Debugging options-----------------------------------------------------
+    IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
+    ELSE; Verbose_local = 20; END IF 
+    IF (PRESENT(Debug))   THEN; Debug_local   = Debug
+    ELSE; Debug_local = .FALSE.; END IF
 
-    IF (MOD(Size(REigvec, dim=1),MatDipMomt%Nb) /= 0) THEN
+    IF (Debug_local) WRITE(out_unit,*) 
+    IF (Debug_local) WRITE(out_unit,*) "-------------------------------------------------INITIALIZING THE TRANSITION SPECTRUM OBJ&
+                                              &ECT-------------------------------------------------"; FLUSH(out_unit)
+
+    IF (Debug_local) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "Unconsistent arguments of Transition intensity : NB /= Nb_M*Integer"
-      WRITE(out_unit,*) "NB = "//TO_string(Size(REigvec, dim=1))//";  Nb_M = "//TO_string(MatDipMomt%Nb)
-      WRITE(out_unit,*) "Please check arguments"
-      STOP "### Unconsistent arguments of Transition_intensity_matrix"
+      WRITE(out_unit,*) "--- Arguments of MolecCav_Allocate_transition_matrix_0K :"
+      WRITE(out_unit,*) "The <<TranSpec>> argument :" 
+    !   CALL Write(TranSpec)
+      WRITE(out_unit,*) "The <<REigvec>> argument :" 
+      CALL Write_Mat(REigvec, out_unit, SIZE(REigvec, dim=2), info="REigvec")
+      WRITE(out_unit,*) "The <<DipMomt>> argument :" 
+      CALL Write(DipMomt)
+      IF (PRESENT(E_threshold)) WRITE(out_unit,*) "The <<E_threshold>> argument : "//TO_string(E_threshold)
+      IF (PRESENT(REigval)) WRITE(out_unit,*) "The <<REigval>> argument : "
+      IF (PRESENT(REigval)) CALL Write_Vec(REigval, out_unit, 1, info="REigval")
+      IF (PRESENT(Nb_states)) WRITE(out_unit,*) "The <<Nb_states>> argument : "//TO_string(Nb_states)
+      WRITE(out_unit,*) "--- End arguments of MolecCav_Allocate_transition_matrix_0K"
+      FLUSH(out_unit)
+    END IF
+    
+    IF (PRESENT(E_threshold) .AND. .NOT. PRESENT(REigval)) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "### The list of the total Hamiltonian Eigenenergies (REigval) is expected when the selection criterion i&
+                        &s energy-based (Energy_threshold provided). Please check the arguments."
+      STOP "### Missing REigval argument in MolecCav_Initialize_transition_matrix_0K"
+    END IF 
+
+    !-------------------------------------------------Allocating the transition spectrum-------------------------------------------
+    IF (PRESENT(E_threshold) .AND. PRESENT(Nb_states)) THEN
+      CALL Alloc(TranSpec, E_threshold, REigval=REigval, Nb_states=Nb_states, Verbose=Verbose_local, Debug=Debug_local)
+    ELSE IF (PRESENT(E_threshold)) THEN
+      CALL Alloc(TranSpec, Energy_threshold=E_threshold, REigval=REigval, Verbose=Verbose_local, Debug=Debug_local)
+    ELSE IF (PRESENT(Nb_states)) THEN
+      CALL Alloc(TranSpec, Nb_states=Nb_states, Verbose=Verbose_local, Debug=Debug_local)
+    ELSE
+      CALL Alloc(TranSpec, Verbose=Verbose_local, Debug=Debug_local)
     END IF
 
-    N    = Size(Intensities, dim=1)
-    Nb_M = MatDipMomt%Nb             ! will be ND_indexes soon
-    Nb_C = Size(REigvec, dim=1)/Nb_M
+    !-------------------------------------------------Computing the transition spectrum-------------------------------------------
+    ALLOCATE(DipMomt_GS(SIZE(REigvec, dim=1)))
+    CALL Action(DipMomt_GS, DipMomt, REigvec(:,1), Verbose=Verbose_local, Debug=Debug_local)
 
-    IF (Debug_local) WRITE(out_unit,*)
-    DO I = 1, N
-      DO J =  1, N
-        CALL Transition_intensity(Intensities(I,J), REigvec(:,I), MatDipMomt, REigvec(:,J), Nb_M, Nb_C)
-        IF (Debug_local) WRITE(out_unit,*) "Transition \overrightarrow{VP}_"//TO_string(I)//" --> \overrightarrow{VP}_"//TO_strin&
-                                           &g(J)//" = "//TO_string(Intensities(I,J))
-      END DO
+    DO I = 2, TranSpec%N_trstns + 1 ! "+1" because if there is N_trstns to compute, then the first one is 2 <- 1 (G.S.) and the last one N_trstns+1 <- 1
+      TranSpec%tab_energies(I-1) = REigval(I) - REigval(1)  
+      CALL Scalar_product(TranSpec%tab_ints(I-1), REigvec(:,I), DipMomt_GS)
+      IF (Debug_local) WRITE(out_unit,*) "Transition \overrightarrow{VP}_"//TO_string(1)//" --> \overrightarrow{VP}_"//TO_strin&
+      &g(I)//" = "//TO_string(TranSpec%tab_ints(I-1))
     END DO 
     
     IF (Debug_local) WRITE(out_unit,*)
-    IF (Debug_local) CALL Write_Mat(Intensities, out_unit, Size(Intensities), info="Intensities matrix")
+    IF (Debug_local) CALL Write_Vec(TranSpec%tab_energies, out_unit, Size(TranSpec%tab_energies), info="Transition energies")
+    IF (Debug_local) CALL Write_Vec(TranSpec%tab_ints, out_unit, Size(TranSpec%tab_ints), info="Transition Intensities")
     
   END SUBROUTINE MolecCav_Initialize_transition_matrix_0K
   
 
-  SUBROUTINE MolecCav_Allocate_transition_matrix_0K(TranSpec, Energy_threshold, REigval, Nb_states, Verbose, Debug)   ! /!\ FOR NOW DESIGNED FOR 1p1D
+  SUBROUTINE MolecCav_Allocate_transition_matrix_0K(TranSpec, Energy_threshold, REigval, Nb_states, Verbose, Debug)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64 
     USE QDUtil_m
     IMPLICIT NONE
@@ -136,7 +169,7 @@ MODULE Transition_spectrum_m
     ELSE; Debug_local = .FALSE.; END IF
 
     IF (Debug_local) WRITE(out_unit,*) 
-    IF (Debug_local) WRITE(out_unit,*) "-------------------------------------------------INITIALIZING THE TRANSITION SPECTRUM OBJ&
+    IF (Debug_local) WRITE(out_unit,*) "-------------------------------------------------ALLOCATING THE TRANSITION SPECTRUM OBJ&
                                               &ECT-------------------------------------------------"; FLUSH(out_unit)
 
     IF (Debug_local) THEN
@@ -156,18 +189,18 @@ MODULE Transition_spectrum_m
       WRITE(out_unit,*)
       WRITE(out_unit,*) "### The list of the total Hamiltonian Eigenenergies (REigval) is expected when the selection criterion i&
                         &s energy-based (Energy_threshold provided). Please check the arguments."
-      STOP "### Missing REigval argument in Transition_intensity_matrix"
+      STOP "### Missing REigval argument in MolecCav_Allocate_transition_matrix_0K"
 
     !-------------------------------------------------Counting the number of states to take into account-------------------------------------------
     ELSE IF (PRESENT(Energy_threshold)) THEN
-      TranSpec%N_trstns = COUNT(Reigval > Reigval(1) + Energy_threshold)
+      TranSpec%N_trstns = COUNT(Reigval < Reigval(1) + Energy_threshold) - 1 ! "-1" because G.S. <- G.S. is not a transition
     
     ELSE
         TranSpec%N_trstns = 0
     END IF 
     
     IF (PRESENT(Nb_states)) THEN
-      IF (TranSpec%N_trstns == 0 .OR. Nb_states < TranSpec%N_trstns) TranSpec%N_trstns = Nb_states
+      IF (TranSpec%N_trstns == 0 .OR. Nb_states < TranSpec%N_trstns) TranSpec%N_trstns = Nb_states - 1 ! "-1" because G.S. <- G.S. is not a transition
     END IF
 
     IF ((.NOT. PRESENT(Energy_threshold)) .AND. (.NOT. PRESENT(Nb_states))) THEN
@@ -179,11 +212,12 @@ MODULE Transition_spectrum_m
       WRITE(out_unit,*) "                                              All Eigenstates will thus be considered"
       WRITE(out_unit,*) "########################## WARNING ########################## WARNING ########################## WARNING&
                        & #########################"
-      TranSpec%N_trstns = Size(REigval, dim=1)
+      TranSpec%N_trstns = Size(REigval, dim=1) - 1 ! "-1" because G.S. <- G.S. is not a transition
     END IF 
 
     IF (Debug_local) WRITE(out_unit,*)
-    IF (Debug_local) WRITE(out_unit,*) TO_string(TranSpec%N_trstns)//" States will be taken into account to compute the transition intensities."
+    IF (Debug_local) WRITE(out_unit,*) TO_string(TranSpec%N_trstns)//" States will be taken into account to compute the transitio&
+    &n intensities."
 
     ALLOCATE(TranSpec%tab_ints(    TranSpec%N_trstns))
     ALLOCATE(TranSpec%tab_energies(TranSpec%N_trstns))
@@ -191,7 +225,7 @@ MODULE Transition_spectrum_m
     TranSpec%tab_energies = ZERO
     
     IF (Debug_local) WRITE(out_unit,*)
-    IF (Debug_local) CALL Write_Mat(Intensities, out_unit, Size(Intensities), info="Initialized intensity matrix")
+    ! IF (Debug_local) CALL Write(TranSpec)
     FLUSH(out_unit)
 
   END SUBROUTINE MolecCav_Allocate_transition_matrix_0K
