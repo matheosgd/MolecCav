@@ -26,7 +26,7 @@
 ! SOFTWARE.
 !==================================================================================================
 !==================================================================================================
-PROGRAM test_transition_spectrum
+PROGRAM Spec_1p1D
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
   USE QDUtil_m
   USE Algebra_m
@@ -37,11 +37,13 @@ PROGRAM test_transition_spectrum
 
   integer                       :: Verbose = 40
   logical                       :: Debug   = .TRUE.
+  integer                       :: niospec
 
   logical                       :: Dense   = .FALSE.
   TYPE(Sum_of_products_t)       :: TotH
   TYPE(Sum_of_products_t)       :: DipMomt
 
+  real(kind=Rkind)              :: Matw, Cavw, Matlambda, Cavlambda, lambda
   integer                       :: Nb_1, Nb_2, NB, J
   real(kind=Rkind), allocatable :: Phi(:)
   real(kind=Rkind), allocatable :: TotH_matrix(:,:)
@@ -71,9 +73,25 @@ PROGRAM test_transition_spectrum
   END IF
 
   !-------------------------System initialization-------------------------
+  CALL Get(Matw, "w", "Matter", 1)
+  CALL Get(Cavw, "w", "Cavity", 1)
+  CALL Get(Matlambda, "lambda", "Matter", 1)
+  CALL Get(Cavlambda, "lambda", "Cavity", 1)
+  lambda = Matlambda * Cavlambda
   CALL Get(Nb_1, "Nb", "Matter", 1)
   CALL Get(Nb_2, "Nb", "Cavity", 1)
   NB = Nb_1 * Nb_2
+
+  WRITE(out_unit,*)
+  WRITE(out_unit,*) "--- System parameters :"
+  WRITE(out_unit,*) "Matw      = "//TO_string(Matw)
+  WRITE(out_unit,*) "Cavw      = "//TO_string(Cavw)
+  WRITE(out_unit,*) "Matlambda = "//TO_string(Matlambda)
+  WRITE(out_unit,*) "Cavlambda = "//TO_string(Cavlambda)
+  WRITE(out_unit,*) "lambda    = "//TO_string(lambda)
+  WRITE(out_unit,*) "MatNb     = "//TO_string(Nb_1)
+  WRITE(out_unit,*) "CavNb     = "//TO_string(Nb_2)
+
   ALLOCATE(TotH_matrix(NB, NB))
   ALLOCATE(Phi(NB))
   TotH_matrix = ZERO
@@ -96,25 +114,27 @@ PROGRAM test_transition_spectrum
   CALL Write_Vec(REigval, out_unit, 1, info="EigenEnergies")
   
 
-  !----------------------------Testing the computation of the spectra---------------------------
+  !----------------------------Computing of the spectra---------------------------
   ! CALL Initialize(TranSpec, REigvec, DipMomt, E_threshold=E_threshold, REigval=REigval, Nb_states=N_states, Verbose=Verbose, Deb&
   ! &ug=Debug)
   ! CALL Initialize(TranSpec, REigvec, DipMomt, E_threshold=E_threshold, REigval=REigval, Nb_states=N_states, Verbose=Verbose, Deb&
   ! &ug=Debug)
-  CALL Initialize(TranSpec, REigvec, DipMomt, REigval, Nb_states=4, Verbose=Verbose, Debug=Debug)
+  CALL Initialize(TranSpec, REigvec, DipMomt, REigval, Nb_states=10, Verbose=Verbose, Debug=Debug)
 
   WRITE(out_unit,*) "Spectrum information"
   CALL Write_Vec(TranSpec%tab_energies, out_unit, SIZE(TranSpec%tab_energies), info="Transition Energies")
   CALL Write_Vec(TranSpec%tab_ints,     out_unit, SIZE(TranSpec%tab_ints),     info="Transition Intensities")
 
 
-  !----------------------------Testing the writing---------------------------
-  CALL Write(TranSpec)
+  OPEN(NEWUNIT = niospec, FILE = 'OUT/Spec_1p1D_wmat'//TO_string(Matw)//'_wcav'//TO_string(Cavw)//'_lamb'//TO_string(lambda)//'.t& 
+  &xt',  FORM = 'formatted', ACTION = 'write', POSITION = 'rewind')
 
-  
-  !----------------------------Testing the deallocation---------------------------
-  CALL Dealloc(TranSpec, Verbose=Verbose, Debug=Debug)
-  CALL Write(TranSpec)
+
+  !----------------------------computing of the spectra---------------------------
+  WRITE(niospec, *) "Transition Energy -------- Transition intensity"
+  DO J = 1, TranSpec%N_trstns
+    WRITE(niospec, *) TranSpec%tab_energies(J), TranSpec%tab_ints(J)
+  END DO
 
 
 END PROGRAM

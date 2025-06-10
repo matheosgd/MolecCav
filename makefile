@@ -32,6 +32,8 @@ MAIN_DIR  = APP
 # the name of the directory where to find the source file(s) of the application/exemple program
 MAIN      = App_MolecCav
 # the name of the application file without the extension
+MAIN_OUT  = $(MAIN)
+MAIN_DATA = $(MAIN)
 OBJ_DIR   = OBJ/obj
 # the name of the directory where to store the objects .o and .mod files (/obj because we might... 
 # ...want to create different sub libraries with different parameters => different obj/ directories)
@@ -192,7 +194,7 @@ UT ut: test_algebra.exe test_ND_indexes.exe test_elem_op.exe test_quantum_ho1d.e
 # ... BUT not execute anything !
 .PHONY: app APP App
 app APP App: $(MAIN).exe
-	./$(MAIN).exe < $(DATA_DIR)/data_app.nml > $(OUTPUT_DIR)/$(MAIN).log
+	./$(MAIN).exe < $(DATA_DIR)/data_$(MAIN_DATA).nml > $(OUTPUT_DIR)/$(MAIN_OUT).log
 
 
 #=================================================================================
