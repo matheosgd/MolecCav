@@ -138,7 +138,7 @@ MODULE Transition_spectrum_m
       TranSpec%tab_energies(I-1) = REigval(I) - REigval(1)  
       
       CALL Scalar_product(TranSpec%tab_ints(I-1), REigvec(:,I), DipMomt_GS)
-      TranSpec%tab_ints(I-1) = TranSpec%tab_ints(I-1)**2 !* TranSpec%tab_energies(I-1) * 4.35974E-18 / (6.62607015E-34*2.99792458E10)
+      TranSpec%tab_ints(I-1) = ABS(TranSpec%tab_ints(I-1))**2 !* TranSpec%tab_energies(I-1) * 4.35974E-18 / (6.62607015E-34*2.99792458E10)
       
       IF (Debug_local) WRITE(out_unit,*) "Transition \overrightarrow{VP}_"//TO_string(1)//" --> \overrightarrow{VP}_"//TO_strin&
       &g(I)//" = "//TO_string(TranSpec%tab_ints(I-1))

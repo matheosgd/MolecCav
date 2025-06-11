@@ -1,38 +1,39 @@
 #! /bin/bash
 
-Nb="2"
-MAIN="App_trnstn_int_ExactSmllBss" #App_trnstn_int App_trnstn_int_ExactSmllBss
+Nb="10"
+MAIN="Spec_1p1D" #App_trnstn_int App_trnstn_int_ExactSmllBss
 
-if [ ! -d "/home/segaud/MolecCav/RESULTS/int_strength/" ]                                                             # d teste l'existence du directory "<...>"
+if [ ! -d "/home/segaud/MolecCav/RESULTS/spectra/" ]                                                             # d teste l'existence du directory "<...>"
 then
-  mkdir "/home/segaud/MolecCav/RESULTS/int_strength/"
+  mkdir "/home/segaud/MolecCav/RESULTS/spectra/"
 else
-  rm -f "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
-  rm -f "/home/segaud/MolecCav/RESULTS/int_strength/int_strength_out.txt"
+  rm -f "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra.gp"
+  rm -f "/home/segaud/MolecCav/RESULTS/spectra/spectra_out.txt"
 fi
 
 cd ~/MolecCav
 make all MAIN="$MAIN"
-echo -e "reset"                                                                                     > "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
-echo -e "set term qt font \"Times, 12\""                                                           >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
-echo -e "set grid\nshow grid"                                                                   >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
-echo -e "\nConv = 219474.6 # 1Ha = Conv.cm-1"                                                      >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
-echo -e "\nset title  'Intensities = f(coupling\_strength) for resonant case (w = w_{HF}) [a.u.]'" >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
-echo -e "set xlabel 'Transition energy [Ha]'"                                                      >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
-echo -e "set ylabel 'Arbitrary units' #Coupling strength [a.u.]"                                   >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
-echo -e "\nunset xrange\nunset yrange"                                                             >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
-echo -e "min = 5.7455455693706022E-003 - 1E-4"                                                     >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
-echo -e "max = 5.9850104937492297E-003 + 1E-4"                                                     >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
-echo -e "set xrange [min*Conv:max*Conv]"                                                           >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
-echo -e "#set yrange [0.0249:0.049]"                                                               >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
-echo -e "#set key left top"                                                                        >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
-echo -e "#Gam = 1.0/Conv # 10cm-1 (line useful if plot in Ha)"                                     >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
-echo -e "Gam = 1.0       # 10cm-1 (line useful if plot in cm-1)"                                   >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
-echo -e "set samples 900\nshow samples"                                                            >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
-echo -e "L(x, x_0, Gam) = ( Gam/(2*pi) ) / ( ((Gam**2)/4) + (x-x_0*Conv)**2 )"                     >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
+echo -e "reset"                                                                                     > "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_out.gp"
+echo -e "set term qt font \"Times, 12\""                                                           >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_out.gp"
+echo -e "set grid\nshow grid"                                                                      >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_out.gp"
+echo -e "\nConv = 219474.6 # 1Ha = Conv.cm-1"                                                      >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_out.gp"
+echo -e "unset title"                                                                              >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_out.gp"
+# echo -e "\nset title  'Intensities = f(coupling\_strength) for resonant case (w = w_{HF}) [a.u.]'" >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_out.gp"
+echo -e "set xlabel 'Transition energy [Ha]'"                                                      >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_out.gp"
+echo -e "set ylabel 'Transition intensity [Arbitrary units]' #Coupling strength [a.u.]"            >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_out.gp"
+echo -e "\nunset xrange\nunset yrange"                                                             >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_out.gp"
+echo -e "min = 5.7455455693706022E-003 - 1E-4"                                                     >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_out.gp"
+echo -e "max = 5.9850104937492297E-003 + 1E-4"                                                     >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_out.gp"
+echo -e "set xrange [min*Conv:max*Conv]"                                                           >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_out.gp"
+echo -e "#set yrange [0.0249:0.049]"                                                               >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_out.gp"
+echo -e "#set key left top"                                                                        >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_out.gp"
+echo -e "#Gam = 1.0/Conv # 10cm-1 (line useful if plot in Ha)"                                     >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_out.gp"
+echo -e "Gam = 1.0       # 10cm-1 (line useful if plot in cm-1)"                                   >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_out.gp"
+echo -e "set samples 900\nshow samples"                                                            >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_out.gp"
+echo -e "L(x, x_0, Gam) = ( Gam/(2*pi) ) / ( ((Gam**2)/4) + (x-x_0*Conv)**2 )"                     >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_out.gp"
 
-echo "Coupling strength ---|------------------- Transition energy -------------------|----- Transition intensity --------|-- Summed intensities --"  > "/home/segaud/MolecCav/RESULTS/int_strength/int_strength_out.txt"
-echo "Coupling strength ---|-- GSto1 --------------------- GSto2 --------------------|-- GSto1 ----------- GSto2 --------|----- GSto1 + GSto2 ----" >> "/home/segaud/MolecCav/RESULTS/int_strength/int_strength_out.txt"
+echo "Coupling strength ---|------------------- Transition energy -------------------|----- Transition intensity --------|-- Summed intensities --"  > "/home/segaud/MolecCav/RESULTS/spectra/spectra_out.txt"
+echo "Coupling strength ---|-- GSto1 --------------------- GSto2 --------------------|-- GSto1 ----------- GSto2 --------|----- GSto1 + GSto2 ----" >> "/home/segaud/MolecCav/RESULTS/spectra/spectra_out.txt"
 
 for coupling_strength in 0.000 0.002 0.004 0.006 0.008 0.010
 do 
@@ -73,19 +74,19 @@ do
 #  Enrgy4="$(grep "Transition energy GSto4" OUT/${MAIN}.log)"
 #  Enrgy4="${Enrgy4:27}"
 
-  echo -e "\noffset = 0 #$coupling_strength*1E12"                                                                                     >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"  
+  echo -e "\noffset = 0 #$coupling_strength*1E12"                                                                                     >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_out.gp"  
   if [ "$coupling_strength" == 0.000 ]; then 
-    echo -e "  plot ( ${GSto1}*L(x, ${Enrgy1}, Gam) + ${GSto2}*L(x, ${Enrgy2}, Gam) + offset) w l lw 2 t '\lambda = 0'"               >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
+    echo -e "  plot ( ${GSto1}*L(x, ${Enrgy1}, Gam) + ${GSto2}*L(x, ${Enrgy2}, Gam) + offset) w l lw 2 t '\lambda = 0'"               >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_out.gp"
   else 
-    echo "replot ( ${GSto1}*L(x, ${Enrgy1}, Gam) + ${GSto2}*L(x, ${Enrgy2}, Gam) + offset) w l lw 2 t '\lambda = $coupling_strength'" >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
+    echo "replot ( ${GSto1}*L(x, ${Enrgy1}, Gam) + ${GSto2}*L(x, ${Enrgy2}, Gam) + offset) w l lw 2 t '\lambda = $coupling_strength'" >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_out.gp"
   fi
 
   Sum=$(echo "$GSto1+$GSto2" |bc -l)
-  echo "$coupling_strength ---------------|-- $Enrgy1 --- $Enrgy2 --|-- $GSto1 --- $GSto2 --|-- 0$Sum"                                >> "/home/segaud/MolecCav/RESULTS/int_strength/int_strength_out.txt"
+  echo "$coupling_strength ---------------|-- $Enrgy1 --- $Enrgy2 --|-- $GSto1 --- $GSto2 --|-- 0$Sum"                                >> "/home/segaud/MolecCav/RESULTS/spectra/spectra_out.txt"
 
   echo -e "\n Done testing coupling strength"
 done
 
-echo -e "\n#set key left top" >> "/home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp"
+echo -e "\n#set key left top" >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_out.gp"
 
-gnuplot -p /home/segaud/MolecCav/RESULTS/int_strength/trace_int_strength_out.gp
+gnuplot -p /home/segaud/MolecCav/RESULTS/spectra/trace_spectra_out.gp

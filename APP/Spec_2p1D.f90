@@ -44,7 +44,7 @@ PROGRAM Spec_1p1D
   TYPE(Sum_of_products_t)       :: DipMomt
 
   real(kind=Rkind)              :: Matw, Cavw, Matlambda, Cavlambda, lambda
-  integer                       :: Nb_1, Nb_2, NB, J
+  integer                       :: Nb_1, Nb_2, Nb_3, NB, J
   real(kind=Rkind), allocatable :: Phi(:)
   real(kind=Rkind), allocatable :: TotH_matrix(:,:)
   real(kind=Rkind), allocatable :: REigvec(:,:)
@@ -73,14 +73,15 @@ PROGRAM Spec_1p1D
   END IF
 
   !-------------------------System initialization-------------------------
-  CALL Get(Matw, "w", "Matter", 1)
+  CALL Get(Matw, "w", "Matter", 1) ! all matter are the same so far
   CALL Get(Cavw, "w", "Cavity", 1)
   CALL Get(Matlambda, "lambda", "Matter", 1)
   CALL Get(Cavlambda, "lambda", "Cavity", 1)
-  lambda = Matlambda * Cavlambda
+  lambda = Matlambda * Cavlambda ! used only for naming the files and as indication (not for the caculations)
   CALL Get(Nb_1, "Nb", "Matter", 1)
-  CALL Get(Nb_2, "Nb", "Cavity", 1)
-  NB = Nb_1 * Nb_2
+  CALL Get(Nb_2, "Nb", "Matter", 2)
+  CALL Get(Nb_3, "Nb", "Cavity", 1)
+  NB = Nb_1 * Nb_2 * Nb_3
 
   WRITE(out_unit,*)
   WRITE(out_unit,*) "--- System parameters :"
@@ -89,8 +90,9 @@ PROGRAM Spec_1p1D
   WRITE(out_unit,*) "Matlambda = "//TO_string(Matlambda)
   WRITE(out_unit,*) "Cavlambda = "//TO_string(Cavlambda)
   WRITE(out_unit,*) "lambda    = "//TO_string(lambda)
-  WRITE(out_unit,*) "MatNb     = "//TO_string(Nb_1)
-  WRITE(out_unit,*) "CavNb     = "//TO_string(Nb_2)
+  WRITE(out_unit,*) "Mat1Nb    = "//TO_string(Nb_1)
+  WRITE(out_unit,*) "Mat2Nb    = "//TO_string(Nb_2)
+  WRITE(out_unit,*) "CavNb     = "//TO_string(Nb_3)
 
   ALLOCATE(TotH_matrix(NB, NB))
   ALLOCATE(Phi(NB))
@@ -104,14 +106,14 @@ PROGRAM Spec_1p1D
 
   WRITE(out_unit,*)
   WRITE(out_unit,*) "*** RESULTING MATRIX OF TOTH"
-  CALL Write_Mat(TotH_matrix, out_unit, NB, info="TotH_matrix")
+  !CALL Write_Mat(TotH_matrix, out_unit, NB, info="TotH_matrix")
 
   ALLOCATE(REigval(NB))
   ALLOCATE(REigvec(NB,NB))
 
   CALL diagonalization(TotH_matrix, REigval, REigvec)
   WRITE(out_unit,*)
-  CALL Write_Vec(REigval, out_unit, 1, info="EigenEnergies")
+  !CALL Write_Vec(REigval, out_unit, 1, info="EigenEnergies")
   
 
   !----------------------------Computing of the spectra---------------------------
@@ -126,7 +128,7 @@ PROGRAM Spec_1p1D
   CALL Write_Vec(TranSpec%tab_ints,     out_unit, SIZE(TranSpec%tab_ints),     info="Transition Intensities")
 
 
-  OPEN(NEWUNIT = niospec, FILE = 'OUT/Spec_1p1D_wmat'//TO_string(REAL(Matw,kind=RkS))//'_wcav'//TO_string(REAL(Cavw,kind=RkS))//'&
+  OPEN(NEWUNIT = niospec, FILE = 'OUT/Spec_2p1D_wmat'//TO_string(REAL(Matw,kind=RkS))//'_wcav'//TO_string(REAL(Cavw,kind=RkS))//'&
   &_lamb'//TO_string(REAL(lambda,kind=RkS))//'.txt',  FORM = 'formatted', ACTION = 'write', POSITION = 'rewind')
 
 
