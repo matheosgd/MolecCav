@@ -48,13 +48,16 @@ MODULE Transition_spectrum_m
 
   PRIVATE
 
-  PUBLIC Transition_spectrum_t, Initialize, Alloc, Write, Dealloc
+  PUBLIC Transition_spectrum_t, Initialize, Alloc, Lorentzian, Write, Dealloc
 
   INTERFACE Initialize
     MODULE PROCEDURE MolecCav_Initialize_transition_matrix_0K
   END INTERFACE
   INTERFACE Alloc
     MODULE PROCEDURE MolecCav_Allocate_transition_matrix_0K
+  END INTERFACE
+  INTERFACE Lorentzian
+    MODULE PROCEDURE MolecCav_Lorentzian
   END INTERFACE
   INTERFACE Write
     MODULE PROCEDURE MolecCav_Write_transition_matrix_0K
@@ -315,6 +318,19 @@ MODULE Transition_spectrum_m
     END IF
 
   END SUBROUTINE MolecCav_Deallocate_transition_matrix_0K
+  
+  FUNCTION MolecCav_Lorentzian(x, x_0, Gamma) RESULT(L)
+    USE QDUtil_m
+    IMPLICIT NONE 
+
+    real(kind=Rkind)             :: L
+    real(kind=Rkind), intent(in) :: x
+    real(kind=Rkind), intent(in) :: x_0
+    real(kind=Rkind), intent(in) :: Gamma
+
+    L = ( Gamma/(2*PI) ) / ( ((Gamma**2)/4) + (x-x_0)**2 )
+
+  END FUNCTION MolecCav_Lorentzian
 
 
 END MODULE

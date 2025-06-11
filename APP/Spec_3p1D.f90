@@ -26,7 +26,7 @@
 ! SOFTWARE.
 !==================================================================================================
 !==================================================================================================
-PROGRAM Spec_1p1D
+PROGRAM Spec_3p1D
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
   USE QDUtil_m
   USE Algebra_m
@@ -36,15 +36,15 @@ PROGRAM Spec_1p1D
 
 
   integer                       :: Verbose = 40
-  logical                       :: Debug   = .TRUE.
-  integer                       :: niospec
+  logical                       :: Debug   = .FALSE.
+  integer                       :: nioint, niospec
 
   logical                       :: Dense   = .FALSE.
   TYPE(Sum_of_products_t)       :: TotH
   TYPE(Sum_of_products_t)       :: DipMomt
 
   real(kind=Rkind)              :: Matw, Cavw, Matlambda, Cavlambda, lambda
-  integer                       :: Nb_1, Nb_2, Nb_3, NB, J
+  integer                       :: Nb_1, Nb_2, Nb_3, Nb_4, NB, J
   real(kind=Rkind), allocatable :: Phi(:)
   real(kind=Rkind), allocatable :: TotH_matrix(:,:)
   real(kind=Rkind), allocatable :: REigvec(:,:)
@@ -54,9 +54,12 @@ PROGRAM Spec_1p1D
   integer                       :: N_states
   TYPE(Transition_spectrum_t)   :: TranSpec
 
+  real(kind=Rkind)              :: Gamma, Start_plot, Stop_plot, Step_plot, Conversion, Energy, Intensity
+  integer                       :: I
+
 
   !-------------------------Sum_of_products operators initialization-------------------------
-  CALL Initialize_totH(TotH, in_unit, Dense=Dense, Verbose=Verbose, Debug=.TRUE.)
+  CALL Initialize_totH(TotH, in_unit, Dense=Dense, Verbose=Verbose, Debug=Debug)
   IF (Debug) THEN
     WRITE(out_unit,*)
     WRITE(out_unit,*) "--------------TotH object constructed by MolecCav_Initialize_total_hamiltonian--------------"
@@ -64,7 +67,7 @@ PROGRAM Spec_1p1D
     WRITE(out_unit,*) "------------End TotH object constructed by MolecCav_Initialize_total_hamiltonian------------"
   END IF
 
-  CALL Initialize_dipmomt(DipMomt, in_unit, Dense=Dense, Verbose=Verbose, Debug=.TRUE.)
+  CALL Initialize_dipmomt(DipMomt, in_unit, Dense=Dense, Verbose=Verbose, Debug=Debug)
   IF (Debug) THEN
     WRITE(out_unit,*)
     WRITE(out_unit,*) "--------------DipMomt object constructed by MolecCav_Initialize_dipmomt--------------"
@@ -80,8 +83,9 @@ PROGRAM Spec_1p1D
   lambda = Matlambda * Cavlambda ! used only for naming the files and as indication (not for the caculations)
   CALL Get(Nb_1, "Nb", "Matter", 1)
   CALL Get(Nb_2, "Nb", "Matter", 2)
-  CALL Get(Nb_3, "Nb", "Cavity", 1)
-  NB = Nb_1 * Nb_2 * Nb_3
+  CALL Get(Nb_3, "Nb", "Matter", 3)
+  CALL Get(Nb_4, "Nb", "Cavity", 1)
+  NB = Nb_1 * Nb_2 * Nb_3 * Nb_4
 
   WRITE(out_unit,*)
   WRITE(out_unit,*) "--- System parameters :"
@@ -92,7 +96,8 @@ PROGRAM Spec_1p1D
   WRITE(out_unit,*) "lambda    = "//TO_string(lambda)
   WRITE(out_unit,*) "Mat1Nb    = "//TO_string(Nb_1)
   WRITE(out_unit,*) "Mat2Nb    = "//TO_string(Nb_2)
-  WRITE(out_unit,*) "CavNb     = "//TO_string(Nb_3)
+  WRITE(out_unit,*) "Mat3Nb    = "//TO_string(Nb_3)
+  WRITE(out_unit,*) "CavNb     = "//TO_string(Nb_4)
 
   ALLOCATE(TotH_matrix(NB, NB))
   ALLOCATE(Phi(NB))
@@ -101,7 +106,7 @@ PROGRAM Spec_1p1D
   DO J = 1, NB
     Phi = ZERO
     Phi(J) = ONE
-    CALL Action(TotH_matrix(:,J), TotH, Phi, Verbose=Verbose, Debug=.FALSE.)
+    CALL Action(TotH_matrix(:,J), TotH, Phi, Verbose=Verbose, Debug=Debug)
   END DO
 
   WRITE(out_unit,*)
@@ -121,22 +126,39 @@ PROGRAM Spec_1p1D
   ! &ug=Debug)
   ! CALL Initialize(TranSpec, REigvec, DipMomt, E_threshold=E_threshold, REigval=REigval, Nb_states=N_states, Verbose=Verbose, Deb&
   ! &ug=Debug)
-  CALL Initialize(TranSpec, REigvec, DipMomt, REigval, Nb_states=5, Verbose=Verbose, Debug=Debug)
+  CALL Initialize(TranSpec, REigvec, DipMomt, REigval, Nb_states=10, Verbose=Verbose, Debug=Debug)
 
   WRITE(out_unit,*) "Spectrum information"
   CALL Write_Vec(TranSpec%tab_energies, out_unit, SIZE(TranSpec%tab_energies), info="Transition Energies")
   CALL Write_Vec(TranSpec%tab_ints,     out_unit, SIZE(TranSpec%tab_ints),     info="Transition Intensities")
 
 
-  OPEN(NEWUNIT = niospec, FILE = 'OUT/Spec_2p1D_wmat'//TO_string(REAL(Matw,kind=RkS))//'_wcav'//TO_string(REAL(Cavw,kind=RkS))//'&
-  &_lamb'//TO_string(REAL(lambda,kind=RkS))//'.txt',  FORM = 'formatted', ACTION = 'write', POSITION = 'rewind')
+  OPEN(NEWUNIT = nioint, FILE = 'OUT/TransInts_3p1D_wmat'//TO_string(REAL(Matw,kind=RkS))//'_wcav'//TO_string(REAL(Cavw,kind=RkS)&
+  &)//'_lamb'//TO_string(REAL(lambda,kind=RkS))//'.txt',  FORM = 'formatted', ACTION = 'write', POSITION = 'rewind')
 
+  OPEN(NEWUNIT = niospec, FILE = 'OUT/Spectrum_3p1D_wmat'//TO_string(REAL(Matw,kind=RkS))//'_wcav'//TO_string(REAL(Cavw,kind=RkS)&
+  &)//'_lamb'//TO_string(REAL(lambda,kind=RkS))//'.txt',  FORM = 'formatted', ACTION = 'write', POSITION = 'rewind')
 
   !----------------------------computing of the spectra---------------------------
-  WRITE(niospec, *) "Transition Energy -------- Transition intensity"
+  WRITE(nioint, *) "Transition Energy -------- Transition intensity"
   DO J = 1, TranSpec%N_trstns
-    IF (TranSpec%tab_ints(J)>1E-10) WRITE(niospec, *) TranSpec%tab_energies(J), TranSpec%tab_ints(J)
-    IF (TranSpec%tab_ints(J)<1E-10) WRITE(niospec, *) TranSpec%tab_energies(J), 0
+    IF (TranSpec%tab_ints(J)>1E-10) WRITE(nioint, *) TranSpec%tab_energies(J), TranSpec%tab_ints(J)
+    IF (TranSpec%tab_ints(J)<1E-10) WRITE(nioint, *) TranSpec%tab_energies(J), 0
+  END DO
+
+
+  Conversion = 219474.6                       ! 1 Ha = Conversion.cm-1
+  Gamma      = 1.0                            ! => 10cm-1
+  Start_plot = 5.8154906356422710E-003 - 1E-4 ! in Ha 
+  Stop_plot  = 5.9170696435614355E-003 + 1E-4 ! in Ha
+  Step_plot  = (Stop_plot - Start_plot) / 900 ! divide by desired number of points
+
+  WRITE(niospec, *) "Energy -------- Transition intensity"
+  DO I = 1, 900
+    Energy    = (Start_plot + I*Step_plot)*Conversion
+    Intensity = TranSpec%tab_ints(1)*Lorentzian(Energy, TranSpec%tab_energies(1)*Conversion, Gamma) &
+    &         + TranSpec%tab_ints(4)*Lorentzian(Energy, TranSpec%tab_energies(4)*Conversion, Gamma)
+    WRITE(niospec, *) Energy, Intensity
   END DO
 
 

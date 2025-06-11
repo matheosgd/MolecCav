@@ -5,6 +5,8 @@ show grid
 
 File1 = '/home/segaud/MolecCav/OUT/Spec_1p1D_wmat5.86650008E-03_wcav5.86650008E-03_lamb3.00000003E-03.txt'
 File2 = '/home/segaud/MolecCav/OUT/Spec_2p1D_wmat5.86650008E-03_wcav5.86650008E-03_lamb3.00000003E-03.txt'
+File3 = '/home/segaud/MolecCav/OUT/Spec_3p1D_wmat5.86650008E-03_wcav5.86650008E-03_lamb3.00000003E-03.txt'
+
 Conv = 219474.6 # 1Ha = Conv.cm-1
 #Gam = 1.0/Conv # 10cm-1 (line useful if plot in Ha)
 Gam = 1.0       # 10cm-1 (line useful if plot in cm-1)
@@ -29,6 +31,7 @@ show samples
 
   plot File1 u 1:2 w point lw 2 title '1p1D'
 replot File2 u 1:2 w point lw 2 title '2p1D'
+replot File3 u 1:2 w point lw 2 title '3p1D'
 #  plot ( ${GSto1}*L(x, ${Enrgy1}, Gam) + ${GSto2}*L(x, ${Enrgy2}, Gam) + offset) w l lw 2 t '\lambda = 0'
 #replot ( ${GSto1}*L(x, ${Enrgy1}, Gam) + ${GSto2}*L(x, ${Enrgy2}, Gam) + offset) w l lw 2 t '\lambda = $coupling_strength'
 
