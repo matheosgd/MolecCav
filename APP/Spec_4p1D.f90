@@ -26,7 +26,7 @@
 ! SOFTWARE.
 !==================================================================================================
 !==================================================================================================
-PROGRAM Spec_3p1D
+PROGRAM Spec_4p1D
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
   USE QDUtil_m
   USE Algebra_m
@@ -43,8 +43,8 @@ PROGRAM Spec_3p1D
   TYPE(Sum_of_products_t)       :: TotH
   TYPE(Sum_of_products_t)       :: DipMomt
 
-  real(kind=Rkind)              :: Matm, Mat1w, Mat2w, Mat3w, Cavw, Matlambda, Cavlambda, lambda
-  integer                       :: Nb_1, Nb_2, Nb_3, Nb_4, NB, J
+  real(kind=Rkind)              :: Matm, Matw, Cavw, Matlambda, Cavlambda, lambda
+  integer                       :: Nb_1, Nb_2, Nb_3, Nb_4, Nb_5, NB, J
   real(kind=Rkind), allocatable :: Phi(:)
   real(kind=Rkind), allocatable :: TotH_matrix(:,:)
   real(kind=Rkind), allocatable :: REigvec(:,:)
@@ -56,7 +56,7 @@ PROGRAM Spec_3p1D
 
   real(kind=Rkind)              :: Gamma, Start_plot, Stop_plot, Step_plot, Conversion, Energy, Intensity
   integer                       :: I
-  real(kind=Rkind)              :: Nmodes(4), Ncoos(4,4)
+  real(kind=Rkind)              :: Nmodes(5), Ncoos(5,5)
 
 
   !-------------------------Sum_of_products operators initialization-------------------------
@@ -77,26 +77,23 @@ PROGRAM Spec_3p1D
   END IF
 
   !-------------------------System initialization-------------------------
-  CALL Get(Matm,  "m", "Matter", 1)
-  CALL Get(Mat1w, "w", "Matter", 1)
-  CALL Get(Mat2w, "w", "Matter", 2)
-  CALL Get(Mat3w, "w", "Matter", 3)
-  CALL Get(Cavw,  "w", "Cavity", 1)
+  CALL Get(Matm, "m", "Matter", 1)
+  CALL Get(Matw, "w", "Matter", 1) ! all matter are the same so far
+  CALL Get(Cavw, "w", "Cavity", 1)
   CALL Get(Matlambda, "lambda", "Matter", 1)
   CALL Get(Cavlambda, "lambda", "Cavity", 1)
   lambda = Matlambda * Cavlambda ! used only for naming the files and as indication (not for the caculations)
   CALL Get(Nb_1, "Nb", "Matter", 1)
   CALL Get(Nb_2, "Nb", "Matter", 2)
   CALL Get(Nb_3, "Nb", "Matter", 3)
-  CALL Get(Nb_4, "Nb", "Cavity", 1)
-  NB = Nb_1 * Nb_2 * Nb_3 * Nb_4
+  CALL Get(Nb_4, "Nb", "Matter", 4)
+  CALL Get(Nb_5, "Nb", "Cavity", 1)
+  NB = Nb_1 * Nb_2 * Nb_3 * Nb_4 * Nb_5
 
   WRITE(out_unit,*)
   WRITE(out_unit,*) "--- System parameters :"
   WRITE(out_unit,*) "Matm      = "//TO_string(Matm)
-  WRITE(out_unit,*) "Mat1w     = "//TO_string(Mat1w)
-  WRITE(out_unit,*) "Mat2w     = "//TO_string(Mat2w)
-  WRITE(out_unit,*) "Mat3w     = "//TO_string(Mat3w)
+  WRITE(out_unit,*) "Matw      = "//TO_string(Matw)
   WRITE(out_unit,*) "Cavw      = "//TO_string(Cavw)
   WRITE(out_unit,*) "Matlambda = "//TO_string(Matlambda)
   WRITE(out_unit,*) "Cavlambda = "//TO_string(Cavlambda)
@@ -104,7 +101,8 @@ PROGRAM Spec_3p1D
   WRITE(out_unit,*) "Mat1Nb    = "//TO_string(Nb_1)
   WRITE(out_unit,*) "Mat2Nb    = "//TO_string(Nb_2)
   WRITE(out_unit,*) "Mat3Nb    = "//TO_string(Nb_3)
-  WRITE(out_unit,*) "CavNb     = "//TO_string(Nb_4)
+  WRITE(out_unit,*) "Mat4Nb    = "//TO_string(Nb_4)
+  WRITE(out_unit,*) "CavNb     = "//TO_string(Nb_5)
 
   ALLOCATE(TotH_matrix(NB, NB))
   ALLOCATE(Phi(NB))
@@ -140,13 +138,11 @@ PROGRAM Spec_3p1D
   CALL Write_Vec(TranSpec%tab_ints,     out_unit, SIZE(TranSpec%tab_ints),     info="Transition Intensities")
 
 
-  OPEN(NEWUNIT = nioint, FILE = 'OUT/TransInts_3p1D_wmat'//TO_string(REAL(Mat1w,kind=RkS))//'_DTpm'//TO_string(REAL(Mat2w-Mat1w,ki&
-  &nd=RkS))//'_wcav'//TO_string(REAL(Cavw,kind=RkS))//'_lamb'//TO_string(REAL(lambda,kind=RkS))//'.txt',  FORM = 'formatted', ACT&
-  &ION = 'write', POSITION = 'rewind')
+  OPEN(NEWUNIT = nioint, FILE = 'OUT/TransInts_4p1D_wmat'//TO_string(REAL(Matw,kind=RkS))//'_wcav'//TO_string(REAL(Cavw,kind=RkS)&
+  &)//'_lamb'//TO_string(REAL(lambda,kind=RkS))//'.txt',  FORM = 'formatted', ACTION = 'write', POSITION = 'rewind')
 
-  OPEN(NEWUNIT = niospec, FILE = 'OUT/Spectrum_3p1D_wmat'//TO_string(REAL(Mat2w,kind=RkS))//'_DTpm'//TO_string(REAL(Mat2w-Mat1w,ki&
-  &nd=RkS))//'_wcav'//TO_string(REAL(Cavw,kind=RkS))//'_lamb'//TO_string(REAL(lambda,kind=RkS))//'.txt',  FORM = 'formatted', ACT&
-  &ION = 'write', POSITION = 'rewind')
+  OPEN(NEWUNIT = niospec, FILE = 'OUT/Spectrum_4p1D_wmat'//TO_string(REAL(Matw,kind=RkS))//'_wcav'//TO_string(REAL(Cavw,kind=RkS)&
+  &)//'_lamb'//TO_string(REAL(lambda,kind=RkS))//'.txt',  FORM = 'formatted', ACTION = 'write', POSITION = 'rewind')
 
   !----------------------------computing of the spectra---------------------------
   WRITE(nioint, *) "Transition Energy -------- Transition intensity"
@@ -158,39 +154,35 @@ PROGRAM Spec_3p1D
 
   Conversion = 219474.6                       ! 1 Ha = Conversion.cm-1
   Gamma      = 1.0                            ! => 10cm-1
-  Start_plot = 5.6628354945298751E-003 - 1E-4 ! in Ha 
-  Stop_plot  = 6.0818500305889461E-003 + 1E-4 ! in Ha
+  Start_plot = 5.8478370519488097E-003 - 1E-4 ! in Ha 
+  Stop_plot = 6.0844922806963676E-003 + 1E-4 ! in Ha
   Step_plot  = (Stop_plot - Start_plot) / 900 ! divide by desired number of points
 
   WRITE(niospec, *) "Energy -------- Transition intensity"
   DO I = 1, 900
     Energy    = (Start_plot + I*Step_plot)*Conversion
     Intensity = TranSpec%tab_ints(1)*Lorentzian(Energy, TranSpec%tab_energies(1)*Conversion, Gamma) &
-    &         + TranSpec%tab_ints(2)*Lorentzian(Energy, TranSpec%tab_energies(2)*Conversion, Gamma) &
     &         + TranSpec%tab_ints(4)*Lorentzian(Energy, TranSpec%tab_energies(4)*Conversion, Gamma)
     WRITE(niospec, *) Energy, Intensity
   END DO
 
 
   !----------------------------computing the Nmodes---------------------------
-  CALL Compute_normal_modes(Nmodes, Ncoos, Matm, Mat1w, Mat2w, Mat3w, Cavw, Matlambda, Cavlambda, ONE, .TRUE.)
+  CALL Compute_normal_modes(Nmodes, Ncoos, Matm, Matw, Cavw, Matlambda, Cavlambda, ONE, .TRUE.)
 
   
   CONTAINS
 
 
-  SUBROUTINE Compute_normal_modes(Nmodes_l, Ncoos_l, Matm_l, Mat1w_l, Mat2w_l, Mat3w_l, Cavw_l, Matlambda_l, Cavlambda_l, &
-    &CoeffDipMomt_l, Debug_l)
+  SUBROUTINE Compute_normal_modes(Nmodes_l, Ncoos_l, Matm_l, Matw_l, Cavw_l, Matlambda_l, Cavlambda_l, CoeffDipMomt_l, Debug_l)
     USE QDUtil_m
     USE Cavity_mode_old_m
     IMPLICIT NONE 
 
-    real(kind=Rkind),  intent(inout) :: Nmodes_l(4)                      ! VP of the MWH
-    real(kind=Rkind),  intent(inout) :: Ncoos_l(4,4)                     ! \overrightarrow{VP} of the MWH
+    real(kind=Rkind),  intent(inout) :: Nmodes_l(5)                      ! VP of the MWH
+    real(kind=Rkind),  intent(inout) :: Ncoos_l(5,5)                     ! \overrightarrow{VP} of the MWH
     real(kind=Rkind),  intent(in)    :: Matm_l
-    real(kind=Rkind),  intent(in)    :: Mat1w_l
-    real(kind=Rkind),  intent(in)    :: Mat2w_l
-    real(kind=Rkind),  intent(in)    :: Mat3w_l
+    real(kind=Rkind),  intent(in)    :: Matw_l
     real(kind=Rkind),  intent(in)    :: Cavw_l
     real(kind=Rkind),  intent(in)    :: Matlambda_l 
     real(kind=Rkind),  intent(in)    :: Cavlambda_l
@@ -200,8 +192,9 @@ PROGRAM Spec_3p1D
     real(kind=Rkind)                 :: Cross_1
     real(kind=Rkind)                 :: Cross_2
     real(kind=Rkind)                 :: Cross_3
-    real(kind=Rkind)                 :: MWH(4,4)
-    logical                          :: Debug_local = .TRUE.
+    real(kind=Rkind)                 :: Cross_4
+    real(kind=Rkind)                 :: MWH(5,5)
+    logical                          :: Debug_local
 
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
@@ -212,9 +205,7 @@ PROGRAM Spec_3p1D
       WRITE(out_unit,*)
       WRITE(out_unit,*) "--- Parameters for the mass-weightened Hessian :"
       WRITE(out_unit,*) "Matm      = "//TO_string(Matm_l)
-      WRITE(out_unit,*) "Mat1w     = "//TO_string(Mat1w_l)
-      WRITE(out_unit,*) "Mat2w     = "//TO_string(Mat2w_l)
-      WRITE(out_unit,*) "Mat3w     = "//TO_string(Mat3w_l)
+      WRITE(out_unit,*) "Matw      = "//TO_string(Matw_l)
       WRITE(out_unit,*) "Cavw      = "//TO_string(Cavw_l)
       WRITE(out_unit,*) "Matlambda = "//TO_string(Matlambda_l)
       WRITE(out_unit,*) "Cavlambda = "//TO_string(Cavlambda_l)
@@ -227,17 +218,21 @@ PROGRAM Spec_3p1D
     Cross_1  = Cavlambda_l*Matlambda_l*Cavw_l*CoeffDipMomt_l / SQRT(Matm_l)
     Cross_2  = Cavlambda_l*Matlambda_l*Cavw_l*CoeffDipMomt_l / SQRT(Matm_l)
     Cross_3  = Cavlambda_l*Matlambda_l*Cavw_l*CoeffDipMomt_l / SQRT(Matm_l)
+    Cross_4  = Cavlambda_l*Matlambda_l*Cavw_l*CoeffDipMomt_l / SQRT(Matm_l)
     MWH      = ZERO
-    MWH(1,1) = Mat1w**2
-    MWH(2,2) = Mat2w**2
-    MWH(3,3) = Mat3w**2
-    MWH(4,4) = Cavw**2
-    MWH(1,4) = Cross_1
-    MWH(4,1) = MWH(1,4)
-    MWH(2,4) = Cross_2
-    MWH(4,2) = MWH(2,4)
-    MWH(3,4) = Cross_3
-    MWH(4,3) = MWH(3,4)
+    MWH(1,1) = Matw**2
+    MWH(2,2) = Matw**2
+    MWH(3,3) = Matw**2
+    MWH(4,4) = Matw**2
+    MWH(5,5) = Cavw**2
+    MWH(1,5) = Cross_1
+    MWH(5,1) = MWH(1,5)
+    MWH(2,5) = Cross_2
+    MWH(5,2) = MWH(2,5)
+    MWH(3,5) = Cross_3
+    MWH(5,3) = MWH(3,5)
+    MWH(4,5) = Cross_4
+    MWH(5,4) = MWH(3,5)
 
     IF (Debug_local) THEN
       CALL Write_Mat(MWH, out_unit, Size(MWH, dim=2), info="MWH")

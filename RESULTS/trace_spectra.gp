@@ -3,9 +3,17 @@ set term qt font "Times, 12"
 unset grid
 show grid
 
+#--- Full reso
 File1 = '/home/segaud/MolecCav/OUT/Spectrum_1p1D_wmat5.86650008E-03_wcav5.86650008E-03_lamb3.00000003E-03.txt'
-File2 = '/home/segaud/MolecCav/OUT/Spectrum_2p1D_wmat5.86650008E-03_wcav5.86650008E-03_lamb3.00000003E-03.txt'
-File3 = '/home/segaud/MolecCav/OUT/Spectrum_3p1D_wmat5.86650008E-03_wcav5.86650008E-03_lamb3.00000003E-03.txt'
+#File2 = '/home/segaud/MolecCav/OUT/Spectrum_2p1D_wmat5.86650008E-03_wcav5.86650008E-03_lamb3.00000003E-03.txt'
+#File3 = '/home/segaud/MolecCav/OUT/Spectrum_3p1D_wmat5.86650008E-03_wcav5.86650008E-03_lamb3.00000003E-03.txt'
+#--- Cavity detuned
+#File1 = '/home/segaud/MolecCav/OUT/Spectrum_1p1D_wmat5.86650008E-03_wcav6.06650021E-03_lamb3.00000003E-03.txt'
+#File2 = '/home/segaud/MolecCav/OUT/Spectrum_2p1D_wmat5.86650008E-03_wcav6.06650021E-03_lamb3.00000003E-03.txt'
+#File3 = '/home/segaud/MolecCav/OUT/Spectrum_3p1D_wmat5.86650008E-03_wcav6.06650021E-03_lamb3.00000003E-03.txt'
+#--- Matter detuned
+File2 = '/home/segaud/MolecCav/OUT/Spectrum_2p1D_wmat5.86650008E-03_DTpm9.99999975E-05_wcav5.86650008E-03_lamb3.00000003E-03.txt'
+File3 = '/home/segaud/MolecCav/OUT/Spectrum_3p1D_wmat5.86650008E-03_DTpm9.99999975E-05_wcav5.86650008E-03_lamb3.00000003E-03.txt'
 
 offset = 0 #coupling_strength*1E12
 

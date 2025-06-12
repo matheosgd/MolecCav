@@ -43,7 +43,7 @@ PROGRAM Spec_2p1D
   TYPE(Sum_of_products_t)       :: TotH
   TYPE(Sum_of_products_t)       :: DipMomt
 
-  real(kind=Rkind)              :: Matm, Matw, Cavw, Matlambda, Cavlambda, lambda
+  real(kind=Rkind)              :: Matm, Mat1w, Mat2w, Cavw, Matlambda, Cavlambda, lambda
   integer                       :: Nb_1, Nb_2, Nb_3, NB, J
   real(kind=Rkind), allocatable :: Phi(:)
   real(kind=Rkind), allocatable :: TotH_matrix(:,:)
@@ -77,9 +77,10 @@ PROGRAM Spec_2p1D
   END IF
 
   !-------------------------System initialization-------------------------
-  CALL Get(Matm, "m", "Matter", 1)
-  CALL Get(Matw, "w", "Matter", 1) ! all matter are the same so far
-  CALL Get(Cavw, "w", "Cavity", 1)
+  CALL Get(Matm,  "m", "Matter", 1)
+  CALL Get(Mat1w, "w", "Matter", 1) ! all matter are the same so far
+  CALL Get(Mat2w, "w", "Matter", 2) ! all matter are the same so far
+  CALL Get(Cavw,  "w", "Cavity", 1)
   CALL Get(Matlambda, "lambda", "Matter", 1)
   CALL Get(Cavlambda, "lambda", "Cavity", 1)
   lambda = Matlambda * Cavlambda ! used only for naming the files and as indication (not for the caculations)
@@ -91,7 +92,8 @@ PROGRAM Spec_2p1D
   WRITE(out_unit,*)
   WRITE(out_unit,*) "--- System parameters :"
   WRITE(out_unit,*) "Matm      = "//TO_string(Matm)
-  WRITE(out_unit,*) "Matw      = "//TO_string(Matw)
+  WRITE(out_unit,*) "Mat1w     = "//TO_string(Mat1w)
+  WRITE(out_unit,*) "Mat2w     = "//TO_string(Mat2w)
   WRITE(out_unit,*) "Cavw      = "//TO_string(Cavw)
   WRITE(out_unit,*) "Matlambda = "//TO_string(Matlambda)
   WRITE(out_unit,*) "Cavlambda = "//TO_string(Cavlambda)
@@ -134,11 +136,14 @@ PROGRAM Spec_2p1D
   CALL Write_Vec(TranSpec%tab_ints,     out_unit, SIZE(TranSpec%tab_ints),     info="Transition Intensities")
 
 
-  OPEN(NEWUNIT = nioint, FILE = 'OUT/TransInts_2p1D_wmat'//TO_string(REAL(Matw,kind=RkS))//'_wcav'//TO_string(REAL(Cavw,kind=RkS)&
-  &)//'_lamb'//TO_string(REAL(lambda,kind=RkS))//'.txt',  FORM = 'formatted', ACTION = 'write', POSITION = 'rewind')
+  OPEN(NEWUNIT = nioint, FILE = 'OUT/TransInts_2p1D_wmat'//TO_string(REAL(Mat1w,kind=RkS))//'_DTpm'//TO_string(REAL(Mat2w-Mat1w,ki&
+  &nd=RkS))//'_wcav'//TO_string(REAL(Cavw,kind=RkS))//'_lamb'//TO_string(REAL(lambda,kind=RkS))//'.txt',  FORM = 'formatted', ACT&
+  &ION = 'write', POSITION = 'rewind')
 
-  OPEN(NEWUNIT = niospec, FILE = 'OUT/Spectrum_2p1D_wmat'//TO_string(REAL(Matw,kind=RkS))//'_wcav'//TO_string(REAL(Cavw,kind=RkS)&
-  &)//'_lamb'//TO_string(REAL(lambda,kind=RkS))//'.txt',  FORM = 'formatted', ACTION = 'write', POSITION = 'rewind')
+  OPEN(NEWUNIT = niospec, FILE = 'OUT/Spectrum_2p1D_wmat'//TO_string(REAL(Mat1w,kind=RkS))//'_DTpm'//TO_string(REAL(Mat2w-Mat1w,ki&
+  &nd=RkS))//'_wcav'//TO_string(REAL(Cavw,kind=RkS))//'_lamb'//TO_string(REAL(lambda,kind=RkS))//'.txt',  FORM = 'formatted', ACT&
+  &ION = 'write', POSITION = 'rewind')
+
 
   !----------------------------computing of the spectra---------------------------
   WRITE(nioint, *) "Transition Energy -------- Transition intensity"
@@ -150,26 +155,28 @@ PROGRAM Spec_2p1D
 
   Conversion = 219474.6                       ! 1 Ha = Conversion.cm-1
   Gamma      = 1.0                            ! => 10cm-1
-  Start_plot = 5.8154906356422710E-003 - 1E-4 ! in Ha 
-  Stop_plot  = 5.9170696435614355E-003 + 1E-4 ! in Ha
+  Start_plot = 5.6628354945298751E-003 - 1E-4 ! in Ha 
+  Stop_plot  = 6.0818500305889461E-003 + 1E-4 ! in Ha
   Step_plot  = (Stop_plot - Start_plot) / 900 ! divide by desired number of points
 
   WRITE(niospec, *) "Energy -------- Transition intensity"
   DO I = 1, 900
     Energy    = (Start_plot + I*Step_plot)*Conversion
     Intensity = TranSpec%tab_ints(1)*Lorentzian(Energy, TranSpec%tab_energies(1)*Conversion, Gamma) &
+    &         + TranSpec%tab_ints(2)*Lorentzian(Energy, TranSpec%tab_energies(2)*Conversion, Gamma) &
     &         + TranSpec%tab_ints(3)*Lorentzian(Energy, TranSpec%tab_energies(3)*Conversion, Gamma)
     WRITE(niospec, *) Energy, Intensity
   END DO
 
   !----------------------------computing the Nmodes---------------------------
-  CALL Compute_normal_modes(Nmodes, Ncoos, Matm, Matw, Cavw, Matlambda, Cavlambda, ONE, .TRUE.)
+  CALL Compute_normal_modes(Nmodes, Ncoos, Matm, Mat1w, Mat2w, Cavw, Matlambda, Cavlambda, ONE, .TRUE.)
 
   
   CONTAINS
 
 
-  SUBROUTINE Compute_normal_modes(Nmodes_l, Ncoos_l, Matm_l, Matw_l, Cavw_l, Matlambda_l, Cavlambda_l, CoeffDipMomt_l, Debug_l)
+  SUBROUTINE Compute_normal_modes(Nmodes_l, Ncoos_l, Matm_l, Mat1w_l, Mat2w_l, Cavw_l, Matlambda_l, Cavlambda_l, CoeffDipMomt_l, &
+    &Debug_l)
     USE QDUtil_m
     USE Cavity_mode_old_m
     IMPLICIT NONE 
@@ -177,7 +184,8 @@ PROGRAM Spec_2p1D
     real(kind=Rkind),  intent(inout) :: Nmodes_l(3)                             ! VP of the MWH
     real(kind=Rkind),  intent(inout) :: Ncoos_l(3,3)                     ! \overrightarrow{VP} of the MWH
     real(kind=Rkind),  intent(in)    :: Matm_l
-    real(kind=Rkind),  intent(in)    :: Matw_l
+    real(kind=Rkind),  intent(in)    :: Mat1w_l
+    real(kind=Rkind),  intent(in)    :: Mat2w_l
     real(kind=Rkind),  intent(in)    :: Cavw_l
     real(kind=Rkind),  intent(in)    :: Matlambda_l 
     real(kind=Rkind),  intent(in)    :: Cavlambda_l
@@ -198,7 +206,8 @@ PROGRAM Spec_2p1D
       WRITE(out_unit,*)
       WRITE(out_unit,*) "--- Parameters for the mass-weightened Hessian :"
       WRITE(out_unit,*) "Matm      = "//TO_string(Matm_l)
-      WRITE(out_unit,*) "Matw      = "//TO_string(Matw_l)
+      WRITE(out_unit,*) "Mat1w     = "//TO_string(Mat1w_l)
+      WRITE(out_unit,*) "Mat2w     = "//TO_string(Mat2w_l)
       WRITE(out_unit,*) "Cavw      = "//TO_string(Cavw_l)
       WRITE(out_unit,*) "Matlambda = "//TO_string(Matlambda_l)
       WRITE(out_unit,*) "Cavlambda = "//TO_string(Cavlambda_l)
@@ -208,11 +217,12 @@ PROGRAM Spec_2p1D
 
 
     !------------------------------------------------------Computing-----------------------------------------------------
-    Cross_1  = Cavlambda_l*Matlambda_l*Cavw_l*CoeffDipMomt_l / SQRT(Matm_l)
-    Cross_2  = Cavlambda_l*Matlambda_l*Cavw_l*CoeffDipMomt_l / SQRT(Matm_l)
+    Cross_1  = Cavlambda_l*Matlambda_l*Cavw_l*          CoeffDipMomt_l / SQRT(Matm_l)
+    Cross_2  = Cavlambda_l*Matlambda_l*Cavw_l*          CoeffDipMomt_l / SQRT(Matm_l)
+    ! Cross_2  = Cavlambda_l*Matlambda_l*Cavw_l*(1+0.2)*CoeffDipMomt_l / SQRT(Matm_l)
     MWH      = ZERO
-    MWH(1,1) = Matw**2
-    MWH(2,2) = Matw**2
+    MWH(1,1) = Mat1w**2
+    MWH(2,2) = Mat2w**2
     MWH(3,3) = Cavw**2
     MWH(1,3) = Cross_1
     MWH(3,1) = MWH(1,3)
