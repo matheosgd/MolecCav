@@ -56,7 +56,8 @@ MODULE Operator_ND_m
 
   PRIVATE
 
-  PUBLIC Operator_ND_t, Initialize, Action, Get, Write, Dealloc
+  PUBLIC Operator_ND_t, Initialize, Action, Get, Write, Dealloc&
+  &, tab_mat_ops
 
   INTERFACE Initialize
     MODULE PROCEDURE MolecCav_Initialize_operator_ND

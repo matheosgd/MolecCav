@@ -168,6 +168,9 @@ MODULE Cavity_mode_m
     END IF
     
       !---------------Construction of the Quantum_HO1D_t type object-----------
+    IF (PRESENT(Dense)) THEN; Dense_local = Dense
+    ELSE; Dense_local = .FALSE.; END IF
+
     CALL Initialize(CavMode%Quantum_HO1D_t, Nb, w, m, Nb_op=4, Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local)
     !### TEMPORARY ###
     CavMode%Nq      = Nq ! so far they are not affected in the Initialize_quantum_HO1D, which takes care of representations upon the basis, later these 3 lines will be in a sub in QHO1D_m
