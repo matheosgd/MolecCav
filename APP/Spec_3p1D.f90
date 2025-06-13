@@ -140,7 +140,7 @@ PROGRAM Spec_3p1D
   CALL Write_Vec(TranSpec%tab_ints,     out_unit, SIZE(TranSpec%tab_ints),     info="Transition Intensities")
 
 
-  OPEN(NEWUNIT = nioint, FILE = 'OUT/TransInts_3p1D_wmat'//TO_string(REAL(Mat1w,kind=RkS))//'_DTpm'//TO_string(REAL(Mat2w-Mat1w,ki&
+  OPEN(NEWUNIT = nioint, FILE = 'OUT/TransInts_3p1D_wmat'//TO_string(REAL(Mat2w,kind=RkS))//'_DTpm'//TO_string(REAL(Mat2w-Mat1w,ki&
   &nd=RkS))//'_wcav'//TO_string(REAL(Cavw,kind=RkS))//'_lamb'//TO_string(REAL(lambda,kind=RkS))//'.txt',  FORM = 'formatted', ACT&
   &ION = 'write', POSITION = 'rewind')
 
@@ -158,8 +158,8 @@ PROGRAM Spec_3p1D
 
   Conversion = 219474.6                       ! 1 Ha = Conversion.cm-1
   Gamma      = 1.0                            ! => 10cm-1
-  Start_plot = 5.6628354945298751E-003 - 1E-4 ! in Ha 
-  Stop_plot  = 6.0818500305889461E-003 + 1E-4 ! in Ha
+  Start_plot = 5.6596037240660320E-003 - 1E-4 ! in Ha 
+  Stop_plot  = 6.0844922806963676E-003 + 1E-4 ! in Ha
   Step_plot  = (Stop_plot - Start_plot) / 900 ! divide by desired number of points
 
   WRITE(niospec, *) "Energy -------- Transition intensity"
@@ -167,6 +167,7 @@ PROGRAM Spec_3p1D
     Energy    = (Start_plot + I*Step_plot)*Conversion
     Intensity = TranSpec%tab_ints(1)*Lorentzian(Energy, TranSpec%tab_energies(1)*Conversion, Gamma) &
     &         + TranSpec%tab_ints(2)*Lorentzian(Energy, TranSpec%tab_energies(2)*Conversion, Gamma) &
+    &         + TranSpec%tab_ints(3)*Lorentzian(Energy, TranSpec%tab_energies(3)*Conversion, Gamma) &
     &         + TranSpec%tab_ints(4)*Lorentzian(Energy, TranSpec%tab_energies(4)*Conversion, Gamma)
     WRITE(niospec, *) Energy, Intensity
   END DO

@@ -4,21 +4,28 @@ unset grid
 show grid
 
 #--- Full reso
-File1 = '/home/segaud/MolecCav/OUT/Spectrum_1p1D_wmat5.86650008E-03_wcav5.86650008E-03_lamb3.00000003E-03.txt'
-#File2 = '/home/segaud/MolecCav/OUT/Spectrum_2p1D_wmat5.86650008E-03_wcav5.86650008E-03_lamb3.00000003E-03.txt'
-#File3 = '/home/segaud/MolecCav/OUT/Spectrum_3p1D_wmat5.86650008E-03_wcav5.86650008E-03_lamb3.00000003E-03.txt'
+#File1 = '/home/segaud/MolecCav/OUT/Spectrum_1p1D_wmat5.86650008E-03_wcav5.86650008E-03_lamb3.00000003E-03.txt'
+#File2 = '/home/segaud/MolecCav/OUT/Spectrum_2p1D_wmat5.86650008E-03_DTpm0._wcav5.86650008E-03_lamb3.00000003E-03.txt'
+#File3 = '/home/segaud/MolecCav/OUT/Spectrum_3p1D_wmat5.86650008E-03_DTpm0._wcav5.86650008E-03_lamb3.00000003E-03.txt'
 #--- Cavity detuned
 #File1 = '/home/segaud/MolecCav/OUT/Spectrum_1p1D_wmat5.86650008E-03_wcav6.06650021E-03_lamb3.00000003E-03.txt'
-#File2 = '/home/segaud/MolecCav/OUT/Spectrum_2p1D_wmat5.86650008E-03_wcav6.06650021E-03_lamb3.00000003E-03.txt'
-#File3 = '/home/segaud/MolecCav/OUT/Spectrum_3p1D_wmat5.86650008E-03_wcav6.06650021E-03_lamb3.00000003E-03.txt'
-#--- Matter detuned
-File2 = '/home/segaud/MolecCav/OUT/Spectrum_2p1D_wmat5.86650008E-03_DTpm9.99999975E-05_wcav5.86650008E-03_lamb3.00000003E-03.txt'
-File3 = '/home/segaud/MolecCav/OUT/Spectrum_3p1D_wmat5.86650008E-03_DTpm9.99999975E-05_wcav5.86650008E-03_lamb3.00000003E-03.txt'
+#File2 = '/home/segaud/MolecCav/OUT/Spectrum_2p1D_wmat5.86650008E-03_DTpm0._wcav6.06650021E-03_lamb3.00000003E-03.txt'
+#File3 = '/home/segaud/MolecCav/OUT/Spectrum_3p1D_wmat5.86650008E-03_DTpm0._wcav6.06650021E-03_lamb3.00000003E-03.txt'
+#--- Matter detuned DTmat = 1E-4
+#File2 = '/home/segaud/MolecCav/OUT/Spectrum_2p1D_wmat5.86650008E-03_DTpm9.99999975E-05_wcav5.86650008E-03_lamb3.00000003E-03.txt'
+#File3 = '/home/segaud/MolecCav/OUT/Spectrum_3p1D_wmat5.86650008E-03_DTpm9.99999975E-05_wcav5.86650008E-03_lamb3.00000003E-03.txt'
+#--- Matter detuned DTmat = 2E-4
+#File2 = '/home/segaud/MolecCav/OUT/Spectrum_2p1D_wmat5.86650008E-03_DTpm1.99999995E-04_wcav5.86650008E-03_lamb3.00000003E-03.txt'
+#File3 = '/home/segaud/MolecCav/OUT/Spectrum_3p1D_wmat5.86650008E-03_DTpm1.99999995E-04_wcav5.86650008E-03_lamb3.00000003E-03.txt'
+#--- Anar
+File1 = '/home/segaud/MolecCav/OUT/Spectrum_ANAR_1p1D_wmat5.86650008E-03_wcav5.86650008E-03_lamb3.00000003E-03.txt'
+File2 = '/home/segaud/MolecCav/OUT/Spectrum_ANAR_2p1D_wmat5.86650008E-03_DTpm9.99999975E-05_wcav5.86650008E-03_lamb3.00000003E-03.txt'
+
 
 offset = 0 #coupling_strength*1E12
 
 unset title #set title  'Intensities = f(coupling\_strength) for resonant case (w = w_{HF}) [a.u.]'
-set xlabel 'Transition energy [Ha]'
+set xlabel 'Transition energy [cm-1]'
 set ylabel 'Transition intensity [Arbitrary units]' #Coupling strength [a.u.]
 
 unset xrange

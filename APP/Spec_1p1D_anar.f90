@@ -109,9 +109,10 @@ PROGRAM Spec_1p1D_anar
   WRITE(out_unit,*) "### err_io = "//TO_string(err_io)
 
   ALLOCATE(H_anar_in(30,30))
-  ALLOCATE(H_anar(Nb_1,Nb_1))
   CALL Read_Mat(H_anar_in, nioHanar, 5, err_io)
   WRITE(out_unit,*) "### err_io = "//TO_string(err_io)
+
+  ALLOCATE(H_anar(Nb_1,Nb_1))
   H_anar = H_anar_in(1:Nb_1, 1:Nb_1)
   CALL Write_Mat(H_anar, out_unit, SIZE(H_anar, dim=2), info="H_anar")
 
@@ -120,10 +121,6 @@ PROGRAM Spec_1p1D_anar
   CALL diagonalization(H_anar, AnarREigval, AnarREigvec)
   WRITE(out_unit,*)
   CALL Write_Vec(AnarREigval, out_unit, 1, info="MatH_anar EigenEnergies [Ha]")
-
-  ALLOCATE(TotH_matrix(NB, NB))
-  ALLOCATE(Phi(NB))
-  TotH_matrix = ZERO
 
   WRITE(out_unit,*)
   WRITE(out_unit,*) "--- HARMONIC tab_mat_ops"
@@ -135,6 +132,10 @@ PROGRAM Spec_1p1D_anar
   DO I=1, SIZE(tab_mat_ops)
     CALL Write(tab_mat_ops(I))
   END DO
+
+  ALLOCATE(TotH_matrix(NB, NB))
+  ALLOCATE(Phi(NB))
+  TotH_matrix = ZERO
 
   DO J = 1, NB
     Phi = ZERO
@@ -180,17 +181,32 @@ PROGRAM Spec_1p1D_anar
   END DO
 
 
-  Conversion = 219474.6                       ! 1 Ha = Conversion.cm-1
-  Gamma      = 1.0                            ! => 10cm-1
-  Start_plot = 5.6628354945298751E-003 - 1E-4 ! in Ha 
-  Stop_plot  = 6.0818500305889461E-003 + 1E-4 ! in Ha
-  Step_plot  = (Stop_plot - Start_plot) / 900 ! divide by desired number of points
+  Conversion = 219474.6                        ! 1 Ha = Conversion.cm-1
+  Gamma      = 1.0                             ! => 10cm-1
+  ! Start_plot = 5.8661769977076117E-003 - 1E-4  ! in Ha 
+  ! Stop_plot  = 2.9871171804932286E-002 + 1E-4  ! in Ha
+  Start_plot = 1.8066373683172807E-002 - 1E-4  ! in Ha 
+  Stop_plot  = 1.8066373683172807E-002 + 1E-4  ! in Ha
+  Step_plot  = (Stop_plot - Start_plot) / 9000 ! divide by desired number of points
 
   WRITE(niospec, *) "Energy -------- Transition intensity"
-  DO I = 1, 900
+  DO I = 1, 9000
     Energy    = (Start_plot + I*Step_plot)*Conversion
+!######### stretching #############
+    ! Intensity = TranSpec%tab_ints(1)*1E4*Lorentzian(Energy, TranSpec%tab_energies(1)*Conversion, Gamma) &
+    ! &         + TranSpec%tab_ints(4)*1E0*Lorentzian(Energy, TranSpec%tab_energies(4)*Conversion, Gamma) &
+    ! &         + TranSpec%tab_ints(6)*1E5*Lorentzian(Energy, TranSpec%tab_energies(6)*Conversion, Gamma) &
+    ! &         + TranSpec%tab_ints(8)*1E2*Lorentzian(Energy, TranSpec%tab_energies(8)*Conversion, Gamma)
+!##################################
     Intensity = TranSpec%tab_ints(1)*Lorentzian(Energy, TranSpec%tab_energies(1)*Conversion, Gamma) &
-    &         + TranSpec%tab_ints(2)*Lorentzian(Energy, TranSpec%tab_energies(2)*Conversion, Gamma)
+    &         + TranSpec%tab_ints(2)*Lorentzian(Energy, TranSpec%tab_energies(2)*Conversion, Gamma) &
+    &         + TranSpec%tab_ints(3)*Lorentzian(Energy, TranSpec%tab_energies(3)*Conversion, Gamma) &
+    &         + TranSpec%tab_ints(4)*Lorentzian(Energy, TranSpec%tab_energies(4)*Conversion, Gamma) &
+    &         + TranSpec%tab_ints(5)*Lorentzian(Energy, TranSpec%tab_energies(5)*Conversion, Gamma) &
+    &         + TranSpec%tab_ints(6)*Lorentzian(Energy, TranSpec%tab_energies(6)*Conversion, Gamma) &
+    &         + TranSpec%tab_ints(7)*Lorentzian(Energy, TranSpec%tab_energies(7)*Conversion, Gamma) &
+    &         + TranSpec%tab_ints(8)*Lorentzian(Energy, TranSpec%tab_energies(8)*Conversion, Gamma) &
+    &         + TranSpec%tab_ints(9)*Lorentzian(Energy, TranSpec%tab_energies(9)*Conversion, Gamma)
     WRITE(niospec, *) Energy, Intensity
   END DO
 
