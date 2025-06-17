@@ -149,18 +149,8 @@ PROGRAM Spec_Nphs
 
   Conversion = 219474.6                         ! 1 Ha = Conversion.cm-1
   Gamma      = 1.0                              ! => 10cm-1
-  ! ALL
   Start_plot = 5.8304771453041417E-003 - 1E-4   ! in Ha 
-  Stop_plot  = 1.7599518319930851E-002 + 1E-4   ! in Ha
-  ! 1 PH
-  ! Start_plot = 5.8304771453041417E-003 - 1E-4   ! in Ha 
-  ! Stop_plot  = 5.9023030045979455E-003 + 1E-4   ! in Ha
-  ! 2 PH
-  ! Start_plot = 1.1733073278483892E-002 - 1E-4   ! in Ha 
-  ! Stop_plot  = 1.1733073278483892E-002 + 1E-4   ! in Ha
-  ! 3 PH
-  ! Start_plot = 1.7599518319930851E-002 - 1E-4   ! in Ha 
-  ! Stop_plot  = 1.7599518319930851E-002 + 1E-4   ! in Ha
+  Stop_plot  = 1.7599664875601821E-002 + 1E-4   ! in Ha
   Step_plot  = (Stop_plot - Start_plot) / 100000 ! divide by desired number of points
 
   WRITE(niospec, *) "Energy -------- Transition intensity"

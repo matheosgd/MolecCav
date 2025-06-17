@@ -148,16 +148,23 @@ PROGRAM Spec_1p1D
 
   Conversion = 219474.6                       ! 1 Ha = Conversion.cm-1
   Gamma      = 1.0                            ! => 10cm-1
-  Start_plot = 5.6596037240660320E-003 - 1E-4 ! in Ha 
-  Stop_plot  = 6.0844922806963676E-003 + 1E-4 ! in Ha
+  Start_plot = 1.8794295214982763E-002 - 1E-4 ! in Ha 
+  Stop_plot  = 1.8986432304458810E-002 + 1E-4 ! in Ha
   Step_plot  = (Stop_plot - Start_plot) / 900 ! divide by desired number of points
 
   WRITE(niospec, *) "Energy -------- Transition intensity"
   DO I = 1, 900
     Energy    = (Start_plot + I*Step_plot)*Conversion
     Intensity = TranSpec%tab_ints(1)*Lorentzian(Energy, TranSpec%tab_energies(1)*Conversion, Gamma) &
-    &         + TranSpec%tab_ints(2)*Lorentzian(Energy, TranSpec%tab_energies(2)*Conversion, Gamma)
-    WRITE(niospec, *) Energy, Intensity
+    &         + TranSpec%tab_ints(2)*Lorentzian(Energy, TranSpec%tab_energies(2)*Conversion, Gamma) &
+    &         + TranSpec%tab_ints(3)*Lorentzian(Energy, TranSpec%tab_energies(3)*Conversion, Gamma) &
+    &         + TranSpec%tab_ints(4)*Lorentzian(Energy, TranSpec%tab_energies(4)*Conversion, Gamma) &
+    &         + TranSpec%tab_ints(5)*Lorentzian(Energy, TranSpec%tab_energies(5)*Conversion, Gamma) &
+    &         + TranSpec%tab_ints(6)*Lorentzian(Energy, TranSpec%tab_energies(6)*Conversion, Gamma) &
+    &         + TranSpec%tab_ints(7)*Lorentzian(Energy, TranSpec%tab_energies(7)*Conversion, Gamma) &
+    &         + TranSpec%tab_ints(8)*Lorentzian(Energy, TranSpec%tab_energies(8)*Conversion, Gamma) &
+    &         + TranSpec%tab_ints(9)*Lorentzian(Energy, TranSpec%tab_energies(9)*Conversion, Gamma)
+    WRITE(niospec, *) Energy, Intensity, 0.0
   END DO
 
   !----------------------------computing the Nmodes---------------------------

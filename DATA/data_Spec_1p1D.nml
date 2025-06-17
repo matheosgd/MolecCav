@@ -8,7 +8,7 @@ N_cav = 1
 lambda =  0.05477225575051661 ! 6.32e-2   !Strength parameter of the coupling between the mode D and the molecule
 CoeffsDipMomt = 0.0, 1.0, 0.0,  0.0,  0.0 !The n-derivatives of the matter dipole moment with respect to this mode's DOF i.e. the coefficients of its Taylor expansion
 Nb = 5                                   !Number of basis vectors associated with the HO D
-w = 0.0058665                             !Eigenpulsation associated with the HO D (maybe HF molecule : 0.005866505831680149)
+w = 0.0188566                              !Eigenpulsation associated with the HO D (maybe HF molecule : 0.0188566 )
 m = 1744.60504565                         !Mass associated with the HO D
 Nq = 1
 Eq_pos = 0.0                              !Equilibrium position of the HO
@@ -18,7 +18,7 @@ Scale_q = 0.0
 &Cavity_mode
 lambda =  0.05477225575051661 ! 6.32e-2   !Strength parameter of the coupling between the mode D and the molecule
 Nb = 5                                    !Number of basis vectors associated with the HO D
-w = 0.0058665                             !Eigenpulsation associated with the HO D (maybe HF molecule : 0.005866505831680149)
+w = 0.0188566                              !Eigenpulsation associated with the HO D (maybe HF molecule : 0.0188566 )
 m = 1.0                                   !Mass associated with the HO D
 Nq = 1
 Eq_pos = 0.0                              !Equilibrium position of the HO

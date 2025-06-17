@@ -4,22 +4,23 @@ unset grid
 show grid
 
 #--- Full reso
-#File1 = '/home/segaud/MolecCav/OUT/Spectrum_1p1D_wmat5.86650008E-03_wcav5.86650008E-03_lamb3.00000003E-03.txt'
-#File2 = '/home/segaud/MolecCav/OUT/Spectrum_2p1D_wmat5.86650008E-03_DTpm0._wcav5.86650008E-03_lamb3.00000003E-03.txt'
-#File3 = '/home/segaud/MolecCav/OUT/Spectrum_3p1D_wmat5.86650008E-03_DTpm0._wcav5.86650008E-03_lamb3.00000003E-03.txt'
+File1 = '/home/segaud/MolecCav/OUT/Spectrum_1p1D_wmat1.88565999E-02_wcav1.88565999E-02_lamb3.00000003E-03.txt'
+#File2 = '/home/segaud/MolecCav/OUT/Spectrum_2p1D_wmat1.88565999E-02_DTpm0._wcav1.88565999E-02_lamb3.00000003E-03.txt'
+#File3 = '/home/segaud/MolecCav/OUT/Spectrum_3p1D_wmat1.88565999E-02_DTpm0._wcav1.88565999E-02_lamb3.00000003E-03.txt'
+#File4 = '/home/segaud/MolecCav/OUT/Spectrum_4p1D_wmat1.88565999E-02_DTpm0._wcav1.88565999E-02_lamb3.00000003E-03.txt'
 #--- Cavity detuned
-#File1 = '/home/segaud/MolecCav/OUT/Spectrum_1p1D_wmat5.86650008E-03_wcav6.06650021E-03_lamb3.00000003E-03.txt'
-#File2 = '/home/segaud/MolecCav/OUT/Spectrum_2p1D_wmat5.86650008E-03_DTpm0._wcav6.06650021E-03_lamb3.00000003E-03.txt'
-#File3 = '/home/segaud/MolecCav/OUT/Spectrum_3p1D_wmat5.86650008E-03_DTpm0._wcav6.06650021E-03_lamb3.00000003E-03.txt'
-#--- Matter detuned DTmat = 1E-4
-#File2 = '/home/segaud/MolecCav/OUT/Spectrum_2p1D_wmat5.86650008E-03_DTpm9.99999975E-05_wcav5.86650008E-03_lamb3.00000003E-03.txt'
-#File3 = '/home/segaud/MolecCav/OUT/Spectrum_3p1D_wmat5.86650008E-03_DTpm9.99999975E-05_wcav5.86650008E-03_lamb3.00000003E-03.txt'
-#--- Matter detuned DTmat = 2E-4
-#File2 = '/home/segaud/MolecCav/OUT/Spectrum_2p1D_wmat5.86650008E-03_DTpm1.99999995E-04_wcav5.86650008E-03_lamb3.00000003E-03.txt'
-#File3 = '/home/segaud/MolecCav/OUT/Spectrum_3p1D_wmat5.86650008E-03_DTpm1.99999995E-04_wcav5.86650008E-03_lamb3.00000003E-03.txt'
+#File1 = '/home/segaud/MolecCav/OUT/Spectrum_1p1D_wmat1.88565999E-02_wcav1.89066008E-02_lamb3.00000003E-03.txt'
+#File2 = '/home/segaud/MolecCav/OUT/Spectrum_2p1D_wmat1.88565999E-02_DTpm0._wcav1.89066008E-02_lamb3.00000003E-03.txt'
+#File3 = '/home/segaud/MolecCav/OUT/Spectrum_3p1D_wmat1.88565999E-02_DTpm0._wcav1.89066008E-02_lamb3.00000003E-03.txt'
+#--- Matter detuned DTmat = 2E-5
+#File2 = '/home/segaud/MolecCav/OUT/Spectrum_2p1D_wmat1.88565999E-02_DTpm1.99999995E-05_wcav1.88565999E-02_lamb3.00000003E-03.txt'
+#File3 = '/home/segaud/MolecCav/OUT/Spectrum_3p1D_wmat1.88565999E-02_DTpm1.99999995E-05_wcav1.88565999E-02_lamb3.00000003E-03.txt'
+#--- Matter detuned DTmat = 5E-5
+#File2 = '/home/segaud/MolecCav/OUT/TransInts_2p1D_wmat1.88565999E-02_DTpm1.99999995E-05_wcav1.88565999E-02_lamb3.00000003E-03.txt'
+#File3 = '/home/segaud/MolecCav/OUT/Spectrum_3p1D_wmat1.88565999E-02_DTpm4.99999987E-05_wcav1.88565999E-02_lamb3.00000003E-03.txt'
 #--- Anar
-File1 = '/home/segaud/MolecCav/OUT/Spectrum_ANAR_1p1D_wmat5.86650008E-03_wcav5.86650008E-03_lamb3.00000003E-03.txt'
-File2 = '/home/segaud/MolecCav/OUT/Spectrum_ANAR_2p1D_wmat5.86650008E-03_DTpm9.99999975E-05_wcav5.86650008E-03_lamb3.00000003E-03.txt'
+File1_anar = '/home/segaud/MolecCav/OUT/Spectrum_ANAR_1p1D_wmat1.80664174E-02_wcav1.80664174E-02_lamb3.00000003E-03.txt'
+File2_anar = '/home/segaud/MolecCav/OUT/Spectrum_ANAR_2p1D_wmat1.80664174E-02_DTpm0._wcav1.80664174E-02_lamb3.00000003E-03.txt'
 
 
 offset = 0 #coupling_strength*1E12
@@ -39,7 +40,10 @@ unset yrange
 #set key left top
 
   plot File1 u 1:2 w l lw 2 title '1p1D'
-replot File2 u 1:2 w l lw 2 title '2p1D'
-replot File3 u 1:2 w l lw 2 title '3p1D'
+replot File1_anar u 1:2 w l lw 2 title '1p1D (Anharmonic)'
+replot File2_anar u 1:2 w l lw 2 title '2p1D (Anharmonic)'
+#replot File2 u 1:2 w l lw 2 title '2p1D'
+#replot File3 u 1:2 w l lw 2 title '3p1D'
+#replot File4 u 1:2 w l lw 2 title '4p1D'
 
 #set key left top

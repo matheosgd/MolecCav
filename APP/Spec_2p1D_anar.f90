@@ -204,8 +204,8 @@ PROGRAM Spec_2p1D_anar
   Gamma      = 1.0                             ! => 10cm-1
   ! Start_plot = 5.8661769977076117E-003 - 1E-4  ! in Ha 
   ! Stop_plot  = 2.9871171804932286E-002 + 1E-4  ! in Ha 
-  Start_plot = 1.8138916532114132E-002 - 1E-4  ! in Ha 
-  Stop_plot  = 1.8138916532114132E-002 + 1E-4  ! in Ha
+  Start_plot = 1.8030078508707852E-002 - 1E-4  ! in Ha 
+  Stop_plot  = 1.8165407767964686E-002 + 1E-4  ! in Ha
   Step_plot  = (Stop_plot - Start_plot) / 9000 ! divide by desired number of points
 
   WRITE(niospec, *) "Energy -------- Transition intensity"

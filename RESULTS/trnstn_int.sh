@@ -14,7 +14,7 @@ do
   &HO_1             !The diatomic molecule
   D = 1             !Label of the basis/HO/mode/dimension
   Nb = 10           !Number of basis vectors associated with the HO D
-  w = 0.0058665     !Eigenpulsation associated with the HO D (maybe HF molecule : 0.005866505831680149)
+  w = 0.0058665     !Eigenpulsation associated with the HO D (maybe HF molecule : 0.0188566 )
   m = 1744.60504565 !Mass associated with the HO D
   lambda = 1.0      !Strength parameter of the coupling between the mode D and the molecule
   eq_pos = 0        !Equilibrium position of the HO
@@ -59,7 +59,7 @@ do
   &HO_1             !The diatomic molecule
   D = 1             !Label of the basis/HO/mode/dimension
   Nb = 10           !Number of basis vectors associated with the HO D
-  w = 0.0058665     !Eigenpulsation associated with the HO D (HF molecule : 0.005866505831680149)
+  w = 0.0058665     !Eigenpulsation associated with the HO D (HF molecule : 0.0188566 )
   m = 1744.60504565 !Mass associated with the HO D
   lambda = 1.0      !Strength parameter of the coupling between the mode D and the molecule
   eq_pos = 0        !Equilibrium position of the HO
