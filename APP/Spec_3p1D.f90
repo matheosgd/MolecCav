@@ -158,8 +158,8 @@ PROGRAM Spec_3p1D
 
   Conversion = 219474.6                       ! 1 Ha = Conversion.cm-1
   Gamma      = 1.0                            ! => 10cm-1
-  Start_plot = 1.8794295214982763E-002 - 1E-4 ! in Ha 
-  Stop_plot  = 1.8986432304458810E-002 + 1E-4 ! in Ha
+  Start_plot = 1.8794295214982763E-002 - 3E-4 ! in Ha 
+  Stop_plot  = 1.8986432304458810E-002 + 3E-4 ! in Ha
   Step_plot  = (Stop_plot - Start_plot) / 900 ! divide by desired number of points
 
   WRITE(niospec, *) "Energy -------- Transition intensity"

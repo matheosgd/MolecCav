@@ -19,15 +19,15 @@ echo -e "\nunset title"                                                         
 echo -e "set xlabel 'Transition energy [cm-1]'"                                                    >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_Nphs.gp"
 echo -e "set ylabel 'Transition intensity [Arbitrary units]' #Coupling strength [a.u.]"            >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_Nphs.gp"
 echo -e "\nunset xrange\nunset yrange"                                                             >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_Nphs.gp"
-echo -e "min = 5.8304771453041417E-003 - 1E-4\nmax = 5.9023030045979455E-003 + 1E-4"               >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_Nphs.gp"
-echo -e "Conv = 219474.6\nset xrange [min*Conv:max*Conv]"                                          >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_Nphs.gp"
+echo -e "#min = 5.8304771453041417E-003 - 1E-4\n#max = 5.9023030045979455E-003 + 1E-4"               >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_Nphs.gp"
+echo -e "#Conv = 219474.6\n#set xrange [min*Conv:max*Conv]"                                          >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_Nphs.gp"
 echo -e "#set yrange [0.0249:0.049]"                                                               >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_Nphs.gp"
 echo -e "\n#set key left top"                                                                      >> "/home/segaud/MolecCav/RESULTS/spectra/trace_spectra_Nphs.gp"
 
 for N_phs in 1 2 3
 do 
   echo -e "\n Doing number of photons = $N_phs..."
-  w_cav=$(echo "0.0058665*$N_phs" |bc -l)
+  w_cav=$(echo "0.0188566*$N_phs" |bc -l)
   echo -e "... i.e. doing cavity mode frequency = $w_cav..."
 
   ./${MAIN}.exe << ** > "OUT/${MAIN}${N_phs}.log"

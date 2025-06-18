@@ -173,6 +173,9 @@ PROGRAM Spec_Nphs
   CALL Compute_normal_modes(Nmodes, Ncoos, Matm, Matw, Cavw, Matlambda, Cavlambda, ONE, .TRUE.)
 
 
+  !----------------------------computing the N photons---------------------------
+
+
   !----------------------------Helping the bash script---------------------------
   WRITE(out_unit,*) 'OUT/Spectrum_Nphs_wmat'//TO_string( REAL(Matw,kind=RkS))//'_wcav'//TO_string(REAL(Cavw,kind=RkS))//'_lamb'//&
   &TO_string(REAL(lambda,kind=RkS))//'.txt'
