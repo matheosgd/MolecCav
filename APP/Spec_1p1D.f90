@@ -164,7 +164,7 @@ PROGRAM Spec_1p1D
     &         + TranSpec%tab_ints(7)*Lorentzian(Energy, TranSpec%tab_energies(7)*Conversion, Gamma) &
     &         + TranSpec%tab_ints(8)*Lorentzian(Energy, TranSpec%tab_energies(8)*Conversion, Gamma) &
     &         + TranSpec%tab_ints(9)*Lorentzian(Energy, TranSpec%tab_energies(9)*Conversion, Gamma)
-    WRITE(niospec, *) Energy, Intensity, 0.0
+    WRITE(niospec, *) Energy, Intensity, 0.0, 0.0, Intensity
   END DO
 
   !----------------------------computing the Nmodes---------------------------

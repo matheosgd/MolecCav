@@ -121,7 +121,7 @@ PROGRAM Spec_2p1D
 
   CALL diagonalization(TotH_matrix, REigval, REigvec)
   WRITE(out_unit,*)
-  !CALL Write_Vec(REigval, out_unit, 1, info="EigenEnergies")
+  CALL Write_Vec(REigval, out_unit, 1, info="EigenEnergies")
   
 
   !----------------------------Computing of the spectra---------------------------
