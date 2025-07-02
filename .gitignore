@@ -1,5 +1,4 @@
 OBJ/*
-*.mod
 *.a
 *.exe
 OUT/*
@@ -8,4 +7,5 @@ ARCH/*
 test_action_op.f90
 comp.sh
 RESULTS/*.png
+RESULTS/*.pdf
 RESULTS/*.txt
