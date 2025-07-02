@@ -29,7 +29,7 @@
 ! The only module related to general HO that the others modules will need to call in a "USE".  
 ! Initialize_quantum_HO1D : reads the namelist and initialize the type, then constructs the operat-
 ! or using parameters of the HO1D_para object from the so called derived type.
-! Append_quantum_HO1D     : add an HO operator to a already initialized object of Cavity_mode_new_t type.
+! Append_quantum_HO1D     : add an HO operator to a already initialized object of Cavity_mode_t type.
 ! Write_quantum_HO1D      : display values of the type in the output
 ! Deallocate_quantum_HO1D : deallocate all tables of the type
 ! The module to initialize the HO by reading its parameters from the namelist.  
@@ -44,14 +44,14 @@ MODULE Cavity_mode_m
   IMPLICIT NONE
 
 
-  TYPE, EXTENDS(Quantum_HO1D_t)  :: Cavity_mode_new_t
+  TYPE, EXTENDS(Quantum_HO1D_t)  :: Cavity_mode_t
     real(kind=Rkind)             :: lambda        = -ONE
   END TYPE
 
 
   PRIVATE 
   
-  PUBLIC Cavity_mode_new_t, Initialize, Action, Get, Write, Dealloc
+  PUBLIC Cavity_mode_t, Initialize, Action, Get, Write, Dealloc
 
   INTERFACE Initialize
     MODULE PROCEDURE MolecCav_Initialize_Cavity_mode
@@ -79,7 +79,7 @@ MODULE Cavity_mode_m
     USE Quantum_HO1D_m
     IMPLICIT NONE
   
-    TYPE(Cavity_mode_new_t), intent(inout)  :: CavMode
+    TYPE(Cavity_mode_t), intent(inout)  :: CavMode
     integer,              intent(in)    :: nio
     logical, optional,    intent(in)    :: Dense                                                                              ! cf. comments in HO1D_parameters_m
     integer, optional,    intent(in)    :: Verbose                                                                         ! cf. comments in HO1D_parameters_m
@@ -207,7 +207,7 @@ MODULE Cavity_mode_m
     IMPLICIT NONE
 
     real(kind=Rkind),    intent(inout) :: Op_psi(:)
-    TYPE(Cavity_mode_new_t), intent(in)    :: CavMode
+    TYPE(Cavity_mode_t), intent(in)    :: CavMode
     integer,             intent(in)    :: i_op
     real(kind=Rkind),    intent(in)    :: Psi(:)
     integer, optional,   intent(in)    :: Verbose                                                                              ! cf. comments in HO1D_parameters_m
@@ -268,7 +268,7 @@ MODULE Cavity_mode_m
     IMPLICIT NONE
 
     complex(kind=Rkind), intent(inout) :: Op_psi(:)
-    TYPE(Cavity_mode_new_t), intent(in)    :: CavMode
+    TYPE(Cavity_mode_t), intent(in)    :: CavMode
     integer,             intent(in)    :: i_op
     complex(kind=Rkind), intent(in)    :: Psi(:)
     integer, optional,   intent(in)    :: Verbose                                                                              ! cf. comments in HO1D_parameters_m
@@ -327,7 +327,7 @@ MODULE Cavity_mode_m
     IMPLICIT NONE 
 
     integer,              intent(inout) :: Parameter_value                                                                            ! the current values of the indexes for each dimension
-    TYPE(Cavity_mode_new_t), intent(in)    :: CavMode
+    TYPE(Cavity_mode_t), intent(in)    :: CavMode
     character(len=*),     intent(in)    :: Parameter_name
 
     CALL Get(Parameter_value, CavMode%Quantum_HO1D_t, Parameter_name)
@@ -340,7 +340,7 @@ MODULE Cavity_mode_m
     IMPLICIT NONE 
 
     real(kind=Rkind),     intent(inout) :: Parameter_value                                                                            ! the current values of the indexes for each dimension
-    TYPE(Cavity_mode_new_t), intent(in)    :: CavMode
+    TYPE(Cavity_mode_t), intent(in)    :: CavMode
     character(len=*),     intent(in)    :: Parameter_name
 
     IF (TO_lowercase(TRIM(Parameter_name)) == "lambda") THEN
@@ -357,7 +357,7 @@ MODULE Cavity_mode_m
     USE QDUtil_m
     IMPLICIT NONE 
     
-    TYPE(Cavity_mode_new_t), intent(in) :: CavMode
+    TYPE(Cavity_mode_t), intent(in) :: CavMode
 
     integer                          :: i_op
 
@@ -377,7 +377,7 @@ MODULE Cavity_mode_m
     USE Quantum_HO1D_m
     IMPLICIT NONE 
 
-    TYPE(Cavity_mode_new_t), intent(inout) :: CavMode
+    TYPE(Cavity_mode_t), intent(inout) :: CavMode
     integer, optional,   intent(in)    :: Verbose                                                                                 ! cf. comments in HO1D_parameters_m
     logical, optional,   intent(in)    :: Debug                                                                                   ! cf. comments in HO1D_parameters_m
 

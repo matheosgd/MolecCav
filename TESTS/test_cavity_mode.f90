@@ -38,7 +38,7 @@ PROGRAM test_cavity_mode
   integer             :: Verbose = 40
   logical             :: Debug   = .TRUE.
 
-  TYPE(Cavity_mode_new_t) :: CavMode
+  TYPE(Cavity_mode_t) :: CavMode
   logical             :: Dense   = .FALSE.
 
   real(kind=Rkind)    :: Psi_1D_R1_real(3)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !

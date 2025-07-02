@@ -51,7 +51,7 @@ MODULE Operator_ND_m
   END TYPE
 
   TYPE(Matter_mode_t), allocatable :: tab_mat_ops(:)
-  TYPE(Cavity_mode_new_t), allocatable :: tab_cav_ops(:)
+  TYPE(Cavity_mode_t), allocatable :: tab_cav_ops(:)
 
 
   PRIVATE

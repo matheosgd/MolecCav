@@ -61,10 +61,10 @@ MODULE Sum_of_products_m
     INTERFACE Initialize_dipmomt
       MODULE PROCEDURE MolecCav_Initialize_dipole_moment
      END INTERFACE
-    INTERFACE Initialize_sop !/!\/!\/!\ NEVER HAVE BEEN TESTES /!\/!\/!\
+    INTERFACE Initialize_sop !/!\/!\/!\ NEVER HAVE BEEN TESTED /!\/!\/!\
       MODULE PROCEDURE MolecCav_Initialize_sum_of_products
     END INTERFACE
-    INTERFACE Read_pdt !/!\/!\/!\ NEVER HAVE BEEN TESTES /!\/!\/!\
+    INTERFACE Read_pdt !/!\/!\/!\ NEVER HAVE BEEN TESTED /!\/!\/!\
       MODULE PROCEDURE MolecCav_Read_products
     END INTERFACE
   INTERFACE Action
