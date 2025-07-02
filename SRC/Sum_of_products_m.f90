@@ -171,7 +171,7 @@ MODULE Sum_of_products_m
     ALLOCATE(TotH%tab_coeffs(TotH%N_products))
     IF (Debug_local) WRITE(out_unit,*) 
     IF (Debug_local) WRITE(out_unit,*) "TotH%N_products : "//TO_string(TotH%N_products)
-    TotH%tab_coeffs = 1
+    TotH%tab_coeffs = ONE
 
     !---------------Construction of the table of OpND composing the sum of products operator-----------
     IF (PRESENT(Dense)) THEN; Dense_local = Dense
@@ -347,7 +347,7 @@ MODULE Sum_of_products_m
     ALLOCATE(DipMomt%tab_coeffs(DipMomt%N_products))
     IF (Debug_local) WRITE(out_unit,*) 
     IF (Debug_local) WRITE(out_unit,*) "DipMomt%N_products : "//TO_string(DipMomt%N_products)
-    DipMomt%tab_coeffs = 1
+    DipMomt%tab_coeffs = ONE
 
     !---------------Construction of the table of OpND composing the sum of products operator-----------
     IF (PRESENT(Dense)) THEN; Dense_local = Dense
@@ -380,6 +380,128 @@ MODULE Sum_of_products_m
     &------------------------------------------------"; FLUSH(out_unit)
 
   END SUBROUTINE MolecCav_Initialize_dipole_moment
+
+
+  SUBROUTINE MolecCav_Initialize_NbPhotons(NbPh, nio, Dense, Verbose, Debug) ! no need for N_mat and N_cav explicitly : they are SIZE(Mat_op and Cav_op)
+    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
+    USE QDUtil_m
+    USE Operator_ND_m
+    IMPLICIT NONE
+  
+    TYPE(Sum_of_products_t), intent(inout) :: NbPh
+    integer,             intent(in)        :: nio
+    logical, optional,   intent(in)        :: Dense                                                                        ! cf. comments in HO1D_parameters_m
+    integer, optional,   intent(in)        :: Verbose                                                                      ! cf. comments in HO1D_parameters_m
+    logical, optional,   intent(in)        :: Debug                                                                        ! cf. comments in HO1D_parameters_m
+
+    integer                                :: N_mat, N_cav, i_product, i_mat, i_cav
+    real(kind=Rkind), allocatable          :: tab_coeffs(:)
+    character(len=:), allocatable          :: Mat_operators ! syntax : '<op_mode_1>, <op_mode_2>, ..., <op_mode_N_mat>', ex : 'hamiltonian, Identity'. Not case sensitive, ' ' <=> \otimes
+    character(len=:), allocatable          :: Cav_operators ! syntax : '<op_mode_1>, <op_mode_2>, ..., <op_mode_N_cav>', ex : 'hamiltonian'.   Not case sensitive, ' ' <=> \otimes. This exemple means OpND = H_mat1\otimesI_mat2\otimesH_cav
+    real(kind=Rkind)                       :: Cavw, Cavlambda, Matlambda
+    integer                                :: err_io
+    logical                                :: Dense_local                                                                  ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
+    integer                                :: Verbose_local                                                                ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
+    logical                                :: Debug_local
+    
+    NAMELIST /NB_PHOTONS/ N_mat, N_cav
+
+    !------------------------------------------------------Debugging options-----------------------------------------------------
+    IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
+    ELSE; Verbose_local = 20; END IF 
+    IF (PRESENT(Debug))   THEN; Debug_local   = Debug
+    ELSE; Debug_local = .FALSE.; END IF
+
+    IF (Debug_local) WRITE(out_unit,*) 
+    IF (Debug_local) WRITE(out_unit,*) "-------------------------------------------------INITIALIZING THE NB PHOTONS OBJECT---&
+                                              &----------------------------------------------"; FLUSH(out_unit)
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "--- Arguments of MolecCav_Initialize_NbPhotons :"
+      WRITE(out_unit,*) "The <<NbPh>> argument :"
+      CALL Write(NbPh)
+      IF (PRESENT(Dense)) WRITE(out_unit,*) "The <<Dense>> argument : "//TO_string(Dense)
+      WRITE(out_unit,*) "--- End arguments of MolecCav_Initialize_NbPhotons"
+      FLUSH(out_unit)
+    END IF
+    
+    !----------------------Initialization to default values--------------------
+    N_mat = 0
+    N_cav = 0
+
+    !------------------------------Reading of the nml--------------------------
+    WRITE(out_unit,*) 
+    WRITE(out_unit,*) '********************************************************************************'
+    WRITE(out_unit,*) '************************** READING THE NUMBER OF MODES *************************'
+    WRITE(out_unit,*) '********************************************************************************'
+    
+    READ(nio, nml = NB_PHOTONS, iostat = err_io)                                     ! assign the values read in the nml to the declared list of parameters
+
+    IF (Debug) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "-----------------------The namelist parameters are read as----------------------"
+      WRITE(out_unit, nml = NB_PHOTONS)
+      WRITE(out_unit,*) "-------------------------End of the namelist parameters-------------------------"
+    END IF
+    
+      !------------------------------Check reading error-------------------------
+    IF(err_io /= 0) THEN
+      WRITE(out_unit,*) ''
+      WRITE(out_unit,*) '###################################################################'
+      WRITE(out_unit,*) '######## Error in MolecCav_Initialize_NbPhotons (err_io/=0) #######'
+      WRITE(out_unit,*) '###################################################################'
+      WRITE(out_unit,*) '####################### err_io = ', err_io, '######################'
+      STOP '######################### Check basis data ########################'
+    END IF
+
+    IF (N_cav == 0) THEN
+      WRITE(out_unit,*) "### The number of cavity modes CANNOT be 0 to construct the global number of photons op ! Please check t&
+      &he data file '.nml'"
+      STOP "### The number of cavity modes CANNOT be 0 to construct the global number of photons op ! Please check the data file &
+      &'.nml'"
+    END IF
+    
+    !---------------Construction of the table of coefficients of the sum-----------
+    NbPh%N_products = N_cav 
+
+    ALLOCATE(NbPh%tab_opnd(  NbPh%N_products))
+    ALLOCATE(NbPh%tab_coeffs(NbPh%N_products))
+    IF (Debug_local) WRITE(out_unit,*) 
+    IF (Debug_local) WRITE(out_unit,*) "NbPh%N_products : "//TO_string(NbPh%N_products)
+    NbPh%tab_coeffs = ONE
+
+    !---------------Construction of the table of OpND composing the sum of products operator-----------
+    IF (PRESENT(Dense)) THEN; Dense_local = Dense
+    ELSE; Dense_local = .FALSE.; END IF
+
+      !##### cavity modes #####
+    ALLOCATE(character(len=    7 + 10*(N_mat-1)    ) :: Mat_operators)                                                   ! 11 ("hamiltonian") + (N_mat-1)*8 ("identity") + (N_mat-1)*2 (", ")
+    ALLOCATE(character(len=MAX(8 + 10*(N_cav-1), 0)) :: Cav_operators)                                                   ! 8  ("identity")    + (N_mat-1)*8 ("identity") + (N_mat-1)*2 (", ")
+    Mat_operators = ""
+    Cav_operators = ""
+    Cav_operators                = "NbQuanta"//REPEAT(", Identity", N_cav-1)
+    IF (N_mat > 0) Mat_operators = "Identity"//REPEAT(", Identity", N_mat-1)
+    CALL Initialize(NbPh%tab_opnd(1), Mat_operators, Cav_operators, nio, Dense_local, Verbose_local, Debug_local)
+
+    DO i_product = 2, N_mat
+      Cav_operators = "Identity"//REPEAT(", Identity", i_product-2)//", NbQuanta"//REPEAT(", Identity", N_cav-i_product)
+      CALL Initialize(NbPh%tab_opnd(i_product), Mat_operators, Cav_operators, nio, Dense_local, Verbose_local, Debug_local)
+    END DO
+    DEALLOCATE(Mat_operators); DEALLOCATE(Cav_operators)
+
+    IF (Debug) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "--------------Sum of products constructed by MolecCav_Initialize_NbPhotons--------------"
+      CALL Write(NbPh)
+      WRITE(out_unit,*) "------------End Sum of products constructed by MolecCav_Initialize_NbPhotons------------"
+    END IF
+    
+    IF (Debug_local) WRITE(out_unit,*) 
+    IF (Debug_local) WRITE(out_unit,*) "--------------------------------------------------NUMER OF PHOTONS OPERATOR INITIALIZED-&
+    &------------------------------------------------"; FLUSH(out_unit)
+
+  END SUBROUTINE MolecCav_Initialize_NbPhotons
 
 
   SUBROUTINE MolecCav_Initialize_sum_of_products(SumProduct, nio, Dense, Verbose, Debug) ! no need for N_mat and N_cav explicitly : they are SIZE(Mat_op and Cav_op)

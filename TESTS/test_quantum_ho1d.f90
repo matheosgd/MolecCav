@@ -31,7 +31,6 @@ PROGRAM test_quantum_ho1d
   USE QDUtil_m
   USE Tests_m
   USE Algebra_m
-  USE Cavity_mode_old_m
   USE Elem_op_m
   USE Quantum_HO1D_m
   IMPLICIT NONE

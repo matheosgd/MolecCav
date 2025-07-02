@@ -188,7 +188,6 @@ PROGRAM Spec_3p1D_anar
   SUBROUTINE Compute_normal_modes(Nmodes_l, Ncoos_l, Matm_l, Mat1w_l, Mat2w_l, Mat3w_l, Cavw_l, Matlambda_l, Cavlambda_l, &
     &CoeffDipMomt_l, Debug_l)
     USE QDUtil_m
-    USE Cavity_mode_old_m
     IMPLICIT NONE 
 
     real(kind=Rkind),  intent(inout) :: Nmodes_l(4)                      ! VP of the MWH

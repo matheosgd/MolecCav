@@ -32,7 +32,6 @@ PROGRAM test_operator_ND_1p1D
   USE Tests_m
   USE Algebra_m
   USE Operator_ND_m
-  USE Total_hamiltonian_m
   IMPLICIT NONE
 
 
