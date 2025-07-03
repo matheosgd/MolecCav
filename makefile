@@ -33,8 +33,8 @@
 # execute this file by command line using the following syntaxes :
 # "make" to execute the first command defined in this file below
 # "make <command>" to execute a particular command defined below
-# "make -f <name of this file> <command (optional)>" if another file in Make is... 
-# ...present in this directory
+# "make -f <name of this file> <command (optional)>" if another file in Make is present in this di-
+# rectory
 #
 #==================================================================================================
 #==================================================================================================
@@ -51,9 +51,7 @@ FFC     = gfortran# the name of the fortran compiler to use here. Possible value
 FFLAGS  = -Og -g -fbacktrace -fcheck=all -fwhole-file -fcheck=pointer -Wuninitialized -finit-real=nan -finit-integer=nan -fopenmp# some useful optional arguments of the gfortran compilation command
 FFLAGS += -J$(MOD_DIR) $(EXTMod)
 # "+=" works the same way as in python, C, etc
-# to these optional aguments are added : "-J" which indicates the DIRECTORY (and not all the path of the .mod files) where to STORE the .mod files of the...
-# ...lib. after compilation (at the contrary of "-I" which indicates where to FIND the needed ones); and the path towards the .mod files of the external...
-# ...library(ies).
+# to these optional aguments are added : "-J" which indicates the DIRECTORY (and not all the path of the .mod files) where to STORE the .mod files of the lib. after compilation (at the contrary of "-I" which indicates where to FIND the needed ones); and the path towards the .mod files of the external library(ies)
 
 
 #-------------------------------------------------
@@ -80,7 +78,12 @@ MAIN_DATA      = data_$(MAIN)
 MAIN_DATA_FULL = $(MAIN_DATA).nml
 
 MODULES_DIR    = SRC# the name of the directory where to find the source files of the library's modules
-MODULES_SRC    = Tests_m.f90 Algebra_m.f90 ND_indexes_m.f90 Elem_op_m.f90 Quantum_HO1D_m.f90 Matter_mode_m.f90 Cavity_mode_m.f90 Operator_ND_m.f90 Sum_of_products_m.f90 Transition_spectrum_m.f90# the list of all the .f90 source files OF THE LIBRARY (only the modules, not the test/app programs) to be compiled
+MODULES_SRC_1  = Tests_m.f90 Algebra_m.f90 ND_indexes_m.f90#(FIRST SUBDIRECTORY) the list of all the .f90 source files OF THE LIBRARY (only the modules, not the test/app programs) to be compiled
+MODULES_SRC_2  = Elem_op_m.f90#(SECOND SUBDIRECTORY) the list of all the .f90 source files OF THE LIBRARY (only the modules, not the test/app programs) to be compiled
+MODULES_SRC_3  = Quantum_HO1D_m.f90 Matter_mode_m.f90 Cavity_mode_m.f90#(THIRD SUBDIRECTORY) the list of all the .f90 source files OF THE LIBRARY (only the modules, not the test/app programs) to be compiled
+MODULES_SRC_4  = Operator_ND_m.f90 Sum_of_products_m.f90#(FOURTH SUBDIRECTORY) the list of all the .f90 source files OF THE LIBRARY (only the modules, not the test/app programs) to be compiled
+MODULES_SRC_5  = Transition_spectrum_m.f90#(FIFTH SUBDIRECTORY) the list of all the .f90 source files OF THE LIBRARY (only the modules, not the test/app programs) to be compiled
+MODULES_SRC    = $(MODULES_SRC_1) $(MODULES_SRC_2) $(MODULES_SRC_3) $(MODULES_SRC_4) $(MODULES_SRC_5)# the list of all the .f90 source files OF THE LIBRARY (only the modules, not the test/app programs) to be compiled
 MODULES_OBJ    = ${MODULES_SRC:.f90=.o}# the list of all the names of the futur object files that will be created from the aforementioned library source files
 # this syntax looks like a list slicing in python : change the .f90 string of the var to .o : it allows to change the extension of the file from .f90 to .o
 #OBJ      = $(addprefix $(OBJ_DIR)/, $(MODULES_OBJ))#NOT USED HERE (just to keep the syntax within easy reach) the same list but, this time, with the complete path towards where the object files have to be stored
@@ -95,8 +98,8 @@ TESTS_OUT      = $(addsuffix .log, $(TESTS))
 
 $(shell [ -d $(OBJ_DIR) ] || mkdir -p $(OBJ_DIR))
 $(shell [ -d $(OUTPUT_DIR) ] || mkdir -p $(OUTPUT_DIR))
+$(shell [ -d $(OUTPUT_DIR)/tests ] || mkdir -p $(OUTPUT_DIR)/tests)
 $(shell [ -d $(EXE_DIR) ] || mkdir -p $(EXE_DIR))
-$(shell [ -d $(EXE_DIR)/tests ] || mkdir -p $(EXE_DIR)/tests)
 # the instruction A = $(shell <shell command>) in Make will store into the var A the result of the execution of the <shell command> command in the shell (and thereby execute this command in the shell). Here the result of the command is note stored but still executed. As we did in the script, this more compact command test the existence of OBJ/ and
 # creates it if it was not here (-p allow to create also the sub-directory /obj/).
 
@@ -121,140 +124,124 @@ QDMOD_DIR  = $(QD_DIR)/OBJ/obj$(ext_obj)# the name and path where to find all th
 
 EXTLib     = $(QDLIBA)
 EXTMod     = -I$(QDMOD_DIR)# the directory where the external libraries are to find (cf next subpart)
-# for the sake of legibility, the last two name/path (that is : the .a static lib. file and the directory where to find .mod files) with more intuitive names
-# "-I" is for the gfortran compiler to understand that this is the path towards the .mod files for the compilation (gfortran argument syntax)
+# for the sake of legibility, the last two name/path (that is : the .a static lib. file and the directory where to find .mod files) with more intuitive names "-I" is for the gfortran compiler to understand that this is the path towards the .mod files for the compilation (gfortran argument syntax)
 
 
 #-------------------------
 #--- Summary of the things
 #-------------------------
-
-$(info ***********************************************************************)
-$(info ***********************************************************************)
-$(info ***********COMPILER:     $(FFC))
-$(info ***********OBJ:          $(addprefix $(OBJ_DIR)/, $(MODULES_OBJ)))
-$(info ***********FFLAGS:       $(FFLAGS))
-$(info ***********************************************************************)
-$(info ***********************************************************************)
+$(info xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx)
+$(info xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx)
+$(info )
+$(info xxx COMPILER:     $(FFC))
+$(info )
+$(info xxx OBJ:          $(addprefix $(OBJ_DIR)/, $(MODULES_OBJ)))
+$(info )
+$(info xxx FFLAGS:       $(FFLAGS))
+$(info )
+$(info xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx)
+$(info xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx)
+$(info )
 # the make is asked to display the chosen compiler, the list of the source/object files of the library to be created and the compilation arguments
 
 
-#=================================================================================
-#=========================Definition of the make commands=========================
-#=======================1. the tests execution command "UT"=======================
-#=================================================================================
+#---------------------------------------
+#--- Definition of the make commands
+#--- 1. the tests execution command "UT"
+#---------------------------------------
 # with make, a command (defined as hereinafter) is called from command-line with the syntax "make <name of the command>" or "make"
 # here is defined the UT command that EXECUTE (and compile if necessary) all the programs testing the library as planned in the TESTS/ directory 
 .PHONY: ut UT
-# the ".PHONY <string1> <string2> <...>" make command indicates to make that the provided string are neither files nor directories and allows to use them...
-# ... as key-words, ex: as command-line commands
-UT ut: test_algebra.exe test_ND_indexes.exe test_elem_op.exe test_quantum_ho1d.exe test_matter_mode.exe test_cavity_mode.exe test_operator_ND_1p1D.exe test_operator_ND_2p1D.exe test_operator_ND_1p2D.exe test_operator_ND_3p0D.exe test_sum_of_products_1p1D.exe test_operator_ND_0p3D.exe test_transition_spectrum.exe
-	./test_algebra.exe                                                 > $(OUTPUT_DIR)/test_algebra.log
-	./test_ND_indexes.exe                                              > $(OUTPUT_DIR)/test_ND_indexes.log
-	./test_elem_op.exe                                                 > $(OUTPUT_DIR)/test_elem_op.log
-	./test_quantum_ho1d.exe                                            > $(OUTPUT_DIR)/test_quantum_ho1d.log
-	./test_matter_mode.exe            < $(DATA_DIR)/data_test_matmode.nml     > $(OUTPUT_DIR)/test_matter_mode.log
-	./test_cavity_mode.exe            < $(DATA_DIR)/data_test_cavmode.nml     > $(OUTPUT_DIR)/test_cavity_mode.log
-	./test_operator_ND_1p1D.exe       < $(DATA_DIR)/data_test_opnd_1p1d.nml   > $(OUTPUT_DIR)/test_operator_ND_1p1D.log
-	./test_operator_ND_2p1D.exe       < $(DATA_DIR)/data_test_opnd_2p1d.nml   > $(OUTPUT_DIR)/test_operator_ND_2p1D.log
-	./test_operator_ND_1p2D.exe       < $(DATA_DIR)/data_test_opnd_1p2d.nml   > $(OUTPUT_DIR)/test_operator_ND_1p2D.log
-	./test_operator_ND_3p0D.exe       < $(DATA_DIR)/data_test_opnd_3p0d.nml   > $(OUTPUT_DIR)/test_operator_ND_3p0D.log
-	./test_operator_ND_0p3D.exe       < $(DATA_DIR)/data_test_opnd_0p3d.nml   > $(OUTPUT_DIR)/test_operator_ND_0p3D.log
-	./test_sum_of_products_1p1D.exe   < $(DATA_DIR)/data_test_sop_1p1d.nml    > $(OUTPUT_DIR)/test_sum_of_products_1p1D.log
-	./test_transition_spectrum.exe    < $(DATA_DIR)/data_test_trstns_spec.nml > $(OUTPUT_DIR)/test_transition_spectrum.log
-	grep "Number of error(s)" $(OUTPUT_DIR)/test_algebra.log
-	grep "Number of error(s)" $(OUTPUT_DIR)/test_ND_indexes.log
-	grep "Number of error(s)" $(OUTPUT_DIR)/test_elem_op.log
-	grep "Number of error(s)" $(OUTPUT_DIR)/test_quantum_ho1d.log
-	grep "Number of error(s)" $(OUTPUT_DIR)/test_matter_mode.log
-	grep "Number of error(s)" $(OUTPUT_DIR)/test_cavity_mode.log
-	grep "Number of error(s)" $(OUTPUT_DIR)/test_operator_ND_1p1D.log 
-	grep "Number of error(s)" $(OUTPUT_DIR)/test_operator_ND_2p1D.log
-	grep "Number of error(s)" $(OUTPUT_DIR)/test_operator_ND_1p2D.log
-	grep "Number of error(s)" $(OUTPUT_DIR)/test_operator_ND_3p0D.log
-	grep "Number of error(s)" $(OUTPUT_DIR)/test_operator_ND_0p3D.log
+# the ".PHONY <string1> <string2> <...>" make command indicates to make that the provided string are neither files nor directories and allows to use them as key-words, ex: as command-line commands
+UT ut: $(addprefix $(EXE_DIR)/, $(TESTS_EXE))
+	./$(EXE_DIR)/test_algebra.exe                                                 > $(OUTPUT_DIR)/tests/test_algebra.log
+	./$(EXE_DIR)/test_ND_indexes.exe                                              > $(OUTPUT_DIR)/tests/test_ND_indexes.log
+	./$(EXE_DIR)/test_elem_op.exe                                                 > $(OUTPUT_DIR)/tests/test_elem_op.log
+	./$(EXE_DIR)/test_quantum_ho1d.exe                                            > $(OUTPUT_DIR)/tests/test_quantum_ho1d.log
+	./$(EXE_DIR)/test_matter_mode.exe            < $(DATA_DIR)/data_test_matmode.nml     > $(OUTPUT_DIR)/tests/test_matter_mode.log
+	./$(EXE_DIR)/test_cavity_mode.exe            < $(DATA_DIR)/data_test_cavmode.nml     > $(OUTPUT_DIR)/tests/test_cavity_mode.log
+	./$(EXE_DIR)/test_operator_ND_1p1D.exe       < $(DATA_DIR)/data_test_opnd_1p1d.nml   > $(OUTPUT_DIR)/tests/test_operator_ND_1p1D.log
+	./$(EXE_DIR)/test_operator_ND_2p1D.exe       < $(DATA_DIR)/data_test_opnd_2p1d.nml   > $(OUTPUT_DIR)/tests/test_operator_ND_2p1D.log
+	./$(EXE_DIR)/test_operator_ND_1p2D.exe       < $(DATA_DIR)/data_test_opnd_1p2d.nml   > $(OUTPUT_DIR)/tests/test_operator_ND_1p2D.log
+	./$(EXE_DIR)/test_operator_ND_3p0D.exe       < $(DATA_DIR)/data_test_opnd_3p0d.nml   > $(OUTPUT_DIR)/tests/test_operator_ND_3p0D.log
+	./$(EXE_DIR)/test_operator_ND_0p3D.exe       < $(DATA_DIR)/data_test_opnd_0p3d.nml   > $(OUTPUT_DIR)/tests/test_operator_ND_0p3D.log
+	./$(EXE_DIR)/test_sum_of_products_1p1D.exe   < $(DATA_DIR)/data_test_sop_1p1d.nml    > $(OUTPUT_DIR)/tests/test_sum_of_products_1p1D.log
+	./$(EXE_DIR)/test_transition_spectrum.exe    < $(DATA_DIR)/data_test_trstns_spec.nml > $(OUTPUT_DIR)/tests/test_transition_spectrum.log
+	grep "Number of error(s)" $(OUTPUT_DIR)/tests/test_algebra.log
+	grep "Number of error(s)" $(OUTPUT_DIR)/tests/test_ND_indexes.log
+	grep "Number of error(s)" $(OUTPUT_DIR)/tests/test_elem_op.log
+	grep "Number of error(s)" $(OUTPUT_DIR)/tests/test_quantum_ho1d.log
+	grep "Number of error(s)" $(OUTPUT_DIR)/tests/test_matter_mode.log
+	grep "Number of error(s)" $(OUTPUT_DIR)/tests/test_cavity_mode.log
+	grep "Number of error(s)" $(OUTPUT_DIR)/tests/test_operator_ND_1p1D.log 
+	grep "Number of error(s)" $(OUTPUT_DIR)/tests/test_operator_ND_2p1D.log
+	grep "Number of error(s)" $(OUTPUT_DIR)/tests/test_operator_ND_1p2D.log
+	grep "Number of error(s)" $(OUTPUT_DIR)/tests/test_operator_ND_3p0D.log
+	grep "Number of error(s)" $(OUTPUT_DIR)/tests/test_operator_ND_0p3D.log
 	@echo "Done Tests"
 # here is the actual definition of the command. It is declared as "UT" OR "ut" to make it cass-insensitive (both can be used to call it). NB: UT = Utility Test
-# the first line instruction is understood by Make as "see these files". It will search the make file for where they are defined i.e. for their...
-# ... dependancies, and create them as they are defined if they are too old. 
-# the command will execute the executable files of the tests (and compile them first if they do not exist or if they are too old because that is the point...
-# ... of using Make cf. definition of the files), using the default data_tests.nml data namelist (for now) and write the output in the .log file
-# then it will display the output message of the test as written in the output file using the "grep" shell command. (So be careful programing your tests to...
-# ... write the output massage as it is grepable)
-# then if everything worked well it should print "Done Tests" using the "@echo" bash command.
+# the first line instruction is understood by Make as "see these files". It will search the make file for where they are defined i.e. for their dependancies, and create them as they are defined if they are too old
+# the command will execute the executable files of the tests (and compile them first if they do not exist or if they are too old because that is the point of using Make cf. definition of the files), using the default data_tests.nml data namelist (for now) and write the output in the .log file
+# then it will display the output message of the test as written in the output file using the "grep" shell command. (So be careful programing your tests to write the output massage as it is grepable)
+# then if everything worked well it should print "Done Tests" using the "@echo" bash command
 
 
-#=================================================================================
-#=========================Definition of the make commands=========================
-#====================2. the application execution command "APP"===================
-#=================================================================================
-# this command will compile the library (create the .o and .mod files) and the tests (create the .o and .exe files) and create the static library .a file...
-# ... BUT not execute anything !
+#----------------------------------------------
+#--- Definition of the make commands
+#--- 2. the application execution command "APP"
+#----------------------------------------------
 .PHONY: app APP App
-app APP App: $(MAIN).exe
-	./$(MAIN).exe < $(DATA_DIR)/$(MAIN_DATA_FULL) > $(OUTPUT_DIR)/App_$(MAIN_OUT).log
+app APP App: $(EXE_DIR)/$(MAIN_EXE)
+# this instruction is understood by Make as "see these files". It will search the make file for where they are defined i.e. for their dependancies, and create them as they are defined if they are too old
+	./$(EXE_DIR)/$(MAIN_EXE) < $(DATA_DIR)/$(MAIN_DATA_FULL) > $(OUTPUT_DIR)/$(MAIN_OUT).log
 
 
-#=================================================================================
-#=========================Definition of the make commands=========================
-#===================3. the everything compilation command "all"===================
-#=================================================================================
-# this command will compile the library (create the .o and .mod files) and the tests (create the .o and .exe files) and create the static library .a file...
-# ... BUT not execute anything !
+#-----------------------------------------------
+#--- Definition of the make commands
+#--- 3. the everything compilation command "all"
+#-----------------------------------------------
+# this command will compile the library (create the .o and .mod files) and the tests (create the .o and .exe files) and create the static library .a file BUT not execute anything !
 .PHONY: all
-all: $(LIBA) test_algebra.exe test_quantum_ho1d.exe test_elem_op.exe test_cavity_mode.exe test_matter_mode.exe test_action_total_H_1p1D.exe test_construct_total_H_1p1D.exe test_mapping.exe test_transition_intensities.exe $(MAIN).exe
-# Recall : LIBA = libMolecCav
-# this instruction is understood by Make as "see these files". It will search the make file for where they are defined i.e. for their dependancies, and...
-# ... create them as they are defined if they are too old. 
+all: $(LIBA) $(EXE_DIR)/$(TESTS_EXE) $(EXE_DIR)/$(MAIN_EXE)# Recall : LIBA = libMolecCav
 
 
-#=================================================================================
-#=========================Definition of the make commands=========================
-#===========4. the static library compilation and creation command "lib"==========
-#=================================================================================
-# this command will compile the library (create the .o and .mod files) into the static library file (create the .a file).
+#---------------------------------------------------------------
+#--- Definition of the make commands
+#--- 4. the static library compilation and creation command "lib"
+#----------------------------------------------------------------
+# this command will compile the library (create the .o and .mod files) into the static library file (create the .a file)
 # the same command as "all" but without the compilation of the tests : the library only !  
 .PHONY: lib
 lib: $(LIBA)
 
-$(LIBA): $(OBJ)
-	ar -cr $(LIBA) $(OBJ)
-	@echo "Done Library: "$(LIBA)
-# the "ar -cr <name.a> <list of names of .o files>" command is the bash one to collate the provided object files into one static library file
-# here is also added the definition of the static library file (instead of with the other file definitions below). cf. at the "Definition of the files"...
-# ... section for more explanations
 
-
-#=================================================================================
-#=========================Definition of the make commands=========================
-#====5. the static external libraries compilation and creation command "getlib"===
-#=================================================================================
+#------------------------------------------------------------------------------
+#--- Definition of the make commands
+#--- 5. the static external libraries compilation and creation command "getlib"
+#------------------------------------------------------------------------------
 # this command will (install if possible and) compile the external libraries
 .PHONY: getlib
 getlib:
 	cd $(ExtLibDIR) ; ./get_Lib.sh QDUtilLib
-# with this instruction, make will actually execute the get_Lib.sh script as written in the directory of the corresponding external library, with the name...
-# ... of the library (QDUtilLib) as an argument. This will install the library from GitHub 
+# with this instruction, make will actually execute the get_Lib.sh script as written in the directory of the corresponding external library, with the name of the library (QDUtilLib) as an argument. This will install the library from GitHub 
 
 $(QDLIBA):
 	cd $(ExtLibDIR) ; ./get_Lib.sh QDUtilLib
 	cd $(ExtLibDIR)/QDUtilLib ; make lib FC=$(FFC) OPT=$(OOPT) OMP=$(OOMP) LAPACK=$(LLAPACK) INT=$(INT) ExtLibDIR=$(ExtLibDIR) CompilersDIR=$(CompilersDIR)
 	@test -f $(QDLIBA) || (echo $(QDLIBA) "does not exist" ; exit 1)
 	@echo "Done " $(QDLIBA)
-# here is also added the definition of the static external library file (instead of with the other file definitions below). cf. at the "Definition of the...
-# ... files" section for more explanations
+# here is also added the definition of the static external library file (instead of with the other file definitions below). cf. at the "Definition of the files" section for more explanations
 
 
-#=================================================================================
-#=========================Definition of the make commands=========================
-#=================6. the cleaning commands "clean" and "cleanall"=================
-#=================================================================================
-# these commands are designed to get rid of all the files created at the compilation and execution of the library : object, modules, executables, statics,...
-# ... outputs, etc
+#---------------------------------------------------
+#--- Definition of the make commands
+#--- 6. the cleaning commands "clean" and "cleanall"
+#---------------------------------------------------
+# these commands are designed to get rid of all the files created at the compilation and execution of the library : object, modules, executables, statics, outputs, etc
 .PHONY: clean cleanall
 clean:
 	rm -f $(OBJ_DIR)/*.o
-	rm -f test*.exe
+	rm -f $(EXE_DIR)/.exe
 	rm -f $(MAIN).exe
 	rm -f $(OUTPUT_DIR)/test_*.log
 	rm -f $(OUTPUT_DIR)/$(MAIN).log
@@ -262,130 +249,77 @@ clean:
 # removes all the object files from the OBJ/ directory, all the executable files, and the output files from the tests
 
 cleanall : clean
-	rm -fr OBJ/obj*
+	rm -fr OBJ/*
 	rm -f lib*.a
 	cd Ext_Lib ; ./cleanlib
 	@echo "Done all cleaning : objects, modules, statics, and same for external libraries"
-# removes all the files from the OBJ/ directory (.o and .mod), all the static library files, and performs the cleaning the external libraries as defined...
-#... in their makefile in addition to executing the "clean" command
+# removes all the files from the OBJ/ directory (.o and .mod), all the static library files, and performs the cleaning the external libraries as defined in their makefile in addition to executing the "clean" command
 
 
-#=================================================================================
-#==================Definition of the files to be created by Make==================
-#====================1. the main executable (the APP/ program)====================
-#=================================================================================
-$(MAIN).exe                              : $(OBJ_DIR)/$(MAIN).o $(LIBA)
-	$(FFC) -o $(MAIN).exe $(FFLAGS) $(OBJ_DIR)/$(MAIN).o $(LIBA) $(EXTLib)
+#-------------------------------------------------
+#--- Definition of the files to be created by Make
+#--- 1. the main executable (the APP/ program)
+#-------------------------------------------------
+$(EXE_DIR)/$(MAIN_EXE) : $(OBJ_DIR)/$(MAIN_OBJ) $(LIBA)
+	$(FFC) -o $(EXE_DIR)/$(MAIN_EXE) $(FFLAGS) $(OBJ_DIR)/$(MAIN_OBJ) $(LIBA) $(EXTLib)
 # this syntax define a file in Make : it shows its dependancies and then the compilation instructions
-# the first line "<the file defined here> : <list of the files it depends on>" provides the dependancies. If Make has to treat this file, it will compare...
-# ... its date of creation with the one of the files it depends on. If it has been created after them all nothing is done. Otherwise or if the file doesn't...
-# ... exist, Make will create it using the instructions that follows
+# the first line "<the file defined here> : <list of the files it depends on>" provides the dependancies. If Make has to treat this file, it will compare its date of creation with the one of the files it depends on. If it has been created after them all nothing is done. Otherwise or if the file doesn't exist, Make will create it using the instruc-
+# tions that follows
 # the following lines are thus the creation instructions. They are usually compilation instruction but not necessarily
-# /!\ they have to be indented with a TABULATION and not with spaces /!\.
+# /!\ they have to be indented with a TABULATION and not with spaces /!\
 
-$(OBJ_DIR)/$(MAIN).o                     : $(MAIN_DIR)/$(MAIN).f90
-	$(FFC) -c -o $(OBJ_DIR)/$(MAIN).o $(FFLAGS) $(MAIN_DIR)/$(MAIN).f90
+$(OBJ_DIR)/$(MAIN_OBJ) : $(MAIN_DIR)/$(MAIN_SRC)
+	$(FFC) -c -o $(OBJ_DIR)/$(MAIN_OBJ) $(FFLAGS) $(MAIN_DIR)/$(MAIN_SRC)
 
 
-#=================================================================================
-#==================Definition of the files to be created by Make==================
-#========================2. the tests (the TESTS/ programs)=======================
-#=================================================================================
-%.exe          : $(OBJ_DIR)/%.o
+#-------------------------------------------------
+#--- Definition of the files to be created by Make
+#--- 2. the tests (the TESTS/ programs)
+#-------------------------------------------------
+$(EXE_DIR)/%.exe : $(OBJ_DIR)/%.o
 	$(FFC) -o $@ $(FFLAGS) $< $(LIBA) $(EXTLib)
-
-$(OBJ_DIR)/%.o : $(TESTS_DIR)/%.f90
-	$(FFC) -c -o $@ $(FFLAGS) $<
-
-#test_algebra.exe                         : $(OBJ_DIR)/test_algebra.o $(LIBA)
-#	$(FFC) -o test_algebra.exe  $(FFLAGS) $(OBJ_DIR)/test_algebra.o $(LIBA) $(EXTLib)
-
-#$(OBJ_DIR)/test_algebra.o                : $(TESTS_DIR)/test_algebra.f90
-#	$(FFC) -c -o $(OBJ_DIR)/test_algebra.o $(FFLAGS) $(TESTS_DIR)/test_algebra.f90
-
-#test_cavity_mode.exe                     : $(OBJ_DIR)/test_cavity_mode.o $(LIBA)
-#	$(FFC) -o test_cavity_mode.exe  $(FFLAGS) $(OBJ_DIR)/test_cavity_mode.o $(LIBA) $(EXTLib)
 # N.B. contrary to the next instruction, -o does mean here "link these object files into an executable one" (gfortran argument syntax)
 # N.B. Question : je ne suis pas de pourquoi FFLAGS est nécéssaire pour le linking en .exe puisque je crois que les .mod ne sont pas utiles pour cette étape ?
 # Recall: "FFLAGS also provides the path towards the .mod files : "-J$(MOD_DIR) $(EXTMod)"
 
-#$(OBJ_DIR)/test_cavity_mode.o            : $(TESTS_DIR)/test_cavity_mode.f90
-#	$(FFC) -c -o $(OBJ_DIR)/test_cavity_mode.o $(FFLAGS) $(TESTS_DIR)/test_cavity_mode.f90
+$(OBJ_DIR)/%.o : $(TESTS_DIR)/%.f90
+	$(FFC) -c -o $@ $(FFLAGS) $<
 # "-c" is the compilation and can take also as an argument "-o" which here does not mean "link into executable" but allows to choose the name of the thereby...
 #... created object files. Here the path where they have to be stored (OBJ/obj) is added as a prefix to the name 
 
-#test_quantum_ho1d.exe                 : $(OBJ_DIR)/test_quantum_ho1d.o $(LIBA)
-#	$(FFC) -o test_quantum_ho1d.exe  $(FFLAGS) $(OBJ_DIR)/test_quantum_ho1d.o $(LIBA) $(EXTLib)
 
-#$(OBJ_DIR)/test_quantum_ho1d.o        : $(TESTS_DIR)/test_quantum_ho1d.f90
-#	$(FFC) -c -o $(OBJ_DIR)/test_quantum_ho1d.o $(FFLAGS) $(TESTS_DIR)/test_quantum_ho1d.f90
-
-#test_elem_op.exe                    : $(OBJ_DIR)/test_elem_op.o $(LIBA)
-#	$(FFC) -o test_elem_op.exe  $(FFLAGS) $(OBJ_DIR)/test_elem_op.o $(LIBA) $(EXTLib)
-
-#$(OBJ_DIR)/test_elem_op.o           : $(TESTS_DIR)/test_elem_op.f90
-#	$(FFC) -c -o $(OBJ_DIR)/test_elem_op.o $(FFLAGS) $(TESTS_DIR)/test_elem_op.f90
-
-#test_action_total_H_1p1D.exe             : $(OBJ_DIR)/test_action_total_H_1p1D.o $(LIBA)
-#	$(FFC) -o test_action_total_H_1p1D.exe  $(FFLAGS) $(OBJ_DIR)/test_action_total_H_1p1D.o $(LIBA) $(EXTLib)
-
-#$(OBJ_DIR)/test_action_total_H_1p1D.o    : $(TESTS_DIR)/test_action_total_H_1p1D.f90
-#	$(FFC) -c -o $(OBJ_DIR)/test_action_total_H_1p1D.o $(FFLAGS) $(TESTS_DIR)/test_action_total_H_1p1D.f90
-
-#test_construct_total_H_1p1D.exe          : $(OBJ_DIR)/test_construct_total_H_1p1D.o $(LIBA)
-#	$(FFC) -o test_construct_total_H_1p1D.exe  $(FFLAGS) $(OBJ_DIR)/test_construct_total_H_1p1D.o $(LIBA) $(EXTLib)
-
-#$(OBJ_DIR)/test_construct_total_H_1p1D.o : $(TESTS_DIR)/test_construct_total_H_1p1D.f90
-#	$(FFC) -c -o $(OBJ_DIR)/test_construct_total_H_1p1D.o $(FFLAGS) $(TESTS_DIR)/test_construct_total_H_1p1D.f90
-
-#test_mapping.exe                         : $(OBJ_DIR)/test_mapping.o $(LIBA)
-#	$(FFC) -o test_mapping.exe  $(FFLAGS) $(OBJ_DIR)/test_mapping.o $(LIBA) $(EXTLib)
-
-#$(OBJ_DIR)/test_mapping.o                : $(TESTS_DIR)/test_mapping.f90
-#	$(FFC) -c -o $(OBJ_DIR)/test_mapping.o $(FFLAGS) $(TESTS_DIR)/test_mapping.f90
-
-
-#=================================================================================
-#==================Definition of the files to be created by Make==================
-#=========================3. the library (the SRC modules)========================
-#==============================3.1. The object files==============================
-#=================================================================================
+#-------------------------------------------------
+#--- Definition of the files to be created by Make
+#--- 3. the library (the SRC modules)
+#--- 3.1. The object files
+#-------------------------------------------------
 $(OBJ_DIR)/%.o : $(MODULES_DIR)/%.f90
 #	$(FFC) $(FFLAGS) -o $@ -c $< (in the order we are used to :)
 	$(FFC) -c -o $@ $(FFLAGS) $<
 
-#$(OBJ_DIR)/Quantum_HO1D_m.o  : $(MODULES_DIR)/Quantum_HO1D_m.f90
-#	$(FFC) -c -o $(OBJ_DIR)/Quantum_HO1D_m.o $(FFLAGS) $(MODULES_DIR)/Quantum_HO1D_m.f90
 
-#$(OBJ_DIR)/Elem_op_m.o  : $(MODULES_DIR)/Elem_op_m.f90
-#	$(FFC) -c -o $(OBJ_DIR)/Elem_op_m.o $(FFLAGS) $(MODULES_DIR)/Elem_op_m.f90
-
-#$(OBJ_DIR)/Total_hamiltonian_m.o  : $(MODULES_DIR)/Total_hamiltonian_m.f90
-#	$(FFC) -c -o $(OBJ_DIR)/Total_hamiltonian_m.o $(FFLAGS) $(MODULES_DIR)/Total_hamiltonian_m.f90
-
-#$(OBJ_DIR)/Algebra_m.o  : $(MODULES_DIR)/Algebra_m.f90
-#	$(FFC) -c -o $(OBJ_DIR)/Algebra_m.o $(FFLAGS) $(MODULES_DIR)/Algebra_m.f90
-
-#=================================================================================
-#==================Definition of the files to be created by Make==================
-#=========================3. the library (the SRC modules)========================
-#===========================3.2. The static library file==========================
-#=================================================================================
-# /!\ this file definition has been moved to the "3. the static library compilation and creation command "lib"" section /!\.
+#-------------------------------------------------
+#--- Definition of the files to be created by Make
+#--- 3. the library (the SRC modules)
+#--- 3.2. The static library file
+#-------------------------------------------------
+$(LIBA): $(addprefix $(OBJ_DIR)/, $(MODULES_OBJ))
+	ar -cr $(LIBA) $(addprefix $(OBJ_DIR)/, $(MODULES_OBJ))
+	@echo "Done Library: "$(LIBA)
+# the "ar -cr <name.a> <list of names of .o files>" command is the bash one to collate the provided object files into one static library file
 
 
-#=================================================================================
-#==================Definition of the files to be created by Make==================
-#=================4. the external libraries (the Ext_Lib modules)=================
-#=================================================================================
+#---------------------------------------------------
+#--- Definition of the files to be created by Make
+#--- 4. the external libraries (the Ext_Lib modules)
+#---------------------------------------------------
 # /!\ this file definition has been moved to the "4. the static external libraries compilation and creation command "getlib"" section /!\.
 
 
-#=================================================================================
-#=======================Definition of the files dependancies======================
-#=================================================================================
-# here are added the other dependancies between modules, that arre mandatory for a good compilation, but which do not lead to creation instructions. Just to...
-# ... specify that one module needs another one
+#----------------------------------------
+#--- Definition of the files dependancies
+#----------------------------------------
+# here are added the other dependancies between modules, that arre mandatory for a good compilation, but which do not lead to creation instructions. Just to specify that one module needs another one
 $(OBJ_DIR)/test_algebra.o                : $(LIBA)
 $(OBJ_DIR)/test_sum_of_products_1p1D.o   : $(LIBA)
 $(OBJ_DIR)/test_operator_ND_0p3D.o       : $(LIBA)
@@ -397,12 +331,7 @@ $(OBJ_DIR)/test_cavity_mode.o            : $(LIBA)
 $(OBJ_DIR)/test_matter_mode.o            : $(LIBA)
 $(OBJ_DIR)/test_quantum_ho1d.o           : $(LIBA)
 $(OBJ_DIR)/test_elem_op.o                : $(LIBA)
-# $(OBJ_DIR)/test_action_total_H_1p1D.o    : $(LIBA)
-# $(OBJ_DIR)/test_construct_total_H_1p1D.o : $(LIBA)
-# $(OBJ_DIR)/test_normal_modes_1p1D.o      : $(LIBA)
 $(OBJ_DIR)/test_ND_indexes.o             : $(LIBA)
-# $(OBJ_DIR)/test_mapping.o                : $(LIBA)
-# $(OBJ_DIR)/test_transition_intensities.o : $(LIBA)
 
 $(OBJ_DIR)/Sum_of_products.o             : $(OBJ_DIR)/Operator_ND_m.o 
 $(OBJ_DIR)/Operator_ND_m.o               : $(OBJ_DIR)/Cavity_mode_m.o 
@@ -411,18 +340,14 @@ $(OBJ_DIR)/Cavity_mode.o                 : $(OBJ_DIR)/Quantum_HO1D_m.o
 $(OBJ_DIR)/Matter_mode_m.o               : $(OBJ_DIR)/Quantum_HO1D_m.o 
 $(OBJ_DIR)/Quantum_HO1D_m.o              : $(OBJ_DIR)/Elem_op_m.o
 $(OBJ_DIR)/Elem_op_m.o                   : $(OBJ_DIR)/Algebra_m.o 
-# $(OBJ_DIR)/Elem_op_m.o                   : $(OBJ_DIR)/Cavity_mode_old_m.o 
 $(OBJ_DIR)/Operator_2D_m.o               : $(OBJ_DIR)/Algebra_m.o 
 $(OBJ_DIR)/Operator_2D_m.o               : $(OBJ_DIR)/Quantum_HO1D_m.o 
 $(OBJ_DIR)/Operator_2D_m.o               : $(OBJ_DIR)/Elem_op_m.o 
 $(OBJ_DIR)/Total_hamiltonian_m.o         : $(OBJ_DIR)/Quantum_HO1D_m.o 
 $(OBJ_DIR)/Total_hamiltonian_m.o         : $(OBJ_DIR)/Elem_op_m.o 
-# $(OBJ_DIR)/Psi_analysis_m.o              : $(OBJ_DIR)/Mapping_m.o
-# $(OBJ_DIR)/Mapping_m.o                   : $(OBJ_DIR)/ND_indexes_m.o
 
-$(OBJ_DIR)/$(MAIN).o                     : $(LIBA)
+$(OBJ_DIR)/$(MAIN_OBJ)                     : $(LIBA)
 
 $(OBJ)                                   : | $(QDLIBA)
-# the pipe means that only the EXISTENCE is tested and not the dates of the files. The logical test is True if $(QDLIBA) exists, EVEN if its creation date...
-#... is more recent than the tested file
+# the pipe means that only the EXISTENCE is tested and not the dates of the files. The logical test is True if $(QDLIBA) exists, EVEN if its creation date is more recent than the tested file
 
