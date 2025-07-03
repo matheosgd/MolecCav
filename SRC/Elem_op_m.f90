@@ -1,8 +1,10 @@
 !==================================================================================================
 !==================================================================================================
+!
 ! This file is part of MolecCav.
 !
 !==================================================================================================
+!
 ! MIT License
 !
 ! Copyright (c) 2025 Mathéo Segaud
@@ -24,7 +26,9 @@
 ! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 ! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ! SOFTWARE.
+!
 !==================================================================================================
+!
 ! README :
 ! The module to initialize the operators related to a HO.
 ! Initialize_HO1D_operator : constructs the operator using parameters of the HO1D_para object from 

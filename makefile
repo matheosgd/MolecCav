@@ -1,128 +1,138 @@
-##################################################################################
-##################################################################################
-##################################################################################
+#==================================================================================================
+#==================================================================================================
+#
+# This file is part of MolecCav.
+#
+#==================================================================================================
+#
+# MIT License
+#
+# Copyright (c) 2025 Mathéo Segaud
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+#==================================================================================================
+#
+# README :
 # execute this file by command line using the following syntaxes :
 # "make" to execute the first command defined in this file below
 # "make <command>" to execute a particular command defined below
 # "make -f <name of this file> <command (optional)>" if another file in Make is... 
 # ...present in this directory
-##################################################################################
-##################################################################################
-##################################################################################
-
-#=================================================================================
-#========================Definition of the Frotran Compiler=======================
-#=================================================================================
+#
+#==================================================================================================
+#==================================================================================================
+#-----------------------------------------
+#--- Definition of the Compilation options
+#-----------------------------------------
 # /!\ /!\ /!\. 
-# in a variable definition, the value of the var MUST not be followed by ANY space (otherwise it is counted in the string and brongs havoc) 
+# in a variable definition, the value of the var MUST not be followed by ANY space (otherwise it is counted in the string and brings havoc) 
 # /!\ /!\ /!\.
-FFC = gfortran
+
+FFC     = gfortran# the name of the fortran compiler to use here. Possible values: (Empty: gfortran); gfortran (version: 9.0 linux and osx)
 # syntaxe to create a variable (FFC) in Make, and attribute to the string "gfortran". NB: FC = Fortran Compiler
-# the name of the fortran compiler to use here  
 
-# Possible values: (Empty: gfortran)
-#                  gfortran (version: 9.0 linux and osx)
-
-
-#=================================================================================
-#==================Definition of other useful names in variables==================
-#=============================1. Of the main librairy=============================
-#=================================================================================
-MAIN_DIR  = APP
-# the name of the directory where to find the source file(s) of the application/exemple program
-MAIN      = Spec_1p1D
-# the name of the application file without the extension
-MAIN_OUT  = $(MAIN)
-MAIN_DATA = $(MAIN)
-OBJ_DIR   = OBJ/obj
-# the name of the directory where to store the objects .o and .mod files (/obj because we might... 
-# ...want to create different sub libraries with different parameters => different obj/ directories)
-MOD_DIR   = $(OBJ_DIR)
-# in make the variables values are treated and accessed the same way as in shell/bash : between "$(<name_of_the_variable>)"
-# the name of the directory where to store the .mod files (here same as OBJ but can be different)
-SRC_DIR   = SRC
-# the name of the directory where to find the source files of the library's modules
-TESTS_DIR = TESTS
-# the name of the directory where to find the source files of the library's test programs
-OUTPUT_DIR = OUT
-# the name of the directory where to store the log files of the library's programs
-DATA_DIR = DATA
-# the name of the directory where to find the data files of the library
-
-EXTMod    =                      
-# the directory where the external libraries are to find (cf next subpart)
-
-LIB      = libMolecCav
-# the name of the library (the actual name of the actual library, not the name of any file of the library so far)
-LIBA     = $(LIB).a
-# the name (/!\ WITH the extension) of the library (the name of its full static object file this time = all... 
-# ...the .o files of its modules)
-
-$(shell [ -d $(OBJ_DIR) ] || mkdir -p $(OBJ_DIR)) # the instruction A = $(shell <shell command>) in Make will store into the var A the...
-                                                  # ...result of the execution of the <shell command> command in the shell (and thereby...
-                                                  # ...execute this command in the shell). Here the result of the command is note stored...
-                                                  # ...but still executed.
-                                                  # as we did in the script, this more compact command test the existence of OBJ/ and creates...
-                                                  # ...it if it was not here (-p allow to create also the sub-directory /obj/)
-
-$(shell [ -d $(OUTPUT_DIR) ] || mkdir -p $(OUTPUT_DIR))
-
-
-#=================================================================================
-#==================Definition of other useful names in variables==================
-#==========================2. Of the External Libraries===========================
-#=================================================================================
-ExtLibDIR := Ext_Lib
-# the name of the directory where to find all the external librairies (do not mind the ":")
-$(shell [ -d $(ExtLibDIR) ] || (echo $(ExtLibDIR) "does not exist" ; exit 1))
-# first and foremost the presence of the directory containing the ext. libs. is tested as it could be done in a shell script
-
-QD_DIR     = $(ExtLibDIR)/QDUtilLib
-# the name and path where to find all the files of this specific external library (QDUtilLib). Rq: here its a lik-file pointing towards the QDUtilLib_loc file
-
-OOPT       = 0
-OOMP       = 1
-LLAPACK    = 0
-INT        = 4
-# the parameters to compile the QDUtilLib with (cf makefile of QDUtilLib_loc)
-
-ext_obj    = _$(FFC)_opt$(OOPT)_omp$(OOMP)_lapack$(LLAPACK)_int$(INT)
-# the full name (with all the options) of the full static object file of the library (/!\ WITHOUT the .a extension and the prefix "libQD")
-QDLIBA     = $(QD_DIR)/libQD$(ext_obj).a
-# the full name and path (with all the extentions AND WITH the .a extention and the prefix "libQD" this time) : the actual static file of the QDUtilLib library
-QDMOD_DIR  = $(QD_DIR)/OBJ/obj$(ext_obj)
-# the name and path where to find all the .mod files of the QDUtilLib library
-
-EXTLib     = $(QDLIBA)
-EXTMod     = -I$(QDMOD_DIR)
-# for the sake of legibility, the last two name/path (that is : the .a static lib. file and the directory where to find .mod files) with more intuitive names
-# "-I" is for the gfortran compiler to understand that this is the path towards the .mod files for the compilation (gfortran argument syntax)
-
-
-#=================================================================================
-#==================Definition of other useful names in variables==================
-#=========================3. For the gfortran compilation=========================
-#=================================================================================
-FFLAGS   = -Og -g -fbacktrace -fcheck=all -fwhole-file -fcheck=pointer -Wuninitialized -finit-real=nan -finit-integer=nan -fopenmp
-# some useful optional arguments of the gfortran compilation command
-FFLAGS   += -J$(MOD_DIR) $(EXTMod)
+FFLAGS  = -Og -g -fbacktrace -fcheck=all -fwhole-file -fcheck=pointer -Wuninitialized -finit-real=nan -finit-integer=nan -fopenmp# some useful optional arguments of the gfortran compilation command
+FFLAGS += -J$(MOD_DIR) $(EXTMod)
 # "+=" works the same way as in python, C, etc
 # to these optional aguments are added : "-J" which indicates the DIRECTORY (and not all the path of the .mod files) where to STORE the .mod files of the...
 # ...lib. after compilation (at the contrary of "-I" which indicates where to FIND the needed ones); and the path towards the .mod files of the external...
 # ...library(ies).
-SRCFILES = Tests_m.f90 Algebra_m.f90 ND_indexes_m.f90 Elem_op_m.f90 Quantum_HO1D_m.f90 Matter_mode_m.f90 Cavity_mode_m.f90 Operator_ND_m.f90 Sum_of_products_m.f90 Transition_spectrum_m.f90
-# the list of all the .f90 source files OF THE LIBRARY (only the modules, not the test/app programs) to be compiled
-OBJ0     = ${SRCFILES:.f90=.o}
+
+
+#-------------------------------------------------
+#--- Definition of other useful names in variables#(just names so far, and some directory)
+#--- 1. Of the main librairy
+#-------------------------------------------------
+LIB            = libMolecCav# the name of the library (the actual name of the actual library, not the name of any file of the library so far)
+LIBA           = $(LIB).a# the name (/!\ WITH the extension) of the library (the name of its full static object file this time = all the .o files of its modules)
+# in make the variables values are treated and accessed the same way as in shell/bash : between "$(<name_of_the_variable>)"
+
+DATA_DIR       = DATA# the name of the directory where to find the data files of the library
+OBJ_DIR        = OBJ/obj# the name of the directory where to store the objects .o and .mod files (/obj because we might want to create different sub libraries with different parameters => different obj/ directories)
+MOD_DIR        = $(OBJ_DIR)# the name of the directory where to store the .mod files (here same as OBJ but can be different)
+EXE_DIR        = EXE# the name of the directory where to store the objects .o and .mod files (/obj because we might want to create different sub libraries with different parameters => different obj/ directories)
+OUTPUT_DIR     = OUT# the name of the directory where to store the log files of the library's programs
+
+MAIN_DIR       = APP# the name of the directory where to find the source file(s) of the application/exemple program
+MAIN           = Spec_1p1D# the name of the application file without the extension
+MAIN_SRC       = $(MAIN).f90
+MAIN_OBJ       = $(MAIN).o
+MAIN_EXE       = $(MAIN).exe
+MAIN_OUT       = $(MAIN).log
+MAIN_DATA      = data_$(MAIN)
+MAIN_DATA_FULL = $(MAIN_DATA).nml
+
+MODULES_DIR    = SRC# the name of the directory where to find the source files of the library's modules
+MODULES_SRC    = Tests_m.f90 Algebra_m.f90 ND_indexes_m.f90 Elem_op_m.f90 Quantum_HO1D_m.f90 Matter_mode_m.f90 Cavity_mode_m.f90 Operator_ND_m.f90 Sum_of_products_m.f90 Transition_spectrum_m.f90# the list of all the .f90 source files OF THE LIBRARY (only the modules, not the test/app programs) to be compiled
+MODULES_OBJ    = ${MODULES_SRC:.f90=.o}# the list of all the names of the futur object files that will be created from the aforementioned library source files
 # this syntax looks like a list slicing in python : change the .f90 string of the var to .o : it allows to change the extension of the file from .f90 to .o
-# the list of all the names of the futur object files that will be created from the aforementioned library source files
-OBJ      = $(addprefix $(OBJ_DIR)/, $(OBJ0))
+#OBJ      = $(addprefix $(OBJ_DIR)/, $(MODULES_OBJ))#NOT USED HERE (just to keep the syntax within easy reach) the same list but, this time, with the complete path towards where the object files have to be stored
 # the command "addprefix <string to add as a prefix>, <string to which the prefix has to be added>" does exactly what it seems to
-# the same list but, this time, with the complete path towards where the object files have to be stored
+
+TESTS_DIR      = TESTS# the name of the directory where to find the source files of the library's test programs
+TESTS          = test_algebra test_ND_indexes test_elem_op test_quantum_ho1d test_matter_mode test_cavity_mode test_operator_ND_1p1D test_operator_ND_2p1D test_operator_ND_1p2D test_operator_ND_3p0D test_sum_of_products_1p1D test_operator_ND_0p3D test_transition_spectrum
+TESTS_SRC      = $(addsuffix .f90, $(TESTS))
+TESTS_OBJ      = $(addsuffix .o, $(TESTS))
+TESTS_EXE      = $(addsuffix .exe, $(TESTS))
+TESTS_OUT      = $(addsuffix .log, $(TESTS))
+
+$(shell [ -d $(OBJ_DIR) ] || mkdir -p $(OBJ_DIR))
+$(shell [ -d $(OUTPUT_DIR) ] || mkdir -p $(OUTPUT_DIR))
+$(shell [ -d $(EXE_DIR) ] || mkdir -p $(EXE_DIR))
+$(shell [ -d $(EXE_DIR)/tests ] || mkdir -p $(EXE_DIR)/tests)
+# the instruction A = $(shell <shell command>) in Make will store into the var A the result of the execution of the <shell command> command in the shell (and thereby execute this command in the shell). Here the result of the command is note stored but still executed. As we did in the script, this more compact command test the existence of OBJ/ and
+# creates it if it was not here (-p allow to create also the sub-directory /obj/).
+
+
+#-------------------------------------------------
+#--- Definition of other useful names in variables
+#--- 2. Of the External Libraries
+#-------------------------------------------------
+ExtLibDIR := Ext_Lib# the name of the directory where to find all the external librairies (do not mind the ":")
+$(shell [ -d $(ExtLibDIR) ] || (echo $(ExtLibDIR) "does not exist" ; exit 1))# first and foremost the presence of the directory containing the ext. libs. is tested as it could be done in a shell script
+
+QD_DIR     = $(ExtLibDIR)/QDUtilLib# the name and path where to find all the files of this specific external library (QDUtilLib). Rq: here its a lik-file pointing towards the QDUtilLib_loc file
+
+OOPT       = 0
+OOMP       = 1
+LLAPACK    = 0
+INT        = 4# the parameters to compile the QDUtilLib with (cf makefile of QDUtilLib_loc)
+
+ext_obj    = _$(FFC)_opt$(OOPT)_omp$(OOMP)_lapack$(LLAPACK)_int$(INT)# the full name (with all the options) of the full static object file of the library (/!\ WITHOUT the .a extension and the prefix "libQD")
+QDLIBA     = $(QD_DIR)/libQD$(ext_obj).a# the full name and path (with all the extentions AND WITH the .a extention and the prefix "libQD" this time) : the actual static file of the QDUtilLib library
+QDMOD_DIR  = $(QD_DIR)/OBJ/obj$(ext_obj)# the name and path where to find all the .mod files of the QDUtilLib library
+
+EXTLib     = $(QDLIBA)
+EXTMod     = -I$(QDMOD_DIR)# the directory where the external libraries are to find (cf next subpart)
+# for the sake of legibility, the last two name/path (that is : the .a static lib. file and the directory where to find .mod files) with more intuitive names
+# "-I" is for the gfortran compiler to understand that this is the path towards the .mod files for the compilation (gfortran argument syntax)
+
+
+#-------------------------
+#--- Summary of the things
+#-------------------------
 
 $(info ***********************************************************************)
 $(info ***********************************************************************)
 $(info ***********COMPILER:     $(FFC))
-$(info ***********OBJ:          $(OBJ))
+$(info ***********OBJ:          $(addprefix $(OBJ_DIR)/, $(MODULES_OBJ)))
 $(info ***********FFLAGS:       $(FFLAGS))
 $(info ***********************************************************************)
 $(info ***********************************************************************)
@@ -152,11 +162,6 @@ UT ut: test_algebra.exe test_ND_indexes.exe test_elem_op.exe test_quantum_ho1d.e
 	./test_operator_ND_0p3D.exe       < $(DATA_DIR)/data_test_opnd_0p3d.nml   > $(OUTPUT_DIR)/test_operator_ND_0p3D.log
 	./test_sum_of_products_1p1D.exe   < $(DATA_DIR)/data_test_sop_1p1d.nml    > $(OUTPUT_DIR)/test_sum_of_products_1p1D.log
 	./test_transition_spectrum.exe    < $(DATA_DIR)/data_test_trstns_spec.nml > $(OUTPUT_DIR)/test_transition_spectrum.log
-#	./test_mapping.exe                < $(DATA_DIR)/data_tests.nml            > $(OUTPUT_DIR)/test_mapping.log
-#	./test_action_total_H_1p1D.exe    < $(DATA_DIR)/data_tests.nml            > $(OUTPUT_DIR)/test_action_total_H_1p1D.log
-#	./test_construct_total_H_1p1D.exe < $(DATA_DIR)/data_tests.nml            > $(OUTPUT_DIR)/test_construct_total_H_1p1D.log
-#	./test_normal_modes_1p1D.exe      < $(DATA_DIR)/data_tests.nml            > $(OUTPUT_DIR)/test_normal_modes_1p1D.log
-#	./test_transition_intensities.exe < $(DATA_DIR)/data_tests.nml            > $(OUTPUT_DIR)/test_transition_intensities.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_algebra.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_ND_indexes.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_elem_op.log
@@ -168,13 +173,6 @@ UT ut: test_algebra.exe test_ND_indexes.exe test_elem_op.exe test_quantum_ho1d.e
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_operator_ND_1p2D.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_operator_ND_3p0D.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/test_operator_ND_0p3D.log
-#	grep "Number of error(s)" $(OUTPUT_DIR)/test_sum_of_products_1p1D.log
-#	grep "Number of error(s)" $(OUTPUT_DIR)/test_transition_spectrum.log
-#	grep "Number of error(s)" $(OUTPUT_DIR)/test_mapping.log
-#	grep "Number of error(s)" $(OUTPUT_DIR)/test_action_total_H_1p1D.log
-#	grep "Number of error(s)" $(OUTPUT_DIR)/test_construct_total_H_1p1D.log
-#	grep "Number of error(s)" $(OUTPUT_DIR)/test_normal_modes_1p1D.log
-#	grep "Number of error(s)" $(OUTPUT_DIR)/test_transition_intensities.log
 	@echo "Done Tests"
 # here is the actual definition of the command. It is declared as "UT" OR "ut" to make it cass-insensitive (both can be used to call it). NB: UT = Utility Test
 # the first line instruction is understood by Make as "see these files". It will search the make file for where they are defined i.e. for their...
@@ -194,7 +192,7 @@ UT ut: test_algebra.exe test_ND_indexes.exe test_elem_op.exe test_quantum_ho1d.e
 # ... BUT not execute anything !
 .PHONY: app APP App
 app APP App: $(MAIN).exe
-	./$(MAIN).exe < $(DATA_DIR)/data_$(MAIN_DATA).nml > $(OUTPUT_DIR)/App_$(MAIN_OUT).log
+	./$(MAIN).exe < $(DATA_DIR)/$(MAIN_DATA_FULL) > $(OUTPUT_DIR)/App_$(MAIN_OUT).log
 
 
 #=================================================================================
@@ -352,21 +350,21 @@ $(OBJ_DIR)/%.o : $(TESTS_DIR)/%.f90
 #=========================3. the library (the SRC modules)========================
 #==============================3.1. The object files==============================
 #=================================================================================
-$(OBJ_DIR)/%.o : $(SRC_DIR)/%.f90
+$(OBJ_DIR)/%.o : $(MODULES_DIR)/%.f90
 #	$(FFC) $(FFLAGS) -o $@ -c $< (in the order we are used to :)
 	$(FFC) -c -o $@ $(FFLAGS) $<
 
-#$(OBJ_DIR)/Quantum_HO1D_m.o  : $(SRC_DIR)/Quantum_HO1D_m.f90
-#	$(FFC) -c -o $(OBJ_DIR)/Quantum_HO1D_m.o $(FFLAGS) $(SRC_DIR)/Quantum_HO1D_m.f90
+#$(OBJ_DIR)/Quantum_HO1D_m.o  : $(MODULES_DIR)/Quantum_HO1D_m.f90
+#	$(FFC) -c -o $(OBJ_DIR)/Quantum_HO1D_m.o $(FFLAGS) $(MODULES_DIR)/Quantum_HO1D_m.f90
 
-#$(OBJ_DIR)/Elem_op_m.o  : $(SRC_DIR)/Elem_op_m.f90
-#	$(FFC) -c -o $(OBJ_DIR)/Elem_op_m.o $(FFLAGS) $(SRC_DIR)/Elem_op_m.f90
+#$(OBJ_DIR)/Elem_op_m.o  : $(MODULES_DIR)/Elem_op_m.f90
+#	$(FFC) -c -o $(OBJ_DIR)/Elem_op_m.o $(FFLAGS) $(MODULES_DIR)/Elem_op_m.f90
 
-#$(OBJ_DIR)/Total_hamiltonian_m.o  : $(SRC_DIR)/Total_hamiltonian_m.f90
-#	$(FFC) -c -o $(OBJ_DIR)/Total_hamiltonian_m.o $(FFLAGS) $(SRC_DIR)/Total_hamiltonian_m.f90
+#$(OBJ_DIR)/Total_hamiltonian_m.o  : $(MODULES_DIR)/Total_hamiltonian_m.f90
+#	$(FFC) -c -o $(OBJ_DIR)/Total_hamiltonian_m.o $(FFLAGS) $(MODULES_DIR)/Total_hamiltonian_m.f90
 
-#$(OBJ_DIR)/Algebra_m.o  : $(SRC_DIR)/Algebra_m.f90
-#	$(FFC) -c -o $(OBJ_DIR)/Algebra_m.o $(FFLAGS) $(SRC_DIR)/Algebra_m.f90
+#$(OBJ_DIR)/Algebra_m.o  : $(MODULES_DIR)/Algebra_m.f90
+#	$(FFC) -c -o $(OBJ_DIR)/Algebra_m.o $(FFLAGS) $(MODULES_DIR)/Algebra_m.f90
 
 #=================================================================================
 #==================Definition of the files to be created by Make==================

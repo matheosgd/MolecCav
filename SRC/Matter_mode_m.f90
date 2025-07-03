@@ -1,8 +1,10 @@
 !==================================================================================================
 !==================================================================================================
+!
 ! This file is part of MolecCav.
 !
 !==================================================================================================
+!
 ! MIT License
 !
 ! Copyright (c) 2025 Mathéo Segaud
@@ -24,7 +26,9 @@
 ! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 ! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ! SOFTWARE.
+!
 !==================================================================================================
+!
 ! README :
 ! The only module related to general HO that the others modules will need to call in a "USE".  
 ! Initialize_quantum_HO1D : reads the namelist and initialize the type, then constructs the operat-

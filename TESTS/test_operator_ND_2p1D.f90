@@ -1,8 +1,10 @@
 !==================================================================================================
 !==================================================================================================
+!
 ! This file is part of MolecCav.
 !
 !==================================================================================================
+!
 ! MIT License
 !
 ! Copyright (c) 2025 Mathéo Segaud
@@ -24,7 +26,7 @@
 ! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 ! OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ! SOFTWARE.
-!==================================================================================================
+!
 !==================================================================================================
 PROGRAM test_operator_ND_2p1D
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real124
