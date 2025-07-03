@@ -68,7 +68,7 @@ PROGRAM test_operator_ND_0p3D
 
 
   !-----------------------------Test initialization----------------------------
-  CALL Initialize_Test(test_opnd, test_name="OUT/test_file_opnd_0p3D")
+  CALL Initialize_Test(test_opnd, test_name="OUT/tests/test_file_opnd_0p3D")
 
 
   !-------------------------Operator_ND object initialization-------------------------

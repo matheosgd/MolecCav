@@ -241,15 +241,14 @@ $(QDLIBA):
 .PHONY: clean cleanall
 clean:
 	rm -f $(OBJ_DIR)/*.o
-	rm -f $(EXE_DIR)/.exe
-	rm -f $(MAIN).exe
-	rm -f $(OUTPUT_DIR)/test_*.log
-	rm -f $(OUTPUT_DIR)/$(MAIN).log
-	@echo "Done cleaning objects, executables, and tests outputs"
+	rm -f $(EXE_DIR)/test*.exe
+	rm -f $(OUTPUT_DIR)/tests/test_*.log
+	@echo "Done cleaning objects, tests executables, and tests outputs"
 # removes all the object files from the OBJ/ directory, all the executable files, and the output files from the tests
 
 cleanall : clean
 	rm -fr OBJ/*
+	rm -fr $(EXE_DIR)/*
 	rm -f lib*.a
 	cd Ext_Lib ; ./cleanlib
 	@echo "Done all cleaning : objects, modules, statics, and same for external libraries"
@@ -293,9 +292,17 @@ $(OBJ_DIR)/%.o : $(TESTS_DIR)/%.f90
 #--- 3. the library (the SRC modules)
 #--- 3.1. The object files
 #-------------------------------------------------
-$(OBJ_DIR)/%.o : $(MODULES_DIR)/%.f90
-#	$(FFC) $(FFLAGS) -o $@ -c $< (in the order we are used to :)
+$(OBJ_DIR)/%.o : $(MODULES_DIR)/general_op/%.f90
 	$(FFC) -c -o $@ $(FFLAGS) $<
+$(OBJ_DIR)/%.o : $(MODULES_DIR)/general_tools/%.f90
+	$(FFC) -c -o $@ $(FFLAGS) $<
+$(OBJ_DIR)/%.o : $(MODULES_DIR)/ND_op/%.f90
+	$(FFC) -c -o $@ $(FFLAGS) $<
+$(OBJ_DIR)/%.o : $(MODULES_DIR)/sD_op/%.f90
+	$(FFC) -c -o $@ $(FFLAGS) $<
+$(OBJ_DIR)/%.o : $(MODULES_DIR)/properties/%.f90
+	$(FFC) -c -o $@ $(FFLAGS) $<
+#	$(FFC) $(FFLAGS) -o $@ -c $< (originally written in this sens by David)
 
 
 #-------------------------------------------------
@@ -320,18 +327,7 @@ $(LIBA): $(addprefix $(OBJ_DIR)/, $(MODULES_OBJ))
 #--- Definition of the files dependancies
 #----------------------------------------
 # here are added the other dependancies between modules, that arre mandatory for a good compilation, but which do not lead to creation instructions. Just to specify that one module needs another one
-$(OBJ_DIR)/test_algebra.o                : $(LIBA)
-$(OBJ_DIR)/test_sum_of_products_1p1D.o   : $(LIBA)
-$(OBJ_DIR)/test_operator_ND_0p3D.o       : $(LIBA)
-$(OBJ_DIR)/test_operator_ND_3p0D.o       : $(LIBA)
-$(OBJ_DIR)/test_operator_ND_1p2D.o       : $(LIBA)
-$(OBJ_DIR)/test_operator_ND_2p1D.o       : $(LIBA)
-$(OBJ_DIR)/test_operator_ND_1p1D.o       : $(LIBA)
-$(OBJ_DIR)/test_cavity_mode.o            : $(LIBA)
-$(OBJ_DIR)/test_matter_mode.o            : $(LIBA)
-$(OBJ_DIR)/test_quantum_ho1d.o           : $(LIBA)
-$(OBJ_DIR)/test_elem_op.o                : $(LIBA)
-$(OBJ_DIR)/test_ND_indexes.o             : $(LIBA)
+$(OBJ_DIR)/$(TESTS_OBJ)                  : $(LIBA)
 
 $(OBJ_DIR)/Sum_of_products.o             : $(OBJ_DIR)/Operator_ND_m.o 
 $(OBJ_DIR)/Operator_ND_m.o               : $(OBJ_DIR)/Cavity_mode_m.o 
@@ -346,8 +342,8 @@ $(OBJ_DIR)/Operator_2D_m.o               : $(OBJ_DIR)/Elem_op_m.o
 $(OBJ_DIR)/Total_hamiltonian_m.o         : $(OBJ_DIR)/Quantum_HO1D_m.o 
 $(OBJ_DIR)/Total_hamiltonian_m.o         : $(OBJ_DIR)/Elem_op_m.o 
 
-$(OBJ_DIR)/$(MAIN_OBJ)                     : $(LIBA)
+$(OBJ_DIR)/$(MAIN_OBJ)                   : $(LIBA)
 
-$(OBJ)                                   : | $(QDLIBA)
+$(addprefix $(OBJ_DIR)/, $(MODULES_OBJ)) : | $(QDLIBA)
 # the pipe means that only the EXISTENCE is tested and not the dates of the files. The logical test is True if $(QDLIBA) exists, EVEN if its creation date is more recent than the tested file
 

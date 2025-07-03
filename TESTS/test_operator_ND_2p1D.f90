@@ -77,7 +77,7 @@ PROGRAM test_operator_ND_2p1D
 
 
   !-----------------------------Test initialization----------------------------
-  CALL Initialize_Test(test_opnd, test_name="OUT/test_file_opnd_2p1D")
+  CALL Initialize_Test(test_opnd, test_name="OUT/tests/test_file_opnd_2p1D")
 
 
   !-------------------------Operator_ND object initialization-------------------------

@@ -62,7 +62,7 @@ PROGRAM test_ND_indexes
     
   
   !---------------------------------------Test initialization--------------------------------------
-  CALL Initialize_Test(test_ND_ind, test_name="OUT/test_file_ND_ind")
+  CALL Initialize_Test(test_ND_ind, test_name="OUT/tests/test_file_ND_ind")
   
 
   !--------------------------------------System initialization-------------------------------------

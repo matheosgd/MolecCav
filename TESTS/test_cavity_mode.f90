@@ -64,7 +64,7 @@ PROGRAM test_cavity_mode
 
 
   !-----------------------------Test initialization----------------------------
-  CALL Initialize_Test(test_cavmode, test_name="OUT/test_file_cav_mode")
+  CALL Initialize_Test(test_cavmode, test_name="OUT/tests/test_file_cav_mode")
 
 
   !-------------------------Cavity mode initialization-------------------------

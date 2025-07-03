@@ -68,8 +68,8 @@ PROGRAM test_quantum_ho1d
   complex(kind=Rkind)           :: Op_psi_complex_qho1d(6)
   complex(kind=Rkind)           :: Op_psi_complex_elem_op(6)
   
-  integer                      :: Param_integer
-  real(kind=Rkind)             :: Param_real
+  integer                       :: Param_integer
+  real(kind=Rkind)              :: Param_real
 
   TYPE(test_t)                  :: test_qho1d
   logical                       :: error_qho1d = .FALSE.
@@ -78,7 +78,7 @@ PROGRAM test_quantum_ho1d
 
 
   !-----------------------------Test initialization----------------------------
-  CALL Initialize_Test(test_qho1d, test_name="OUT/test_file_qntm_ho1d")
+  CALL Initialize_Test(test_qho1d, test_name="OUT/tests/test_file_qntm_ho1d")
 
 
   !---------------------------Construct Quantum HO1D to test---------------------------

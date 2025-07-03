@@ -64,7 +64,7 @@ PROGRAM test_matter_mode
 
 
   !-----------------------------Test initialization----------------------------
-  CALL Initialize_Test(test_matmode, test_name="OUT/test_file_mat_mode")
+  CALL Initialize_Test(test_matmode, test_name="OUT/tests/test_file_mat_mode")
 
 
   !-------------------------Matter mode initialization-------------------------

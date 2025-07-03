@@ -70,7 +70,7 @@ PROGRAM test_elem_op
 
 
   !-----------------------------Test initialization----------------------------
-  CALL Initialize_Test(test_action, test_name="OUT/test_file_elem_op")
+  CALL Initialize_Test(test_action, test_name="OUT/tests/test_file_elem_op")
   
 
   !-------------------------Wavefunction initialization (real)------------------------
