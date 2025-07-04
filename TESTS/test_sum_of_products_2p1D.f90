@@ -31,6 +31,7 @@
 PROGRAM test_sum_of_products_2p1D
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
   USE QDUtil_m
+  USE Algebra_m
   USE Sum_of_products_m
   IMPLICIT NONE
 
@@ -41,6 +42,7 @@ PROGRAM test_sum_of_products_2p1D
   logical                          :: Dense   = .FALSE.
   TYPE(Sum_of_products_t)          :: TotH
   TYPE(Sum_of_products_t)          :: DipMomt
+  TYPE(Sum_of_products_t)          :: NbPh
 
   integer                          :: Mat1Nb
   integer                          :: Mat2Nb
@@ -50,11 +52,13 @@ PROGRAM test_sum_of_products_2p1D
   real(kind=Rkind),    allocatable ::    Phi(:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
   complex(kind=Rkind), allocatable ::    Phi_complex(:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
   complex(kind=Rkind), allocatable :: Op_phi_complex(:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
+  real(kind=Rkind),    allocatable :: Op_psi(:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
 
   real(kind=Rkind), allocatable    :: TotH_matrix(:,:)
   real(kind=Rkind), allocatable    :: Eigenenergies(:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
   real(kind=Rkind), allocatable    :: Eigenstates(:,:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
 
+  real(kind=Rkind)                 :: N_ph
   integer                          :: J, i_1, i_2, i_3, min_index
 
 
@@ -75,7 +79,14 @@ PROGRAM test_sum_of_products_2p1D
     WRITE(out_unit,*) "------------End DipMomt object constructed by MolecCav_Initialize_dipmomt------------"
   END IF
 
-  
+  CALL Initialize_nbphotons(NbPh, in_unit, Dense=Dense, Verbose=Verbose, Debug=Debug)
+  IF (Debug) THEN
+    WRITE(out_unit,*)
+    WRITE(out_unit,*) "--------------NbPh object constructed by MolecCav_Initialize_dipmomt--------------"
+    CALL Write(NbPh)
+    WRITE(out_unit,*) "------------End NbPh object constructed by MolecCav_Initialize_dipmomt------------"
+  END IF
+
   !----------------------------------Wavefunction initialization---------------------------------
   CALL Get(Mat1Nb, "Nb", "Matter", 1)
   CALL Get(Mat2Nb, "Nb", "Matter", 2)
@@ -86,6 +97,7 @@ PROGRAM test_sum_of_products_2p1D
   ALLOCATE(TotH_matrix(NB,NB))
   ALLOCATE(Phi_complex(NB))
   ALLOCATE(Op_phi_complex(NB))
+  ALLOCATE(Op_psi(NB))
 
   Phi_complex = ZERO
   DO J = 1, SIZE(Phi_complex)
@@ -112,12 +124,19 @@ PROGRAM test_sum_of_products_2p1D
   CALL diagonalization(TotH_matrix, Eigenenergies, Eigenstates)
   WRITE(out_unit,*)
   CALL Write_Vec(Eigenenergies(1:12), out_unit, 1, info="EigenEnergies(1:12)")
+  CALL Write_Mat(Eigenstates(1:50,1:10), out_unit, 10, info="Eigenstates(1:50,1:10)")
 
   CALL Action(Op_phi_complex, TotH, Phi_complex, Verbose=Verbose, Debug=Debug)
   WRITE(out_unit,*)
   WRITE(out_unit,*) "*** RESULTING WF VECTOR FROM ACTION OF TOTH ON PHI COMPLEX"
   CALL Write_Vec(Op_phi_complex, out_unit, 1, info="TotH_Phi_complex")
 
+  DO J = 1, 10
+    Op_psi = ZERO
+    CALL Action(Op_psi, NbPh, Eigenstates(:,J), Verbose=Verbose)!, Debug=Debug)
+    CALL Scalar_product(N_ph, Eigenstates(:,J), Op_psi)
+    WRITE(out_unit,*) "N_{ph,"//TO_string(J)//"} = "//TO_string(N_ph)
+  END DO 
 
   !----------------------------Testing the writing---------------------------
   CALL Write(TotH)

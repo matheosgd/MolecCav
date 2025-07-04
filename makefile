@@ -90,7 +90,7 @@ MODULES_OBJ    = ${MODULES_SRC:.f90=.o}# the list of all the names of the futur 
 # the command "addprefix <string to add as a prefix>, <string to which the prefix has to be added>" does exactly what it seems to
 
 TESTS_DIR      = TESTS# the name of the directory where to find the source files of the library's test programs
-TESTS          = test_algebra test_ND_indexes test_elem_op test_quantum_ho1d test_matter_mode test_cavity_mode test_operator_ND_1p1D test_operator_ND_2p1D test_operator_ND_1p2D test_operator_ND_3p0D test_sum_of_products_1p1D test_operator_ND_0p3D test_transition_spectrum
+TESTS          = test_algebra test_ND_indexes test_elem_op test_quantum_ho1d test_matter_mode test_cavity_mode test_operator_ND_1p1D test_operator_ND_2p1D test_operator_ND_1p2D test_operator_ND_3p0D test_operator_ND_0p3D test_sum_of_products_1p1D test_sum_of_products_2p1D test_sum_of_products_0p3D test_transition_spectrum
 TESTS_SRC      = $(addsuffix .f90, $(TESTS))
 TESTS_OBJ      = $(addsuffix .o, $(TESTS))
 TESTS_EXE      = $(addsuffix .exe, $(TESTS))
@@ -166,6 +166,8 @@ UT ut: $(addprefix $(EXE_DIR)/, $(TESTS_EXE))
 	./$(EXE_DIR)/test_operator_ND_3p0D.exe       < $(DATA_DIR)/data_test_opnd_3p0d.nml   > $(OUTPUT_DIR)/tests/test_operator_ND_3p0D.log
 	./$(EXE_DIR)/test_operator_ND_0p3D.exe       < $(DATA_DIR)/data_test_opnd_0p3d.nml   > $(OUTPUT_DIR)/tests/test_operator_ND_0p3D.log
 	./$(EXE_DIR)/test_sum_of_products_1p1D.exe   < $(DATA_DIR)/data_test_sop_1p1d.nml    > $(OUTPUT_DIR)/tests/test_sum_of_products_1p1D.log
+	./$(EXE_DIR)/test_sum_of_products_2p1D.exe   < $(DATA_DIR)/data_test_sop_2p1d.nml    > $(OUTPUT_DIR)/tests/test_sum_of_products_2p1D.log
+	./$(EXE_DIR)/test_sum_of_products_0p3D.exe   < $(DATA_DIR)/data_test_sop_0p3d.nml    > $(OUTPUT_DIR)/tests/test_sum_of_products_0p3D.log
 	./$(EXE_DIR)/test_transition_spectrum.exe    < $(DATA_DIR)/data_test_trstns_spec.nml > $(OUTPUT_DIR)/tests/test_transition_spectrum.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/tests/test_algebra.log
 	grep "Number of error(s)" $(OUTPUT_DIR)/tests/test_ND_indexes.log

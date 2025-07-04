@@ -31,6 +31,7 @@
 PROGRAM test_sum_of_products_0p3D
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
   USE QDUtil_m
+  USE Algebra_m
   USE Sum_of_products_m
   IMPLICIT NONE
 
@@ -41,6 +42,7 @@ PROGRAM test_sum_of_products_0p3D
   logical                          :: Dense   = .FALSE.
   TYPE(Sum_of_products_t)          :: TotH
   TYPE(Sum_of_products_t)          :: DipMomt
+  TYPE(Sum_of_products_t)          :: NbPh
 
   integer                          :: Cav1Nb
   integer                          :: Cav2Nb
@@ -50,16 +52,18 @@ PROGRAM test_sum_of_products_0p3D
   real(kind=Rkind),    allocatable ::    Phi(:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
   complex(kind=Rkind), allocatable ::    Phi_complex(:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
   complex(kind=Rkind), allocatable :: Op_phi_complex(:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
+  real(kind=Rkind),    allocatable :: Op_psi(:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
   
   real(kind=Rkind), allocatable    :: TotH_matrix(:,:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
   real(kind=Rkind), allocatable    :: Eigenenergies(:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
   real(kind=Rkind), allocatable    :: Eigenstates(:,:)                                                                             ! an any vector representing the excitation state/wavefunction = a linear combination of the basis functions from the canonical basis set over \mathbb{R} /!\ Not normalized yet !
 
+  real(kind=Rkind)                 :: N_ph
   integer                          :: J, i_1, i_2, i_3, min_index
 
 
   !-------------------------Sum_of_products operators initialization-------------------------
-  CALL Initialize_totH(TotH, in_unit, Dense=Dense, Verbose=Verbose, Debug=.TRUE.)
+  CALL Initialize_totH(TotH, in_unit, Dense=Dense, Verbose=Verbose, Debug=Debug)
   IF (Debug) THEN
     WRITE(out_unit,*)
     WRITE(out_unit,*) "--------------TotH object constructed by MolecCav_Initialize_total_hamiltonian--------------"
@@ -67,15 +71,22 @@ PROGRAM test_sum_of_products_0p3D
     WRITE(out_unit,*) "------------End TotH object constructed by MolecCav_Initialize_total_hamiltonian------------"
   END IF
 
-  CALL Initialize_dipmomt(DipMomt, in_unit, Dense=Dense, Verbose=Verbose, Debug=.TRUE.)
+  ! CALL Initialize_dipmomt(DipMomt, in_unit, Dense=Dense, Verbose=Verbose, Debug=Debug)
+  ! IF (Debug) THEN
+  !   WRITE(out_unit,*)
+  !   WRITE(out_unit,*) "--------------DipMomt object constructed by MolecCav_Initialize_dipmomt--------------"
+  !   CALL Write(DipMomt)
+  !   WRITE(out_unit,*) "------------End DipMomt object constructed by MolecCav_Initialize_dipmomt------------"
+  ! END IF
+
+  CALL Initialize_nbphotons(NbPh, in_unit, Dense=Dense, Verbose=Verbose, Debug=Debug)
   IF (Debug) THEN
     WRITE(out_unit,*)
-    WRITE(out_unit,*) "--------------DipMomt object constructed by MolecCav_Initialize_dipmomt--------------"
-    CALL Write(DipMomt)
-    WRITE(out_unit,*) "------------End DipMomt object constructed by MolecCav_Initialize_dipmomt------------"
+    WRITE(out_unit,*) "--------------NbPh object constructed by MolecCav_Initialize_dipmomt--------------"
+    CALL Write(NbPh)
+    WRITE(out_unit,*) "------------End NbPh object constructed by MolecCav_Initialize_dipmomt------------"
   END IF
 
-  
   !----------------------------------Wavefunction initialization---------------------------------
   CALL Get(Cav1Nb, "Nb", "Cavity", 1)
   CALL Get(Cav2Nb, "Nb", "Cavity", 2)
@@ -86,6 +97,7 @@ PROGRAM test_sum_of_products_0p3D
   ALLOCATE(TotH_matrix(NB,NB))
   ALLOCATE(Phi_complex(NB))
   ALLOCATE(Op_phi_complex(NB))
+  ALLOCATE(Op_psi(NB))
 
   Phi_complex = ZERO
   DO J = 1, SIZE(Phi_complex)
@@ -117,6 +129,12 @@ PROGRAM test_sum_of_products_0p3D
   WRITE(out_unit,*) "*** RESULTING WF VECTOR FROM ACTION OF TOTH ON PHI COMPLEX"
   CALL Write_Vec(Op_phi_complex, out_unit, 1, info="TotH_Phi_complex")
 
+  DO J = 1, 10
+    Op_psi = ZERO
+    CALL Action(Op_psi, NbPh, Eigenstates(:,J), Verbose=Verbose)!, Debug=Debug)
+    CALL Scalar_product(N_ph, Eigenstates(:,J), Op_psi)
+    WRITE(out_unit,*) "N_{ph,"//TO_string(J)//"} = "//TO_string(N_ph)
+  END DO 
 
   !----------------------------Testing the writing---------------------------
   CALL Write(TotH)

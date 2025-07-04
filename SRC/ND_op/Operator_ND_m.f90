@@ -337,8 +337,8 @@ MODULE Operator_ND_m
       WRITE(out_unit,*) "--- Arguments of MolecCav_Action_operator_ND :"
       WRITE(out_unit,*) "The <<OpND>> argument :"
       !CALL Write(OpND)
-      IF (SIZE(OpND%tab_indexes_mat_op)==0) WRITE(out_unit,*) "tab mat op : $\empty$"
-      IF (SIZE(OpND%tab_indexes_mat_op)/=0) WRITE(out_unit,*) "tab mat op : "//TO_string(OpND%tab_indexes_mat_op)
+      IF (SIZE(OpND%tab_indexes_mat_op)==0) WRITE(out_unit,*) "tab mat op : $\empty$"; FLUSH(out_unit)
+      IF (SIZE(OpND%tab_indexes_mat_op)/=0) WRITE(out_unit,*) "tab mat op : "//TO_string(OpND%tab_indexes_mat_op); FLUSH(out_unit)
       IF (SIZE(OpND%tab_indexes_cav_op)==0) WRITE(out_unit,*) "tab cav op : $\empty$"
       IF (SIZE(OpND%tab_indexes_cav_op)/=0) WRITE(out_unit,*) "tab cav op : "//TO_string(OpND%tab_indexes_cav_op)
       WRITE(out_unit,*) "The <<Psi>> argument : "

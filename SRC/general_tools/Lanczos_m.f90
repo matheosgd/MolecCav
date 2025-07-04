@@ -47,8 +47,8 @@ MODULE Lanczos_m
   INTERFACE Initialize
     MODULE PROCEDURE MolecCav_Initialize_krylov_basis
   END INTERFACE
-  INTERFACE Increment
-    MODULE PROCEDURE MolecCav_Increment_krylov_basis
+  INTERFACE Augment
+    MODULE PROCEDURE MolecCav_Augment_krylov_basis
   END INTERFACE
   INTERFACE Gram_schmidt
     MODULE PROCEDURE MolecCav_Gram_schmidt
@@ -163,7 +163,7 @@ MODULE Lanczos_m
   END SUBROUTINE MolecCav_Initialize_krylov_basis
 
  
-  SUBROUTINE MolecCav_Increment_krylov_basis(KBasis, TotH)
+  SUBROUTINE MolecCav_Augment_krylov_basis(KBasis, TotH)
     USE QDUtil_m
     USE Sum_of_products_m
     IMPLICIT NONE
@@ -179,38 +179,40 @@ MODULE Lanczos_m
     integer                                      :: NB ! size of the original basis set
     integer                                      :: i
 
-    !------------------------------Initialization------------------------------ WE ARE HERE
-    NB = size(K, dim = 1)
-    m = size(K, dim = 2)
-    Ktemp = K
-    ALLOCATE(V(nb))
-    DEALLOCATE(K)
-    ALLOCATE(K(nb, m+1))
-    ALLOCATE(Identity(m+1,m+1))
+    !------------------------------Initialization------------------------------
+    NB          = SIZE(KBasis, dim = 1)
+    Nb_krylov   = SIZE(KBasis, dim = 2)
+    TemporaryKB = KBasis
+    ALLOCATE(V(NB))
+
+    DEALLOCATE(KBasis)
+    ALLOCATE(KBasis(NB, Nb_krylov+1))
+
+    !-------------------------------Construction-------------------------------
+    CALL Action(V, TotH, TemporaryKB(:,Nb_krylov), Verbose=Verbose, Debug=Debug) 
+    
+    KBasis(:,Nb_krylov+1) = V(:)
+
+    DO i = 1, Nb_krylov
+      KBasis(:,Nb_krylov+1) = KBasis(:,Nb_krylov+1) - dot_product(TemporaryKB(:,i), V(:))*TemporaryKB(:,i)
+    END DO
+    K(:,m+1) = K(:,m+1) / sqrt(dot_product(K(:,m+1),K(:,m+1)))
+
+    K(:,1:m) = TemporaryKB
+    DEALLOCATE(TemporaryKB, V)
+
+    !--------------------------------Check ortho-------------------------------
+    ALLOCATE(Identity(Nb_krylov+1,Nb_krylov+1))
     Identity(:,:) = ZERO
     DO i = 1, m+1
       Identity(i,i) = 1
     END DO
-    
-    !-------------------------------Construction-------------------------------
-    V(:) = matmul(H,Ktemp(:,m)) 
-
-    K(:,m+1) = V(:)
-    DO i = 1, m
-      K(:,m+1) = K(:,m+1) - dot_product(Ktemp(:,i), V(:))*Ktemp(:,i)
-    END DO
-    K(:,m+1) = K(:,m+1) / sqrt(dot_product(K(:,m+1),K(:,m+1)))
-
-    K(:,1:m) = Ktemp
-    DEALLOCATE(Ktemp, V)
-
-    !--------------------------------Check ortho-------------------------------
     ALLOCATE(S(m+1,m+1))
 
     S = matmul(conjg(transpose(K)), K)
     WRITE(out_unit, *) 'Smax = ', maxval(abs(S(:,:))-Identity(:,:))
     
-  END SUBROUTINE MolecCav_Increment_krylov_basis
+  END SUBROUTINE MolecCav_Augment_krylov_basis
 
 
   SUBROUTINE MolecCav_Gram_schmidt(K, Q)
