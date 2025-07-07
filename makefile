@@ -78,7 +78,7 @@ MAIN_DATA      = data_$(MAIN)
 MAIN_DATA_FULL = $(MAIN_DATA).nml
 
 MODULES_DIR    = SRC# the name of the directory where to find the source files of the library's modules
-MODULES_SRC_1  = Tests_m.f90 Algebra_m.f90 ND_indexes_m.f90#(FIRST SUBDIRECTORY) the list of all the .f90 source files OF THE LIBRARY (only the modules, not the test/app programs) to be compiled
+MODULES_SRC_1  = Tests_m.f90 Algebra_m.f90 ND_indexes_m.f90 Lanczos_m.f90#(FIRST SUBDIRECTORY) the list of all the .f90 source files OF THE LIBRARY (only the modules, not the test/app programs) to be compiled
 MODULES_SRC_2  = Elem_op_m.f90#(SECOND SUBDIRECTORY) the list of all the .f90 source files OF THE LIBRARY (only the modules, not the test/app programs) to be compiled
 MODULES_SRC_3  = Quantum_HO1D_m.f90 Matter_mode_m.f90 Cavity_mode_m.f90#(THIRD SUBDIRECTORY) the list of all the .f90 source files OF THE LIBRARY (only the modules, not the test/app programs) to be compiled
 MODULES_SRC_4  = Operator_ND_m.f90 Sum_of_products_m.f90#(FOURTH SUBDIRECTORY) the list of all the .f90 source files OF THE LIBRARY (only the modules, not the test/app programs) to be compiled
@@ -298,6 +298,8 @@ $(OBJ_DIR)/%.o : $(MODULES_DIR)/general_op/%.f90
 	$(FFC) -c -o $@ $(FFLAGS) $<
 $(OBJ_DIR)/%.o : $(MODULES_DIR)/general_tools/%.f90
 	$(FFC) -c -o $@ $(FFLAGS) $<
+# $(OBJ_DIR)/Lanczos_m.o : $(MODULES_DIR)/general_tools/Lanczos_m.f90
+# 	$(FFC) -c -o $(OBJ_DIR)/Lanczos_m.o $(FFLAGS) $(MODULES_DIR)/general_tools/Lanczos_m.f90
 $(OBJ_DIR)/%.o : $(MODULES_DIR)/ND_op/%.f90
 	$(FFC) -c -o $@ $(FFLAGS) $<
 $(OBJ_DIR)/%.o : $(MODULES_DIR)/sD_op/%.f90
@@ -331,18 +333,15 @@ $(LIBA): $(addprefix $(OBJ_DIR)/, $(MODULES_OBJ))
 # here are added the other dependancies between modules, that arre mandatory for a good compilation, but which do not lead to creation instructions. Just to specify that one module needs another one
 $(OBJ_DIR)/$(TESTS_OBJ)                  : $(LIBA)
 
-$(OBJ_DIR)/Sum_of_products.o             : $(OBJ_DIR)/Operator_ND_m.o 
+$(OBJ_DIR)/Lanczos_m.o                   : $(OBJ_DIR)/Sum_of_products_m.o 
+$(OBJ_DIR)/Transition_spectrum_m.o       : $(OBJ_DIR)/Sum_of_products_m.o 
+$(OBJ_DIR)/Sum_of_products_m.o           : $(OBJ_DIR)/Operator_ND_m.o 
 $(OBJ_DIR)/Operator_ND_m.o               : $(OBJ_DIR)/Cavity_mode_m.o 
 $(OBJ_DIR)/Operator_ND_m.o               : $(OBJ_DIR)/Matter_mode_m.o 
-$(OBJ_DIR)/Cavity_mode.o                 : $(OBJ_DIR)/Quantum_HO1D_m.o 
+$(OBJ_DIR)/Cavity_mode_m.o               : $(OBJ_DIR)/Quantum_HO1D_m.o 
 $(OBJ_DIR)/Matter_mode_m.o               : $(OBJ_DIR)/Quantum_HO1D_m.o 
 $(OBJ_DIR)/Quantum_HO1D_m.o              : $(OBJ_DIR)/Elem_op_m.o
 $(OBJ_DIR)/Elem_op_m.o                   : $(OBJ_DIR)/Algebra_m.o 
-$(OBJ_DIR)/Operator_2D_m.o               : $(OBJ_DIR)/Algebra_m.o 
-$(OBJ_DIR)/Operator_2D_m.o               : $(OBJ_DIR)/Quantum_HO1D_m.o 
-$(OBJ_DIR)/Operator_2D_m.o               : $(OBJ_DIR)/Elem_op_m.o 
-$(OBJ_DIR)/Total_hamiltonian_m.o         : $(OBJ_DIR)/Quantum_HO1D_m.o 
-$(OBJ_DIR)/Total_hamiltonian_m.o         : $(OBJ_DIR)/Elem_op_m.o 
 
 $(OBJ_DIR)/$(MAIN_OBJ)                   : $(LIBA)
 
