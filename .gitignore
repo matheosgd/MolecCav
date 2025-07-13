@@ -9,3 +9,4 @@ comp.sh
 RESULTS/*.png
 RESULTS/*.pdf
 RESULTS/*.txt
+FIGS/*
