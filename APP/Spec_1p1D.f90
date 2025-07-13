@@ -142,9 +142,12 @@ PROGRAM Spec_1p1D
 
   !----------------------------computing the spectra---------------------------
   WRITE(nioint, *) "Transition Energy -------- Transition intensity"
+  ! DO J = 1, TranSpec%N_trstns
+  !   IF (TranSpec%tab_ints(J)>1E-10) WRITE(nioint, *) TranSpec%tab_energies(J), TranSpec%tab_ints(J)
+  !   IF (TranSpec%tab_ints(J)<1E-10) WRITE(nioint, *) TranSpec%tab_energies(J), 0
+  ! END DO
   DO J = 1, TranSpec%N_trstns
-    IF (TranSpec%tab_ints(J)>1E-10) WRITE(nioint, *) TranSpec%tab_energies(J), TranSpec%tab_ints(J)
-    IF (TranSpec%tab_ints(J)<1E-10) WRITE(nioint, *) TranSpec%tab_energies(J), 0
+    WRITE(nioint, *) TranSpec%tab_energies(J), TranSpec%tab_ints(J)
   END DO
 
 
@@ -152,6 +155,9 @@ PROGRAM Spec_1p1D
   Gamma      = 1.0                            ! => 10cm-1
   Start_plot = 1.8794295214982763E-002 - 1E-4 ! in Ha 
   Stop_plot  = 1.8986432304458810E-002 + 1E-4 ! in Ha
+  !--- for the 2 photons experiment
+  ! Start_plot = 3.7641306961363509E-002 - 1E-4 ! in Ha 
+  ! Stop_plot  = 3.7784956248755983E-002 + 1E-4 ! in Ha
   Step_plot  = (Stop_plot - Start_plot) / 900 ! divide by desired number of points
 
   WRITE(niospec, *) "Energy -------- Transition intensity"
@@ -166,6 +172,17 @@ PROGRAM Spec_1p1D
     &         + TranSpec%tab_ints(7)*Lorentzian(Energy, TranSpec%tab_energies(7)*Conversion, Gamma) &
     &         + TranSpec%tab_ints(8)*Lorentzian(Energy, TranSpec%tab_energies(8)*Conversion, Gamma) &
     &         + TranSpec%tab_ints(9)*Lorentzian(Energy, TranSpec%tab_energies(9)*Conversion, Gamma)
+    !======================================================
+    !
+    ! For the 2 photons experiment (just remove 2 first tr-
+    ! ansitions) : if you try you are not supposed to see 
+    ! anything on the spectra, transition intensities are
+    ! really null.
+    !
+    !======================================================
+    ! Intensity = TranSpec%tab_ints(3)*Lorentzian(Energy, TranSpec%tab_energies(3)*Conversion, Gamma) &
+    ! &         + TranSpec%tab_ints(4)*Lorentzian(Energy, TranSpec%tab_energies(4)*Conversion, Gamma) &
+    ! &         + TranSpec%tab_ints(5)*Lorentzian(Energy, TranSpec%tab_energies(5)*Conversion, Gamma)
     WRITE(niospec, *) Energy, Intensity, 0.0, 0.0, Intensity
   END DO
 

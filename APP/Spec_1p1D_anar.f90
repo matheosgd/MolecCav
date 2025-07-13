@@ -189,6 +189,9 @@ PROGRAM Spec_1p1D_anar
   ! Stop_plot  = 2.9871171804932286E-002 + 1E-4  ! in Ha
   Start_plot = 1.8030078508707852E-002 - 1E-4  ! in Ha 
   Stop_plot  = 1.8165407767964686E-002 + 1E-4  ! in Ha
+  !--- for the 2 photons experiments ----------------------
+  ! Start_plot = 3.6083210204059454E-002 - 1E-4  ! in Ha 
+  ! Stop_plot  = 3.6185678195890060E-002 + 1E-4  ! in Ha
   Step_plot  = (Stop_plot - Start_plot) / 9000 ! divide by desired number of points
 
   WRITE(niospec, *) "Energy -------- Transition intensity"
@@ -209,6 +212,20 @@ PROGRAM Spec_1p1D_anar
     &         + TranSpec%tab_ints(7)*Lorentzian(Energy, TranSpec%tab_energies(7)*Conversion, Gamma) &
     &         + TranSpec%tab_ints(8)*Lorentzian(Energy, TranSpec%tab_energies(8)*Conversion, Gamma) &
     &         + TranSpec%tab_ints(9)*Lorentzian(Energy, TranSpec%tab_energies(9)*Conversion, Gamma)
+    !======================================================
+    !
+    ! For the 2 photons experiment (just remove 2 first tr-
+    ! ansitions) : if you try you are not supposed to see 
+    ! anything on the spectra, transition intensities are
+    ! really null.
+    !
+    !======================================================
+    ! Intensity = TranSpec%tab_ints(4)*Lorentzian(Energy, TranSpec%tab_energies(4)*Conversion, Gamma) &
+    ! &         + TranSpec%tab_ints(5)*Lorentzian(Energy, TranSpec%tab_energies(5)*Conversion, Gamma) &
+    ! &         + TranSpec%tab_ints(6)*Lorentzian(Energy, TranSpec%tab_energies(6)*Conversion, Gamma) &
+    ! &         + TranSpec%tab_ints(7)*Lorentzian(Energy, TranSpec%tab_energies(7)*Conversion, Gamma) &
+    ! &         + TranSpec%tab_ints(8)*Lorentzian(Energy, TranSpec%tab_energies(8)*Conversion, Gamma) &
+    ! &         + TranSpec%tab_ints(9)*Lorentzian(Energy, TranSpec%tab_energies(9)*Conversion, Gamma)
     WRITE(niospec, *) Energy, Intensity
   END DO
 

@@ -78,7 +78,7 @@ MAIN_DATA      = data_$(MAIN)
 MAIN_DATA_FULL = $(MAIN_DATA).nml
 
 MODULES_DIR    = SRC# the name of the directory where to find the source files of the library's modules
-MODULES_SRC_1  = Tests_m.f90 Algebra_m.f90 ND_indexes_m.f90 Lanczos_m.f90#(FIRST SUBDIRECTORY) the list of all the .f90 source files OF THE LIBRARY (only the modules, not the test/app programs) to be compiled
+MODULES_SRC_1  = Tests_m.f90 Algebra_m.f90 ND_indexes_m.f90 #Lanczos_m.f90#(FIRST SUBDIRECTORY) the list of all the .f90 source files OF THE LIBRARY (only the modules, not the test/app programs) to be compiled
 MODULES_SRC_2  = Elem_op_m.f90#(SECOND SUBDIRECTORY) the list of all the .f90 source files OF THE LIBRARY (only the modules, not the test/app programs) to be compiled
 MODULES_SRC_3  = Quantum_HO1D_m.f90 Matter_mode_m.f90 Cavity_mode_m.f90#(THIRD SUBDIRECTORY) the list of all the .f90 source files OF THE LIBRARY (only the modules, not the test/app programs) to be compiled
 MODULES_SRC_4  = Operator_ND_m.f90 Sum_of_products_m.f90#(FOURTH SUBDIRECTORY) the list of all the .f90 source files OF THE LIBRARY (only the modules, not the test/app programs) to be compiled
@@ -195,7 +195,7 @@ UT ut: $(addprefix $(EXE_DIR)/, $(TESTS_EXE))
 .PHONY: app APP App
 app APP App: $(EXE_DIR)/$(MAIN_EXE)
 # this instruction is understood by Make as "see these files". It will search the make file for where they are defined i.e. for their dependancies, and create them as they are defined if they are too old
-	./$(EXE_DIR)/$(MAIN_EXE) < $(DATA_DIR)/$(MAIN_DATA_FULL) > $(OUTPUT_DIR)/$(MAIN_OUT).log
+	./$(EXE_DIR)/$(MAIN_EXE) < $(DATA_DIR)/$(MAIN_DATA_FULL) > $(OUTPUT_DIR)/$(MAIN_OUT)
 
 
 #-----------------------------------------------
