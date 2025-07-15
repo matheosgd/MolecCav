@@ -30,7 +30,8 @@
 !==================================================================================================
 !
 ! README :
-! to be written soon
+! MolecCav_Normalize_R2_real : Takes as arguments a tensor of rank 2 with real values (Psi) and no-
+! rmalises it. It computes its norm calling the Norm_of subroutine, and divide Psi by it. 
 !
 !==================================================================================================
 !==================================================================================================
@@ -61,29 +62,47 @@ MODULE Algebra_m
   CONTAINS
 
 
-  SUBROUTINE MolecCav_Normalize_R2_real(Psi)
+  SUBROUTINE MolecCav_Normalize_R2_real(Psi, Debug)
     USE QDUtil_m
     IMPLICIT NONE
 
-    real(kind=Rkind), intent(inout) :: Psi(:,:)                                                                                  ! already allocated
+    real(kind=Rkind),  intent(inout) :: Psi(:,:)                                                                                  ! already allocated
+    logical, optional, intent(in)    :: Debug = .FALSE.
 
-    real(kind=Rkind)                :: Norm, Threshold
-    logical, parameter              :: Debug = .FALSE.
+    real(kind=Rkind)                 :: Norm
+    real(kind=Rkind), parameter      :: Threshold = 1E-010_Rkind
+    logical                          :: Debug_local
 
-    Threshold = 1E-08_Rkind
-    CALL MolecCav_Norm_R2_real(Norm, Psi)
-    IF (Debug) WRITE(out_unit,*) "Computed norm of R2 WF = "//TO_string(Norm)
+    !--- Debugging options --------------------------------
+    IF (PRESENT(Debug)) THEN; Debug_local = Debug
+    ELSE; Debug_local = .FALSE.; END IF
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "o Arguments of MolecCav_Normalize_R2_real :"
+      WRITE(out_unit,*) "The <<Psi>> argument :"
+      CALL Write_Mat(Psi, out_unit, SIZE(Psi, dim=2), info="Psi")
+      FLUSH(out_unit)
+    END IF
+
+    IF (Debug_local) WRITE(out_unit,*)
+    IF (Debug_local) WRITE(out_unit,*) "--- Computing norm of Psi..."
+    CALL Norm_of(Norm, Psi, Debug_local)                                                                ! the printing of the norm according to Debug is within the call of Norm_of
+    IF (Debug_local) WRITE(out_unit,*) "    ...back to MolecCav_Normalize_R2_real"
 
     IF (Norm < Threshold) THEN
-      WRITE(out_unit,*) "Attempt to normalize matrix of norm ZERO"
-      STOP "### Attempt to normalize matrix of norm ZERO"
+      WRITE(out_unit,*) "### Attempt to normalize matrix of norm ZERO at MolecCav_Normalize_R2_real."
+      STOP "### Attempt to normalize matrix of norm ZERO at MolecCav_Normalize_R2_real."
+    !--- Normalisation ------------------------------------
     ELSE 
       Psi(:,:) = Psi(:,:) / Norm
     END IF 
 
-    IF (Debug) THEN
-      CALL MolecCav_Norm_R2_real(Norm, Psi)
-      WRITE(out_unit,*) "Computed new norm of R2 WF = "//TO_string(Norm)
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "--- Computing the new norm of Psi..."
+      CALL Norm_of(Norm, Psi, Debug_local)                                                                ! the printing of the norm according to Debug is within the call of Norm_of
+      WRITE(out_unit,*) "    ...back to MolecCav_Normalize_R2_real"
     END IF 
 
   END SUBROUTINE MolecCav_Normalize_R2_real

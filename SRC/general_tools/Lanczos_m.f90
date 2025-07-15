@@ -69,17 +69,17 @@ MODULE Lanczos_m
     USE Sum_of_products_m
     IMPLICIT NONE
   
-    real(kind=Rkind),        intent(inout) :: KBasis(:,:) ! the basis of the krylov basis set expressed in the wavefunction/hamiltonian/complete/original basis set
-    TYPE(Sum_of_products_t), intent(in)    :: TotH        ! the hamiltonian in the original basis set
-    real(kind=Rkind),        intent(in)    :: Psi(:)      ! the wavefunction in the original basis set
-    integer,                 intent(in)    :: Nb_krylov   ! the SIZE of the krylov basis
-    logical, optional,       intent(in)    :: Debug
+    real(kind=Rkind), allocatable, intent(inout) :: KBasis(:,:) ! the basis of the krylov basis set expressed in the wavefunction/hamiltonian/complete/original basis set
+    TYPE(Sum_of_products_t),       intent(in)    :: TotH        ! the hamiltonian in the original basis set
+    real(kind=Rkind),              intent(in)    :: Psi(:)      ! the wavefunction in the original basis set
+    integer,                       intent(in)    :: Nb_krylov   ! the SIZE of the krylov basis
+    logical, optional,             intent(in)    :: Debug
 
-    logical                                :: Debug_local
-    real(kind=Rkind), allocatable          :: KBasis_non_ortho(:,:) ! the intermediary KBasis before it is orthonormalized
-    real(kind=Rkind), allocatable          :: Intermediary(:,:)     ! for the orthonormality check
-    real(kind=Rkind), allocatable          :: Identity(:,:)         ! also
-    integer                                :: i
+    logical                                      :: Debug_local
+    real(kind=Rkind), allocatable                :: KBasis_non_ortho(:,:) ! the intermediary KBasis before it is orthonormalized
+    real(kind=Rkind), allocatable                :: Intermediary(:,:)     ! for the orthonormality check
+    real(kind=Rkind), allocatable                :: Identity(:,:)         ! also
+    integer                                      :: i
   
     !--- Debugging options --------------------------------
     IF (PRESENT(Debug)) THEN; Debug_local = Debug
@@ -89,30 +89,28 @@ MODULE Lanczos_m
       WRITE(out_unit,*)
       WRITE(out_unit,*) "o Arguments of MolecCav_Initialize_krylov_basis :"
       WRITE(out_unit,*) "The <<KBasis>> argument :" 
-      IF (ALLOCATED(KBasis)) THEN; CALL Write_Mat(KBasis, out_unit, SIZE(KBasis, dim=2), info="KBasis")
-      ELSE; WRITE(out_unit,*) "is NOT allocated !"; END IF
+      CALL Write_Mat(KBasis, out_unit, SIZE(KBasis, dim=2), info="KBasis")
       WRITE(out_unit,*) "The <<TotH>> argument :" 
       CALL Write(TotH)
       WRITE(out_unit,*) "The <<Psi>> argument :" 
-      IF (ALLOCATED(KBasis)) THEN; CALL Write_Vec(Psi, out_unit, 1, info="Psi")
-      ELSE; WRITE(out_unit,*) "is NOT allocated"; END IF
+      CALL Write_Vec(Psi, out_unit, 1, info="Psi")
       WRITE(out_unit,*) "The <<Nb_krylov>> argument :"//TO_string(Nb_krylov)
       FLUSH(out_unit)
     END IF
 
     !--- Checking dimensions ------------------------------
-    IF (.NOT. ALLOCATED(KBasis)) THEN
-      WRITE(out_unit,*) "### KBasis has to have been allocated BEFORE calling MolecCav_Initialize_krylov_basis. Please check init&
-      &ialization."
-      STOP "### KBasis has to have been allocated BEFORE calling MolecCav_Initialize_krylov_basis. Please check initialization."
-    END IF 
+    ! IF (.NOT. ALLOCATED(KBasis)) THEN
+    !   WRITE(out_unit,*) "### KBasis has to have been allocated BEFORE calling MolecCav_Initialize_krylov_basis. Please check init&
+    !   &ialization."
+    !   STOP "### KBasis has to have been allocated BEFORE calling MolecCav_Initialize_krylov_basis. Please check initialization."
+    ! END IF 
 
-    IF (.NOT. ALLOCATED(Psi)) THEN
-      WRITE(out_unit,*) "### KBasis cannot be constructed in MolecCav_Initialize_krylov_basis if Psi is not allocated. Please che&
-      &ck initialization."
-      STOP "### KBasis cannot be constructed in MolecCav_Initialize_krylov_basis if Psi is not allocated. Please check initializa&
-      &tion."
-    END IF
+    ! IF (.NOT. ALLOCATED(Psi)) THEN
+    !   WRITE(out_unit,*) "### KBasis cannot be constructed in MolecCav_Initialize_krylov_basis if Psi is not allocated. Please che&
+    !   &ck initialization."
+    !   STOP "### KBasis cannot be constructed in MolecCav_Initialize_krylov_basis if Psi is not allocated. Please check initializa&
+    !   &tion."
+    ! END IF
 
     IF (Nb_krylov /= SIZE(KBasis, dim=2)) THEN
       WRITE(out_unit,*) "### The number of vectors KBasis is allocated to does not match Nb_krylov. Please check initialization."
@@ -138,6 +136,7 @@ MODULE Lanczos_m
     END DO
   
     !--- Orthonormalization -------------------------------
+    ALLOCATE(KBasis(SIZE(Psi), Nb_krylov))
     CALL Gram_schmidt(KBasis, KBasis_non_ortho)
     CALL Gram_schmidt(KBasis, KBasis)
    
@@ -241,13 +240,13 @@ MODULE Lanczos_m
     USE QDUtil_m
     IMPLICIT NONE
     
-    real(kind=Rkind), allocatable, intent(inout) :: OrthoBasis(:,:)
-    real(kind=Rkind),              intent(in)    :: NonOrthoBasis(:,:)
-    logical, optional,             intent(in)    :: Debug
+    real(kind=Rkind),  intent(inout) :: OrthoBasis(:,:)
+    real(kind=Rkind),  intent(in)    :: NonOrthoBasis(:,:)
+    logical, optional, intent(in)    :: Debug
 
-    logical                                      :: Debug_local
-    real(kind=Rkind), allocatable                :: Intermediary(:)
-    integer                                      :: Nb_1, Nb_2, i, j
+    logical                          :: Debug_local
+    real(kind=Rkind), allocatable    :: Intermediary(:)
+    integer                          :: Nb_1, Nb_2, i, j
 
     !--- Debugging options --------------------------------
     IF (PRESENT(Debug)) THEN; Debug_local = Debug
@@ -257,27 +256,25 @@ MODULE Lanczos_m
       WRITE(out_unit,*)
       WRITE(out_unit,*) "o Arguments of MolecCav_Gram_schmidt :"
       WRITE(out_unit,*) "The <<OrthoBasis>> argument :" 
-      IF (ALLOCATED(OrthoBasis)) THEN; CALL Write_Mat(OrthoBasis, out_unit, SIZE(OrthoBasis, dim=2), info="OrthoBasis")
-      ELSE; WRITE(out_unit,*) "is NOT allocated !"; END IF
+      CALL Write_Mat(OrthoBasis, out_unit, SIZE(OrthoBasis, dim=2), info="OrthoBasis")
       WRITE(out_unit,*) "The <<NonOrthoBasis>> argument :" 
-      IF (ALLOCATED(NonOrthoBasis)) THEN; CALL Write_Mat(NonOrthoBasis, out_unit, SIZE(NonOrthoBasis, dim=2), info="NonOrthoBasis")
-      WRITE(out_unit,*) "is NOT allocated !"; END IF
+      CALL Write_Mat(NonOrthoBasis, out_unit, SIZE(NonOrthoBasis, dim=2), info="NonOrthoBasis")
       FLUSH(out_unit)
     END IF
 
     !--- Checking dimensions ------------------------------
-    IF (.NOT. ALLOCATED(OrthoBasis)) THEN
-      WRITE(out_unit,*) "### OrthoBasis has to have been allocated BEFORE calling MolecCav_Gram_schmidt. Please check initializat&
-      &ion."
-      STOP "### OrthoBasis has to have been allocated BEFORE calling MolecCav_Gram_schmidt. Please check initialization."
-    END IF 
+    ! IF (.NOT. ALLOCATED(OrthoBasis)) THEN
+    !   WRITE(out_unit,*) "### OrthoBasis has to have been allocated BEFORE calling MolecCav_Gram_schmidt. Please check initializat&
+    !   &ion."
+    !   STOP "### OrthoBasis has to have been allocated BEFORE calling MolecCav_Gram_schmidt. Please check initialization."
+    ! END IF 
 
-    IF (.NOT. ALLOCATED(NonOrthoBasis)) THEN
-      WRITE(out_unit,*) "### OrthoBasis cannot be constructed in MolecCav_Gram_schmidt if NonOrthoBasis is not allocated. Please &
-      &check initialization."
-      STOP "### OrthoBasis cannot be constructed in MolecCav_Gram_schmidt if NonOrthoBasis is not allocated. Please check initial&
-      &ization."
-    END IF
+    ! IF (.NOT. ALLOCATED(NonOrthoBasis)) THEN
+    !   WRITE(out_unit,*) "### OrthoBasis cannot be constructed in MolecCav_Gram_schmidt if NonOrthoBasis is not allocated. Please &
+    !   &check initialization."
+    !   STOP "### OrthoBasis cannot be constructed in MolecCav_Gram_schmidt if NonOrthoBasis is not allocated. Please check initial&
+    !   &ization."
+    ! END IF
 
     ! IF (SIZE(NonOrthoBasis, dim=1) /= Size(NonOrthoBasis, dim=1)) THEN
     !   WRITE(out_unit,*) "### The sizes of the KBasis's vectors do not match Psi's vector SIZE i.e. the original basis set SIZE. P&
@@ -295,7 +292,6 @@ MODULE Lanczos_m
     !--- Initialization -----------------------------------
     Nb_1 = SIZE(NonOrthoBasis, dim=1)
     Nb_2 = SIZE(NonOrthoBasis, dim=2)    
-    ALLOCATE(OrthoBasis(Nb_1,Nb_2))
     ALLOCATE(Intermediary(Nb_1))
     OrthoBasis(:,:) = ZERO
     Intermediary(:) = ZERO
@@ -335,29 +331,27 @@ MODULE Lanczos_m
       WRITE(out_unit,*)
       WRITE(out_unit,*) "o Arguments of MolecCav_Construct_TribandeH :"
       WRITE(out_unit,*) "The <<TribandH>> argument :" 
-      IF (ALLOCATED(KBasis)) THEN; CALL Write_Mat(TribandH, out_unit, SIZE(TribandH, dim=2), info="TribandH")
-      ELSE; WRITE(out_unit,*) "is NOT allocated !"; END IF
+      CALL Write_Mat(TribandH, out_unit, SIZE(TribandH, dim=2), info="TribandH")
       WRITE(out_unit,*) "The <<KBasis>> argument :" 
-      IF (ALLOCATED(KBasis)) THEN; CALL Write_Mat(KBasis, out_unit, SIZE(KBasis, dim=2), info="KBasis")
-      ELSE; WRITE(out_unit,*) "is NOT allocated !"; END IF 
+      CALL Write_Mat(KBasis, out_unit, SIZE(KBasis, dim=2), info="KBasis")
       WRITE(out_unit,*) "The <<TotH>> argument :" 
       CALL Write(TotH)
       FLUSH(out_unit)
     END IF
 
     !--- Checking dimensions ------------------------------
-    IF (.NOT. ALLOCATED(TribandH)) THEN
-      WRITE(out_unit,*) "### TribandH has to have been allocated BEFORE calling MolecCav_Construct_TribandeH. Please check initia&
-      &lization."
-      STOP "### TribandH has to have been allocated BEFORE calling MolecCav_Construct_TribandeH. Please check initialization."
-    END IF 
+    ! IF (.NOT. ALLOCATED(TribandH)) THEN
+    !   WRITE(out_unit,*) "### TribandH has to have been allocated BEFORE calling MolecCav_Construct_TribandeH. Please check initia&
+    !   &lization."
+    !   STOP "### TribandH has to have been allocated BEFORE calling MolecCav_Construct_TribandeH. Please check initialization."
+    ! END IF 
 
-    IF (.NOT. ALLOCATED(KBasis)) THEN
-      WRITE(out_unit,*) "### TribandH cannot be constructed in MolecCav_Construct_TribandeH if KBasis is not allocated. Please ch&
-      &eck initialization."
-      STOP "### TribandH cannot be constructed in MolecCav_Construct_TribandeH if KBasis is not allocated. Please check initializ&
-      &ation."
-    END IF
+    ! IF (.NOT. ALLOCATED(KBasis)) THEN
+    !   WRITE(out_unit,*) "### TribandH cannot be constructed in MolecCav_Construct_TribandeH if KBasis is not allocated. Please ch&
+    !   &eck initialization."
+    !   STOP "### TribandH cannot be constructed in MolecCav_Construct_TribandeH if KBasis is not allocated. Please check initializ&
+    !   &ation."
+    ! END IF
 
     IF (SIZE(KBasis, dim=1) /= SIZE(TribandH, dim=1)) THEN
       WRITE(out_unit,*) "### The sizes of the KBasis's vectors do not match TribandH's vector size i.e. the original basis set si&
@@ -404,37 +398,34 @@ MODULE Lanczos_m
       WRITE(out_unit,*)
       WRITE(out_unit,*) "o Arguments of MolecCav_BasisChange_2TO1_R2 :"
       WRITE(out_unit,*) "The <<Psi_1>> argument :" 
-      IF (ALLOCATED(Psi_1)) THEN; CALL Write_Mat(Psi_1, out_unit, SIZE(Psi_1, dim=2), info="Psi_1")
-      ELSE; WRITE(out_unit,*) "is NOT allocated !"; END IF
+      CALL Write_Mat(Psi_1, out_unit, SIZE(Psi_1, dim=2), info="Psi_1")
       WRITE(out_unit,*) "The <<Psi_2>> argument :" 
-      IF (ALLOCATED(Psi_2)) THEN; CALL Write_Mat(Psi_2, out_unit, SIZE(Psi_2, dim=2), info="Psi_2")
-      ELSE; WRITE(out_unit,*) "is NOT allocated !"; END IF
+      CALL Write_Mat(Psi_2, out_unit, SIZE(Psi_2, dim=2), info="Psi_2")
       WRITE(out_unit,*) "The <<ChangeM_1TO2>> argument :" 
-      IF (ALLOCATED(ChangeM_1TO2)) THEN; CALL Write_Mat(ChangeM_1TO2, out_unit, SIZE(ChangeM_1TO2, dim=2), info="ChangeM_1TO2")
-      ELSE; WRITE(out_unit,*) "is NOT allocated !"; END IF
+      CALL Write_Mat(ChangeM_1TO2, out_unit, SIZE(ChangeM_1TO2, dim=2), info="ChangeM_1TO2")
       FLUSH(out_unit)
     END IF
 
     !--- Checking dimensions ------------------------------
-    IF (.NOT. ALLOCATED(Psi_1)) THEN
-      WRITE(out_unit,*) "### Psi_1 has to have been allocated BEFORE calling MolecCav_BasisChange_2TO1_R2. Please check initializ&
-      &ation."
-      STOP "### Psi_1 has to have been allocated BEFORE calling MolecCav_BasisChange_2TO1_R2. Please check initialization."
-    END IF 
+    ! IF (.NOT. ALLOCATED(Psi_1)) THEN
+    !   WRITE(out_unit,*) "### Psi_1 has to have been allocated BEFORE calling MolecCav_BasisChange_2TO1_R2. Please check initializ&
+    !   &ation."
+    !   STOP "### Psi_1 has to have been allocated BEFORE calling MolecCav_BasisChange_2TO1_R2. Please check initialization."
+    ! END IF 
 
-    IF (.NOT. ALLOCATED(Psi_2)) THEN
-      WRITE(out_unit,*) "### Psi_1 cannot be constructed in MolecCav_BasisChange_2TO1_R2 if Psi_2 is not allocated. Please check &
-      &initialization."
-      STOP "### Psi_1 cannot be constructed in MolecCav_BasisChange_2TO1_R2 if Psi_2 is not allocated. Please check initializatio&
-      &n."
-    END IF
+    ! IF (.NOT. ALLOCATED(Psi_2)) THEN
+    !   WRITE(out_unit,*) "### Psi_1 cannot be constructed in MolecCav_BasisChange_2TO1_R2 if Psi_2 is not allocated. Please check &
+    !   &initialization."
+    !   STOP "### Psi_1 cannot be constructed in MolecCav_BasisChange_2TO1_R2 if Psi_2 is not allocated. Please check initializatio&
+    !   &n."
+    ! END IF
 
-    IF (.NOT. ALLOCATED(ChangeM_1TO2)) THEN
-      WRITE(out_unit,*) "### Psi_1 cannot be constructed in MolecCav_BasisChange_2TO1_R2 if ChangeM_1TO2 is not allocated. Please&
-      & check initialization."
-      STOP "### Psi_1 cannot be constructed in MolecCav_BasisChange_2TO1_R2 if ChangeM_1TO2 is not allocated. Please check initia&
-      &lization."
-    END IF
+    ! IF (.NOT. ALLOCATED(ChangeM_1TO2)) THEN
+    !   WRITE(out_unit,*) "### Psi_1 cannot be constructed in MolecCav_BasisChange_2TO1_R2 if ChangeM_1TO2 is not allocated. Please&
+    !   & check initialization."
+    !   STOP "### Psi_1 cannot be constructed in MolecCav_BasisChange_2TO1_R2 if ChangeM_1TO2 is not allocated. Please check initia&
+    !   &lization."
+    ! END IF
 
     IF (SIZE(Psi_1, dim=1) /= SIZE(ChangeM_1TO2, dim=1)) THEN
       WRITE(out_unit,*) "### The sizes of the Psi_1's vectors do not match ChangeM_1TO2's vector size. Please check initialization."

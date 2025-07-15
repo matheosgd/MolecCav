@@ -31,7 +31,6 @@
 PROGRAM Spec_Nphs
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
   USE QDUtil_m
-  USE Algebra_m
   USE Sum_of_products_m
   USE Transition_spectrum_m
   IMPLICIT NONE
