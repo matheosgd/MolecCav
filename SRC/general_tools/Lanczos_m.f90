@@ -36,12 +36,13 @@
 MODULE Lanczos_m
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
   USE QDUtil_m
+  USE Algebra_m
   IMPLICIT NONE
   
 
   PRIVATE
   
-  PUBLIC Initialize, Augment, Gram_schmidt, Construct_TribandeH, BasisChange
+  PUBLIC Initialize, Augment, Construct_TribandeH, BasisChange
 
 
   INTERFACE Initialize
@@ -49,9 +50,6 @@ MODULE Lanczos_m
   END INTERFACE
   INTERFACE Augment
     MODULE PROCEDURE MolecCav_Augment_krylov_basis
-  END INTERFACE
-  INTERFACE Gram_schmidt
-    MODULE PROCEDURE MolecCav_Gram_schmidt
   END INTERFACE
   INTERFACE Construct_TribandeH
     MODULE PROCEDURE MolecCav_Construct_TribandeH
@@ -66,6 +64,7 @@ MODULE Lanczos_m
 
   SUBROUTINE MolecCav_Initialize_krylov_basis(KBasis, TotH, Psi, Nb_krylov, Debug)
     USE QDUtil_m
+    USE Algebra_m
     USE Sum_of_products_m
     IMPLICIT NONE
   
@@ -236,80 +235,6 @@ MODULE Lanczos_m
   END SUBROUTINE MolecCav_Augment_krylov_basis
 
 
-  SUBROUTINE MolecCav_Gram_schmidt(OrthoBasis, NonOrthoBasis, Debug)
-    USE QDUtil_m
-    IMPLICIT NONE
-    
-    real(kind=Rkind),  intent(inout) :: OrthoBasis(:,:)
-    real(kind=Rkind),  intent(in)    :: NonOrthoBasis(:,:)
-    logical, optional, intent(in)    :: Debug
-
-    logical                          :: Debug_local
-    real(kind=Rkind), allocatable    :: Intermediary(:)
-    integer                          :: Nb_1, Nb_2, i, j
-
-    !--- Debugging options --------------------------------
-    IF (PRESENT(Debug)) THEN; Debug_local = Debug
-    ELSE; Debug_local = .FALSE.; END IF
-
-    IF (Debug_local) THEN
-      WRITE(out_unit,*)
-      WRITE(out_unit,*) "o Arguments of MolecCav_Gram_schmidt :"
-      WRITE(out_unit,*) "The <<OrthoBasis>> argument :" 
-      CALL Write_Mat(OrthoBasis, out_unit, SIZE(OrthoBasis, dim=2), info="OrthoBasis")
-      WRITE(out_unit,*) "The <<NonOrthoBasis>> argument :" 
-      CALL Write_Mat(NonOrthoBasis, out_unit, SIZE(NonOrthoBasis, dim=2), info="NonOrthoBasis")
-      FLUSH(out_unit)
-    END IF
-
-    !--- Checking dimensions ------------------------------
-    ! IF (.NOT. ALLOCATED(OrthoBasis)) THEN
-    !   WRITE(out_unit,*) "### OrthoBasis has to have been allocated BEFORE calling MolecCav_Gram_schmidt. Please check initializat&
-    !   &ion."
-    !   STOP "### OrthoBasis has to have been allocated BEFORE calling MolecCav_Gram_schmidt. Please check initialization."
-    ! END IF 
-
-    ! IF (.NOT. ALLOCATED(NonOrthoBasis)) THEN
-    !   WRITE(out_unit,*) "### OrthoBasis cannot be constructed in MolecCav_Gram_schmidt if NonOrthoBasis is not allocated. Please &
-    !   &check initialization."
-    !   STOP "### OrthoBasis cannot be constructed in MolecCav_Gram_schmidt if NonOrthoBasis is not allocated. Please check initial&
-    !   &ization."
-    ! END IF
-
-    ! IF (SIZE(NonOrthoBasis, dim=1) /= Size(NonOrthoBasis, dim=1)) THEN
-    !   WRITE(out_unit,*) "### The sizes of the KBasis's vectors do not match Psi's vector SIZE i.e. the original basis set SIZE. P&
-    !   &lease check initialization."
-    !   STOP "### The sizes of the KBasis's vectors do not match Psi's vector SIZE i.e. the original basis set SIZE. Please check i&
-    !   &nitialization."
-    ! END IF 
-
-    ! IF (SIZE(OrthoBasis, dim=2) /= SIZE(NonOrthoBasis, dim=2)) THEN
-    !   WRITE(out_unit,*) "### The number of vectors KBasis is allocated to does not match Nb_krylov. Please check initialization."
-    !   WRITE(out_unit,*) "    SIZE(KBasis, dim=2) = "//TO_string(Size(KBasis, dim=2))//"; Nb_krylov = "//TO_string(Nb_krylov)
-    !   STOP "### The number of vectors KBasis is allocated to does not match Nb_krylov. Please check initialization."
-    ! END IF 
-
-    !--- Initialization -----------------------------------
-    Nb_1 = SIZE(NonOrthoBasis, dim=1)
-    Nb_2 = SIZE(NonOrthoBasis, dim=2)    
-    ALLOCATE(Intermediary(Nb_1))
-    OrthoBasis(:,:) = ZERO
-    Intermediary(:) = ZERO
-  
-    !--- Orthonormalisation -------------------------------
-    OrthoBasis(:,1) = NonOrthoBasis(:,1) / SQRT(DOT_PRODUCT(NonOrthoBasis(:,1),NonOrthoBasis(:,1)))
-    
-    DO i = 2, Nb_2
-      Intermediary(:) = NonOrthoBasis(:, i)
-      DO j = 1, i-1
-        Intermediary(:) = Intermediary(:) - DOT_PRODUCT(NonOrthoBasis(:,i), OrthoBasis(:,j)) * OrthoBasis(:,j) ! removes projection of the new vector upon every vectors of the ortho basis
-      END DO
-      OrthoBasis(:, i) = Intermediary(:) / SQRT(DOT_PRODUCT(Intermediary(:),Intermediary(:)))
-    END DO
-            
-  END SUBROUTINE MolecCav_Gram_schmidt
-  
-  
   SUBROUTINE MolecCav_Construct_TribandeH(TribandH, KBasis, TotH, Debug)
     USE QDUtil_m
     USE Sum_of_products_m

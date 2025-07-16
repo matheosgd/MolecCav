@@ -30,8 +30,60 @@
 !==================================================================================================
 !
 ! README :
+! Gram_schmidt : Interface for the MolecCav_Gram_schmidt procedure. 
+!
+! Normalize : Interface for the MolecCav_Normalize_R*_* procedures. It takes as arguments a tensor 
+! of rank 1 or 2 with real or complex values (Psi) and normalises it by redirecting to one of the 
+! associated procedure according to the arguments. It computes its norm calling the Norm_of subrou-
+! tine, and divide Psi by it.
+!
+! Norm_of : Interface for the MolecCav_Norm_R*_* procedures. Takes as arguments a real (Norm) that 
+! does not need to have been initialized, and a tensor of rank 1 or 2 with real or complex values 
+! (Psi). It computes the norm of Psi by calling Scalar_product and affects the result to Norm.
+!
+! Scalar_product : Interface for the MolecCav_Scalar_product_R*_* procedures. Takes as arguments a
+! real or complex (ScaP) that does not need to have been initialized, and two tensors of rank 1 or 
+! 2 with real or complex values (Psi_1 and Psi_2). It computes the scalar product between Psi_1 an-
+! d Psi_2 by summing the results from the intrinsic DOT_PRODUCT for each column of same index of t-
+! -he tensors, and affects the result to ScaP.
+!
+! MolecCav_Gram_schmidt : Takes as arguments a rank 2 tensor with real values that does not need to have been initialized (OrthoBasis) and a
+!
 ! MolecCav_Normalize_R2_real : Takes as arguments a tensor of rank 2 with real values (Psi) and no-
 ! rmalises it. It computes its norm calling the Norm_of subroutine, and divide Psi by it. 
+!
+! MolecCav_Normalize_R2_complex : Same as MolecCav_Normalize_R2_real, but for a tensor with complex
+! values.
+!
+! MolecCav_Normalize_R1_real : Same as MolecCav_Normalize_R2_real, but for a tensor of rank 1.
+!
+! MolecCav_Normalize_R1_complex : Same as MolecCav_Normalize_R2_real but for a tensor of rank 1 wi-
+! th complex values.
+!
+! MolecCav_Norm_R2_real : Takes as arguments a real (Norm) that does not need to have been initial-
+! ized, and a tensor of rank 2 with real values (Psi). It computes the norm of Psi by calling Scal-
+! ar_product and affects the result to Norm.
+!
+! MolecCav_Norm_R2_complex : Same as MolecCav_Norm_R2_real, but for a tensor with complex values.
+!
+! MolecCav_Norm_R1_real : Same as MolecCav_Norm_R2_real, but for a tensor of rank 1.
+!
+! MolecCav_Norm_R1_complex : Same as MolecCav_Norm_R2_real but for a tensor of rank 1 with complex 
+! values.
+!
+! MolecCav_Scalar_product_R2_real : Takes as arguments a real (ScaP) that does not need to have be-
+! en initialized, and two tensors of rank 2 with real values (Psi_1 and Psi_2). It computes the sc-
+! alar product between Psi_1 and Psi_2 by summing the results from the intrinsic DOT_PRODUCT for e-
+! ach column of same index of the tensors, and affects the result to ScaP.
+!
+! MolecCav_Scalar_product_R2_complex : Same as MolecCav_Scalar_product_R2_real, but for three argu-
+! ments with complex values.
+!
+! MolecCav_Scalar_product_R1_real : Same as MolecCav_Scalar_product_R2_real, but for two tensors of
+! rank 1.
+!
+! MolecCav_Scalar_product_R1_complex : Same as MolecCav_Scalar_product_R2_real but for two tensors 
+! of rank 1, and three arguments with complex values.
 !
 !==================================================================================================
 !==================================================================================================
@@ -43,8 +95,11 @@ MODULE Algebra_m
   
   PRIVATE
 
-  PUBLIC Normalize, Norm_of, Scalar_product
+  PUBLIC Gram_schmidt, Normalize, Norm_of, Scalar_product
 
+  INTERFACE Gram_schmidt
+    MODULE PROCEDURE MolecCav_Gram_schmidt
+  END INTERFACE
   INTERFACE Normalize
     MODULE PROCEDURE MolecCav_Normalize_R2_real, MolecCav_Normalize_R2_complex, & 
                    & MolecCav_Normalize_R1_real, MolecCav_Normalize_R1_complex
@@ -62,15 +117,62 @@ MODULE Algebra_m
   CONTAINS
 
 
+  SUBROUTINE MolecCav_Gram_schmidt(OrthoBasis, NonOrthoBasis, Debug)
+    USE QDUtil_m
+    IMPLICIT NONE
+    
+    real(kind=Rkind),  intent(inout) :: OrthoBasis(:,:)                                                 ! has to have been allocated BEFORE calling MolecCav_Gram_schmidt
+    real(kind=Rkind),  intent(in)    :: NonOrthoBasis(:,:)                                              ! has to have been allocated BEFORE calling MolecCav_Gram_schmidt
+    logical, optional, intent(in)    :: Debug
+
+    logical                          :: Debug_local
+    real(kind=Rkind), allocatable    :: Intermediary(:)
+    integer                          :: Nb_1, Nb_2, i, j
+
+    !--- Debugging options --------------------------------
+    IF (PRESENT(Debug)) THEN; Debug_local = Debug
+    ELSE; Debug_local = .FALSE.; END IF
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "o Arguments of MolecCav_Gram_schmidt :"
+      WRITE(out_unit,*) "The <<OrthoBasis>> argument :" 
+      CALL Write_Mat(OrthoBasis, out_unit, SIZE(OrthoBasis, dim=2), info="OrthoBasis")
+      WRITE(out_unit,*) "The <<NonOrthoBasis>> argument :" 
+      CALL Write_Mat(NonOrthoBasis, out_unit, SIZE(NonOrthoBasis, dim=2), info="NonOrthoBasis")
+      FLUSH(out_unit)
+    END IF
+
+    !--- Initialization -----------------------------------
+    Nb_1 = SIZE(NonOrthoBasis, dim=1)
+    Nb_2 = SIZE(NonOrthoBasis, dim=2)    
+    ALLOCATE(Intermediary(Nb_1))
+    OrthoBasis(:,:) = ZERO
+    Intermediary(:) = ZERO
+  
+    !--- Orthonormalisation -------------------------------
+    OrthoBasis(:,1) = NonOrthoBasis(:,1) / SQRT(DOT_PRODUCT(NonOrthoBasis(:,1),NonOrthoBasis(:,1)))
+    
+    DO i = 2, Nb_2
+      Intermediary(:) = NonOrthoBasis(:, i)
+      DO j = 1, i-1
+        Intermediary(:) = Intermediary(:) - DOT_PRODUCT(NonOrthoBasis(:,i), OrthoBasis(:,j)) * OrthoBasis(:,j) ! removes projection of the new vector upon every vectors of the ortho basis
+      END DO
+      OrthoBasis(:, i) = Intermediary(:) / SQRT(DOT_PRODUCT(Intermediary(:),Intermediary(:)))
+    END DO
+            
+  END SUBROUTINE MolecCav_Gram_schmidt
+  
+  
   SUBROUTINE MolecCav_Normalize_R2_real(Psi, Debug)
     USE QDUtil_m
     IMPLICIT NONE
 
     real(kind=Rkind),  intent(inout) :: Psi(:,:)                                                                                  ! already allocated
-    logical, optional, intent(in)    :: Debug = .FALSE.
+    logical, optional, intent(in)    :: Debug
 
     real(kind=Rkind)                 :: Norm
-    real(kind=Rkind), parameter      :: Threshold = 1E-010_Rkind
+    real(kind=Rkind), parameter      :: Threshold = 1E-10_Rkind
     logical                          :: Debug_local
 
     !--- Debugging options --------------------------------
@@ -85,7 +187,6 @@ MODULE Algebra_m
       FLUSH(out_unit)
     END IF
 
-    IF (Debug_local) WRITE(out_unit,*)
     IF (Debug_local) WRITE(out_unit,*) "--- Computing norm of Psi..."
     CALL Norm_of(Norm, Psi, Debug_local)                                                                ! the printing of the norm according to Debug is within the call of Norm_of
     IF (Debug_local) WRITE(out_unit,*) "    ...back to MolecCav_Normalize_R2_real"
@@ -93,261 +194,482 @@ MODULE Algebra_m
     IF (Norm < Threshold) THEN
       WRITE(out_unit,*) "### Attempt to normalize matrix of norm ZERO at MolecCav_Normalize_R2_real."
       STOP "### Attempt to normalize matrix of norm ZERO at MolecCav_Normalize_R2_real."
+      
     !--- Normalisation ------------------------------------
     ELSE 
       Psi(:,:) = Psi(:,:) / Norm
     END IF 
 
     IF (Debug_local) THEN
-      WRITE(out_unit,*)
+      WRITE(out_unit,*) "--- The normalized Psi :"
+      CALL Write_Mat(Psi, out_unit, SIZE(Psi, dim=2), info="Normalised Psi")
       WRITE(out_unit,*) "--- Computing the new norm of Psi..."
-      CALL Norm_of(Norm, Psi, Debug_local)                                                                ! the printing of the norm according to Debug is within the call of Norm_of
+      CALL Norm_of(Norm, Psi, Debug_local)                                                              ! the printing of the norm according to Debug is within the call of Norm_of
       WRITE(out_unit,*) "    ...back to MolecCav_Normalize_R2_real"
     END IF 
 
   END SUBROUTINE MolecCav_Normalize_R2_real
 
   
-  SUBROUTINE MolecCav_Normalize_R2_complex(Psi)
+  SUBROUTINE MolecCav_Normalize_R2_complex(Psi, Debug)
     USE QDUtil_m
     IMPLICIT NONE
 
-    complex(kind=Rkind), intent(inout) :: Psi(:,:)                                                                               ! already allocated
+    complex(kind=Rkind), intent(inout) :: Psi(:,:)                                                      ! already allocated
+    logical, optional,   intent(in)    :: Debug
 
-    real(kind=Rkind)                   :: Norm, Threshold
-    logical, parameter                 :: Debug = .FALSE.
+    real(kind=Rkind)                   :: Norm
+    real(kind=Rkind), parameter        :: Threshold = 1E-10_Rkind
+    logical                            :: Debug_local
 
-    Threshold = 1E-08_Rkind
-    CALL MolecCav_Norm_R2_complex(Norm, Psi)
-    IF (Debug) WRITE(out_unit,*) "Computed norm of R2 WF = "//TO_string(Norm)
+    !--- Debugging options --------------------------------
+    IF (PRESENT(Debug)) THEN; Debug_local = Debug
+    ELSE; Debug_local = .FALSE.; END IF
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "o Arguments of MolecCav_Normalize_R2_complex :"
+      WRITE(out_unit,*) "The <<Psi>> argument :"
+      CALL Write_Mat(Psi, out_unit, SIZE(Psi, dim=2), info="Psi")
+      FLUSH(out_unit)
+    END IF
+
+    IF (Debug_local) WRITE(out_unit,*) "--- Computing norm of Psi..."
+    CALL Norm_of(Norm, Psi, Debug_local)                                                                ! the printing of the norm according to Debug is within the call of Norm_of
+    IF (Debug_local) WRITE(out_unit,*) "    ...back to MolecCav_Normalize_R2_complex"
 
     IF (Norm < Threshold) THEN
-      WRITE(out_unit,*) "Attempt to normalize matrix of norm ZERO"
-      STOP "### Attempt to normalize matrix of norm ZERO"
+      WRITE(out_unit,*) "### Attempt to normalize matrix of norm ZERO at MolecCav_Normalize_R2_complex."
+      STOP "### Attempt to normalize matrix of norm ZERO at MolecCav_Normalize_R2_complex."
+      
+    !--- Normalisation ------------------------------------
     ELSE 
       Psi(:,:) = Psi(:,:) / Norm
     END IF 
 
-    IF (Debug) THEN
-      CALL MolecCav_Norm_R2_complex(Norm, Psi)
-      WRITE(out_unit,*) "Computed new norm of R2 WF = "//TO_string(Norm)
+    IF (Debug_local) THEN
+      WRITE(out_unit,*) "--- The normalized Psi :"
+      CALL Write_Mat(Psi, out_unit, SIZE(Psi, dim=2), info="Normalised Psi")
+      WRITE(out_unit,*) "--- Computing the new norm of Psi..."
+      CALL Norm_of(Norm, Psi, Debug_local)                                                                ! the printing of the norm according to Debug is within the call of Norm_of
+      WRITE(out_unit,*) "    ...back to MolecCav_Normalize_R2_complex"
     END IF 
 
   END SUBROUTINE MolecCav_Normalize_R2_complex
 
   
-  SUBROUTINE MolecCav_Normalize_R1_real(Psi)
+  SUBROUTINE MolecCav_Normalize_R1_real(Psi, Debug)
     USE QDUtil_m
     IMPLICIT NONE
 
-    real(kind=Rkind), intent(inout) :: Psi(:)                                                                                    ! already allocated
+    real(kind=Rkind),  intent(inout) :: Psi(:)                                                                                    ! already allocated
+    logical, optional, intent(in)    :: Debug
 
-    real(kind=Rkind)                :: Norm, Threshold
-    logical, parameter              :: Debug = .FALSE.
+    real(kind=Rkind)                 :: Norm
+    real(kind=Rkind), parameter      :: Threshold = 1E-10_Rkind
+    logical                          :: Debug_local
 
-    Threshold = 1E-08_Rkind
-    CALL MolecCav_Norm_R1_real(Norm, Psi)
-    IF (Debug) WRITE(out_unit,*) "Computed norm of R1 WF = "//TO_string(Norm)
+    !--- Debugging options --------------------------------
+    IF (PRESENT(Debug)) THEN; Debug_local = Debug
+    ELSE; Debug_local = .FALSE.; END IF
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "o Arguments of MolecCav_Normalize_R1_real :"
+      WRITE(out_unit,*) "The <<Psi>> argument :"
+      CALL Write_Vec(Psi, out_unit, 1, info="Psi")
+      FLUSH(out_unit)
+    END IF
+
+    IF (Debug_local) WRITE(out_unit,*) "--- Computing norm of Psi..."
+    CALL Norm_of(Norm, Psi, Debug_local)                                                                ! the printing of the norm according to Debug is within the call of Norm_of
+    IF (Debug_local) WRITE(out_unit,*) "    ...back to MolecCav_Normalize_R1_real"
 
     IF (Norm < Threshold) THEN
-      WRITE(out_unit,*) "Attempt to normalize matrix of norm ZERO"
-      STOP "### Attempt to normalize matrix of norm ZERO"
+      WRITE(out_unit,*) "### Attempt to normalize matrix of norm ZERO at MolecCav_Normalize_R1_real."
+      STOP "### Attempt to normalize matrix of norm ZERO at MolecCav_Normalize_R1_real."
+      
+    !--- Normalisation ------------------------------------
     ELSE 
       Psi(:) = Psi(:) / Norm
     END IF 
 
-    IF (Debug) THEN
-      CALL MolecCav_Norm_R1_real(Norm, Psi)
-      WRITE(out_unit,*) "Computed new norm of R1 WF = "//TO_string(Norm)
+    IF (Debug_local) THEN
+      WRITE(out_unit,*) "--- The normalized Psi :"
+      CALL Write_Vec(Psi, out_unit, 1, info="Normalised Psi")
+      WRITE(out_unit,*) "--- Computing the new norm of Psi..."
+      CALL Norm_of(Norm, Psi, Debug_local)                                                                ! the printing of the norm according to Debug is within the call of Norm_of
+      WRITE(out_unit,*) "    ...back to MolecCav_Normalize_R1_real"
     END IF 
 
   END SUBROUTINE MolecCav_Normalize_R1_real
 
 
-  SUBROUTINE MolecCav_Normalize_R1_complex(Psi)
+  SUBROUTINE MolecCav_Normalize_R1_complex(Psi, Debug)
     USE QDUtil_m
     IMPLICIT NONE
 
-    complex(kind=Rkind), intent(inout) :: Psi(:)                                                                                 ! already allocated
+    complex(kind=Rkind), intent(inout) :: Psi(:)                                                                                    ! already allocated
+    logical, optional, intent(in)      :: Debug
 
-    real(kind=Rkind)                   :: Norm, Threshold
-    logical, parameter                 :: Debug = .FALSE.
+    real(kind=Rkind)                   :: Norm
+    real(kind=Rkind), parameter        :: Threshold = 1E-10_Rkind
+    logical                            :: Debug_local
 
-    Threshold = 1E-08_Rkind
-    CALL MolecCav_Norm_R1_complex(Norm, Psi)
-    IF (Debug) WRITE(out_unit,*) "Computed norm of R1 WF = "//TO_string(Norm)
+    !--- Debugging options --------------------------------
+    IF (PRESENT(Debug)) THEN; Debug_local = Debug
+    ELSE; Debug_local = .FALSE.; END IF
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "o Arguments of MolecCav_Normalize_R1_complex :"
+      WRITE(out_unit,*) "The <<Psi>> argument :"
+      CALL Write_Vec(Psi, out_unit, 1, info="Psi")
+      FLUSH(out_unit)
+    END IF
+
+    IF (Debug_local) WRITE(out_unit,*) "--- Computing norm of Psi..."
+    CALL Norm_of(Norm, Psi, Debug_local)                                                                ! the printing of the norm according to Debug is within the call of Norm_of
+    IF (Debug_local) WRITE(out_unit,*) "    ...back to MolecCav_Normalize_R1_complex"
 
     IF (Norm < Threshold) THEN
-      WRITE(out_unit,*) "Attempt to normalize matrix of norm ZERO"
-      STOP "### Attempt to normalize matrix of norm ZERO"
+      WRITE(out_unit,*) "### Attempt to normalize matrix of norm ZERO at MolecCav_Normalize_R1_complex."
+      STOP "### Attempt to normalize matrix of norm ZERO at MolecCav_Normalize_R1_complex."
+      
+    !--- Normalisation ------------------------------------
     ELSE 
       Psi(:) = Psi(:) / Norm
     END IF 
 
-    IF (Debug) THEN
-      CALL MolecCav_Norm_R1_complex(Norm, Psi)
-      WRITE(out_unit,*) "Computed new norm of R1 WF = "//TO_string(Norm)
+    IF (Debug_local) THEN
+      WRITE(out_unit,*) "--- The normalized Psi :"
+      CALL Write_Vec(Psi, out_unit, 1, info="Normalised Psi")
+      WRITE(out_unit,*) "--- Computing the new norm of Psi..."
+      CALL Norm_of(Norm, Psi, Debug_local)                                                                ! the printing of the norm according to Debug is within the call of Norm_of
+      WRITE(out_unit,*) "    ...back to MolecCav_Normalize_R1_complex"
     END IF 
 
   END SUBROUTINE MolecCav_Normalize_R1_complex
 
 
-  SUBROUTINE MolecCav_Norm_R2_real(Norm, Psi)
+  SUBROUTINE MolecCav_Norm_R2_real(Norm, Psi, Debug)
     USE QDUtil_m
     IMPLICIT NONE
   
-    real(kind=Rkind), intent(inout) :: Norm
-    real(kind=Rkind), intent(in)    :: Psi(:,:)                                                                                  ! already allocated
-    
-    CALL MolecCav_Scalar_product_R2_real(Norm, Psi, Psi)
+    real(kind=Rkind),  intent(inout) :: Norm
+    real(kind=Rkind),  intent(in)    :: Psi(:,:)                                                         ! already allocated
+    logical, optional, intent(in)    :: Debug
+
+    logical                          :: Debug_local
+
+    !--- Debugging options --------------------------------
+    IF (PRESENT(Debug)) THEN; Debug_local = Debug
+    ELSE; Debug_local = .FALSE.; END IF
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "o Arguments of MolecCav_Norm_R2_real :"
+      WRITE(out_unit,*) "The <<Norm>> argument :"//TO_string(Norm)
+      WRITE(out_unit,*) "The <<Psi>> argument :"
+      CALL Write_Mat(Psi, out_unit, SIZE(Psi, dim=2), info="Psi")
+      FLUSH(out_unit)
+    END IF
+
+    !--- Norm computation ---------------------------------
+    IF (Debug_local) WRITE(out_unit,*) "--- Computing squared modulus of Psi..."
+    CALL Scalar_product(Norm, Psi, Psi, Debug_local)
+    IF (Debug_local) WRITE(out_unit,*) "    ...back to MolecCav_Norm_R2_real"
+
     Norm = SQRT(Norm)
   
+    IF (Debug_local) WRITE(out_unit,*) "--- The computed norm of Psi :"//TO_string(Norm)
+
   END SUBROUTINE MolecCav_Norm_R2_real
 
 
-  SUBROUTINE MolecCav_Norm_R2_complex(Norm, Psi)
+  SUBROUTINE MolecCav_Norm_R2_complex(Norm, Psi, Debug)
     USE QDUtil_m
     IMPLICIT NONE
   
     real(kind=Rkind),    intent(inout) :: Norm
-    complex(kind=Rkind), intent(in)    :: Psi(:,:)                                                                               ! already allocated
+    complex(kind=Rkind), intent(in)    :: Psi(:,:)                                                         ! already allocated
+    logical, optional,   intent(in)    :: Debug
 
-    complex(kind=Rkind)                :: Sca_pdt
+    complex(kind=Rkind)                :: ScaP
+    logical                            :: Debug_local
 
-    CALL MolecCav_Scalar_product_R2_complex(Sca_pdt, Psi, Psi)
-    Norm = SQRT(REAL(Sca_pdt))
+    !--- Debugging options --------------------------------
+    IF (PRESENT(Debug)) THEN; Debug_local = Debug
+    ELSE; Debug_local = .FALSE.; END IF
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "o Arguments of MolecCav_Norm_R2_complex :"
+      WRITE(out_unit,*) "The <<Norm>> argument :"//TO_string(Norm)
+      WRITE(out_unit,*) "The <<Psi>> argument :"
+      CALL Write_Mat(Psi, out_unit, SIZE(Psi, dim=2), info="Psi")
+      FLUSH(out_unit)
+    END IF
+
+    !--- Norm computation ---------------------------------
+    IF (Debug_local) WRITE(out_unit,*) "--- Computing squared modulus of Psi..."
+    CALL Scalar_product(ScaP, Psi, Psi, Debug_local)
+    IF (Debug_local) WRITE(out_unit,*) "    ...back to MolecCav_Norm_R2_complex"
+
+    Norm = SQRT(REAL(ScaP, kind=Rkind))
   
+    IF (Debug_local) WRITE(out_unit,*) "--- The computed norm of Psi :"//TO_string(Norm)
+
   END SUBROUTINE MolecCav_Norm_R2_complex
 
 
-  SUBROUTINE MolecCav_Norm_R1_real(Norm, Psi)
+  SUBROUTINE MolecCav_Norm_R1_real(Norm, Psi, Debug)
     USE QDUtil_m
     IMPLICIT NONE
   
-    real(kind=Rkind), intent(inout) :: Norm
-    real(kind=Rkind), intent(in)    :: Psi(:)                                                                                    ! already allocated
-    
-    CALL Scalar_product(Norm, Psi, Psi)
+    real(kind=Rkind),  intent(inout) :: Norm
+    real(kind=Rkind),  intent(in)    :: Psi(:)                                                          ! already allocated
+    logical, optional, intent(in)    :: Debug
+
+    logical                          :: Debug_local
+
+    !--- Debugging options --------------------------------
+    IF (PRESENT(Debug)) THEN; Debug_local = Debug
+    ELSE; Debug_local = .FALSE.; END IF
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "o Arguments of MolecCav_Norm_R1_real :"
+      WRITE(out_unit,*) "The <<Norm>> argument :"//TO_string(Norm)
+      WRITE(out_unit,*) "The <<Psi>> argument :"
+      CALL Write_Vec(Psi, out_unit, 1, info="Psi")
+      FLUSH(out_unit)
+    END IF
+
+    !--- Norm computation ---------------------------------
+    IF (Debug_local) WRITE(out_unit,*) "--- Computing squared modulus of Psi..."
+    CALL Scalar_product(Norm, Psi, Psi, Debug_local)
+    IF (Debug_local) WRITE(out_unit,*) "    ...back to MolecCav_Norm_R1_real"
+
     Norm = SQRT(Norm)
   
+    IF (Debug_local) WRITE(out_unit,*) "--- The computed norm of Psi :"//TO_string(Norm)
+
   END SUBROUTINE MolecCav_Norm_R1_real
 
 
-  SUBROUTINE MolecCav_Norm_R1_complex(Norm, Psi)
+  SUBROUTINE MolecCav_Norm_R1_complex(Norm, Psi, Debug)
     USE QDUtil_m
     IMPLICIT NONE
   
     real(kind=Rkind),    intent(inout) :: Norm
-    complex(kind=Rkind), intent(in)    :: Psi(:)                                                                                 ! already allocated
+    complex(kind=Rkind), intent(in)    :: Psi(:)                                                         ! already allocated
+    logical, optional,   intent(in)    :: Debug
 
-    complex(kind=Rkind)                :: Sca_pdt
-    
-    CALL Scalar_product(Sca_pdt, Psi, Psi)
-    Norm = SQRT(REAL(Sca_pdt, kind=Rkind))
+    complex(kind=Rkind)                :: ScaP
+    logical                            :: Debug_local
+
+    !--- Debugging options --------------------------------
+    IF (PRESENT(Debug)) THEN; Debug_local = Debug
+    ELSE; Debug_local = .FALSE.; END IF
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "o Arguments of MolecCav_Norm_R1_complex :"
+      WRITE(out_unit,*) "The <<Norm>> argument :"//TO_string(Norm)
+      WRITE(out_unit,*) "The <<Psi>> argument :"
+      CALL Write_Vec(Psi, out_unit, 1, info="Psi")
+      FLUSH(out_unit)
+    END IF
+
+    !--- Norm computation ---------------------------------
+    IF (Debug_local) WRITE(out_unit,*) "--- Computing squared modulus of Psi..."
+    CALL Scalar_product(ScaP, Psi, Psi, Debug_local)
+    IF (Debug_local) WRITE(out_unit,*) "    ...back to MolecCav_Norm_R1_complex"
+
+    Norm = SQRT(REAL(ScaP, kind=Rkind))
   
+    IF (Debug_local) WRITE(out_unit,*) "--- The computed norm of Psi :"//TO_string(Norm)
+
   END SUBROUTINE MolecCav_Norm_R1_complex
 
 
-  SUBROUTINE MolecCav_Scalar_product_R2_real(Sca_pdt, Psi_1, Psi_2)
+  SUBROUTINE MolecCav_Scalar_product_R2_real(ScaP, Psi_1, Psi_2, Debug)
     USE QDUtil_m
     IMPLICIT NONE
   
-    real(kind=Rkind), intent(inout) :: Sca_pdt
-    real(kind=Rkind), intent(in)    :: Psi_1(:,:)                                                                        ! already allocated
-    real(kind=Rkind), intent(in)    :: Psi_2(:,:)                                                                        ! already allocated
+    real(kind=Rkind),  intent(inout) :: ScaP
+    real(kind=Rkind),  intent(in)    :: Psi_1(:,:)                                                                        ! already allocated
+    real(kind=Rkind),  intent(in)    :: Psi_2(:,:)                                                                        ! already allocated
+    logical, optional, intent(in)    :: Debug
 
-    integer                         :: Dim, i_2
-    logical, parameter              :: Debug = .FALSE.
-    
-    Dim = Size(Psi_1, Dim=2)
-    IF (Dim /= Size(Psi_2, Dim=2) .OR. Size(Psi_2, Dim=1) /= Size(Psi_2, Dim=1)) THEN
-      WRITE(out_unit,*) "The matrices are expected to have same Dimensions for the scalar product."
-      STOP "### The matrices are expected to have same Dimensions for the scalar product."
+    integer                          :: Dim, i_2
+    logical                          :: Debug_local
+
+    !--- Debugging options --------------------------------
+    IF (PRESENT(Debug)) THEN; Debug_local = Debug
+    ELSE; Debug_local = .FALSE.; END IF
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "o Arguments of MolecCav_Scalar_product_R2_real :"
+      WRITE(out_unit,*) "The <<ScaP>> argument :"//TO_string(ScaP)
+      WRITE(out_unit,*) "The <<Psi_1>> argument :"
+      CALL Write_Mat(Psi_1, out_unit, SIZE(Psi_1, dim=2), info="Psi_1")
+      WRITE(out_unit,*) "The <<Psi_2>> argument :"
+      CALL Write_Mat(Psi_2, out_unit, SIZE(Psi_2, dim=2), info="Psi_2")
+      FLUSH(out_unit)
     END IF
-    
-    Sca_pdt = ZERO
-    
+
+    IF (SIZE(Psi_1, Dim=2) /= SIZE(Psi_2, Dim=2) .OR. SIZE(Psi_1, Dim=1) /= SIZE(Psi_2, Dim=1)) THEN
+      WRITE(out_unit,*) "### The matrices are expected to have same sizes at MolecCav_Scalar_product_R2_real."
+      WRITE(out_unit,*) "    SIZE(Psi_1, dim=1) = "//TO_string(SIZE(Psi_1, dim=1))//"; SIZE(Psi_1, dim=2) = "//TO_string(SIZE(Psi&
+      &_1, dim=2))
+      WRITE(out_unit,*) "    SIZE(Psi_2, dim=1) = "//TO_string(SIZE(Psi_2, dim=1))//"; SIZE(Psi_2, dim=2) = "//TO_string(SIZE(Psi&
+      &_2, dim=2))
+      STOP "### The matrices are expected to have same sizes MolecCav_Scalar_product_R2_real."
+    END IF
+
+    !--- Scalar product computation -----------------------
+    Dim = SIZE(Psi_1, Dim=2)
+
+    ScaP = ZERO
     DO i_2 = 1, Dim
-      Sca_pdt = Sca_pdt + DOT_PRODUCT(Psi_1(:,i_2), Psi_2(:,i_2))
+      ScaP = ScaP + DOT_PRODUCT(Psi_1(:,i_2), Psi_2(:,i_2))
     END DO
 
-    IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Psi_1 |  Psi_2 >  ="//TO_string(Sca_pdt)
+    IF (Debug_local) WRITE(out_unit,*) "--- The computed scalar product < Psi_1 | Psi_2 >  ="//TO_string(ScaP)
 
   END SUBROUTINE MolecCav_Scalar_product_R2_real
 
 
-  SUBROUTINE MolecCav_Scalar_product_R2_complex(Sca_pdt, Psi_1, Psi_2)
+  SUBROUTINE MolecCav_Scalar_product_R2_complex(ScaP, Psi_1, Psi_2, Debug)
     USE QDUtil_m
     IMPLICIT NONE
   
-    complex(kind=Rkind), intent(inout) :: Sca_pdt
-    complex(kind=Rkind), intent(in)    :: Psi_1(:,:)                                                                     ! already allocated
-    complex(kind=Rkind), intent(in)    :: Psi_2(:,:)                                                                     ! already allocated
+    complex(kind=Rkind),  intent(inout) :: ScaP
+    complex(kind=Rkind),  intent(in)    :: Psi_1(:,:)                                                                        ! already allocated
+    complex(kind=Rkind),  intent(in)    :: Psi_2(:,:)                                                                        ! already allocated
+    logical, optional, intent(in)       :: Debug
 
-    integer                            :: Dim, i_2
-    logical, parameter                 :: Debug = .FALSE.
-    
-    Dim = Size(Psi_1, Dim=2)
-    IF (Dim /= Size(Psi_2, Dim=2) .OR. Size(Psi_2, Dim=1) /= Size(Psi_2, Dim=1)) THEN
-      WRITE(out_unit,*) "The matrices are expected to have same Dimensions for the scalar product."
-      STOP "### The matrices are expected to have same Dimensions for the scalar product."
+    integer                             :: Dim, i_2
+    logical                             :: Debug_local
+
+    !--- Debugging options --------------------------------
+    IF (PRESENT(Debug)) THEN; Debug_local = Debug
+    ELSE; Debug_local = .FALSE.; END IF
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "o Arguments of MolecCav_Scalar_product_R2_complex :"
+      WRITE(out_unit,*) "The <<ScaP>> argument :"//TO_string(ScaP)
+      WRITE(out_unit,*) "The <<Psi_1>> argument :"
+      CALL Write_Mat(Psi_1, out_unit, SIZE(Psi_1, dim=2), info="Psi_1")
+      WRITE(out_unit,*) "The <<Psi_2>> argument :"
+      CALL Write_Mat(Psi_2, out_unit, SIZE(Psi_2, dim=2), info="Psi_2")
+      FLUSH(out_unit)
     END IF
 
-    Sca_pdt = ZERO
-    
+    IF (SIZE(Psi_1, Dim=2) /= SIZE(Psi_2, Dim=2) .OR. SIZE(Psi_1, Dim=1) /= SIZE(Psi_2, Dim=1)) THEN
+      WRITE(out_unit,*) "### The matrices are expected to have same sizes at MolecCav_Scalar_product_R2_complex."
+      WRITE(out_unit,*) "    SIZE(Psi_1, dim=1) = "//TO_string(SIZE(Psi_1, dim=1))//"; SIZE(Psi_1, dim=2) = "//TO_string(SIZE(Psi&
+      &_1, dim=2))
+      WRITE(out_unit,*) "    SIZE(Psi_2, dim=1) = "//TO_string(SIZE(Psi_2, dim=1))//"; SIZE(Psi_2, dim=2) = "//TO_string(SIZE(Psi&
+      &_2, dim=2))
+      STOP "### The matrices are expected to have same sizes MolecCav_Scalar_product_R2_complex."
+    END IF
+
+    !--- Scalar product computation -----------------------
+    Dim = SIZE(Psi_1, Dim=2)
+
+    ScaP = ZERO
     DO i_2 = 1, Dim
-      Sca_pdt = Sca_pdt + DOT_PRODUCT(Psi_1(:,i_2), Psi_2(:,i_2))
+      ScaP = ScaP + DOT_PRODUCT(Psi_1(:,i_2), Psi_2(:,i_2))
     END DO
 
-    IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Psi_1 |  Psi_2 >  ="//TO_string(Sca_pdt)
+    IF (Debug_local) WRITE(out_unit,*) "--- The computed scalar product < Psi_1 | Psi_2 >  ="//TO_string(ScaP)
 
   END SUBROUTINE MolecCav_Scalar_product_R2_complex
 
 
-  SUBROUTINE MolecCav_Scalar_product_R1_real(Sca_pdt, Psi_1, Psi_2)
+  SUBROUTINE MolecCav_Scalar_product_R1_real(ScaP, Psi_1, Psi_2, Debug)
     USE QDUtil_m
     IMPLICIT NONE
   
-    real(kind=Rkind), intent(inout) :: Sca_pdt
-    real(kind=Rkind), intent(in)    :: Psi_1(:)                                                                                  ! already allocated
-    real(kind=Rkind), intent(in)    :: Psi_2(:)                                                                                  ! already allocated
+    real(kind=Rkind),  intent(inout) :: ScaP
+    real(kind=Rkind),  intent(in)    :: Psi_1(:)                                                                        ! already allocated
+    real(kind=Rkind),  intent(in)    :: Psi_2(:)                                                                        ! already allocated
+    logical, optional, intent(in)    :: Debug
 
-    integer                         :: Dim
-    logical, parameter              :: Debug = .FALSE.
-    
-    Dim = Size(Psi_1)
-    IF (Dim /= Size(Psi_2)) THEN
-      WRITE(out_unit,*) "The matrices are expected to have same Dimensions for the scalar product."
-      STOP "### The matrices are expected to have same Dimensions for the scalar product."
+    logical                          :: Debug_local
+
+    !--- Debugging options --------------------------------
+    IF (PRESENT(Debug)) THEN; Debug_local = Debug
+    ELSE; Debug_local = .FALSE.; END IF
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "o Arguments of MolecCav_Scalar_product_R1_real :"
+      WRITE(out_unit,*) "The <<ScaP>> argument :"//TO_string(ScaP)
+      WRITE(out_unit,*) "The <<Psi_1>> argument :"
+      CALL Write_Vec(Psi_1, out_unit, 1, info="Psi_1")
+      WRITE(out_unit,*) "The <<Psi_2>> argument :"
+      CALL Write_Vec(Psi_2, out_unit, 1, info="Psi_2")
+      FLUSH(out_unit)
     END IF
 
-    Sca_pdt = DOT_PRODUCT(Psi_1, Psi_2)
+    IF (SIZE(Psi_1, Dim=1) /= SIZE(Psi_2, Dim=1)) THEN
+      WRITE(out_unit,*) "### The matrices are expected to have same sizes at MolecCav_Scalar_product_R1_real."
+      WRITE(out_unit,*) "    SIZE(Psi_1, dim=1) = "//TO_string(SIZE(Psi_1, dim=1))//"; SIZE(Psi_2, dim=1) = "//TO_string(SIZE(Psi&
+      &_2, dim=1))
+      STOP "### The matrices are expected to have same sizes MolecCav_Scalar_product_R1_real."
+    END IF
 
-    IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Psi_1 |  Psi_2 >  ="//TO_string(Sca_pdt)
+    !--- Scalar product computation -----------------------
+    ScaP = DOT_PRODUCT(Psi_1, Psi_2)
+
+    IF (Debug_local) WRITE(out_unit,*) "--- The computed scalar product < Psi_1 | Psi_2 >  ="//TO_string(ScaP)
 
   END SUBROUTINE MolecCav_Scalar_product_R1_real
 
 
-  SUBROUTINE MolecCav_Scalar_product_R1_complex(Sca_pdt, Psi_1, Psi_2)
+  SUBROUTINE MolecCav_Scalar_product_R1_complex(ScaP, Psi_1, Psi_2, Debug)
     USE QDUtil_m
     IMPLICIT NONE
   
-    complex(kind=Rkind), intent(inout) :: Sca_pdt
-    complex(kind=Rkind), intent(in)    :: Psi_1(:)                                                                               ! already allocated
-    complex(kind=Rkind), intent(in)    :: Psi_2(:)                                                                               ! already allocated
+    complex(kind=Rkind),  intent(inout) :: ScaP
+    complex(kind=Rkind),  intent(in)    :: Psi_1(:)                                                                        ! already allocated
+    complex(kind=Rkind),  intent(in)    :: Psi_2(:)                                                                        ! already allocated
+    logical, optional, intent(in)       :: Debug
 
-    integer                            :: Dim
-    logical, parameter                 :: Debug = .FALSE.
-    
-    Dim = Size(Psi_1)
-    IF (Dim /= Size(Psi_2)) THEN
-      WRITE(out_unit,*) "The matrices are expected to have same Dimensions for the scalar product."
-      STOP "### The matrices are expected to have same Dimensions for the scalar product."
+    logical                             :: Debug_local
+
+    !--- Debugging options --------------------------------
+    IF (PRESENT(Debug)) THEN; Debug_local = Debug
+    ELSE; Debug_local = .FALSE.; END IF
+
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "o Arguments of MolecCav_Scalar_product_R1_complex :"
+      WRITE(out_unit,*) "The <<ScaP>> argument :"//TO_string(ScaP)
+      WRITE(out_unit,*) "The <<Psi_1>> argument :"
+      CALL Write_Vec(Psi_1, out_unit, 1, info="Psi_1")
+      WRITE(out_unit,*) "The <<Psi_2>> argument :"
+      CALL Write_Vec(Psi_2, out_unit, 1, info="Psi_2")
+      FLUSH(out_unit)
     END IF
 
-    Sca_pdt = DOT_PRODUCT(Psi_1, Psi_2)
+    IF (SIZE(Psi_1, Dim=1) /= SIZE(Psi_2, Dim=1)) THEN
+      WRITE(out_unit,*) "### The matrices are expected to have same sizes at MolecCav_Scalar_product_R1_complex."
+      WRITE(out_unit,*) "    SIZE(Psi_1, dim=1) = "//TO_string(SIZE(Psi_1, dim=1))//"; SIZE(Psi_2, dim=1) = "//TO_string(SIZE(Psi&
+      &_2, dim=1))
+      STOP "### The matrices are expected to have same sizes MolecCav_Scalar_product_R1_complex."
+    END IF
 
-    IF (Debug) WRITE(out_unit,*) "Computed scalar product : < Psi_1 |  Psi_2 >  ="//TO_string(Sca_pdt)
+    !--- Scalar product computation -----------------------
+    ScaP = DOT_PRODUCT(Psi_1, Psi_2)
+
+    IF (Debug_local) WRITE(out_unit,*) "--- The computed scalar product < Psi_1 | Psi_2 >  ="//TO_string(ScaP)
 
   END SUBROUTINE MolecCav_Scalar_product_R1_complex
 
