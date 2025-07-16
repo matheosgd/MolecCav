@@ -29,8 +29,29 @@
 !
 !==================================================================================================
 !
-! README :
-! to be written soon
+! README : HAVE NOT BEEN TESTED IN THIS PROGRAM.
+! Module that contains all the procedures related to the implementation of the Lanczos iterative d-
+! iagonalization methode in MolecCav. In a nutshell : how to construct the Krylov basis, how to au-
+! gment it, how to construct the triband Hamiltonian matrix on this basis, and how to change the b-
+! asis on which a set a vector is expressed from one to an other (which is not really related to L-
+! anczos and may actually be moved to Algebra).
+
+! Initialize : Interface for the MolecCav_Initialize_krylov_basis procedure.
+!
+! Augment : Interface for the MolecCav_Augment_krylov_basis procedure.
+!
+! Construct_TribandeH : Interface for the MolecCav_Construct_TribandeH procedure.
+!
+! BasisChange : Interface for the MolecCav_BasisChange_2TO1_R2 procedure.
+!
+! MolecCav_Initialize_krylov_basis :
+!
+! MolecCav_Augment_krylov_basis :
+!
+! MolecCav_Construct_TribandeH :
+!
+! MolecCav_BasisChange_2TO1_R2 :
+!
 !==================================================================================================
 !==================================================================================================
 MODULE Lanczos_m
@@ -74,11 +95,11 @@ MODULE Lanczos_m
     integer,                       intent(in)    :: Nb_krylov   ! the SIZE of the krylov basis
     logical, optional,             intent(in)    :: Debug
 
-    logical                                      :: Debug_local
     real(kind=Rkind), allocatable                :: KBasis_non_ortho(:,:) ! the intermediary KBasis before it is orthonormalized
     real(kind=Rkind), allocatable                :: Intermediary(:,:)     ! for the orthonormality check
     real(kind=Rkind), allocatable                :: Identity(:,:)         ! also
     integer                                      :: i
+    logical                                      :: Debug_local
   
     !--- Debugging options --------------------------------
     IF (PRESENT(Debug)) THEN; Debug_local = Debug
@@ -87,11 +108,11 @@ MODULE Lanczos_m
     IF (Debug_local) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "o Arguments of MolecCav_Initialize_krylov_basis :"
-      WRITE(out_unit,*) "The <<KBasis>> argument :" 
+      WRITE(out_unit,*) "The <<KBasis>> argument    :" 
       CALL Write_Mat(KBasis, out_unit, SIZE(KBasis, dim=2), info="KBasis")
-      WRITE(out_unit,*) "The <<TotH>> argument :" 
+      WRITE(out_unit,*) "The <<TotH>> argument      :" 
       CALL Write(TotH)
-      WRITE(out_unit,*) "The <<Psi>> argument :" 
+      WRITE(out_unit,*) "The <<Psi>> argument       :" 
       CALL Write_Vec(Psi, out_unit, 1, info="Psi")
       WRITE(out_unit,*) "The <<Nb_krylov>> argument :"//TO_string(Nb_krylov)
       FLUSH(out_unit)
@@ -157,6 +178,9 @@ MODULE Lanczos_m
       WRITE(out_unit,*) "################### WARNING ################## WARNING ################## WARNING ##################"
     END IF
     
+    IF (Debug_local) WRITE(out_unit,*) "--- The constructed KBasis :"
+    IF (Debug_local) CALL Write_Mat(KBasis, out_unit, SIZE(KBasis, dim=2), info="KBasis")
+
   END SUBROUTINE MolecCav_Initialize_krylov_basis
 
  
@@ -169,7 +193,6 @@ MODULE Lanczos_m
     TYPE(Sum_of_products_t),       intent(in)    :: TotH
     logical, optional,             intent(in)    :: Debug
 
-    logical                                      :: Debug_local
     real(kind=Rkind), allocatable                :: TemporaryKB(:,:)
     real(kind=Rkind), allocatable                :: V(:)
     real(kind=Rkind), allocatable                :: Intermediary(:,:)
@@ -177,6 +200,7 @@ MODULE Lanczos_m
     integer                                      :: Nb_krylov
     integer                                      :: NB ! SIZE of the original basis set
     integer                                      :: i
+    logical                                      :: Debug_local
 
     !--- Debugging options --------------------------------
     IF (PRESENT(Debug)) THEN; Debug_local = Debug
@@ -187,7 +211,7 @@ MODULE Lanczos_m
       WRITE(out_unit,*) "o Arguments of MolecCav_Augment_krylov_basis :"
       WRITE(out_unit,*) "The <<KBasis>> argument :" 
       IF (ALLOCATED(KBasis)) THEN; CALL Write_Mat(KBasis, out_unit, SIZE(KBasis, dim=2), info="KBasis")
-      ELSE; WRITE(out_unit,*) "is NOT allocated !"; END IF
+      ELSE; WRITE(out_unit,*) "is NOT allocated !"; END IF ! but why do we need to keep it allocatable ?
       WRITE(out_unit,*) "The <<TotH>> argument :" 
       CALL Write(TotH)
       FLUSH(out_unit)
@@ -231,7 +255,10 @@ MODULE Lanczos_m
       WRITE(out_unit,*) "                             The KBasis is not orthonormal up to 10E-10 "
       WRITE(out_unit,*) "################### WARNING ################## WARNING ################## WARNING ##################"
     END IF
-    
+  
+    IF (Debug_local) WRITE(out_unit,*) "--- The augmented KBasis :"
+    IF (Debug_local) CALL Write_Mat(KBasis, out_unit, SIZE(KBasis, dim=2), info="KBasis")
+
   END SUBROUTINE MolecCav_Augment_krylov_basis
 
 
@@ -245,8 +272,8 @@ MODULE Lanczos_m
     TYPE(Sum_of_products_t), intent(in)    :: TotH
     logical, optional,       intent(in)    :: Debug
 
-    logical                                :: Debug_local
     integer                                :: i, Nb_krylov
+    logical                                :: Debug_local
 
     !--- Debugging options --------------------------------
     IF (PRESENT(Debug)) THEN; Debug_local = Debug
@@ -299,7 +326,10 @@ MODULE Lanczos_m
     DO i = 1, Nb_krylov
       CALL Action(TribandH(:,i), TotH, KBasis(:,i), Debug=Debug_local)
     END DO 
-      
+
+    IF (Debug_local) WRITE(out_unit,*) "--- The constructed TribandH :"
+    IF (Debug_local) CALL Write_Mat(TribandH, out_unit, SIZE(TribandH, dim=2), info="TribandH")
+
   END SUBROUTINE MolecCav_Construct_TribandeH
 
 
@@ -312,8 +342,8 @@ MODULE Lanczos_m
     real(kind=Rkind),  intent(in)    :: ChangeM_1TO2(:,:) ! change-of-basis matrixfrom Basis B_1 to B_2 i.e. B_2 expressed in B_1
     logical, optional, intent(in)    :: Debug
 
-    logical                          :: Debug_local
     integer                          :: i, j, Nb_2
+    logical                          :: Debug_local
 
     !--- Debugging options --------------------------------
     IF (PRESENT(Debug)) THEN; Debug_local = Debug
@@ -373,6 +403,9 @@ MODULE Lanczos_m
     !--- Change of basis ----------------------------------
     Psi_1(:,:) = ZERO
     Psi_1 = MATMUL(ChangeM_1TO2, Psi_2)
+
+    IF (Debug_local) WRITE(out_unit,*) "--- The constructed Psi_1 :"
+    IF (Debug_local) CALL Write_Mat(Psi_1, out_unit, SIZE(Psi_1, dim=2), info="Psi_1")
 
   END SUBROUTINE MolecCav_BasisChange_2TO1_R2
 

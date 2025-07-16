@@ -30,35 +30,49 @@
 !==================================================================================================
 !
 ! README :
-! The module to initialize the operators related to a HO.
-! Initialize_HO1D_operator : constructs the operator using parameters of the HO1D_para object from 
-! the so called derived type. Calls the next three procedures. 
-! Initialize_H_HO1D        : constructs the Hamiltonian operator using parameters of the HO1D_para 
-! object from the so called derived type.  
-! Initialize_x_HO1D        : constructs the Position operator using parameters of the HO1D_para ob-
-! ject from the so called derived type.
-! Initialize_N_HO1D        : constructs the Number of excitation Quanta operator using parameters 
-! of the HO1D_para object from the so called derived type.
-! Write      : displays values of the type in the output.
-! Deallocate_HO1D_operator : deallocates all tables of the type.
-! README :
-! The module that accounts for the actions of the operators related to a HO over an any statevector
-! (described by rank-1 tensors) of this HO.  
-! Action_HO1D_operator_R1        : computes the resulting vector Op_psi (Rank-1 tensor) from the a-
-! ction of the operator of the 1D HO on the state vector Psi(rank-1 tensor) written in the Eigenba-
-! sis of the H of the HO1D. N.B. The wavefunction must be a statefunction OF THIS HO. Calls the ne-
-! -xt three procedures.
-! Action_dense  : the procedure that actually computes the action of Action_HO1D_-
-! operator_R1, in the case of an operator represented by its full (analytical) matrix.
-! Action_diag   : the procedure that actually computes the action of Action_HO1D_-
-! operator_R1, in the case of an operator represented by by the vector (rank-1 tensor) of the diag-
-! onal elements of its full (analytical) matrix.
-! Action_band   : the procedure that actually computes the action of Action_HO1D_-
-! operator_R1, in the case of an operator represented by matrix (rank-2 tensor) with a column for 
-! each of its non-null diagonal.
-! Average_value_HO1D_operator_R1 : computes the avarage value of an operator of the 1D HO over a s-
-! tatevector (rank-1 tensor), calling first the Action_HO1D_operator_R1 and then projecting the th-
-! ereby obtained wavevector on the initial one.
+! Module designed to manage elementary operators of quantum dynamics. They are considered as opera-
+! tors because of the derived type this module takes care of but it actually does not care about p-
+! hysics at all. It just manages the computation a tensor's action upon a rank-1 real tensor, choo-
+! sing a different method according to the kind of object the "operator" is represented by. This w-
+! ay allows to deal with operator's actions in way totally independant of the basis they are expre-
+! ssed on, which gives more generality and flexibility. However, because of this choice it only co-
+! ntains, in addition to the derived type Elem_op it takes care of, procedures to process Actions, 
+! Writing, and Deallocation with this type.
+!
+! Elem_op_t : 
+!
+! Action :
+!
+! Write :
+!
+! Dealloc :
+!
+! MolecCav_Action_elem_op_R1_real :
+!
+! MolecCav_Action_elem_op_R1_complex :
+!
+! Action_dense :
+!
+! Action_diag :
+!
+! Action_band :
+!
+! MolecCav_Action_dense_elem_op_R1_real :
+!
+! MolecCav_Action_dense_elem_op_R1_complex :
+!
+! MolecCav_Action_diag_elem_op_R1_real :
+!
+! MolecCav_Action_diag_elem_op_R1_complex :
+!
+! MolecCav_Action_band_elem_op_R1_real :
+!
+! MolecCav_Action_band_elem_op_R1_complex :
+!
+! MolecCav_Write_elem_op_R1 :
+!
+! MolecCav_Deallocate_elem_op :
+!
 !==================================================================================================
 !==================================================================================================
 MODULE Elem_op_m
@@ -85,7 +99,7 @@ MODULE Elem_op_m
 
 
   INTERFACE Action
-    MODULE PROCEDURE MolecCav_Action_elem_op_R1_real, MolecCav_Action_elem_op_R1_complex!&
+    MODULE PROCEDURE MolecCav_Action_elem_op_R1_real, MolecCav_Action_elem_op_R1_complex
   END INTERFACE
   INTERFACE Action_dense
     MODULE PROCEDURE MolecCav_Action_dense_elem_op_R1_real, MolecCav_Action_dense_elem_op_R1_complex

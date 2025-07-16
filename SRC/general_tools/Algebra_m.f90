@@ -30,7 +30,11 @@
 !==================================================================================================
 !
 ! README :
-! Gram_schmidt : Interface for the MolecCav_Gram_schmidt procedure. 
+! Module of mathematics utilities. It contains some procedures for algebraic tools, mostly about m-
+! atrix management and a Gram-Schmidt procedure. HAVE NOT BEEN TESTED IN THIS PROGRAM.
+! 
+! Gram_schmidt : Interface for the MolecCav_Gram_schmidt procedure. cf. MolecCav_Gram_schmidt for 
+! details
 !
 ! Normalize : Interface for the MolecCav_Normalize_R*_* procedures. It takes as arguments a tensor 
 ! of rank 1 or 2 with real or complex values (Psi) and normalises it by redirecting to one of the 
@@ -47,7 +51,11 @@
 ! d Psi_2 by summing the results from the intrinsic DOT_PRODUCT for each column of same index of t-
 ! -he tensors, and affects the result to ScaP.
 !
-! MolecCav_Gram_schmidt : Takes as arguments a rank 2 tensor with real values that does not need to have been initialized (OrthoBasis) and a
+! MolecCav_Gram_schmidt : Takes as arguments a rank 2 tensor with real values that does not need to
+! have been initialized (OrthoBasis) and an other one that need to have actual values in (NonOrtho-
+! Basis). It applies the Gram-Schmidt procedure to NonOrthoBasis to orthonormalise it, going throu-
+! gh an intermediary rank 1 tensor to manage the column vectors individually, and affect the resul-
+! t to OrthoBasis.
 !
 ! MolecCav_Normalize_R2_real : Takes as arguments a tensor of rank 2 with real values (Psi) and no-
 ! rmalises it. It computes its norm calling the Norm_of subroutine, and divide Psi by it. 
@@ -136,7 +144,7 @@ MODULE Algebra_m
     IF (Debug_local) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "o Arguments of MolecCav_Gram_schmidt :"
-      WRITE(out_unit,*) "The <<OrthoBasis>> argument :" 
+      WRITE(out_unit,*) "The <<OrthoBasis>> argument    :" 
       CALL Write_Mat(OrthoBasis, out_unit, SIZE(OrthoBasis, dim=2), info="OrthoBasis")
       WRITE(out_unit,*) "The <<NonOrthoBasis>> argument :" 
       CALL Write_Mat(NonOrthoBasis, out_unit, SIZE(NonOrthoBasis, dim=2), info="NonOrthoBasis")
@@ -159,8 +167,15 @@ MODULE Algebra_m
         Intermediary(:) = Intermediary(:) - DOT_PRODUCT(NonOrthoBasis(:,i), OrthoBasis(:,j)) * OrthoBasis(:,j) ! removes projection of the new vector upon every vectors of the ortho basis
       END DO
       OrthoBasis(:, i) = Intermediary(:) / SQRT(DOT_PRODUCT(Intermediary(:),Intermediary(:)))
+      IF (Debug_local) CALL Write_Mat(OrthoBasis, out_unit, SIZE(OrthoBasis, dim=1), info="Orthobasis(:,"//TO_string(i)//") :")
     END DO
-            
+    
+    IF (Debug_local) THEN
+      WRITE(out_unit,*) "--- The orthonormalised basis :"
+      CALL Write_Mat(OrthoBasis, out_unit, SIZE(OrthoBasis, dim=2), info="OrthoBasis")
+    END IF 
+
+
   END SUBROUTINE MolecCav_Gram_schmidt
   
   
@@ -168,7 +183,7 @@ MODULE Algebra_m
     USE QDUtil_m
     IMPLICIT NONE
 
-    real(kind=Rkind),  intent(inout) :: Psi(:,:)                                                                                  ! already allocated
+    real(kind=Rkind),  intent(inout) :: Psi(:,:)                                                        ! already allocated
     logical, optional, intent(in)    :: Debug
 
     real(kind=Rkind)                 :: Norm
@@ -182,8 +197,9 @@ MODULE Algebra_m
     IF (Debug_local) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "o Arguments of MolecCav_Normalize_R2_real :"
-      WRITE(out_unit,*) "The <<Psi>> argument :"
+      WRITE(out_unit,*) "The <<Psi>> argument                 :"
       CALL Write_Mat(Psi, out_unit, SIZE(Psi, dim=2), info="Psi")
+      WRITE(out_unit,*) "The <<Threshold>> internal parameter :"//TO_string(Threshold)
       FLUSH(out_unit)
     END IF
 
@@ -229,8 +245,9 @@ MODULE Algebra_m
     IF (Debug_local) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "o Arguments of MolecCav_Normalize_R2_complex :"
-      WRITE(out_unit,*) "The <<Psi>> argument :"
+      WRITE(out_unit,*) "The <<Psi>> argument                 :"
       CALL Write_Mat(Psi, out_unit, SIZE(Psi, dim=2), info="Psi")
+      WRITE(out_unit,*) "The <<Threshold>> internal parameter :"//TO_string(Threshold)
       FLUSH(out_unit)
     END IF
 
@@ -251,7 +268,7 @@ MODULE Algebra_m
       WRITE(out_unit,*) "--- The normalized Psi :"
       CALL Write_Mat(Psi, out_unit, SIZE(Psi, dim=2), info="Normalised Psi")
       WRITE(out_unit,*) "--- Computing the new norm of Psi..."
-      CALL Norm_of(Norm, Psi, Debug_local)                                                                ! the printing of the norm according to Debug is within the call of Norm_of
+      CALL Norm_of(Norm, Psi, Debug_local)                                                              ! the printing of the norm according to Debug is within the call of Norm_of
       WRITE(out_unit,*) "    ...back to MolecCav_Normalize_R2_complex"
     END IF 
 
@@ -262,7 +279,7 @@ MODULE Algebra_m
     USE QDUtil_m
     IMPLICIT NONE
 
-    real(kind=Rkind),  intent(inout) :: Psi(:)                                                                                    ! already allocated
+    real(kind=Rkind),  intent(inout) :: Psi(:)                                                          ! already allocated
     logical, optional, intent(in)    :: Debug
 
     real(kind=Rkind)                 :: Norm
@@ -276,8 +293,9 @@ MODULE Algebra_m
     IF (Debug_local) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "o Arguments of MolecCav_Normalize_R1_real :"
-      WRITE(out_unit,*) "The <<Psi>> argument :"
+      WRITE(out_unit,*) "The <<Psi>> argument                 :"
       CALL Write_Vec(Psi, out_unit, 1, info="Psi")
+      WRITE(out_unit,*) "The <<Threshold>> internal parameter :"//TO_string(Threshold)
       FLUSH(out_unit)
     END IF
 
@@ -298,7 +316,7 @@ MODULE Algebra_m
       WRITE(out_unit,*) "--- The normalized Psi :"
       CALL Write_Vec(Psi, out_unit, 1, info="Normalised Psi")
       WRITE(out_unit,*) "--- Computing the new norm of Psi..."
-      CALL Norm_of(Norm, Psi, Debug_local)                                                                ! the printing of the norm according to Debug is within the call of Norm_of
+      CALL Norm_of(Norm, Psi, Debug_local)                                                              ! the printing of the norm according to Debug is within the call of Norm_of
       WRITE(out_unit,*) "    ...back to MolecCav_Normalize_R1_real"
     END IF 
 
@@ -309,7 +327,7 @@ MODULE Algebra_m
     USE QDUtil_m
     IMPLICIT NONE
 
-    complex(kind=Rkind), intent(inout) :: Psi(:)                                                                                    ! already allocated
+    complex(kind=Rkind), intent(inout) :: Psi(:)                                                        ! already allocated
     logical, optional, intent(in)      :: Debug
 
     real(kind=Rkind)                   :: Norm
@@ -323,8 +341,9 @@ MODULE Algebra_m
     IF (Debug_local) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "o Arguments of MolecCav_Normalize_R1_complex :"
-      WRITE(out_unit,*) "The <<Psi>> argument :"
+      WRITE(out_unit,*) "The <<Psi>> argument                 :"
       CALL Write_Vec(Psi, out_unit, 1, info="Psi")
+      WRITE(out_unit,*) "The <<Threshold>> internal parameter :"//TO_string(Threshold)
       FLUSH(out_unit)
     END IF
 
@@ -345,7 +364,7 @@ MODULE Algebra_m
       WRITE(out_unit,*) "--- The normalized Psi :"
       CALL Write_Vec(Psi, out_unit, 1, info="Normalised Psi")
       WRITE(out_unit,*) "--- Computing the new norm of Psi..."
-      CALL Norm_of(Norm, Psi, Debug_local)                                                                ! the printing of the norm according to Debug is within the call of Norm_of
+      CALL Norm_of(Norm, Psi, Debug_local)                                                              ! the printing of the norm according to Debug is within the call of Norm_of
       WRITE(out_unit,*) "    ...back to MolecCav_Normalize_R1_complex"
     END IF 
 
@@ -357,7 +376,7 @@ MODULE Algebra_m
     IMPLICIT NONE
   
     real(kind=Rkind),  intent(inout) :: Norm
-    real(kind=Rkind),  intent(in)    :: Psi(:,:)                                                         ! already allocated
+    real(kind=Rkind),  intent(in)    :: Psi(:,:)                                                        ! already allocated
     logical, optional, intent(in)    :: Debug
 
     logical                          :: Debug_local
@@ -370,7 +389,7 @@ MODULE Algebra_m
       WRITE(out_unit,*)
       WRITE(out_unit,*) "o Arguments of MolecCav_Norm_R2_real :"
       WRITE(out_unit,*) "The <<Norm>> argument :"//TO_string(Norm)
-      WRITE(out_unit,*) "The <<Psi>> argument :"
+      WRITE(out_unit,*) "The <<Psi>> argument  :"
       CALL Write_Mat(Psi, out_unit, SIZE(Psi, dim=2), info="Psi")
       FLUSH(out_unit)
     END IF
@@ -392,7 +411,7 @@ MODULE Algebra_m
     IMPLICIT NONE
   
     real(kind=Rkind),    intent(inout) :: Norm
-    complex(kind=Rkind), intent(in)    :: Psi(:,:)                                                         ! already allocated
+    complex(kind=Rkind), intent(in)    :: Psi(:,:)                                                      ! already allocated
     logical, optional,   intent(in)    :: Debug
 
     complex(kind=Rkind)                :: ScaP
@@ -406,7 +425,7 @@ MODULE Algebra_m
       WRITE(out_unit,*)
       WRITE(out_unit,*) "o Arguments of MolecCav_Norm_R2_complex :"
       WRITE(out_unit,*) "The <<Norm>> argument :"//TO_string(Norm)
-      WRITE(out_unit,*) "The <<Psi>> argument :"
+      WRITE(out_unit,*) "The <<Psi>> argument  :"
       CALL Write_Mat(Psi, out_unit, SIZE(Psi, dim=2), info="Psi")
       FLUSH(out_unit)
     END IF
@@ -441,7 +460,7 @@ MODULE Algebra_m
       WRITE(out_unit,*)
       WRITE(out_unit,*) "o Arguments of MolecCav_Norm_R1_real :"
       WRITE(out_unit,*) "The <<Norm>> argument :"//TO_string(Norm)
-      WRITE(out_unit,*) "The <<Psi>> argument :"
+      WRITE(out_unit,*) "The <<Psi>> argument  :"
       CALL Write_Vec(Psi, out_unit, 1, info="Psi")
       FLUSH(out_unit)
     END IF
@@ -463,7 +482,7 @@ MODULE Algebra_m
     IMPLICIT NONE
   
     real(kind=Rkind),    intent(inout) :: Norm
-    complex(kind=Rkind), intent(in)    :: Psi(:)                                                         ! already allocated
+    complex(kind=Rkind), intent(in)    :: Psi(:)                                                        ! already allocated
     logical, optional,   intent(in)    :: Debug
 
     complex(kind=Rkind)                :: ScaP
@@ -477,7 +496,7 @@ MODULE Algebra_m
       WRITE(out_unit,*)
       WRITE(out_unit,*) "o Arguments of MolecCav_Norm_R1_complex :"
       WRITE(out_unit,*) "The <<Norm>> argument :"//TO_string(Norm)
-      WRITE(out_unit,*) "The <<Psi>> argument :"
+      WRITE(out_unit,*) "The <<Psi>> argument  :"
       CALL Write_Vec(Psi, out_unit, 1, info="Psi")
       FLUSH(out_unit)
     END IF
@@ -499,8 +518,8 @@ MODULE Algebra_m
     IMPLICIT NONE
   
     real(kind=Rkind),  intent(inout) :: ScaP
-    real(kind=Rkind),  intent(in)    :: Psi_1(:,:)                                                                        ! already allocated
-    real(kind=Rkind),  intent(in)    :: Psi_2(:,:)                                                                        ! already allocated
+    real(kind=Rkind),  intent(in)    :: Psi_1(:,:)                                                      ! already allocated
+    real(kind=Rkind),  intent(in)    :: Psi_2(:,:)                                                      ! already allocated
     logical, optional, intent(in)    :: Debug
 
     integer                          :: Dim, i_2
@@ -513,7 +532,7 @@ MODULE Algebra_m
     IF (Debug_local) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "o Arguments of MolecCav_Scalar_product_R2_real :"
-      WRITE(out_unit,*) "The <<ScaP>> argument :"//TO_string(ScaP)
+      WRITE(out_unit,*) "The <<ScaP>> argument  :"//TO_string(ScaP)
       WRITE(out_unit,*) "The <<Psi_1>> argument :"
       CALL Write_Mat(Psi_1, out_unit, SIZE(Psi_1, dim=2), info="Psi_1")
       WRITE(out_unit,*) "The <<Psi_2>> argument :"
@@ -548,8 +567,8 @@ MODULE Algebra_m
     IMPLICIT NONE
   
     complex(kind=Rkind),  intent(inout) :: ScaP
-    complex(kind=Rkind),  intent(in)    :: Psi_1(:,:)                                                                        ! already allocated
-    complex(kind=Rkind),  intent(in)    :: Psi_2(:,:)                                                                        ! already allocated
+    complex(kind=Rkind),  intent(in)    :: Psi_1(:,:)                                                   ! already allocated
+    complex(kind=Rkind),  intent(in)    :: Psi_2(:,:)                                                   ! already allocated
     logical, optional, intent(in)       :: Debug
 
     integer                             :: Dim, i_2
@@ -562,7 +581,7 @@ MODULE Algebra_m
     IF (Debug_local) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "o Arguments of MolecCav_Scalar_product_R2_complex :"
-      WRITE(out_unit,*) "The <<ScaP>> argument :"//TO_string(ScaP)
+      WRITE(out_unit,*) "The <<ScaP>> argument  :"//TO_string(ScaP)
       WRITE(out_unit,*) "The <<Psi_1>> argument :"
       CALL Write_Mat(Psi_1, out_unit, SIZE(Psi_1, dim=2), info="Psi_1")
       WRITE(out_unit,*) "The <<Psi_2>> argument :"
@@ -597,8 +616,8 @@ MODULE Algebra_m
     IMPLICIT NONE
   
     real(kind=Rkind),  intent(inout) :: ScaP
-    real(kind=Rkind),  intent(in)    :: Psi_1(:)                                                                        ! already allocated
-    real(kind=Rkind),  intent(in)    :: Psi_2(:)                                                                        ! already allocated
+    real(kind=Rkind),  intent(in)    :: Psi_1(:)                                                        ! already allocated
+    real(kind=Rkind),  intent(in)    :: Psi_2(:)                                                        ! already allocated
     logical, optional, intent(in)    :: Debug
 
     logical                          :: Debug_local
@@ -610,7 +629,7 @@ MODULE Algebra_m
     IF (Debug_local) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "o Arguments of MolecCav_Scalar_product_R1_real :"
-      WRITE(out_unit,*) "The <<ScaP>> argument :"//TO_string(ScaP)
+      WRITE(out_unit,*) "The <<ScaP>> argument  :"//TO_string(ScaP)
       WRITE(out_unit,*) "The <<Psi_1>> argument :"
       CALL Write_Vec(Psi_1, out_unit, 1, info="Psi_1")
       WRITE(out_unit,*) "The <<Psi_2>> argument :"
@@ -638,8 +657,8 @@ MODULE Algebra_m
     IMPLICIT NONE
   
     complex(kind=Rkind),  intent(inout) :: ScaP
-    complex(kind=Rkind),  intent(in)    :: Psi_1(:)                                                                        ! already allocated
-    complex(kind=Rkind),  intent(in)    :: Psi_2(:)                                                                        ! already allocated
+    complex(kind=Rkind),  intent(in)    :: Psi_1(:)                                                     ! already allocated
+    complex(kind=Rkind),  intent(in)    :: Psi_2(:)                                                     ! already allocated
     logical, optional, intent(in)       :: Debug
 
     logical                             :: Debug_local
@@ -651,7 +670,7 @@ MODULE Algebra_m
     IF (Debug_local) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "o Arguments of MolecCav_Scalar_product_R1_complex :"
-      WRITE(out_unit,*) "The <<ScaP>> argument :"//TO_string(ScaP)
+      WRITE(out_unit,*) "The <<ScaP>> argument  :"//TO_string(ScaP)
       WRITE(out_unit,*) "The <<Psi_1>> argument :"
       CALL Write_Vec(Psi_1, out_unit, 1, info="Psi_1")
       WRITE(out_unit,*) "The <<Psi_2>> argument :"
