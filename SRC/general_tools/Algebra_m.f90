@@ -43,13 +43,16 @@
 !
 ! Norm_of : Interface for the MolecCav_Norm_R*_* procedures. Takes as arguments a real (Norm) that 
 ! does not need to have been initialized, and a tensor of rank 1 or 2 with real or complex values 
-! (Psi). It computes the norm of Psi by calling Scalar_product and affects the result to Norm.
+! (Psi). It computes the norm of Psi by redirecting to one of the associated procedure according t-
+! o the arguments. It computes the scalar product by calling the Scalar_product subroutine and aff-
+! ects sqrt of the result to Norm.
 !
 ! Scalar_product : Interface for the MolecCav_Scalar_product_R*_* procedures. Takes as arguments a
 ! real or complex (ScaP) that does not need to have been initialized, and two tensors of rank 1 or 
 ! 2 with real or complex values (Psi_1 and Psi_2). It computes the scalar product between Psi_1 an-
-! d Psi_2 by summing the results from the intrinsic DOT_PRODUCT for each column of same index of t-
-! -he tensors, and affects the result to ScaP.
+! d Psi_2 by redirecting to one of the associated procedure according to the arguments. It compute-
+! s the scalar product by summing the results from the intrinsic DOT_PRODUCT for each column of sa-
+! me index of the tensors, and affects the result to ScaP.
 !
 ! MolecCav_Gram_schmidt : Takes as arguments a rank 2 tensor with real values that does not need to
 ! have been initialized (OrthoBasis) and an other one that need to have actual values in (NonOrtho-
@@ -133,9 +136,9 @@ MODULE Algebra_m
     real(kind=Rkind),  intent(in)    :: NonOrthoBasis(:,:)                                              ! has to have been allocated BEFORE calling MolecCav_Gram_schmidt
     logical, optional, intent(in)    :: Debug
 
-    logical                          :: Debug_local
     real(kind=Rkind), allocatable    :: Intermediary(:)
     integer                          :: Nb_1, Nb_2, i, j
+    logical                          :: Debug_local
 
     !--- Debugging options --------------------------------
     IF (PRESENT(Debug)) THEN; Debug_local = Debug

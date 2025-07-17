@@ -37,7 +37,10 @@
 ! ay allows to deal with operator's actions in way totally independant of the basis they are expre-
 ! ssed on, which gives more generality and flexibility. However, because of this choice it only co-
 ! ntains, in addition to the derived type Elem_op it takes care of, procedures to process Actions, 
-! Writing, and Deallocation with this type.
+! Writing, and Deallocation with this type. Obviouly, from the physical point of view, in all of t-
+! he hereiafter action procedure, the wavefunctions are assumed to be expressed in the same basis 
+! set used to expressed the elementary operator.
+! The verbose at this level is ranging from 21 (degree 0) to 24 (degree 4).
 !
 ! Elem_op_t : The derived typed used to represent a mono-dimensional operator of quantum mechanics.
 ! It contains only informations about its nature and about the way the values of its tensor repres-
@@ -99,37 +102,95 @@
 ! nd another table parameter in the same Elem_op object. Even if it is numerically possible, it wo-
 ! uld not be good practice, and would lead to unforseen situations and likely unwanted behaviour. 
 !
-! Action : Interface for the MolecCav_Action_elem_op_R1_* and procedure.
+! Action : Interface for the MolecCav_Action_elem_op_R1_* and procedure. Takes as arguments a tens-
+! or of rank 1 with real or complex values (Op_psi) that does not need to have been initialised, a-
+! n object of derived type Elem_op_t (Elem_op), and an other tensor of rank 1 with real or complex 
+! values (Psi). It computes the action of the allocated tensor of Elem_op upon the Psi one by redi-
+! recting to one of the associated procedure according to the arguments. It computes the action by 
+! calling the Action_* procedure according to which *_val parameter of Elem_op is allocated, and a-
+! ffects the result to Op_psi. From a physical point of view, this is intended in the code to repr-
+! esent the computation of the 1D wavefunction Op_psi by taking the action of the 1D quantum mecha-
+! nics operator upon the 1D wavefunction Psi.
 !
-! Write : Interface for the MolecCav_Write_elem_op_R1 and procedure.
+! Write : Interface for the MolecCav_Write_elem_op_R1 procedure. cf. MolecCav_Write_elem_op_R1 
+! for details.
 !
-! Dealloc : Interface for the MolecCav_Deallocate_elem_op and procedure.
+! Dealloc : Interface for the MolecCav_Deallocate_elem_op procedure. cf. MolecCav_Deallocate_e-
+! lem_op for details.
 !
-! MolecCav_Action_elem_op_R1_real : Takes as arguments a tensor of rank 1 with real values (Op_psi) that does not need to have been initialised, an object of derived type Elem_op_t (Elem_op), and an other tensor of rank 1 with real values (Psi). It computes the action of the allocated tensor of Elem_op upon Psi - either by matrix-vector product if Dense-val is allocated or by a product element-by-element
+! MolecCav_Action_elem_op_R1_real : Takes as arguments a tensor of rank 1 with real values (Op_psi)
+! that does not need to have been initialised, an object of derived type Elem_op_t (Elem_op), and 
+! an other tensor of rank 1 with real values (Psi). It computes the action of the allocated tensor 
+! of Elem_op upon the Psi one by calling the Action_* procedure according to which *_val parameter 
+! of Elem_op is allocated, and affects the result to Op_psi. From a physical point of view, this is 
+! intended in the code to represent the computation of the 1D wavefunction Op_psi by taking the ac-
+! tion of the 1D quantum mechanics operator upon the 1D wavefunction Psi.
 !
-! MolecCav_Action_elem_op_R1_complex :
+! MolecCav_Action_elem_op_R1_complex : Same as MolecCav_Action_elem_op_R1_real but for two tensors 
+! with complex values.
 !
-! Action_dense : Interface for the MolecCav_Action_dense_elem_op_R1_* and procedure.
+! Action_dense : Interface for the MolecCav_Action_dense_elem_op_R1_* procedures. Takes as argumen-
+! ts a tensor of rank 1 with real or complex values (Op_psi) that does not need to have been initi-
+! alised, an object of derived type Elem_op_t (Elem_op) whom Dense_val is assumed to be allocated 
+! and to have been initialized, and an other tensor of rank 1 with real or complex values (Psi). I-
+! t computes the action of the Dense_val parameter of Elem_op upon Psi by by redirecting to one of 
+! the associated procedure according to the arguments. It computes the action of the Dense_val par-
+! ameter of Elem_op upon Psi by a matrix-vector multiplication, and affects the result to Op_psi.
 !
-! Action_diag : Interface for the MolecCav_Action_diag_elem_op_R1_* and procedure.
+! Action_diag : Interface for the MolecCav_Action_diag_elem_op_R1_* procedures. Takes as arguments 
+! a tensor of rank 1 with real values (Op_psi) that does not need to have been initialised, an obj-
+! ect of derived type Elem_op_t (Elem_op) whom Diag_val is assumed to be allocated and to have bee-
+! n initialized, and an other tensor of rank 1 with real values (Psi). It computes the action of t-
+! he Diag_val parameter of Elem_op upon Psi by redirecting to one of the associated procedure acco-
+! rding to the arguments. It computes the action by multiplicating two-by-two their respective ele-
+! ments with same index, and affects the result to Op_psi.
 !
-! Action_band : Interface for the MolecCav_Action_band_elem_op_R1_* and procedure.
+! Action_band : Interface for the MolecCav_Action_band_elem_op_R1_* procedures. Takes as arguments 
+! a tensor of rank 1 with real values (Op_psi) that does not need to have been initialised, an obj-
+! ect of derived type Elem_op_t (Elem_op) whom Diag_val is assumed to be allocated and to have bee-
+! n initialized, and an other tensor of rank 1 with real values (Psi). It computes the action of t-
+! he Diag_val parameter of Elem_op upon Psi by redirecting to one of the associated procedure acco-
+! rding to the arguments. It computes the action by an element-by-element multiplication that can 
+! be demonstrated analytically by writing, and affects the result to Op_psi. However, only the cas-
+! e of a Band_val corresponding to a triband matrix is implemented yet and not the general computa-
+! tion.
 !
-! MolecCav_Action_dense_elem_op_R1_real :
+! MolecCav_Action_dense_elem_op_R1_real : Takes as arguments a tensor of rank 1 with real values (-
+! Op_psi) that does not need to have been initialised, an object of derived type Elem_op_t (Elem_o-
+! p) whom Dense_val is assumed to be allocated and to have been initialized, and an other tensor o-
+! f rank 1 with real values (Psi). It computes the action of the Dense_val parameter of Elem_op up-
+! on Psi by a matrix-vector multiplication, and affects the result to Op_psi.
 !
-! MolecCav_Action_dense_elem_op_R1_complex :
+! MolecCav_Action_dense_elem_op_R1_complex : Same as MolecCav_Action_dense_elem_op_R1_real but for
+! two tensors with complex values.
 !
-! MolecCav_Action_diag_elem_op_R1_real :
+! MolecCav_Action_diag_elem_op_R1_real : Takes as arguments a tensor of rank 1 with real values (-
+! Op_psi) that does not need to have been initialised, an object of derived type Elem_op_t (Elem_o-
+! p) whom Diag_val is assumed to be allocated and to have been initialized, and an other tensor of
+! rank 1 with real values (Psi). It computes the action of the Diag_val parameter of Elem_op upon 
+! Psi by multiplicating two-by-two their respective elements with same index, and affects the resu-
+! lt to Op_psi.
 !
-! MolecCav_Action_diag_elem_op_R1_complex :
+! MolecCav_Action_diag_elem_op_R1_complex : Same as MolecCav_Action_diag_elem_op_R1_real but for t-
+! wo tensors with complex values.
 !
-! MolecCav_Action_band_elem_op_R1_real :
+! MolecCav_Action_band_elem_op_R1_real : Takes as arguments a tensor of rank 1 with real values (-
+! Op_psi) that does not need to have been initialised, an object of derived type Elem_op_t (Elem_o-
+! p) whom Band_val is assumed to be allocated and to have been initialized, and an other tensor of
+! rank 1 with real values (Psi). It computes the action of the Band_val parameter of Elem_op upon 
+! Psi by an element-by-element multiplication that can be demonstrated analytically by writing, and
+! affects the result to Op_psi. However, only the case of a Band_val corresponding to a triband ma-
+! trix is implemented yet and not the general computation.
 !
-! MolecCav_Action_band_elem_op_R1_complex :
+! MolecCav_Action_band_elem_op_R1_complex : Same as MolecCav_Action_band_elem_op_R1_real but for t-
+! wo tensors with complex values.
 !
-! MolecCav_Write_elem_op_R1 :
+! MolecCav_Write_elem_op_R1 : Takes as argument an object of derived type Elem_op_t (Elem_op) and 
+! an optional string messsage (Info), and write in the standard output all of the Elem_op paramete-
+! rs, below the Info if provided.
 !
-! MolecCav_Deallocate_elem_op :
+! MolecCav_Deallocate_elem_op : Takes as argument an object of derived type Elem_op_t (Elem_op) and
+! reset it by deallocating all tables and setting to defaut values the other parameters.
 !
 !==================================================================================================
 !==================================================================================================
@@ -187,30 +248,28 @@ MODULE Elem_op_m
     real(kind=Rkind),      intent(inout) :: Op_psi(:)
     TYPE(Elem_op_t),       intent(in)    :: Elem_op
     real(kind=Rkind),      intent(in)    :: Psi(:)
-    integer, optional,     intent(in)    :: Verbose                                                                              ! cf. comments in HO1D_parameters_m
-    logical, optional,     intent(in)    :: Debug                                                                                ! cf. comments in HO1D_parameters_m
+    integer, optional,     intent(in)    :: Verbose                                                     ! cf. comments in HO1D_parameters_m
+    logical, optional,     intent(in)    :: Debug                                                       ! cf. comments in HO1D_parameters_m
 
     integer                              :: Nb
-    integer                              :: Verbose_local = 25                                                                   ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
-    logical                              :: Debug_local   = .FALSE.
+    integer                              :: Verbose_local
+    logical                              :: Debug_local
 
-    !------------------------------------------------------Debugging options-----------------------------------------------------
-    IF (PRESENT(Verbose)) Verbose_local = Verbose
-    IF (PRESENT(Debug))   Debug_local   = Debug
+    !--- Debugging options --------------------------------
+    IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
+    ELSE; Verbose_local = 21; END IF 
+    IF (PRESENT(Debug)) THEN; Debug_local = Debug
+    ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Verbose_local > 25) WRITE(out_unit,*) 
-    IF (Verbose_local > 25) WRITE(out_unit,*) "---------------------------------------COMPUTING ACTION OF THE HO1D OPERATOR OVER &
-                                              &THE R1 WF---------------------------------------"; FLUSH(out_unit)
-
-    IF (Debug_local) THEN
+    IF (Verbose_local > 21) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- Arguments of MolecCav_Action_elem_op_R1_real_real :"
+      WRITE(out_unit,*) "o o Arguments of MolecCav_Action_elem_op_R1_real :"
       WRITE(out_unit,*) "The <<Elem_op>> argument :"
       CALL Write(Elem_op)
       WRITE(out_unit,*) "The <<Psi>> argument : "
       CALL Write_Vec(Psi, out_unit, 1, info="Psi")
       WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
-      WRITE(out_unit,*) "--- End arguments of MolecCav_Action_elem_op_R1_real_real"
       FLUSH(out_unit)
     END IF
     
@@ -246,8 +305,8 @@ MODULE Elem_op_m
       CALL Action_band(Op_psi=Op_psi, Elem_op=Elem_op, Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
 
     ELSE IF (ALLOCATED(Elem_op%Dense_val)) THEN
-      IF (Debug_local) WRITE(out_unit,*) "Elem_op%Diag_val and Elem_op%Band_val are not allocated."
-      IF (Debug_local) WRITE(out_unit,*) "Elem_op%Dense_val is allocated. The dense operator action called."
+      IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Diag_val and Elem_op%Band_val are not allocated."
+      IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Dense_val is allocated. The dense operator action called."
       CALL Action_dense(Op_psi=Op_psi, Elem_op=Elem_op, Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
 
     ELSE
@@ -256,17 +315,11 @@ MODULE Elem_op_m
     END IF
 
     IF (Debug_local) THEN
-      WRITE(out_unit,*)
       WRITE(out_unit,*) "--- Resulting statevector from the action of the HO1D Elem_op on the Psi statevector operand, computed &
                         &by Action_HO1D_operator_R1 :"
       CALL Write_Vec(Op_psi, out_unit, 1, info="Op_Psi")
-      WRITE(out_unit,*) "--- End resulting statevector computed by Action_HO1D_operator_R1"
     END IF
-  
-    IF (Verbose_local > 25) WRITE(out_unit,*) 
-    IF (Verbose_local > 25) WRITE(out_unit,*) "----------------------------------------ACTION OF THE HO1D OPERATOR OVER THE R1 WF&
-                                              & COMPUTED---------------------------------------"; FLUSH(out_unit)
-  
+    
   END SUBROUTINE MolecCav_Action_elem_op_R1_real
 
   
@@ -278,19 +331,29 @@ MODULE Elem_op_m
     real(kind=Rkind),      intent(inout) :: Op_psi(:)
     TYPE(Elem_op_t),       intent(in)    :: Elem_op
     real(kind=Rkind),      intent(in)    :: Psi(:)
-    integer, optional,     intent(in)    :: Verbose                                                                              ! cf. comments in HO1D_parameters_m
-    logical, optional,     intent(in)    :: Debug                                                                                ! cf. comments in HO1D_parameters_m
+    integer, optional,     intent(in)    :: Verbose                                                     ! cf. comments in HO1D_parameters_m
+    logical, optional,     intent(in)    :: Debug                                                       ! cf. comments in HO1D_parameters_m
 
-    integer                              :: Verbose_local = 25                                                                   ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
-    logical                              :: Debug_local   = .FALSE.
+    integer                              :: Verbose_local
+    logical                              :: Debug_local
 
-    !------------------------------------------------------Debugging options-----------------------------------------------------
-    IF (PRESENT(Verbose)) Verbose_local = Verbose
-    IF (PRESENT(Debug))   Debug_local   = Debug
+    !--- Debugging options --------------------------------
+    IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
+    ELSE; Verbose_local = 21; END IF 
+    IF (PRESENT(Debug)) THEN; Debug_local = Debug
+    ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Verbose_local > 27) WRITE(out_unit,*) 
-    IF (Verbose_local > 27) WRITE(out_unit,*) "---------------------------------------Computing the HO1D operator using the dense&
-                                             & procedure--------------------------------------"; FLUSH(out_unit)
+    IF (Verbose_local > 21) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "o o Arguments of MolecCav_Action_dense_elem_op_R1_real :"
+      WRITE(out_unit,*) "The <<Elem_op>> argument :"
+      CALL Write(Elem_op)
+      WRITE(out_unit,*) "The <<Psi>> argument : "
+      CALL Write_Vec(Psi, out_unit, 1, info="Psi")
+      WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
+      FLUSH(out_unit)
+    END IF
     
     !----------------------------------------------------Computing the action----------------------------------------------------
     Op_psi(:) = matmul(Elem_op%Dense_val, Psi)
@@ -306,19 +369,29 @@ MODULE Elem_op_m
     real(kind=Rkind),      intent(inout) :: Op_psi(:)
     TYPE(Elem_op_t),       intent(in)    :: Elem_op
     real(kind=Rkind),      intent(in)    :: Psi(:)
-    integer, optional,     intent(in)    :: Verbose                                                                              ! cf. comments in HO1D_parameters_m
-    logical, optional,     intent(in)    :: Debug                                                                                ! cf. comments in HO1D_parameters_m
+    integer, optional,     intent(in)    :: Verbose                                                     ! cf. comments in HO1D_parameters_m
+    logical, optional,     intent(in)    :: Debug                                                       ! cf. comments in HO1D_parameters_m
 
-    integer                              :: Verbose_local = 25                                                                   ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
-    logical                              :: Debug_local   = .FALSE.
+    integer                              :: Verbose_local
+    logical                              :: Debug_local
 
-    !------------------------------------------------------Debugging options-----------------------------------------------------
-    IF (PRESENT(Verbose)) Verbose_local = Verbose
-    IF (PRESENT(Debug))   Debug_local   = Debug
+    !--- Debugging options --------------------------------
+    IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
+    ELSE; Verbose_local = 21; END IF 
+    IF (PRESENT(Debug)) THEN; Debug_local = Debug
+    ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Verbose_local > 27) WRITE(out_unit,*) 
-    IF (Verbose_local > 27) WRITE(out_unit,*) "---------------------------------------Computing the HO1D operator using the diago&
-                                             &nal procedure--------------------------------------"; FLUSH(out_unit)
+    IF (Verbose_local > 21) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "o o Arguments of MolecCav_Action_diag_elem_op_R1_real :"
+      WRITE(out_unit,*) "The <<Elem_op>> argument :"
+      CALL Write(Elem_op)
+      WRITE(out_unit,*) "The <<Psi>> argument : "
+      CALL Write_Vec(Psi, out_unit, 1, info="Psi")
+      WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
+      FLUSH(out_unit)
+    END IF
     
     !----------------------------------------------------Computing the action----------------------------------------------------
     Op_psi = Elem_op%Diag_val * Psi
@@ -334,23 +407,31 @@ MODULE Elem_op_m
     real(kind=Rkind),      intent(inout) :: Op_psi(:)
     TYPE(Elem_op_t),       intent(in)    :: Elem_op
     real(kind=Rkind),      intent(in)    :: Psi(:)
-    integer, optional,     intent(in)    :: Verbose                                                                              ! cf. comments in HO1D_parameters_m
-    logical, optional,     intent(in)    :: Debug                                                                                ! cf. comments in HO1D_parameters_m
+    integer, optional,     intent(in)    :: Verbose                                                     ! cf. comments in HO1D_parameters_m
+    logical, optional,     intent(in)    :: Debug                                                       ! cf. comments in HO1D_parameters_m
 
     integer                              :: i, Nb
-    integer                              :: Verbose_local                                                                   ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
+    integer                              :: Verbose_local
     logical                              :: Debug_local
 
-    !------------------------------------------------------Debugging options-----------------------------------------------------
+    !--- Debugging options --------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
-    ELSE; Verbose_local = 20; END IF 
-    IF (PRESENT(Debug))   THEN; Debug_local   = Debug
+    ELSE; Verbose_local = 21; END IF 
+    IF (PRESENT(Debug)) THEN; Debug_local = Debug
     ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Verbose_local > 27) WRITE(out_unit,*) 
-    IF (Verbose_local > 27) WRITE(out_unit,*) "---------------------------------------Computing the HO1D operator using the band &
-                                             &procedure--------------------------------------"; FLUSH(out_unit)
-    
+    IF (Verbose_local > 21) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "o o Arguments of MolecCav_Action_band_elem_op_R1_real :"
+      WRITE(out_unit,*) "The <<Elem_op>> argument :"
+      CALL Write(Elem_op)
+      WRITE(out_unit,*) "The <<Psi>> argument : "
+      CALL Write_Vec(Psi, out_unit, 1, info="Psi")
+      WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
+      FLUSH(out_unit)
+    END IF
+
     !----------------------------------------------------Computing the action----------------------------------------------------
     Nb = size(Op_psi)
 
@@ -375,30 +456,28 @@ MODULE Elem_op_m
     complex(kind=Rkind),   intent(inout) :: Op_psi(:)
     TYPE(Elem_op_t),       intent(in)    :: Elem_op
     complex(kind=Rkind),   intent(in)    :: Psi(:)
-    integer, optional,     intent(in)    :: Verbose                                                                              ! cf. comments in HO1D_parameters_m
-    logical, optional,     intent(in)    :: Debug                                                                                ! cf. comments in HO1D_parameters_m
+    integer, optional,     intent(in)    :: Verbose                                                     ! cf. comments in HO1D_parameters_m
+    logical, optional,     intent(in)    :: Debug                                                       ! cf. comments in HO1D_parameters_m
 
     integer                              :: Nb
-    integer                              :: Verbose_local = 25                                                                   ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
-    logical                              :: Debug_local   = .FALSE.
+    integer                              :: Verbose_local
+    logical                              :: Debug_local
 
-    !------------------------------------------------------Debugging options-----------------------------------------------------
-    IF (PRESENT(Verbose)) Verbose_local = Verbose
-    IF (PRESENT(Debug))   Debug_local   = Debug
-
-    IF (Verbose_local > 25) WRITE(out_unit,*) 
-    IF (Verbose_local > 25) WRITE(out_unit,*) "---------------------------------------COMPUTING ACTION OF THE HO1D OPERATOR OVER &
-                                              &THE R1 WF---------------------------------------"; FLUSH(out_unit)
+    !--- Debugging options --------------------------------
+    IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
+    ELSE; Verbose_local = 21; END IF 
+    IF (PRESENT(Debug)) THEN; Debug_local = Debug
+    ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
     IF (Debug_local) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- Arguments of MolecCav_Action_elem_op_R1_complex :"
+      WRITE(out_unit,*) "o o Arguments of MolecCav_Action_elem_op_R1_complex :"
       WRITE(out_unit,*) "The <<Elem_op>> argument :"
       CALL Write(Elem_op)
       WRITE(out_unit,*) "The <<Psi>> argument : "
       CALL Write_Vec(Psi, out_unit, 1, info="Psi")
       WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
-      WRITE(out_unit,*) "--- End arguments of MolecCav_Action_elem_op_R1_complex"
       FLUSH(out_unit)
     END IF
     
@@ -434,8 +513,8 @@ MODULE Elem_op_m
       CALL Action_band(Op_psi=Op_psi, Elem_op=Elem_op, Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
 
     ELSE IF (ALLOCATED(Elem_op%Dense_val)) THEN
-      IF (Debug_local) WRITE(out_unit,*) "Elem_op%Diag_val and Elem_op%Band_val are not allocated."
-      IF (Debug_local) WRITE(out_unit,*) "Elem_op%Dense_val is allocated. The dense operator action called."
+      IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Diag_val and Elem_op%Band_val are not allocated."
+      IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Dense_val is allocated. The dense operator action called."
       CALL Action_dense(Op_psi=Op_psi, Elem_op=Elem_op, Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
 
     ELSE
@@ -444,17 +523,11 @@ MODULE Elem_op_m
     END IF
 
     IF (Debug_local) THEN
-      WRITE(out_unit,*)
       WRITE(out_unit,*) "--- Resulting statevector from the action of the HO1D Elem_op on the Psi statevector operand, computed &
                         &by Action_HO1D_operator_R1 :"
       CALL Write_Vec(Op_psi, out_unit, 1, info="Op_Psi")
-      WRITE(out_unit,*) "--- End resulting statevector computed by Action_HO1D_operator_R1"
     END IF
-  
-    IF (Verbose_local > 25) WRITE(out_unit,*) 
-    IF (Verbose_local > 25) WRITE(out_unit,*) "----------------------------------------ACTION OF THE HO1D OPERATOR OVER THE R1 WF&
-                                              & COMPUTED---------------------------------------"; FLUSH(out_unit)
-  
+    
   END SUBROUTINE MolecCav_Action_elem_op_R1_complex
 
   
@@ -466,19 +539,29 @@ MODULE Elem_op_m
     complex(kind=Rkind),   intent(inout) :: Op_psi(:)
     TYPE(Elem_op_t),       intent(in)    :: Elem_op
     complex(kind=Rkind),   intent(in)    :: Psi(:)
-    integer, optional,     intent(in)    :: Verbose                                                                              ! cf. comments in HO1D_parameters_m
-    logical, optional,     intent(in)    :: Debug                                                                                ! cf. comments in HO1D_parameters_m
+    integer, optional,     intent(in)    :: Verbose                                                     ! cf. comments in HO1D_parameters_m
+    logical, optional,     intent(in)    :: Debug                                                       ! cf. comments in HO1D_parameters_m
 
-    integer                              :: Verbose_local = 25                                                                   ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
-    logical                              :: Debug_local   = .FALSE.
+    integer                              :: Verbose_local
+    logical                              :: Debug_local
 
-    !------------------------------------------------------Debugging options-----------------------------------------------------
-    IF (PRESENT(Verbose)) Verbose_local = Verbose
-    IF (PRESENT(Debug))   Debug_local   = Debug
+    !--- Debugging options --------------------------------
+    IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
+    ELSE; Verbose_local = 21; END IF 
+    IF (PRESENT(Debug)) THEN; Debug_local = Debug
+    ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Verbose_local > 27) WRITE(out_unit,*) 
-    IF (Verbose_local > 27) WRITE(out_unit,*) "---------------------------------------Computing the HO1D operator using the dense&
-                                             & procedure--------------------------------------"; FLUSH(out_unit)
+    IF (Verbose_local > 21) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "o o Arguments of MolecCav_Action_dense_elem_op_R1_complex :"
+      WRITE(out_unit,*) "The <<Elem_op>> argument :"
+      CALL Write(Elem_op)
+      WRITE(out_unit,*) "The <<Psi>> argument : "
+      CALL Write_Vec(Psi, out_unit, 1, info="Psi")
+      WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
+      FLUSH(out_unit)
+    END IF
     
     !----------------------------------------------------Computing the action----------------------------------------------------
     Op_psi(:) = matmul(Elem_op%Dense_val, Psi)
@@ -494,19 +577,29 @@ MODULE Elem_op_m
     complex(kind=Rkind),   intent(inout) :: Op_psi(:)
     TYPE(Elem_op_t),       intent(in)    :: Elem_op
     complex(kind=Rkind),   intent(in)    :: Psi(:)
-    integer, optional,     intent(in)    :: Verbose                                                                              ! cf. comments in HO1D_parameters_m
-    logical, optional,     intent(in)    :: Debug                                                                                ! cf. comments in HO1D_parameters_m
+    integer, optional,     intent(in)    :: Verbose                                                     ! cf. comments in HO1D_parameters_m
+    logical, optional,     intent(in)    :: Debug                                                       ! cf. comments in HO1D_parameters_m
 
-    integer                              :: Verbose_local = 25                                                                   ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
-    logical                              :: Debug_local   = .FALSE.
+    integer                              :: Verbose_local
+    logical                              :: Debug_local
 
-    !------------------------------------------------------Debugging options-----------------------------------------------------
-    IF (PRESENT(Verbose)) Verbose_local = Verbose
-    IF (PRESENT(Debug))   Debug_local   = Debug
+    !--- Debugging options --------------------------------
+    IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
+    ELSE; Verbose_local = 21; END IF 
+    IF (PRESENT(Debug)) THEN; Debug_local = Debug
+    ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Verbose_local > 27) WRITE(out_unit,*) 
-    IF (Verbose_local > 27) WRITE(out_unit,*) "---------------------------------------Computing the HO1D operator using the diago&
-                                             &nal procedure--------------------------------------"; FLUSH(out_unit)
+    IF (Verbose_local > 21) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "o o Arguments of MolecCav_Action_diag_elem_op_R1_complex :"
+      WRITE(out_unit,*) "The <<Elem_op>> argument :"
+      CALL Write(Elem_op)
+      WRITE(out_unit,*) "The <<Psi>> argument : "
+      CALL Write_Vec(Psi, out_unit, 1, info="Psi")
+      WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
+      FLUSH(out_unit)
+    END IF
     
     !----------------------------------------------------Computing the action----------------------------------------------------
     Op_psi = Elem_op%Diag_val * Psi
@@ -522,20 +615,30 @@ MODULE Elem_op_m
     complex(kind=Rkind),   intent(inout) :: Op_psi(:)
     TYPE(Elem_op_t),       intent(in)    :: Elem_op
     complex(kind=Rkind),   intent(in)    :: Psi(:)
-    integer, optional,     intent(in)    :: Verbose                                                                              ! cf. comments in HO1D_parameters_m
-    logical, optional,     intent(in)    :: Debug                                                                                ! cf. comments in HO1D_parameters_m
+    integer, optional,     intent(in)    :: Verbose                                                     ! cf. comments in HO1D_parameters_m
+    logical, optional,     intent(in)    :: Debug                                                       ! cf. comments in HO1D_parameters_m
 
     integer                              :: i, Nb
-    integer                              :: Verbose_local = 25                                                                   ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
-    logical                              :: Debug_local   = .FALSE.
+    integer                              :: Verbose_local
+    logical                              :: Debug_local
 
-    !------------------------------------------------------Debugging options-----------------------------------------------------
-    IF (PRESENT(Verbose)) Verbose_local = Verbose
-    IF (PRESENT(Debug))   Debug_local   = Debug
+    !--- Debugging options --------------------------------
+    IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
+    ELSE; Verbose_local = 21; END IF 
+    IF (PRESENT(Debug)) THEN; Debug_local = Debug
+    ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Verbose_local > 27) WRITE(out_unit,*) 
-    IF (Verbose_local > 27) WRITE(out_unit,*) "---------------------------------------Computing the HO1D operator using the band &
-                                             &procedure--------------------------------------"; FLUSH(out_unit)
+    IF (Verbose_local > 21) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "o o Arguments of MolecCav_Action_band_elem_op_R1_complex :"
+      WRITE(out_unit,*) "The <<Elem_op>> argument :"
+      CALL Write(Elem_op)
+      WRITE(out_unit,*) "The <<Psi>> argument : "
+      CALL Write_Vec(Psi, out_unit, 1, info="Psi")
+      WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
+      FLUSH(out_unit)
+    END IF
     
     !----------------------------------------------------Computing the action----------------------------------------------------
     Nb = size(Op_psi)
@@ -553,89 +656,54 @@ MODULE Elem_op_m
   END SUBROUTINE MolecCav_Action_band_elem_op_R1_complex
   
 
-  SUBROUTINE MolecCav_Write_elem_op_R1(Elem_op)
+  SUBROUTINE MolecCav_Write_elem_op_R1(Elem_op, Info)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m
     IMPLICIT NONE 
 
-    TYPE(Elem_op_t), intent(in) :: Elem_op
+    TYPE(Elem_op_t),            intent(in) :: Elem_op                                                   ! ex : "Hamiltonian", "Position", etc. (len=:) Expects to be allocatable, while (len=*) is dedicated to a procedure argument
+    character(len=*), optional, intent(in) :: Info
+
+    IF (PRESENT(Info)) THEN
+      WRITE(out_unit,*) "--- Parameters associated to the object of derived type Elem_op_t ("//Info//") :"
+    ELSE
+      WRITE(out_unit,*) "--- Parameters associated to the object of derived type Elem_op_t :"
+    END IF
 
     IF (ALLOCATED(Elem_op%Operator_type)) THEN
-      WRITE(out_unit,*) "_______________________________________the operator parameters______________________________________"
-      WRITE(out_unit,*) "|The operator's nature <<Operator_type>> information do is allocated, and is   | ", Elem_op%Operator_type
-      WRITE(out_unit,*) "|______________________________________________________________________________|____________________"
-      FLUSH(out_unit)
+      WRITE(out_unit,*) "Operator_type         = "//Elem_op%Operator_type
     ELSE 
-      WRITE(out_unit,*) "_____________________________the operator parameters____________________________"
-      WRITE(out_unit,*) "|The operator's nature <<Operator_type>> information is NOT allocated.         |"
-      WRITE(out_unit,*) "|______________________________________________________________________________|____________________"
-      FLUSH(out_unit)
+      WRITE(out_unit,*) "Operator_type is NOT allocated"
+    END IF 
+
+    WRITE(out_unit,*) "Dense                 = "//TO_string(Elem_op%Dense)
+    WRITE(out_unit,*) "Upper,Lower_bandwidth = "//TO_string(Elem_op%Upper_bandwidth)//","//TO_string(Elem_op%Lower_bandwidth)
+    WRITE(out_unit,*) "Grid                  = "//TO_string(Elem_op%Grid)
+
+    IF (ALLOCATED(Elem_op%Dense_val)) THEN                                                              ! we assume that the code is supposed to be used only allocating one of the matrices of each Elem_op_t object
+      WRITE(out_unit,*) "Dense_val IS allocated, and SIZE(Dense_val, dim=1), SIZE(Dense_val, dim=2) = "//TO_string(SIZE(Elem_op%D&
+      &ense_val, dim=1))//","//TO_string(SIZE(Elem_op%Dense_val, dim=2))   
+      CALL Write_Mat(Elem_op%Dense_val, out_unit, SIZE(Elem_op%Dense_val, dim=2), info="Dense_val")
+    ELSE 
+      WRITE(out_unit,*) "Dense_val is NOT allocated"      
     END IF
-
-    WRITE(out_unit,*) "|Is its matrix supposed to be represented as a dense one ? Elem_op%Dense       | "//TO_string(Elem_op%Dense)
-    WRITE(out_unit,*) "|______________________________________________________________________________|____________________"
-    
-    WRITE(out_unit,*) "|Case of a band matrix, (Elem_op%Upper_bandwidth, Elem_op%Lower_bandwidth)     | ("//TO_string(Elem_op%Up&
-                      &per_bandwidth)//","//TO_string(Elem_op%Lower_bandwidth)//")"
-    WRITE(out_unit,*) "|______________________________________________________________________________|____________________"
-    FLUSH(out_unit)
-
-    WRITE(out_unit,*) "_________________________the operator's representations_____________________________________________"
-    WRITE(out_unit,*) "|Is its matrix supposed to be represented on the grid ? Elem_op%Grid           | "//TO_string(Elem_op%Grid)
-    WRITE(out_unit,*) "|______________________________________________________________________________|____________________"
-
-    IF (ALLOCATED(Elem_op%Diag_val)) THEN                                                                                     ! we assume that the code is supposed to be used only allocating one of the matrices of each Elem_op_t object
-      WRITE(out_unit,*) "|The operator is represented using a matrix of size (Elem_op%Nb) :             | ", SIZE(Elem_op%Diag_val)
-      WRITE(out_unit,*) "|______________________________________________________________________________|____________________"
-      FLUSH(out_unit)
-      
-      WRITE(out_unit,*) "|The operator's Diagonal matrix representation has been used, and is           |"
-      WRITE(out_unit,*) "|______________________________________________________________________________|"
+  
+    IF (ALLOCATED(Elem_op%Diag_val)) THEN                                                               ! we assume that the code is supposed to be used only allocating one of the matrices of each Elem_op_t object
+      WRITE(out_unit,*) "Diag_val IS allocated, and SIZE(Diag_val, dim=1) = "//TO_string(SIZE(Elem_op%Diag_val, dim=1))      
       CALL Write_Vec(Elem_op%Diag_val, out_unit, 1, info="Diag_val")
-      WRITE(out_unit,*) "|______________________________________________________________________________|"
-      FLUSH(out_unit)
-
     ELSE 
-      WRITE(out_unit,*) "|The operator's Diagonal matrix representation is NOT allocated.               |"
-      WRITE(out_unit,*) "|______________________________________________________________________________|"
-      FLUSH(out_unit)
+      WRITE(out_unit,*) "Diag_val is NOT allocated"      
     END IF
 
-    IF (ALLOCATED(Elem_op%Band_val)) THEN
-      WRITE(out_unit,*) "|The operator is represented using a matrix of size (Elem_op%Nb) :             | "//TO_string(SIZE(Elem_&
-      &op%Band_val, 1))//" * "//TO_string(SIZE(Elem_op%Band_val, 2))
-      WRITE(out_unit,*) "|______________________________________________________________________________|_____________________"
-      FLUSH(out_unit)
-
-      WRITE(out_unit,*) "|The operator's Band matrix representation has been used, and is               |"
-      WRITE(out_unit,*) "|______________________________________________________________________________|"
-      CALL Write_Mat(Elem_op%Band_val, out_unit, 3, info="Band_val")
-      WRITE(out_unit,*) "|______________________________________________________________________________|"
-      FLUSH(out_unit)
-  
+    IF (ALLOCATED(Elem_op%Band_val)) THEN                                                               ! we assume that the code is supposed to be used only allocating one of the matrices of each Elem_op_t object
+      WRITE(out_unit,*) "Band_val IS allocated, and SIZE(Band_val, dim=1), SIZE(Band_val, dim=2) = "//TO_string(SIZE(Elem_op%Band&
+      &_val, dim=1))//","//TO_string(SIZE(Elem_op%Band_val, dim=2))   
+      CALL Write_Mat(Elem_op%Band_val, out_unit, SIZE(Elem_op%Band_val, dim=2), info="Band_val")
     ELSE 
-      WRITE(out_unit,*) "|The operator's Band matrix representation is NOT allocated.                   |"
-      WRITE(out_unit,*) "|______________________________________________________________________________|"
-      FLUSH(out_unit)
+      WRITE(out_unit,*) "Band_val is NOT allocated"      
     END IF
-
-    IF (ALLOCATED(Elem_op%Dense_val)) THEN
-      WRITE(out_unit,*) "|The operator is represented using a matrix of size (Elem_op%Nb) :             | "//TO_string(SIZE(Elem_&
-      &op%Dense_val, 1))//" * "//TO_string(SIZE(Elem_op%Dense_val, 2))
-      WRITE(out_unit,*) "|______________________________________________________________________________|_____________________"
-      FLUSH(out_unit)
-
-      WRITE(out_unit,*) "|The operator's Dense matrix representation has been used, and is              |"
-      CALL Write_Mat(Elem_op%Dense_val, out_unit, Size(Elem_op%Dense_val, dim=2), info="Dense_val")
-      WRITE(out_unit,*) "|______________________________________________________________________________|"
-      FLUSH(out_unit)
-  
-    ELSE 
-      WRITE(out_unit,*) "|The operator's Dense matrix representation is NOT allocated.                  |"
-      WRITE(out_unit,*) "|__________________________End HO1D operator object____________________________|"
-      FLUSH(out_unit)
-    END IF
-  
+    FLUSH(out_unit)
+    
   END SUBROUTINE MolecCav_Write_elem_op_R1
 
 
@@ -644,24 +712,26 @@ MODULE Elem_op_m
     IMPLICIT NONE 
 
     TYPE(Elem_op_t),       intent(inout) :: Elem_op
-    integer, optional,     intent(in)    :: Verbose                                                                                 ! cf. comments in HO1D_parameters_m
-    logical, optional,     intent(in)    :: Debug                                                                                   ! cf. comments in HO1D_parameters_m
+    integer, optional,     intent(in)    :: Verbose                                                     ! cf. comments in HO1D_parameters_m
+    logical, optional,     intent(in)    :: Debug                                                       ! cf. comments in HO1D_parameters_m
 
-    integer                              :: Verbose_local = 25                                                                      ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
-    logical                              :: Debug_local   = .FALSE.
+    integer                              :: Verbose_local
+    logical                              :: Debug_local
 
-    !------------------------------------------------------Debugging options-----------------------------------------------------
-    IF (PRESENT(Verbose)) Verbose_local = Verbose
-    IF (PRESENT(Debug))   Debug_local   = Debug
+    !--- Debugging options --------------------------------
+    IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
+    ELSE; Verbose_local = 21; END IF 
+    IF (PRESENT(Debug)) THEN; Debug_local = Debug
+    ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Verbose_local > 27) WRITE(out_unit,*)
-    IF (Verbose_local > 27) WRITE(out_unit,*) "-----------------------------------------------Deallocating the HO1D_operator obje&
-                                              &ct----------------------------------------------"
-    IF (Debug_local) THEN
-      WRITE(out_unit,*) "--- The HO1D operator to be deallocated :"
+    IF (Verbose_local > 21) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "o o Arguments of MolecCav_Deallocate_elem_op :"
+      WRITE(out_unit,*) "The <<Elem_op>> argument :"
       CALL Write(Elem_op)
-      WRITE(out_unit,*) "--- End HO1D operator to be deallocated"
-    END IF 
+      FLUSH(out_unit)
+    END IF
 
     !-----------------------------Deallocating the HO1D operator object----------------------------
     IF (ALLOCATED(Elem_op%Operator_type)) DEALLOCATE(Elem_op%Operator_type)
@@ -674,10 +744,8 @@ MODULE Elem_op_m
     IF (ALLOCATED(Elem_op%Band_val))      DEALLOCATE(Elem_op%Band_val)
 
     IF (Debug_local) THEN
-      WRITE(out_unit,*)
       WRITE(out_unit,*) "--- The HO1D operator object after having been deallocated :"
       CALL Write(Elem_op)
-      WRITE(out_unit,*) "--- End dellocated HO1D operator"
     END IF
 
   END SUBROUTINE MolecCav_Deallocate_elem_op
