@@ -39,7 +39,65 @@
 ! ntains, in addition to the derived type Elem_op it takes care of, procedures to process Actions, 
 ! Writing, and Deallocation with this type.
 !
-! Elem_op_t : 
+! Elem_op_t : The derived typed used to represent a mono-dimensional operator of quantum mechanics.
+! It contains only informations about its nature and about the way the values of its tensor repres-
+! entation are actually stored in memory, but nothing about the context of this tensor representat-
+! ion. This type is totally unrelated to the basis set choice and just manage values and tables, m-
+! ostly. Note that, confusingly enough, there is no procedures within this module to initialize an
+! object of this type. This is consistent with the spirit of a module dedicated to the management 
+! of operators independantly on the basis set choice done to express their matrices (i.e. managing-
+! only their actions assuming their matrices have been provided with some information about their 
+! "encoding").  The corresponding initialization procedures are implemented in Quantum_HO1D, which
+! takes care of the 1D HO basis. If any other module is implemented to manage another kind of basi-
+! s, it should hold inside its own procedures to initialize Elem_op according to its basis.
+!   - Operator type : the name of the operator (string). This parameter is not used at all in this
+! module since the action depends only on the shape given to the tensor and not on its physical me-
+! aning, but is useful to distinguish operators in more external modules. In order to recognised b-
+! y the code, please use the following nomenclature :"Hamiltonian", "Position", "NbQuanta", or "Di-
+! pMomt". Note that this is NOT case-sensitive.
+!   - Dense : a logical parameter that indicated whether the storage of the tensor representation's
+! values of the operator has been optimised or not. In other words, if it is set to .TRUE., the st-
+! orage will not be optimized and it will be stored as a "Dense" matrix i.e. storing the full/comp-
+! lete matrix of the operator on the chosed basis, that is in the Dense_val parameter. This case i-
+! mplies that the Dense_val parameter is allocated and should have been initialised. Otherwise, if
+! Dense == .FALSE., the matrix' elements are stored in a table (Diag_val or Band_val) such as taki-
+! ng advantage of the sparcity of the operator's analytical matrix in the basis. This case implies 
+! that the Diag_val or Band_val parameter is allocated and should have been initialised. The defau-
+! lt case is the optimised representation.
+!   - Grid a logical parameter that indicate whether the thensor representation is expressed in a 
+! discretised spacial representation (Grid == .TRUE.) or in a basis set decomposition (.FALSE.). H-
+! owever the grid representation has not been implemented yet and thus is not available.
+!   - Upper_bandwidth (resp. Lower_bandwidth) : An integer used only if Dense == .FALSE. and if th-
+! e Band_val parameter is used, which corresponds to the situation where the "optimal" way of stor-
+! age is used for an operator with non-diagonal band matrix on the used basis. This parameter indi-
+! cates the number of additional bands to consider above (resp. below) the diagonal. For example, 
+! Upper_bandwidth=Lower_bandwidth=1 would give a tridiagonal matrix. These parameters allows more 
+! flexibility to the code if other operators/basis set are implemented, but, for now, only the tri-
+! diagonal case is used.
+!   - Dense_val : The table table that is expected to be allocated and to have been initialised if 
+! Dense == .TRUE. . It is supposed to be the rank-2 tensor representation associated to the operat-
+! or on the chosen representation (basis set or space grid), namely its matrix in full.
+!   - Diag_val : The table table that is expected to be allocated and to have been initialised if 
+! Dense == .FALSE. and if the rank-2 tensor of the operator on the chosen representation is diagonal. In 
+! this case, Diag_val is designed to be the rank-1 tensor that holds the diagonal elements of the 
+! rank-2 tensor, in a way that Diag_val(i) = Dense_val(i,i).
+!   - Band_val : The table table that is expected to be allocated and to have been initialised if 
+! Dense == .FALSE. and if the rank-2 tensor of the operator on the chosen representation is band d-
+! iagonal. In this case, Band_val is designed to be the collection of rank-1 tensors that holds th-
+! e diagonal elements of each non-null diagonal from the rank-2 tensor. If this parameter is used, 
+! Upper/Lower_bandwidth should not both be 0. Then, Band_val is supposed to have been initialised 
+! in such a way that the N first/leftmost columns (N=Lower_bandwidth) are the bands below the diag-
+! onal - from the lowest to the diagonal -, the N+1 columns is the diagonal, and the (SIZE(Band_va-
+! l, dim=2)-N-1 = Upper_bandwidth) rightmost columns are the bands above the diagonal - from the d-
+! iagonal to the highest. Obviously the non-diagonal bands are shorter than the diagonal. Therefor-
+! e the rank-1 tensors that represent the bands below (resp. above) the diagonal are filled with z-
+! eros at the bottom (resp. top). Since the case Upper_bandwidth = Lower_bandwidth = 1 reduces its-
+! elf to the "diagonal" case, the "band" case may be seen as an extension of the latter, just cons-
+! idering more bands i.e. adding more columns around Diag_val.
+! As a final comment about the use of the Elem_op derived type, please note that it is not designe-
+! d to hold different representations at once. In other words, do NEVER initialise the Dense_val a-
+! nd another table parameter in the same Elem_op object. Even if it is numerically possible, it wo-
+! uld not be good practice, and would lead to unforseen situations and likely unwanted behaviour. 
 !
 ! Action :
 !
@@ -82,14 +140,14 @@ MODULE Elem_op_m
 
 
   TYPE                               :: Elem_op_t
-    character(len=:),    allocatable :: Operator_type                                                                            ! ex : "Hamiltonian", "Position", "NbQuanta", etc
-    logical                          :: Dense = .FALSE.                                                                          ! if .TRUE. then the matrix storage will not be optimized and it will be stored as a Dense matrix. Otherwise, the elements matrix will be stored in a table such as taking advantage of the sparcity of the operator's analytical matrix in the HO Eigenbasis
-    logical                          :: Grid  = .FALSE.                                                                          ! if .TRUE. then the matrix storage will not be optimized and it will be stored as a Dense matrix. Otherwise, the elements matrix will be stored in a table such as taking advantage of the sparcity of the operator's analytical matrix in the HO Eigenbasis
-    integer                          :: Upper_bandwidth = 0                                                                      ! if type = "Band". Gives the number of additional bands to consider above the diagonal.
-    integer                          :: Lower_bandwidth = 0                                                                      ! if type = "Band". Gives the number of additional bands to consider below the diagonal. Ex : Upper_bandwidth=Lower_bandwidth=1 would give a tridiagonal matrix
-    real(kind=Rkind),    allocatable :: Dense_val(:,:)                                                                           ! if Dense == .TRUE.
-    real(kind=Rkind),    allocatable :: Diag_val(:)                                                                              ! if Dense == .FALSE. .AND. the operator analytical matrix in the HO1D Eigenbasis is diagonal. The diagonal elements are stored in a vector (rank-1 tensor)
-    real(kind=Rkind),    allocatable :: Band_val(:,:)                                                                            ! if Dense == .FALSE. .AND. the operator analytical matrix in the HO1D Eigenbasis is band. The number of columns will be the number of diagonals to consider : each considered diagonal is stored in a column
+    character(len=:),    allocatable :: Operator_type                                                   ! ex : "Hamiltonian", "Position", "NbQuanta", etc
+    logical                          :: Dense = .FALSE.                                                 ! if .TRUE. then the matrix storage will not be optimized and it will be stored as a Dense matrix. Otherwise, the elements matrix will be stored in a table such as taking advantage of the sparcity of the operator's analytical matrix in the HO Eigenbasis
+    logical                          :: Grid  = .FALSE.                                                 ! if .TRUE. then the matrix storage will not be optimized and it will be stored as a Dense matrix. Otherwise, the elements matrix will be stored in a table such as taking advantage of the sparcity of the operator's analytical matrix in the HO Eigenbasis
+    integer                          :: Upper_bandwidth = 0                                             ! if type = "Band". Gives the number of additional bands to consider above the diagonal.
+    integer                          :: Lower_bandwidth = 0                                             ! if type = "Band". Gives the number of additional bands to consider below the diagonal. Ex : Upper_bandwidth=Lower_bandwidth=1 would give a tridiagonal matrix
+    real(kind=Rkind),    allocatable :: Dense_val(:,:)                                                  ! if Dense == .TRUE.
+    real(kind=Rkind),    allocatable :: Diag_val(:)                                                     ! if Dense == .FALSE. .AND. the operator analytical matrix in the HO1D Eigenbasis is diagonal. The diagonal elements are stored in a vector (rank-1 tensor)
+    real(kind=Rkind),    allocatable :: Band_val(:,:)                                                   ! if Dense == .FALSE. .AND. the operator analytical matrix in the HO1D Eigenbasis is band. The number of columns will be the number of diagonals to consider : each considered diagonal is stored in a column
   END TYPE
 
 
