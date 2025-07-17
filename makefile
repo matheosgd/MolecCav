@@ -73,7 +73,8 @@ MAIN           = Spec_1p1D# the name of the application file without the extensi
 MAIN_SRC       = $(MAIN).f90
 MAIN_OBJ       = $(MAIN).o
 MAIN_EXE       = $(MAIN).exe
-MAIN_OUT       = $(MAIN).log
+MAIN_OUT       = $(MAIN)
+MAIN_OUT_FULL  = $(MAIN_OUT).log
 MAIN_DATA      = data_$(MAIN)
 MAIN_DATA_FULL = $(MAIN_DATA).nml
 
@@ -195,7 +196,7 @@ UT ut: $(addprefix $(EXE_DIR)/, $(TESTS_EXE))
 .PHONY: app APP App
 app APP App: $(EXE_DIR)/$(MAIN_EXE)
 # this instruction is understood by Make as "see these files". It will search the make file for where they are defined i.e. for their dependancies, and create them as they are defined if they are too old
-	./$(EXE_DIR)/$(MAIN_EXE) < $(DATA_DIR)/$(MAIN_DATA_FULL) > $(OUTPUT_DIR)/$(MAIN_OUT)
+	./$(EXE_DIR)/$(MAIN_EXE) < $(DATA_DIR)/$(MAIN_DATA_FULL) > $(OUTPUT_DIR)/$(MAIN_OUT_FULL)
 
 
 #-----------------------------------------------

@@ -99,21 +99,21 @@
 ! nd another table parameter in the same Elem_op object. Even if it is numerically possible, it wo-
 ! uld not be good practice, and would lead to unforseen situations and likely unwanted behaviour. 
 !
-! Action :
+! Action : Interface for the MolecCav_Action_elem_op_R1_* and procedure.
 !
-! Write :
+! Write : Interface for the MolecCav_Write_elem_op_R1 and procedure.
 !
-! Dealloc :
+! Dealloc : Interface for the MolecCav_Deallocate_elem_op and procedure.
 !
-! MolecCav_Action_elem_op_R1_real :
+! MolecCav_Action_elem_op_R1_real : Takes as arguments a tensor of rank 1 with real values (Op_psi) that does not need to have been initialised, an object of derived type Elem_op_t (Elem_op), and an other tensor of rank 1 with real values (Psi). It computes the action of the allocated tensor of Elem_op upon Psi - either by matrix-vector product if Dense-val is allocated or by a product element-by-element
 !
 ! MolecCav_Action_elem_op_R1_complex :
 !
-! Action_dense :
+! Action_dense : Interface for the MolecCav_Action_dense_elem_op_R1_* and procedure.
 !
-! Action_diag :
+! Action_diag : Interface for the MolecCav_Action_diag_elem_op_R1_* and procedure.
 !
-! Action_band :
+! Action_band : Interface for the MolecCav_Action_band_elem_op_R1_* and procedure.
 !
 ! MolecCav_Action_dense_elem_op_R1_real :
 !
