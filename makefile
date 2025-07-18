@@ -69,7 +69,7 @@ EXE_DIR        = EXE# the name of the directory where to store the objects .o an
 OUTPUT_DIR     = OUT# the name of the directory where to store the log files of the library's programs
 
 MAIN_DIR       = APP# the name of the directory where to find the source file(s) of the application/exemple program
-MAIN           = Spec_1p1D# the name of the application file without the extension
+MAIN           = MolecCav# the name of the application file without the extension
 MAIN_SRC       = $(MAIN).f90
 MAIN_OBJ       = $(MAIN).o
 MAIN_EXE       = $(MAIN).exe

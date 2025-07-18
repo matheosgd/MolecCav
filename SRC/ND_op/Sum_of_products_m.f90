@@ -52,6 +52,8 @@ MODULE Sum_of_products_m
     integer                          :: N_products = 0                         ! the number of terms in the sum of products operator
     TYPE(Operator_ND_t), allocatable :: tab_opnd(:)                            ! the list of the products terms in the sum, which one being an OpND
     real(kind=Rkind),    allocatable :: tab_coeffs(:)
+    integer                          :: N_mat
+    integer                          :: N_cav
   END TYPE
 
 
@@ -172,6 +174,8 @@ MODULE Sum_of_products_m
     END IF
     
     !---------------Construction of the table of coefficients of the sum-----------
+    TotH%N_mat = N_mat
+    TotH%N_cav = N_cav
     TotH%N_products = N_mat + N_cav + N_mat * N_cav 
 
     ALLOCATE(TotH%tab_opnd(TotH%N_products))
