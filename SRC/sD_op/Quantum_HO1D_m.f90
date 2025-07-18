@@ -103,8 +103,9 @@
 !
 ! MolecCav_Get_QHO1D_parameter_real :
 !
-! MolecCav_Write_quantum_HO1D : Takes as argument an object of derived type Quantum_HO1D_t (QHO1D) 
-! and an optional string messsage (Info), and write in the standard output all of the QHO1D parameters, below the Info if provided.
+! MolecCav_Write_quantum_HO1D : Takes as argument an object of derived type Quantum_HO1D_t (QHO1D),
+! an optional string messsage (Info), and an optional logical (More), and write in the standard ou-
+! tput all of the QHO1D parameters, below the Info if provided. Yet, if More is not provided (or set to .F.), the elements inside the Tab_op parameters will not be developed because it would be most of the time redundant. 
 !
 ! MolecCav_Deallocate_quantum_HO1D : Takes as argument an object of derived type Quantum_HO1D_t (Q-
 ! HO1D) and reset it by deallocating all tables/strings and setting to defaut values the other par-
@@ -196,11 +197,11 @@ MODULE Quantum_HO1D_m
     IF (Verbose_local > 17) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "o o o Arguments of MolecCav_Initialize_quantum_HO1D :"
-      WRITE(out_unit,*) "The <<QHO1D>> argument  :"
-      CALL Write(QHO1D)
-      WRITE(out_unit,*) "The <<Nb>> argument     :"//TO_string(Nb)
-      WRITE(out_unit,*) "The <<w>>  argument     :"//TO_string(w)
-      WRITE(out_unit,*) "The <<m>>  argument     :"//TO_string(m)
+      WRITE(out_unit,*) "The <<QHO1D>> argument :"
+      CALL Write(QHO1D, More=Debug_local)
+      WRITE(out_unit,*) "The <<Nb>> argument    : "//TO_string(Nb)
+      WRITE(out_unit,*) "The <<w>>  argument    : "//TO_string(w)
+      WRITE(out_unit,*) "The <<m>>  argument    : "//TO_string(m)
       IF (PRESENT(Dense)) WRITE(out_unit,*) "The <<Dense>> argument : "//TO_string(Dense)
       FLUSH(out_unit)
     END IF
@@ -254,7 +255,7 @@ MODULE Quantum_HO1D_m
     IF (Verbose_local > 17) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "o o o Arguments of MolecCav_Initialize_HO1D_operator :"
-      WRITE(out_unit,*) "The <<Elem_op>> argument        :"
+      WRITE(out_unit,*) "The <<Elem_op>> argument       :"
       CALL Write(Elem_op)
       WRITE(out_unit,*) "The <<Operator_type>> argument : "//Operator_type
       WRITE(out_unit,*) "The <<Nb>> argument            : "//TO_string(Nb)
@@ -295,7 +296,7 @@ MODULE Quantum_HO1D_m
         WRITE(out_unit,*) "    ...back to MolecCav_Normalize_R2_real"
     
       CASE ("position")
-        CALL Initialize_x(PositionOp=Elem_op,  Nb=Nb, w=w, m=m, Verbose=Verbose_local, Debug=Debug_local)
+        CALL Initialize_x(Position=Elem_op,  Nb=Nb, w=w, m=m, Verbose=Verbose_local, Debug=Debug_local)
         WRITE(out_unit,*) "    ...back to MolecCav_Normalize_R2_real"
       
       CASE ("nbquanta")
@@ -339,7 +340,11 @@ MODULE Quantum_HO1D_m
 
     IF (Verbose_local > 17) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "o o o"
+      WRITE(out_unit,*) "o o o Arguments of MolecCav_Initialize_I_QHO1D :"
+      WRITE(out_unit,*) "The <<Identity>> argument      :"
+      CALL Write(Identity, Info="Identity")
+      WRITE(out_unit,*) "The <<Nb>> argument            : "//TO_string(Nb)
+
     END IF 
 
     !---------------------------------------------Construction of the matrix Operator--------------------------------------------
@@ -398,7 +403,11 @@ MODULE Quantum_HO1D_m
 
     IF (Verbose_local > 17) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "o o o "
+      WRITE(out_unit,*) "o o o Arguments of MolecCav_Initialize_H_QHO1D :"
+      WRITE(out_unit,*) "The <<Hamiltonian>> argument   :"
+      CALL Write(Hamiltonian, Info="Hamiltonian")
+      WRITE(out_unit,*) "The <<Nb>> argument            : "//TO_string(Nb)
+
     END IF 
 
     !---------------------------------------------Construction of the matrix Operator--------------------------------------------
@@ -435,13 +444,13 @@ MODULE Quantum_HO1D_m
   END SUBROUTINE MolecCav_Initialize_H_QHO1D
 
 
-  SUBROUTINE MolecCav_Initialize_x_QHO1D(PositionOp, Nb, w, m, Verbose, Debug)
+  SUBROUTINE MolecCav_Initialize_x_QHO1D(Position, Nb, w, m, Verbose, Debug)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT, OUTPUT_UNIT, real64 
     USE QDUtil_m
     USE Elem_op_m
    IMPLICIT NONE
     
-    TYPE(Elem_op_t),   intent(inout) :: PositionOp
+    TYPE(Elem_op_t),   intent(inout) :: Position
     integer,           intent(in)    :: Nb                                                                            ! cf. comments in HO1D_parameters_m
     real(kind=Rkind),  intent(in)    :: w                                                                            ! cf. comments in HO1D_parameters_m
     real(kind=Rkind),  intent(in)    :: m                                                                            ! cf. comments in HO1D_parameters_m
@@ -461,62 +470,66 @@ MODULE Quantum_HO1D_m
 
     IF (Verbose_local > 17) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "o o o "
+      WRITE(out_unit,*) "o o o Arguments of MolecCav_Initialize_x_QHO1D :"
+      WRITE(out_unit,*) "The <<Position>> argument      :"
+      CALL Write(Position, Info="Position")
+      WRITE(out_unit,*) "The <<Nb>> argument            : "//TO_string(Nb)
+
     END IF 
     
     !---------------------------------------------Construction of the matrix Operator--------------------------------------------
-    IF ((.NOT. PositionOp%Dense) .AND. Nb > 1) THEN
+    IF ((.NOT. Position%Dense) .AND. Nb > 1) THEN
       IF (Verbose_local > 28) WRITE(out_unit,*) "--- The Dense parameter of the Position operator is .FALSE., so the 1D HO Positi&
                                                 &on operator's matrix representation will be a rank-2 tensor of the tridiagonal e&
                                                 &lements of its analytical matrix (in Eigenbasis)"
       !-----------------------------------Initialization of the characteristics of the operator----------------------------------
-      PositionOp%Upper_bandwidth   = 1
-      PositionOp%Lower_bandwidth   = 1
+      Position%Upper_bandwidth   = 1
+      Position%Lower_bandwidth   = 1
 
       !---------------------------------------------Initialization to default values---------------------------------------------
-      ALLOCATE(PositionOp%Band_val(Nb,3))                                                                            ! Nb lines (number of diagonal elements) and 3 columns because 3 bands to consider : the diagonal, and the two bands above and below it
-      PositionOp%Band_val = ZERO
+      ALLOCATE(Position%Band_val(Nb,3))                                                                            ! Nb lines (number of diagonal elements) and 3 columns because 3 bands to consider : the diagonal, and the two bands above and below it
+      Position%Band_val = ZERO
 
       !------------------------------------------------Construction of the matrix------------------------------------------------
       DO i = 1, Nb - 1                                                                                                 ! /!\ Fortran counts from 1 to Nb !!! /!\ Nb-1 not to have Band_val(i+1) out of range
-        PositionOp%Band_val(i,1)   = SQRT(REAL(i,kind=Rkind))
-        PositionOp%Band_val(i+1,3) = SQRT(REAL(i,kind=Rkind))
+        Position%Band_val(i,1)   = SQRT(REAL(i,kind=Rkind))
+        Position%Band_val(i+1,3) = SQRT(REAL(i,kind=Rkind))
       END DO
-      PositionOp%Band_val = PositionOp%Band_val / SQRT(TWO * w * m)
+      Position%Band_val = Position%Band_val / SQRT(TWO * w * m)
     
-      IF (Debug_local) CALL Write_Mat(PositionOp%Band_val, out_unit, 3, info="HO1DPositionOp")
+      IF (Debug_local) CALL Write_Mat(Position%Band_val, out_unit, 3, info="HO1DPosition")
 
-    ELSE IF (.NOT. PositionOp%Dense) THEN
+    ELSE IF (.NOT. Position%Dense) THEN
       IF (Verbose_local > 28) WRITE(out_unit,*) "--- The Dense parameter of the Position operator is .FALSE. BUT the basis set si&
                                                 &ze is only 1, so the 1D HO Position operator's matrix representation will use th&
                                                 &e Diag_val rank-1 tensor to store the only element of the analytical matrix (i&
                                                 &n Eigenbasis)"
       !---------------------------------------------Initialization to default values---------------------------------------------
-      ALLOCATE(PositionOp%Diag_val(Nb))
+      ALLOCATE(Position%Diag_val(Nb))
 
       !------------------------------------------------Construction of the matrix------------------------------------------------
       DO i = 1, Nb                                                                                                     ! /!\ Fortran counts from 1 to Nb !!! /!\
-        PositionOp%Diag_val(i) = ZERO                                                                                          ! the position operator matrix has first value (i.e. only value in the Nb = 0 case) 0 
+        Position%Diag_val(i) = ZERO                                                                                          ! the position operator matrix has first value (i.e. only value in the Nb = 0 case) 0 
       END DO
 
-      IF (Debug_local) CALL Write_Vec(PositionOp%Diag_val, out_unit, 1, info="HO1DPositionOp")
+      IF (Debug_local) CALL Write_Vec(Position%Diag_val, out_unit, 1, info="HO1DPosition")
 
     ELSE 
       IF (Verbose_local > 28) WRITE(out_unit,*) "--- The Dense parameter of the Position operator is .TRUE., so the full 1D HO Po&
                                                 &sition operator's matrix will be constructed (in Eigenbasis) for the representat&
                                                 &ion, as if the analytical matrix was a dense one"
       !---------------------------------------------Initialization to default values---------------------------------------------
-      ALLOCATE(PositionOp%Dense_val(Nb, Nb))
-      PositionOp%Dense_val = ZERO
+      ALLOCATE(Position%Dense_val(Nb, Nb))
+      Position%Dense_val = ZERO
       
       !------------------------------------------------Construction of the matrix------------------------------------------------
       DO i = 1, Nb - 1                                                                                                 ! /!\ Fortran counts from 1 to Nb !!! /!\
-        PositionOp%Dense_val(i,i+1) = SQRT(REAL(i,kind=Rkind))
-        PositionOp%Dense_val(i+1,i) = SQRT(REAL(i,kind=Rkind))
+        Position%Dense_val(i,i+1) = SQRT(REAL(i,kind=Rkind))
+        Position%Dense_val(i+1,i) = SQRT(REAL(i,kind=Rkind))
       END DO
-      PositionOp%Dense_val = PositionOp%Dense_val / SQRT(TWO * w * m)
+      Position%Dense_val = Position%Dense_val / SQRT(TWO * w * m)
     
-      IF (Debug_local) CALL Write_Mat(PositionOp%Dense_val, out_unit, Size(PositionOp%Dense_val), info="HO1DPositionOp")
+      IF (Debug_local) CALL Write_Mat(Position%Dense_val, out_unit, Size(Position%Dense_val), info="HO1DPosition")
     END IF
       
   END SUBROUTINE MolecCav_Initialize_x_QHO1D
@@ -546,7 +559,10 @@ MODULE Quantum_HO1D_m
 
     IF (Verbose_local > 17) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "o o o "
+      WRITE(out_unit,*) "o o o Arguments of MolecCav_Initialize_N_QHO1D :"
+      WRITE(out_unit,*) "The <<NbQuanta>> argument      :"
+      CALL Write(NbQuanta, Info="NbQuanta")
+      WRITE(out_unit,*) "The <<Nb>> argument            : "//TO_string(Nb)
     END IF 
 
       !---------------------------------------------Construction of the matrix Operator--------------------------------------------
@@ -610,9 +626,9 @@ MODULE Quantum_HO1D_m
     IF (Verbose_local > 17) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "o o o Arguments of MolecCav_Action_quantum_HO1D :"
-      WRITE(out_unit,*) "The <<QHO1D>> argument  :"
-      CALL Write(QHO1D)
-      WRITE(out_unit,*) "The <<i_op>> argument   :"//TO_string(i_op)
+      WRITE(out_unit,*) "The <<QHO1D>> argument :"
+      CALL Write(QHO1D, More=Debug_local)
+      WRITE(out_unit,*) "The <<i_op>> argument  : "//TO_string(i_op)
       WRITE(out_unit,*) "The <<Psi>> argument   : "
       CALL Write_Vec(Psi, out_unit, 1, info="Psi")
       WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
@@ -667,8 +683,8 @@ MODULE Quantum_HO1D_m
       WRITE(out_unit,*)
       WRITE(out_unit,*) "o o o Arguments of MolecCav_Action_quantum_HO1D :"
       WRITE(out_unit,*) "The <<QHO1D>> argument  :"
-      CALL Write(QHO1D)
-      WRITE(out_unit,*) "The <<i_op>> argument   :"//TO_string(i_op)
+      CALL Write(QHO1D, More=Debug_local)
+      WRITE(out_unit,*) "The <<i_op>> argument   : "//TO_string(i_op)
       WRITE(out_unit,*) "The <<Psi>> argument    :"
       CALL Write_Vec(Psi, out_unit, 1, info="Psi")
       WRITE(out_unit,*) "The size of its vector  : "//TO_string(Size(Psi))
@@ -753,7 +769,7 @@ MODULE Quantum_HO1D_m
   END SUBROUTINE MolecCav_Get_QHO1D_parameter_real
 
 
-  SUBROUTINE MolecCav_Write_quantum_HO1D(QHO1D, Info)
+  SUBROUTINE MolecCav_Write_quantum_HO1D(QHO1D, Info, More)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m
     USE Elem_op_m
@@ -761,8 +777,13 @@ MODULE Quantum_HO1D_m
     
     TYPE(Quantum_HO1D_t),       intent(in) :: QHO1D
     character(len=*), optional, intent(in) :: Info
+    logical,          optional, intent(in) :: More
 
     integer                                :: i_op
+    logical                                :: More_local
+
+    IF (PRESENT(More)) THEN; More_local = More
+    ELSE; More_local = .FALSE.; END IF
 
     IF (PRESENT(Info)) THEN
       WRITE(out_unit,*) "--- Parameters associated to the object of derived type Quantum_HO1D_t ("//Info//") :"
@@ -770,23 +791,27 @@ MODULE Quantum_HO1D_m
       WRITE(out_unit,*) "--- Parameters associated to the object of derived type Quantum_HO1D_t :"
     END IF
 
-    WRITE(out_unit,*) "Nb = "//TO_string(QHO1D%Nb)
-    WRITE(out_unit,*) "w  = "//TO_string(QHO1D%w)
-    WRITE(out_unit,*) "m  = "//TO_string(QHO1D%m)
+    WRITE(out_unit,*) "Nb                  = "//TO_string(QHO1D%Nb)
+    WRITE(out_unit,*) "w                   = "//TO_string(QHO1D%w)
+    WRITE(out_unit,*) "m                   = "//TO_string(QHO1D%m)
+    WRITE(out_unit,*) "Nb_op               = "//TO_string(QHO1D%Nb_op)
 
     IF (ALLOCATED(QHO1D%Tab_op)) THEN 
-      WRITE(out_unit,*) "Nb_op = ", Size(QHO1D%Tab_op)
-      WRITE(out_unit,*) "|The "//TO_string(i_op)//"^{th} operator associated with the HO (QHO1D%Tab_op("//TO_string(i_op)//")) : &
-                        &               |"
-      DO i_op = 0, Size(QHO1D%Tab_op)-1
-        CALL Write(QHO1D%Tab_op(i_op))
-      END DO 
+      WRITE(out_unit,*) "SIZE(Tab_op, dim=1) = "//TO_string(SIZE(QHO1D%Tab_op, dim=1))
+      IF (More_local) THEN 
+        WRITE(out_unit,*) "--- Writing QHO1D%Tab_op..."
+        DO i_op = 0, SIZE(QHO1D%Tab_op)-1
+          CALL Write(QHO1D%Tab_op(i_op), Info="QHO1D%Tab_op("//TO_string(i_op)//")")
+        END DO 
+        WRITE(out_unit,*) "    ...back to MolecCav_Write_quantum_HO1D"
+      END IF 
     ELSE 
-      WRITE(out_unit,*) "|QHO's Tab_op is not allocated (QHO1D%Tab_op)                                  | /"
+      WRITE(out_unit,*) "QHO1D%Tab_op is NOT allocated"
     END IF
-    WRITE(out_unit,*) "|Number of grid points of the QHO DOF (QHO1D%Nq)                               | "//TO_string(QHO1D%Nq)
-    WRITE(out_unit,*) "|Equilibrium position of the HO (QHO1D%Eq_pos)                                 | "//TO_string(QHO1D%Eq_pos)
-    WRITE(out_unit,*) "|Change in variable coefficient for the DOF grid (QHO1D%Scale_q)               | "//TO_string(QHO1D%Scale_q)
+
+    WRITE(out_unit,*) "Nq                  = "//TO_string(QHO1D%Nq)
+    WRITE(out_unit,*) "Eq_pos              = "//TO_string(QHO1D%Eq_pos)
+    WRITE(out_unit,*) "Scale_q             = "//TO_string(QHO1D%Scale_q)
     FLUSH(out_unit)
 
   END SUBROUTINE MolecCav_Write_quantum_HO1D
@@ -814,12 +839,8 @@ MODULE Quantum_HO1D_m
 
     IF (Verbose_local > 17) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "o o o "
-    END IF 
-    
-    IF (Debug_local) THEN
-      WRITE(out_unit,*) "--- The QHO1D to be deallocated :"
-      CALL Write(QHO1D)
+      WRITE(out_unit,*) "o o o Arguments of MolecCav_Deallocate_quantum_HO1D :"
+      CALL Write(QHO1D, More=Debug_local)
     END IF 
 
     !-----------------------------Deallocating the HO1D operator object----------------------------  
@@ -838,7 +859,7 @@ MODULE Quantum_HO1D_m
     IF (Debug_local) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "--- The deallocated QHO1D object :"
-      CALL Write(QHO1D)
+      CALL Write(QHO1D, More=Debug_local)
     END IF
 
   END SUBROUTINE MolecCav_Deallocate_quantum_HO1D
