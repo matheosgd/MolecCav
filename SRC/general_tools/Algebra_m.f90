@@ -31,10 +31,11 @@
 !
 ! README :
 ! Module of mathematics utilities. It contains some procedures for algebraic tools, mostly about m-
-! atrix management and a Gram-Schmidt procedure. HAVE NOT BEEN TESTED IN THIS PROGRAM.
+! atrix management and a Gram-Schmidt procedure. 
+! This module is in the "-6" level.
 ! 
 ! Gram_schmidt : Interface for the MolecCav_Gram_schmidt procedure. cf. MolecCav_Gram_schmidt for 
-! details
+! details. HAVE NOT BEEN TESTED IN THIS PROGRAM.
 !
 ! Normalize : Interface for the MolecCav_Normalize_R*_* procedures. It takes as arguments a tensor 
 ! of rank 1 or 2 with real or complex values (Psi) and normalises it by redirecting to one of the 
@@ -58,7 +59,7 @@
 ! have been initialized (OrthoBasis) and an other one that need to have actual values in (NonOrtho-
 ! Basis). It applies the Gram-Schmidt procedure to NonOrthoBasis to orthonormalise it, going throu-
 ! gh an intermediary rank 1 tensor to manage the column vectors individually, and affect the resul-
-! t to OrthoBasis.
+! t to OrthoBasis. HAVE NOT BEEN TESTED IN THIS PROGRAM.
 !
 ! MolecCav_Normalize_R2_real : Takes as arguments a tensor of rank 2 with real values (Psi) and no-
 ! rmalises it. It computes its norm calling the Norm_of subroutine, and divide Psi by it. 

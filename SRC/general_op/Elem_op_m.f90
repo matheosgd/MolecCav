@@ -40,7 +40,8 @@
 ! Writing, and Deallocation with this type. Obviouly, from the physical point of view, in all of t-
 ! he hereiafter action procedure, the wavefunctions are assumed to be expressed in the same basis 
 ! set used to expressed the elementary operator.
-! The verbose at this level is ranging from 21 (degree 0) to 24 (degree 4).
+! This module is in the "-5" level. At this level, Verbose is ranging from 21 (degree 0) to 24 (de-
+! gree 4).
 !
 ! Elem_op_t : The derived typed used to represent a mono-dimensional operator of quantum mechanics.
 ! It contains only informations about its nature and about the way the values of its tensor repres-
@@ -67,7 +68,7 @@
 ! ng advantage of the sparcity of the operator's analytical matrix in the basis. This case implies 
 ! that the Diag_val or Band_val parameter is allocated and should have been initialised. The defau-
 ! lt case is the optimised representation.
-!   - Grid a logical parameter that indicate whether the thensor representation is expressed in a 
+!   - Grid : a logical parameter that indicate whether the thensor representation is expressed in a 
 ! discretised spacial representation (Grid == .TRUE.) or in a basis set decomposition (.FALSE.). H-
 ! owever the grid representation has not been implemented yet and thus is not available.
 !   - Upper_bandwidth (resp. Lower_bandwidth) : An integer used only if Dense == .FALSE. and if th-
@@ -81,9 +82,9 @@
 ! Dense == .TRUE. . It is supposed to be the rank-2 tensor representation associated to the operat-
 ! or on the chosen representation (basis set or space grid), namely its matrix in full.
 !   - Diag_val : The table table that is expected to be allocated and to have been initialised if 
-! Dense == .FALSE. and if the rank-2 tensor of the operator on the chosen representation is diagonal. In 
-! this case, Diag_val is designed to be the rank-1 tensor that holds the diagonal elements of the 
-! rank-2 tensor, in a way that Diag_val(i) = Dense_val(i,i).
+! Dense == .FALSE. and if the rank-2 tensor of the operator on the chosen representation is diagon-
+! al. In this case, Diag_val is designed to be the rank-1 tensor that holds the diagonal elements 
+! of the rank-2 tensor, in a way that Diag_val(i) = Dense_val(i,i).
 !   - Band_val : The table table that is expected to be allocated and to have been initialised if 
 ! Dense == .FALSE. and if the rank-2 tensor of the operator on the chosen representation is band d-
 ! iagonal. In this case, Band_val is designed to be the collection of rank-1 tensors that holds th-
@@ -190,7 +191,7 @@
 ! rs, below the Info if provided.
 !
 ! MolecCav_Deallocate_elem_op : Takes as argument an object of derived type Elem_op_t (Elem_op) and
-! reset it by deallocating all tables and setting to defaut values the other parameters.
+! reset it by deallocating all tables/strings and setting to defaut values the other parameters.
 !
 !==================================================================================================
 !==================================================================================================
@@ -267,13 +268,13 @@ MODULE Elem_op_m
       WRITE(out_unit,*) "o o Arguments of MolecCav_Action_elem_op_R1_real :"
       WRITE(out_unit,*) "The <<Elem_op>> argument :"
       CALL Write(Elem_op)
-      WRITE(out_unit,*) "The <<Psi>> argument : "
+      WRITE(out_unit,*) "The <<Psi>> argument     : "
       CALL Write_Vec(Psi, out_unit, 1, info="Psi")
-      WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
+      WRITE(out_unit,*) "The size of its vector   : "//TO_string(Size(Psi))
       FLUSH(out_unit)
     END IF
     
-    !-----------------------------------------------------Checking dimensions----------------------------------------------------
+    !--- Checking dimensions ------------------------------
     IF (ALLOCATED(Elem_op%Dense_val)) Nb = Size(Elem_op%Dense_val, dim=1)
     IF (ALLOCATED(Elem_op%Diag_val) ) Nb = Size(Elem_op%Diag_val,  dim=1)
     IF (ALLOCATED(Elem_op%Band_val) ) Nb = Size(Elem_op%Band_val,  dim=1)
@@ -294,7 +295,7 @@ MODULE Elem_op_m
                        &check initialization."
     END IF 
 
-    !---------------------------------------------Selection of the calculation method--------------------------------------------
+    !--- Selection of the calculation method --------------
     IF      (ALLOCATED(Elem_op%Diag_val))   THEN
       IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Diag_val is allocated. The diagonal operator action called."
       CALL Action_diag(Op_psi=Op_psi, Elem_op=Elem_op, Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
@@ -349,13 +350,13 @@ MODULE Elem_op_m
       WRITE(out_unit,*) "o o Arguments of MolecCav_Action_dense_elem_op_R1_real :"
       WRITE(out_unit,*) "The <<Elem_op>> argument :"
       CALL Write(Elem_op)
-      WRITE(out_unit,*) "The <<Psi>> argument : "
+      WRITE(out_unit,*) "The <<Psi>> argument     : "
       CALL Write_Vec(Psi, out_unit, 1, info="Psi")
-      WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
+      WRITE(out_unit,*) "The size of its vector   : "//TO_string(Size(Psi))
       FLUSH(out_unit)
     END IF
     
-    !----------------------------------------------------Computing the action----------------------------------------------------
+    !--- Computing the action -----------------------------
     Op_psi(:) = matmul(Elem_op%Dense_val, Psi)
 
   END SUBROUTINE MolecCav_Action_dense_elem_op_R1_real
@@ -387,13 +388,13 @@ MODULE Elem_op_m
       WRITE(out_unit,*) "o o Arguments of MolecCav_Action_diag_elem_op_R1_real :"
       WRITE(out_unit,*) "The <<Elem_op>> argument :"
       CALL Write(Elem_op)
-      WRITE(out_unit,*) "The <<Psi>> argument : "
+      WRITE(out_unit,*) "The <<Psi>> argument     : "
       CALL Write_Vec(Psi, out_unit, 1, info="Psi")
-      WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
+      WRITE(out_unit,*) "The size of its vector   : "//TO_string(Size(Psi))
       FLUSH(out_unit)
     END IF
     
-    !----------------------------------------------------Computing the action----------------------------------------------------
+    !--- Computing the action -----------------------------
     Op_psi = Elem_op%Diag_val * Psi
 
   END SUBROUTINE MolecCav_Action_diag_elem_op_R1_real
@@ -426,13 +427,13 @@ MODULE Elem_op_m
       WRITE(out_unit,*) "o o Arguments of MolecCav_Action_band_elem_op_R1_real :"
       WRITE(out_unit,*) "The <<Elem_op>> argument :"
       CALL Write(Elem_op)
-      WRITE(out_unit,*) "The <<Psi>> argument : "
+      WRITE(out_unit,*) "The <<Psi>> argument     : "
       CALL Write_Vec(Psi, out_unit, 1, info="Psi")
-      WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
+      WRITE(out_unit,*) "The size of its vector   : "//TO_string(Size(Psi))
       FLUSH(out_unit)
     END IF
 
-    !----------------------------------------------------Computing the action----------------------------------------------------
+    !--- Computing the action -----------------------------
     Nb = size(Op_psi)
 
     Op_psi     = ZERO
@@ -475,13 +476,13 @@ MODULE Elem_op_m
       WRITE(out_unit,*) "o o Arguments of MolecCav_Action_elem_op_R1_complex :"
       WRITE(out_unit,*) "The <<Elem_op>> argument :"
       CALL Write(Elem_op)
-      WRITE(out_unit,*) "The <<Psi>> argument : "
+      WRITE(out_unit,*) "The <<Psi>> argument     : "
       CALL Write_Vec(Psi, out_unit, 1, info="Psi")
-      WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
+      WRITE(out_unit,*) "The size of its vector   : "//TO_string(Size(Psi))
       FLUSH(out_unit)
     END IF
     
-    !-----------------------------------------------------Checking dimensions----------------------------------------------------
+    !--- Checking dimensions ------------------------------
     IF (ALLOCATED(Elem_op%Dense_val)) Nb = Size(Elem_op%Dense_val, dim=1)
     IF (ALLOCATED(Elem_op%Diag_val) ) Nb = Size(Elem_op%Diag_val,  dim=1)
     IF (ALLOCATED(Elem_op%Band_val) ) Nb = Size(Elem_op%Band_val,  dim=1)
@@ -502,7 +503,7 @@ MODULE Elem_op_m
                        &check initialization."
     END IF 
 
-    !---------------------------------------------Selection of the calculation method--------------------------------------------
+    !--- Selection of the calculation method --------------
     IF      (ALLOCATED(Elem_op%Diag_val))   THEN
       IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Diag_val is allocated. The diagonal operator action called."
       CALL Action_diag(Op_psi=Op_psi, Elem_op=Elem_op, Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
@@ -557,13 +558,13 @@ MODULE Elem_op_m
       WRITE(out_unit,*) "o o Arguments of MolecCav_Action_dense_elem_op_R1_complex :"
       WRITE(out_unit,*) "The <<Elem_op>> argument :"
       CALL Write(Elem_op)
-      WRITE(out_unit,*) "The <<Psi>> argument : "
+      WRITE(out_unit,*) "The <<Psi>> argument     : "
       CALL Write_Vec(Psi, out_unit, 1, info="Psi")
-      WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
+      WRITE(out_unit,*) "The size of its vector   : "//TO_string(Size(Psi))
       FLUSH(out_unit)
     END IF
     
-    !----------------------------------------------------Computing the action----------------------------------------------------
+    !--- Computing the action -----------------------------
     Op_psi(:) = matmul(Elem_op%Dense_val, Psi)
 
   END SUBROUTINE MolecCav_Action_dense_elem_op_R1_complex
@@ -595,13 +596,13 @@ MODULE Elem_op_m
       WRITE(out_unit,*) "o o Arguments of MolecCav_Action_diag_elem_op_R1_complex :"
       WRITE(out_unit,*) "The <<Elem_op>> argument :"
       CALL Write(Elem_op)
-      WRITE(out_unit,*) "The <<Psi>> argument : "
+      WRITE(out_unit,*) "The <<Psi>> argument     : "
       CALL Write_Vec(Psi, out_unit, 1, info="Psi")
-      WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
+      WRITE(out_unit,*) "The size of its vector   : "//TO_string(Size(Psi))
       FLUSH(out_unit)
     END IF
     
-    !----------------------------------------------------Computing the action----------------------------------------------------
+    !--- Computing the action -----------------------------
     Op_psi = Elem_op%Diag_val * Psi
 
   END SUBROUTINE MolecCav_Action_diag_elem_op_R1_complex
@@ -634,13 +635,13 @@ MODULE Elem_op_m
       WRITE(out_unit,*) "o o Arguments of MolecCav_Action_band_elem_op_R1_complex :"
       WRITE(out_unit,*) "The <<Elem_op>> argument :"
       CALL Write(Elem_op)
-      WRITE(out_unit,*) "The <<Psi>> argument : "
+      WRITE(out_unit,*) "The <<Psi>> argument     : "
       CALL Write_Vec(Psi, out_unit, 1, info="Psi")
-      WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
+      WRITE(out_unit,*) "The size of its vector   : "//TO_string(Size(Psi))
       FLUSH(out_unit)
     END IF
     
-    !----------------------------------------------------Computing the action----------------------------------------------------
+    !--- Computing the action -----------------------------
     Nb = size(Op_psi)
 
     Op_psi     = ZERO
@@ -733,7 +734,7 @@ MODULE Elem_op_m
       FLUSH(out_unit)
     END IF
 
-    !-----------------------------Deallocating the HO1D operator object----------------------------
+    !--- Deallocating the HO1D operator object ------------
     IF (ALLOCATED(Elem_op%Operator_type)) DEALLOCATE(Elem_op%Operator_type)
     Elem_op%Dense           = .FALSE.
     Elem_op%Grid            = .FALSE.
@@ -744,7 +745,7 @@ MODULE Elem_op_m
     IF (ALLOCATED(Elem_op%Band_val))      DEALLOCATE(Elem_op%Band_val)
 
     IF (Debug_local) THEN
-      WRITE(out_unit,*) "--- The HO1D operator object after having been deallocated :"
+      WRITE(out_unit,*) "--- The deallocated HO1D operator object :"
       CALL Write(Elem_op)
     END IF
 

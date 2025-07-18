@@ -33,6 +33,7 @@
 ! Module of utilities, designed to be used only in the tests_*.f90 PROGRAMs. It contains procedures
 ! to test equality between tensors, and, most importantly, a USE of the QDUtil_Test_m module. This 
 ! makes it possible to use all the Logical_test-related procedures from the QDUtil library.
+! This module is in the "-6" level.
 ! 
 ! Equal_tensor : Interface for the MolecCav_Equal_*_*_tensor_R* procedures. It takes as arguments a
 ! logical (Error) that does not need to have been initialized, and two tensors of rank 0, 1, or 2, 

@@ -35,7 +35,8 @@
 ! gment it, how to construct the triband Hamiltonian matrix on this basis, and how to change the b-
 ! asis on which a set a vector is expressed from one to an other (which is not really related to L-
 ! anczos and may actually be moved to Algebra).
-
+! This module is in the "-6" level.
+!
 ! Initialize : Interface for the MolecCav_Initialize_krylov_basis procedure.
 !
 ! Augment : Interface for the MolecCav_Augment_krylov_basis procedure.

@@ -32,6 +32,7 @@
 ! README :
 ! to be written soon. Anyway, this module is (for now) not used in the MolecCav so don't break your
 ! head too much trying to understand it rather than another one. Stay healthy. And keep hydrated.
+! This module is in the "-6" level.
 !
 !==================================================================================================
 !==================================================================================================
