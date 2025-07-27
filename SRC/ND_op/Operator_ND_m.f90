@@ -30,15 +30,9 @@
 !==================================================================================================
 !
 ! README :
-! The only module related to general HO that the others modules will need to call in a "USE".  
-! Initialize_operator_ND : reads the namelist and initialize the type, then constructs the operat-
-! or using parameters of the HO1D_para object from the so called derived type.
-! Append_operator_ND     : add an HO operator to a already initialized object of Operator_ND_t type.
+! To be written soon.
 ! Write_operator_ND      : display values of the type in the output
 ! Deallocate_operator_ND : deallocate all tables of the type
-! The module to initialize the HO by reading its parameters from the namelist.  
-! Read_HO1D_parameters  : reads the namelist and initialize the type.
-! Write_HO1D_parameters : displays values of the type in the output.
 !==================================================================================================
 !==================================================================================================
 MODULE Operator_ND_m
@@ -112,17 +106,14 @@ MODULE Operator_ND_m
     
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
-    ELSE; Verbose_local = 20; END IF 
+    ELSE; Verbose_local = 11; END IF 
     IF (PRESENT(Debug))   THEN; Debug_local   = Debug
     ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Verbose_local > 20) WRITE(out_unit,*) 
-    IF (Verbose_local > 20) WRITE(out_unit,*) "-------------------------------------------------INITIALIZING THE OPERATOR_ND OBJE&
-                                              &CT-------------------------------------------------"; FLUSH(out_unit)
-
-    IF (Debug_local) THEN
+    IF (Verbose_local > 11) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- Arguments of MolecCav_Initialize_operator_ND :"
+      WRITE(out_unit,*) "o o o o Arguments of MolecCav_Action_quantum_HO1D :"
       WRITE(out_unit,*) "The <<OpND>> argument :"
       CALL Write(OpND)
       WRITE(out_unit,*) "The <<Mat_operators>>  argument :"//Mat_operators
@@ -130,7 +121,6 @@ MODULE Operator_ND_m
       IF (PRESENT(Dense)) WRITE(out_unit,*) "The <<Dense>> argument : "//TO_string(Dense)
       WRITE(out_unit,*) "Are the module's <<tab_mat/cav_ops>> allocated ? "//TO_string(ALLOCATED(tab_mat_ops))//TO_string(ALLOCAT&
       &ED(tab_cav_ops))
-      WRITE(out_unit,*) "--- End arguments of MolecCav_Initialize_operator_ND"
       FLUSH(out_unit)
     END IF
     

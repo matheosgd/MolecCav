@@ -56,7 +56,7 @@ PROGRAM MolecCav
   TYPE(Transition_spectrum_t)   :: TranSpec
 
   real(kind=Rkind)              :: Gamma, Start_plot, Stop_plot, Step_plot, Conversion, Energy, Intensity
-  integer                       :: I
+  integer                       :: I, K
 
 
   !-------------------------Sum_of_products operators initialization-------------------------
@@ -102,7 +102,7 @@ PROGRAM MolecCav
   ALLOCATE(TotH_matrix(NB, NB))
   ALLOCATE(Phi(NB))
   TotH_matrix = ZERO
-
+    
   DO J = 1, NB
     Phi = ZERO
     Phi(J) = ONE
@@ -132,14 +132,9 @@ PROGRAM MolecCav
   CALL Write_Vec(TranSpec%tab_energies, out_unit, SIZE(TranSpec%tab_energies), info="Transition Energies")
   CALL Write_Vec(TranSpec%tab_ints,     out_unit, SIZE(TranSpec%tab_ints),     info="Transition Intensities")
 
+  OPEN(NEWUNIT = nioint,  FILE = 'OUT/TransInts_MolecCav.txt', FORM = 'formatted', ACTION = 'write', POSITION = 'rewind')
 
-  OPEN(NEWUNIT = nioint, FILE = 'OUT/TransInts_MolecCav_wmat'//TO_string(REAL(Mat2w,kind=RkS))//'_DTpm'//TO_string(REAL(Mat2w-Mat1w,ki&
-  &nd=RkS))//'_wcav'//TO_string(REAL(Cavw,kind=RkS))//'_lamb'//TO_string(REAL(lambda,kind=RkS))//'.txt',  FORM = 'formatted', ACT&
-  &ION = 'write', POSITION = 'rewind')
-
-  OPEN(NEWUNIT = niospec, FILE = 'OUT/Spectrum_MolecCav_wmat'//TO_string(REAL(Mat2w,kind=RkS))//'_DTpm'//TO_string(REAL(Mat2w-Mat1w,ki&
-  &nd=RkS))//'_wcav'//TO_string(REAL(Cavw,kind=RkS))//'_lamb'//TO_string(REAL(lambda,kind=RkS))//'.txt',  FORM = 'formatted', ACT&
-  &ION = 'write', POSITION = 'rewind')
+  OPEN(NEWUNIT = niospec, FILE = 'OUT/Spectrum_MolecCav.txt',  FORM = 'formatted', ACTION = 'write', POSITION = 'rewind')
 
   !----------------------------computing of the spectra---------------------------
   WRITE(nioint, *) "Transition Energy -------- Transition intensity"
@@ -159,8 +154,8 @@ PROGRAM MolecCav
   DO I = 1, 900
     Energy    = (Start_plot + I*Step_plot)*Conversion
     Intensity = TranSpec%tab_ints(1)*Lorentzian(Energy, TranSpec%tab_energies(1)*Conversion, Gamma)
-    DO I = 2, 9
-    Intensity = Intensity TranSpec%tab_ints(I)*Lorentzian(Energy, TranSpec%tab_energies(I)*Conversion, Gamma)
+    DO K = 2, 9
+    Intensity = Intensity + TranSpec%tab_ints(K)*Lorentzian(Energy, TranSpec%tab_energies(K)*Conversion, Gamma)
     END DO
     WRITE(niospec, *) Energy, Intensity, 2.0
   END DO
@@ -217,10 +212,10 @@ PROGRAM MolecCav
     Cross_2  = Cavlambda_l*Matlambda_l*Cavw_l*CoeffDipMomt_l / SQRT(Matm_l)
     Cross_3  = Cavlambda_l*Matlambda_l*Cavw_l*CoeffDipMomt_l / SQRT(Matm_l)
     MWH      = ZERO
-    MWH(1,1) = Mat1w**2
-    MWH(2,2) = Mat2w**2
-    MWH(3,3) = Mat3w**2
-    MWH(4,4) = Cavw**2
+    MWH(1,1) = Mat1w_l**2
+    MWH(2,2) = Mat2w_l**2
+    MWH(3,3) = Mat3w_l**2
+    MWH(4,4) = Cavw_l**2
     MWH(1,4) = Cross_1
     MWH(4,1) = MWH(1,4)
     MWH(2,4) = Cross_2

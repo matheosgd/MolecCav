@@ -93,30 +93,26 @@ MODULE Cavity_mode_m
     real(kind=Rkind)                    :: w, m, Eq_pos, Scale_q
     integer                             :: Nb, Nq
     integer                             :: err_io
-    logical                             :: Dense_local                                                              ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
-    integer                             :: Verbose_local                                                              ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
+    logical                             :: Dense_local                                                              ! goes from 16 (= 0 verbose) to 24 (= maximum verbose) at this layer
+    integer                             :: Verbose_local                                                              ! goes from 16 (= 0 verbose) to 24 (= maximum verbose) at this layer
     logical                             :: Debug_local
 
     NAMELIST /Cavity_mode/ lambda, Nb, w, m, Nq, Eq_pos, Scale_q
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
-    ELSE; Verbose_local = 20; END IF 
+    ELSE; Verbose_local = 16; END IF 
     IF (PRESENT(Debug))   THEN; Debug_local   = Debug
     ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Verbose_local > 20) WRITE(out_unit,*) 
-    IF (Verbose_local > 20) WRITE(out_unit,*) "-------------------------------------------------INITIALIZING THE CAVITY MODE OBJE&
-                                              &CT-------------------------------------------------"; FLUSH(out_unit)
-
-    IF (Debug_local) THEN
+    IF (Verbose_local > 16) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- Arguments of MolecCav_Initialize_Cavity_mode :"
+      WRITE(out_unit,*) "o o o Arguments of MolecCav_Initialize_Cavity_mode :"
       WRITE(out_unit,*) "The <<CavMode>> argument :"
       CALL Write(CavMode)
-      WRITE(out_unit,*) "The <<nio>> argument :"//TO_string(nio)
-      IF (PRESENT(Dense)) WRITE(out_unit,*) "The <<Dense>> argument : "//TO_string(Dense)
-      WRITE(out_unit,*) "--- End arguments of MolecCav_Initialize_Cavity_mode"
+      WRITE(out_unit,*) "The <<nio>> argument     : "//TO_string(nio)
+      IF (PRESENT(Dense)) WRITE(out_unit,*) "The <<Dense>> argument   : "//TO_string(Dense)
       FLUSH(out_unit)
     END IF
     
@@ -129,20 +125,13 @@ MODULE Cavity_mode_m
     Eq_pos        = -ONE
     Scale_q       = HUGE(ONE)
 
-    !------------------------------------------Initializing the 1D QHO associated to the Cavity mode------------------------------------------
-      !------------------------------Reading of the nml--------------------------
-    WRITE(out_unit,*) 
-    WRITE(out_unit,*) '********************************************************************************'
-    WRITE(out_unit,*) '**************************** READING THE QHO1D PARAMETERS ***************************'
-    WRITE(out_unit,*) '********************************************************************************'
-    
+    !------------------------------------------Initializing the 1D QHO associated to the Cavity mode------------------------------------------    
     READ(nio, nml = Cavity_mode, iostat = err_io)                                     ! assign the values read in the nml to the declared list of parameters
 
     IF (Debug) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "-----------------------The namelist parameters are read as----------------------"
+      WRITE(out_unit,*) "--- The namelist parameters read :"
       WRITE(out_unit, nml = Cavity_mode)
-      WRITE(out_unit,*) "-------------------------End of the namelist parameters-------------------------"
     END IF
     
       !------------------------------Check reading error-------------------------
@@ -165,10 +154,10 @@ MODULE Cavity_mode_m
     END IF
 
     IF (Nb == 0) THEN
-      WRITE(out_unit,*) "The number of basis vector associated to any HO CANNOT be 0 (what are are you going to study if there is&
-                       & no system ???). Please check the data file '.nml'"
-      STOP "### The number of basis vector associated to any HO CANNOT be 0 (what are are you going to study if there is&
-                       & no system ???). Please check the data file '.nml'"
+      WRITE(out_unit,*) "### The number of basis vector associated to any HO CANNOT be 0 (what are are you going to study if ther&
+      &e is no system ???). Please check the data file '.nml'"
+      STOP "### The number of basis vector associated to any HO CANNOT be 0 (what are are you going to study if there is no syste&
+      &m ???). Please check the data file '.nml'"
     END IF
     
       !---------------Construction of the Quantum_HO1D_t type object-----------
@@ -182,25 +171,15 @@ MODULE Cavity_mode_m
     CavMode%Scale_q = Scale_q
     !#################
 
-    WRITE(out_unit,*) 
-    WRITE(out_unit,*) '********************************************************************************'
-    WRITE(out_unit,*) '************************** QHO1D CONSTRUCTED *************************'
-    WRITE(out_unit,*) '********************************************************************************'
-
     IF (Debug) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--------------Cavity mode constructed by MolecCav_Initialize_Cavity_mode--------------"
+      WRITE(out_unit,*) "--- Cavity mode constructed by MolecCav_Initialize_Cavity_mode"
       CALL Write(CavMode)
-      WRITE(out_unit,*) "------------End Cavity mode constructed by MolecCav_Initialize_Cavity_mode------------"
     END IF
 
     !------------------------------------------Completing the Cavity mode------------------------------------------
     CavMode%lambda        = lambda
     
-    IF (Verbose_local > 20) WRITE(out_unit,*) 
-    IF (Verbose_local > 20) WRITE(out_unit,*) "--------------------------------------------------QUANTUM HO1D OBJECT INITIALIZED-&
-                                              &------------------------------------------------"; FLUSH(out_unit)
-
   END SUBROUTINE MolecCav_Initialize_Cavity_mode
 
 
@@ -217,30 +196,26 @@ MODULE Cavity_mode_m
     integer, optional,   intent(in)    :: Verbose                                                                              ! cf. comments in HO1D_parameters_m
     logical, optional,   intent(in)    :: Debug                                                                                ! cf. comments in HO1D_parameters_m
 
-    integer                             :: Nb
-    integer                             :: Verbose_local                                                                   ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
-    logical                             :: Debug_local
+    integer                            :: Nb
+    integer                            :: Verbose_local                                                                   ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
+    logical                            :: Debug_local
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
-    ELSE; Verbose_local = 20; END IF 
+    ELSE; Verbose_local = 16; END IF 
     IF (PRESENT(Debug))   THEN; Debug_local   = Debug
     ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Verbose_local > 25) WRITE(out_unit,*) 
-    IF (Verbose_local > 25) WRITE(out_unit,*) "------------------------COMPUTING ACTION OF THE "//TO_string(i_op)//"^{th} OPERATO&
-    &R OF THE  Cavity MODE OVER THE R1 WF------------------------"; FLUSH(out_unit)
-
-    IF (Debug_local) THEN
+    IF (Verbose_local > 16) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- Arguments of MolecCav_Action_Cavity_mode_R1_real :"
+      WRITE(out_unit,*) "o o Arguments of MolecCav_Action_Cavity_mode_R1_real :"
       WRITE(out_unit,*) "The <<CavMode>> argument :"
       CALL Write(CavMode)
-      WRITE(out_unit,*) "The <<i_op>> argument :"//TO_string(i_op)
-      WRITE(out_unit,*) "The <<Psi>> argument : "
+      WRITE(out_unit,*) "The <<i_op>> argument    : "//TO_string(i_op)
+      WRITE(out_unit,*) "The <<Psi>> argument     :"
       CALL Write_Vec(Psi, out_unit, 1, info="Psi")
-      WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
-      WRITE(out_unit,*) "--- End arguments of MolecCav_Action_Cavity_mode_R1_real"
+      WRITE(out_unit,*) "The size of its vector   : "//TO_string(Size(Psi))
       FLUSH(out_unit)
     END IF
     
@@ -257,11 +232,7 @@ MODULE Cavity_mode_m
       CALL Write_Vec(Op_psi, out_unit, 1, info="Op_Psi")
       WRITE(out_unit,*) "--- End resulting statevector computed by Action_HO1D_operator_R1"
     END IF
-  
-    IF (Verbose_local > 25) WRITE(out_unit,*) 
-    IF (Verbose_local > 25) WRITE(out_unit,*) "-------------------------ACTION OF THE "//TO_string(i_op)//"^{th} OPERATO&
-    &R OF THE  Cavity MODE OVER THE R1 WF COMPUTED------------------------"; FLUSH(out_unit)
-  
+    
   END SUBROUTINE MolecCav_Action_Cavity_mode_R1_real
 
 
@@ -284,24 +255,20 @@ MODULE Cavity_mode_m
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
-    ELSE; Verbose_local = 20; END IF 
+    ELSE; Verbose_local = 16; END IF 
     IF (PRESENT(Debug))   THEN; Debug_local   = Debug
     ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Verbose_local > 25) WRITE(out_unit,*) 
-    IF (Verbose_local > 25) WRITE(out_unit,*) "------------------------COMPUTING ACTION OF THE "//TO_string(i_op)//"^{th} OPERATO&
-    &R OF THE  Cavity MODE OVER THE R1 WF------------------------"; FLUSH(out_unit)
-
-    IF (Debug_local) THEN
+    IF (Verbose_local > 16) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- Arguments of MolecCav_Action_Cavity_R1_complex :"
+      WRITE(out_unit,*) "o o Arguments of MolecCav_Action_Cavity_R1_complex :"
       WRITE(out_unit,*) "The <<CavMode>> argument :"
       CALL Write(CavMode)
-      WRITE(out_unit,*) "The <<i_op>> argument :"//TO_string(i_op)
-      WRITE(out_unit,*) "The <<Psi>> argument : "
+      WRITE(out_unit,*) "The <<i_op>> argument    : "//TO_string(i_op)
+      WRITE(out_unit,*) "The <<Psi>> argument     :"
       CALL Write_Vec(Psi, out_unit, 1, info="Psi")
-      WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
-      WRITE(out_unit,*) "--- End arguments of MolecCav_Action_Cavity_R1_complex"
+      WRITE(out_unit,*) "The size of its vector   :"//TO_string(Size(Psi))
       FLUSH(out_unit)
     END IF
     
@@ -319,10 +286,6 @@ MODULE Cavity_mode_m
       WRITE(out_unit,*) "--- End resulting statevector computed by Action_HO1D_operator_R1"
     END IF
   
-    IF (Verbose_local > 25) WRITE(out_unit,*) 
-    IF (Verbose_local > 25) WRITE(out_unit,*) "-------------------------ACTION OF THE "//TO_string(i_op)//"^{th} OPERATO&
-    &R OF THE  Cavity MODE OVER THE R1 WF COMPUTED------------------------"; FLUSH(out_unit)
-
   END SUBROUTINE MolecCav_Action_Cavity_R1_complex
 
   
@@ -391,29 +354,21 @@ MODULE Cavity_mode_m
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
-    ELSE; Verbose_local = 20; END IF 
+    ELSE; Verbose_local = 16; END IF 
     IF (PRESENT(Debug))   THEN; Debug_local   = Debug
     ELSE; Debug_local   = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Debug_local) THEN
-      WRITE(out_unit,*) "--- The Cavity mode to be deallocated :"
-      CALL Write(CavMode)
-      WRITE(out_unit,*) "--- End Cavity mode to be deallocated"
-    END IF 
-
-    !-----------------------------Deallocating the HO1D operator object----------------------------
-    IF (Verbose_local > 27) WRITE(out_unit,*)
-    IF (Verbose_local > 27) WRITE(out_unit,*) "-----------------------------------------------Deallocating the Cavity mode object&
-    &----------------------------------------------"
-  
-    CavMode%lambda        = -ONE
-
-    IF (Debug_local) THEN
+    IF (Verbose_local > 16) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- The Cavity mode object after having been deallocated :"
+      WRITE(out_unit,*) "o o Arguments of MolecCav_Deallocate_Cavity_mode :"
+      WRITE(out_unit,*) "The <<CavMode>> argument :"
       CALL Write(CavMode)
-      WRITE(out_unit,*) "--- End dellocating Cavity mode"
+      FLUSH(out_unit)
     END IF
+
+    !-----------------------------Deallocating the HO1D operator object----------------------------  
+    CavMode%lambda        = -ONE
 
   END SUBROUTINE MolecCav_Deallocate_Cavity_mode
 

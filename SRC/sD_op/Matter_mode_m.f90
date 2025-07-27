@@ -98,30 +98,26 @@ MODULE Matter_mode_m
     real(kind=Rkind)                    :: w, m, Eq_pos, Scale_q
     integer                             :: Nb, Nq
     integer                             :: err_io
-    logical                             :: Dense_local                                                              ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
-    integer                             :: Verbose_local                                                              ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
+    logical                             :: Dense_local                                                              ! goes from 16 (= 0 verbose) to 24 (= maximum verbose) at this layer
+    integer                             :: Verbose_local                                                              ! goes from 16 (= 0 verbose) to 24 (= maximum verbose) at this layer
     logical                             :: Debug_local
 
     NAMELIST /Matter_mode/ lambda, CoeffsDipMomt, Nb, w, m, Nq, Eq_pos, Scale_q
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
-    ELSE; Verbose_local = 20; END IF 
+    ELSE; Verbose_local = 16; END IF 
     IF (PRESENT(Debug))   THEN; Debug_local   = Debug
     ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Verbose_local > 20) WRITE(out_unit,*) 
-    IF (Verbose_local > 20) WRITE(out_unit,*) "-------------------------------------------------INITIALIZING THE MATTER MODE OBJE&
-                                              &CT-------------------------------------------------"; FLUSH(out_unit)
-
-    IF (Debug_local) THEN
+    IF (Verbose_local > 16) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- Arguments of MolecCav_Initialize_matter_mode :"
+      WRITE(out_unit,*) "o o o Arguments of MolecCav_Initialize_matter_mode :"
       WRITE(out_unit,*) "The <<MatMode>> argument :"
       CALL Write(MatMode)
       WRITE(out_unit,*) "The <<nio>> argument :"//TO_string(nio)
       IF (PRESENT(Dense)) WRITE(out_unit,*) "The <<Dense>> argument : "//TO_string(Dense)
-      WRITE(out_unit,*) "--- End arguments of MolecCav_Initialize_matter_mode"
       FLUSH(out_unit)
     END IF
     
@@ -136,20 +132,13 @@ MODULE Matter_mode_m
     Eq_pos        = -ONE
     Scale_q       = HUGE(ONE)
 
-    !------------------------------------------Initializing the 1D QHO associated to the matter mode------------------------------------------
-      !------------------------------Reading of the nml--------------------------
-    WRITE(out_unit,*) 
-    WRITE(out_unit,*) '********************************************************************************'
-    WRITE(out_unit,*) '**************************** READING THE QHO1D PARAMETERS ***************************'
-    WRITE(out_unit,*) '********************************************************************************'
-    
+    !------------------------------------------Initializing the 1D QHO associated to the matter mode------------------------------------------    
     READ(nio, nml = Matter_mode, iostat = err_io)                                     ! assign the values read in the nml to the declared list of parameters
 
     IF (Debug) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "-----------------------The namelist parameters are read as----------------------"
+      WRITE(out_unit,*) "--- The namelist parameters read"
       WRITE(out_unit, nml = Matter_mode)
-      WRITE(out_unit,*) "-------------------------End of the namelist parameters-------------------------"
     END IF
     
       !------------------------------Check reading error-------------------------
@@ -172,10 +161,10 @@ MODULE Matter_mode_m
     END IF
 
     IF (Nb == 0) THEN
-      WRITE(out_unit,*) "The number of basis vector associated to any HO CANNOT be 0 (what are are you going to study if there is&
-                       & no system ???). Please check the data file '.nml'"
+      WRITE(out_unit,*) "### The number of basis vector associated to any HO CANNOT be 0 (what are are you going to study if there &
+      &is no system ???). Please check the data file '.nml'"
       STOP "### The number of basis vector associated to any HO CANNOT be 0 (what are are you going to study if there is&
-                       & no system ???). Please check the data file '.nml'"
+      & no system ???). Please check the data file '.nml'"
     END IF
     
       !---------------Construction of the Quantum_HO1D_t type object-----------
@@ -189,16 +178,10 @@ MODULE Matter_mode_m
     MatMode%Scale_q = Scale_q
     !#################
 
-    WRITE(out_unit,*) 
-    WRITE(out_unit,*) '********************************************************************************'
-    WRITE(out_unit,*) '************************** QHO1D CONSTRUCTED *************************'
-    WRITE(out_unit,*) '********************************************************************************'
-
     IF (Debug) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--------------Matter mode constructed by MolecCav_Initialize_matter_mode--------------"
+      WRITE(out_unit,*) "--- Matter mode constructed by MolecCav_Initialize_matter_mode"
       CALL Write(MatMode)
-      WRITE(out_unit,*) "------------End Matter mode constructed by MolecCav_Initialize_matter_mode------------"
     END IF
 
     !------------------------------------------Completing the matter mode------------------------------------------
@@ -206,10 +189,6 @@ MODULE Matter_mode_m
     MatMode%CoeffsDipMomt = CoeffsDipMomt
     
     CALL Initialize_mu(MatMode, Verbose=Verbose_local, Debug=Debug_local) ! cannot be non dense ! All MatMode is passed and not anly Mat%Tab(4) because its other parameters are needed for the construction
-
-    IF (Verbose_local > 20) WRITE(out_unit,*) 
-    IF (Verbose_local > 20) WRITE(out_unit,*) "--------------------------------------------------QUANTUM HO1D OBJECT INITIALIZED-&
-                                              &------------------------------------------------"; FLUSH(out_unit)
 
   END SUBROUTINE MolecCav_Initialize_matter_mode
 
@@ -231,20 +210,16 @@ MODULE Matter_mode_m
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
-    ELSE; Verbose_local = 20; END IF 
+    ELSE; Verbose_local = 16; END IF 
     IF (PRESENT(Debug))   THEN; Debug_local   = Debug
     ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Verbose_local > 25) WRITE(out_unit,*) 
-    IF (Verbose_local > 25) WRITE(out_unit,*) "--------------------------------------------------INITIALIZING THE HO1D OPERATOR--&
-                                              &------------------------------------------------"; FLUSH(out_unit)
-
-    IF (Debug_local) THEN
+    IF (Verbose_local > 16) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- Arguments of MolecCav_Initialize_mu_matter_mode :"
+      WRITE(out_unit,*) "o o o Arguments of MolecCav_Initialize_mu_matter_mode :"
       WRITE(out_unit,*) "The <<MatMode>> argument :"
       CALL Write(MatMode)
-      WRITE(out_unit,*) "--- End arguments of MolecCav_Initialize_mu_matter_mode"
       FLUSH(out_unit)
     END IF
     
@@ -257,7 +232,6 @@ MODULE Matter_mode_m
     IF (Debug_local) THEN
       WRITE(out_unit,*); WRITE(out_unit,*) "--- The MatMode object just before construction of its DipMomt matrix's representation"
       CALL Write(MatMode)
-      WRITE(out_unit,*) "--- End Elem_op_t object (just before construction of its DipMomt's matrix representation)"
     END IF 
 
     CALL Initialize(QHO1D_dense, MatMode%Nb, MatMode%w, MatMode%m, Dense=.TRUE., Verbose=Verbose_local, Debug=Debug_local)
@@ -271,14 +245,9 @@ MODULE Matter_mode_m
     
     IF (Verbose_local > 26) THEN
       IF (Verbose_local < 28) WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- HO1D operator constructed by MolecCav_Initialize_HO1D_operator :"
+      WRITE(out_unit,*) "--- HO1D operator constructed by MolecCav_Initialize_mu_matter_mode :"
       CALL Write(MatMode)
-      WRITE(out_unit,*) "--- End HO1D operator constructed by MolecCav_Initialize_HO1D_operator"
     END IF
-
-    IF (Verbose_local > 25) WRITE(out_unit,*) 
-    IF (Verbose_local > 25) WRITE(out_unit,*) "-----------------------------------------------------HO1D OPERATOR INITIALIZED----&
-                                              &------------------------------------------------"; FLUSH(out_unit)
 
   END SUBROUTINE MolecCav_Initialize_mu_matter_mode
 
@@ -296,30 +265,26 @@ MODULE Matter_mode_m
     integer, optional,   intent(in)    :: Verbose                                                                              ! cf. comments in HO1D_parameters_m
     logical, optional,   intent(in)    :: Debug                                                                                ! cf. comments in HO1D_parameters_m
 
-    integer                             :: Nb
-    integer                             :: Verbose_local                                                                   ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
-    logical                             :: Debug_local
+    integer                            :: Nb
+    integer                            :: Verbose_local                                                                   ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
+    logical                            :: Debug_local
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
-    ELSE; Verbose_local = 20; END IF 
+    ELSE; Verbose_local = 16; END IF 
     IF (PRESENT(Debug))   THEN; Debug_local   = Debug
     ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Verbose_local > 25) WRITE(out_unit,*) 
-    IF (Verbose_local > 25) WRITE(out_unit,*) "------------------------COMPUTING ACTION OF THE "//TO_string(i_op)//"^{th} OPERATO&
-    &R OF THE  MATTER MODE OVER THE R1 WF------------------------"; FLUSH(out_unit)
-
-    IF (Debug_local) THEN
+    IF (Verbose_local > 16) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- Arguments of MolecCav_Action_matter_mode_R1_real :"
+      WRITE(out_unit,*) "o o o Arguments of MolecCav_Action_matter_mode_R1_real :"
       WRITE(out_unit,*) "The <<MatMode>> argument :"
       CALL Write(MatMode)
       WRITE(out_unit,*) "The <<i_op>> argument :"//TO_string(i_op)
       WRITE(out_unit,*) "The <<Psi>> argument : "
       CALL Write_Vec(Psi, out_unit, 1, info="Psi")
       WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
-      WRITE(out_unit,*) "--- End arguments of MolecCav_Action_matter_mode_R1_real"
       FLUSH(out_unit)
     END IF
     
@@ -332,15 +297,10 @@ MODULE Matter_mode_m
     IF (Debug_local) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "--- Resulting statevector from the action of the HO1D Elem_op on the Psi statevector operand, computed &
-                        &by Action_HO1D_operator_R1 :"
+                        &by MolecCav_Action_matter_mode_R1_real :"
       CALL Write_Vec(Op_psi, out_unit, 1, info="Op_Psi")
-      WRITE(out_unit,*) "--- End resulting statevector computed by Action_HO1D_operator_R1"
     END IF
-  
-    IF (Verbose_local > 25) WRITE(out_unit,*) 
-    IF (Verbose_local > 25) WRITE(out_unit,*) "-------------------------ACTION OF THE "//TO_string(i_op)//"^{th} OPERATO&
-    &R OF THE  MATTER MODE OVER THE R1 WF COMPUTED------------------------"; FLUSH(out_unit)
-  
+    
   END SUBROUTINE MolecCav_Action_matter_mode_R1_real
 
 
@@ -357,30 +317,26 @@ MODULE Matter_mode_m
     integer, optional,   intent(in)    :: Verbose                                                                              ! cf. comments in HO1D_parameters_m
     logical, optional,   intent(in)    :: Debug                                                                                ! cf. comments in HO1D_parameters_m
 
-    integer                             :: Nb
-    integer                             :: Verbose_local                                                                   ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
-    logical                             :: Debug_local
+    integer                            :: Nb
+    integer                            :: Verbose_local                                                                   ! goes from 25 (= 0 verbose) to 29 (= maximum verbose) at this layer
+    logical                            :: Debug_local
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
-    ELSE; Verbose_local = 20; END IF 
+    ELSE; Verbose_local = 16; END IF 
     IF (PRESENT(Debug))   THEN; Debug_local   = Debug
     ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Verbose_local > 25) WRITE(out_unit,*) 
-    IF (Verbose_local > 25) WRITE(out_unit,*) "------------------------COMPUTING ACTION OF THE "//TO_string(i_op)//"^{th} OPERATO&
-    &R OF THE  MATTER MODE OVER THE R1 WF------------------------"; FLUSH(out_unit)
-
-    IF (Debug_local) THEN
+    IF (Verbose_local > 16) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- Arguments of MolecCav_Action_matter_R1_complex :"
+      WRITE(out_unit,*) "o o o Arguments of MolecCav_Action_matter_R1_complex :"
       WRITE(out_unit,*) "The <<MatMode>> argument :"
       CALL Write(MatMode)
       WRITE(out_unit,*) "The <<i_op>> argument :"//TO_string(i_op)
       WRITE(out_unit,*) "The <<Psi>> argument : "
       CALL Write_Vec(Psi, out_unit, 1, info="Psi")
       WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
-      WRITE(out_unit,*) "--- End arguments of MolecCav_Action_matter_R1_complex"
       FLUSH(out_unit)
     END IF
     
@@ -393,15 +349,10 @@ MODULE Matter_mode_m
     IF (Debug_local) THEN
       WRITE(out_unit,*)
       WRITE(out_unit,*) "--- Resulting statevector from the action of the HO1D Elem_op on the Psi statevector operand, computed &
-                        &by Action_HO1D_operator_R1 :"
+                        &by MolecCav_Action_matter_R1_complex :"
       CALL Write_Vec(Op_psi, out_unit, 1, info="Op_Psi")
-      WRITE(out_unit,*) "--- End resulting statevector computed by Action_HO1D_operator_R1"
     END IF
   
-    IF (Verbose_local > 25) WRITE(out_unit,*) 
-    IF (Verbose_local > 25) WRITE(out_unit,*) "-------------------------ACTION OF THE "//TO_string(i_op)//"^{th} OPERATO&
-    &R OF THE  MATTER MODE OVER THE R1 WF COMPUTED------------------------"; FLUSH(out_unit)
-
   END SUBROUTINE MolecCav_Action_matter_R1_complex
 
   
@@ -444,7 +395,7 @@ MODULE Matter_mode_m
     
     TYPE(Matter_mode_t), intent(in) :: MatMode
 
-    integer                          :: i_op
+    integer                         :: i_op
 
     WRITE(out_unit,*) "___________________________________The parameters of the Matter mode___________"
     WRITE(out_unit,*) "|The associated 1D Quantum HO (MatMode%Quantum_HO1D_t) :                       |"
@@ -476,21 +427,20 @@ MODULE Matter_mode_m
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
-    ELSE; Verbose_local = 20; END IF 
+    ELSE; Verbose_local = 16; END IF 
     IF (PRESENT(Debug))   THEN; Debug_local   = Debug
     ELSE; Debug_local   = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Debug_local) THEN
+    IF (Verbose_local > 16) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "o o o Arguments of MolecCav_Deallocate_matter_mode :"
       WRITE(out_unit,*) "--- The Matter mode to be deallocated :"
       CALL Write(MatMode)
-      WRITE(out_unit,*) "--- End Matter mode to be deallocated"
+      FLUSH(out_unit)
     END IF 
 
-    !-----------------------------Deallocating the HO1D operator object----------------------------
-    IF (Verbose_local > 27) WRITE(out_unit,*)
-    IF (Verbose_local > 27) WRITE(out_unit,*) "-----------------------------------------------Deallocating the matter mode object&
-    &----------------------------------------------"
-  
+    !-----------------------------Deallocating the HO1D operator object----------------------------  
     MatMode%lambda        = -ONE
     MatMode%CoeffsDipMomt  = ZERO
     CALL Dealloc(MatMode%Quantum_HO1D_t, Verbose=Verbose_local, Debug=Debug_local)
@@ -499,7 +449,6 @@ MODULE Matter_mode_m
       WRITE(out_unit,*)
       WRITE(out_unit,*) "--- The Matter mode object after having been deallocated :"
       CALL Write(MatMode)
-      WRITE(out_unit,*) "--- End dellocating Matter mode"
     END IF
 
   END SUBROUTINE MolecCav_Deallocate_matter_mode
