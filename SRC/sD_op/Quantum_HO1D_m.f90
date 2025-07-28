@@ -799,14 +799,14 @@ MODULE Quantum_HO1D_m
     IF (ALLOCATED(QHO1D%Tab_op)) THEN 
       WRITE(out_unit,*) "SIZE(Tab_op, dim=1) = "//TO_string(SIZE(QHO1D%Tab_op, dim=1))
       IF (More_local) THEN 
-        WRITE(out_unit,*) "--- Writing QHO1D%Tab_op..."
+        WRITE(out_unit,*) "--- Writing Tab_op..."
         DO i_op = 0, SIZE(QHO1D%Tab_op)-1
-          CALL Write(QHO1D%Tab_op(i_op), Info="QHO1D%Tab_op("//TO_string(i_op)//")")
+          CALL Write(QHO1D%Tab_op(i_op), Info="Tab_op("//TO_string(i_op)//")")
         END DO 
         WRITE(out_unit,*) "    ...back to MolecCav_Write_quantum_HO1D"
       END IF 
     ELSE 
-      WRITE(out_unit,*) "QHO1D%Tab_op is NOT allocated"
+      WRITE(out_unit,*) "Tab_op is NOT allocated"
     END IF
 
     WRITE(out_unit,*) "Nq                  = "//TO_string(QHO1D%Nq)

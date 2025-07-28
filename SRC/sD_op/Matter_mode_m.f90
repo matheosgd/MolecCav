@@ -30,15 +30,9 @@
 !==================================================================================================
 !
 ! README :
-! The only module related to general HO that the others modules will need to call in a "USE".  
-! Initialize_quantum_HO1D : reads the namelist and initialize the type, then constructs the operat-
-! or using parameters of the HO1D_para object from the so called derived type.
-! Append_quantum_HO1D     : add an HO operator to a already initialized object of Matter_mode_t type.
-! Write_quantum_HO1D      : display values of the type in the output
-! Deallocate_quantum_HO1D : deallocate all tables of the type
-! The module to initialize the HO by reading its parameters from the namelist.  
-! Read_HO1D_parameters  : reads the namelist and initialize the type.
-! Write_HO1D_parameters : displays values of the type in the output.
+! This module is in the "-4" level. At this level, Verbose is ranging from 16 (degree 0) to 20 (de-
+! gree 4).
+!
 !==================================================================================================
 !==================================================================================================
 MODULE Matter_mode_m
@@ -388,25 +382,35 @@ MODULE Matter_mode_m
   END SUBROUTINE MolecCav_Get_MatMode_parameter_real
 
 
-  SUBROUTINE MolecCav_Write_matter_mode(MatMode)
+  SUBROUTINE MolecCav_Write_matter_mode(MatMode, Info, More)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m
     IMPLICIT NONE 
     
-    TYPE(Matter_mode_t), intent(in) :: MatMode
+    TYPE(Matter_mode_t),        intent(in) :: MatMode
+    character(len=*), optional, intent(in) :: Info
+    logical,          optional, intent(in) :: More
 
-    integer                         :: i_op
+    integer                                :: i_op
+    logical                                :: More_local
 
-    WRITE(out_unit,*) "___________________________________The parameters of the Matter mode___________"
-    WRITE(out_unit,*) "|The associated 1D Quantum HO (MatMode%Quantum_HO1D_t) :                       |"
-    CALL Write(MatMode%Quantum_HO1D_t)
-    WRITE(out_unit,*) "_______________________________The peculiar parameters to the Matter mode_____________________________"
-    WRITE(out_unit,*) "|The strength parameter of its coupling with a cavity mode (MatMode%lambda)    | "//TO_string(MatMode%lambda)
-    WRITE(out_unit,*) "|______________________________________________________________________________|______________________"
-    WRITE(out_unit,*) "|The n-derivatives of the matter dipole moment with respect to this mode's DOF | "
-    WRITE(out_unit,*) "| (i.e. the coefficients of its Taylor expansion) (MatMode%CoeffsDipMomt)      | " 
-    CALL Write_Vec(MatMode%CoeffsDipMomt, out_unit, SIZE(MatMode%CoeffsDipMomt), info="CoeffsDipMomt")
-    WRITE(out_unit,*) "|_____________________________________End Matter mode parameters_______________|"
+    IF (PRESENT(More)) THEN; More_local = More
+    ELSE; More_local = .FALSE.; END IF
+
+    IF (PRESENT(Info)) THEN
+      WRITE(out_unit,*) "--- Parameters associated to the object of derived type Matter_mode_t ("//Info//") :"
+    ELSE
+      WRITE(out_unit,*) "--- Parameters associated to the object of derived type Matter_mode_t :"
+    END IF
+
+    IF (More_local) THEN 
+      WRITE(out_unit,*) "--- Writing Quantum_HO1D_t..."
+      CALL Write(MatMode%Quantum_HO1D_t)
+      WRITE(out_unit,*) "    ...back to MolecCav_Write_matter_mode"
+    END IF 
+
+    WRITE(out_unit,*) "lambda        = "//TO_string(MatMode%lambda)
+    CALL Write_Vec(MatMode%CoeffsDipMomt, out_unit, SIZE(MatMode%CoeffsDipMomt), info="CoeffsDipMomt = ")
     FLUSH(out_unit)
 
   END SUBROUTINE MolecCav_Write_matter_mode

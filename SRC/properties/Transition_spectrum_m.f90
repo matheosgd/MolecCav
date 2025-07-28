@@ -30,7 +30,10 @@
 !==================================================================================================
 !
 ! README :
-! to be written soon
+! to be written soon.
+! This module is in the "-4" level. At this level, Verbose is ranging from 6 (degree 0) to 10 (deg-
+! ree 4).
+!
 !==================================================================================================
 !==================================================================================================
 MODULE Transition_spectrum_m
@@ -97,17 +100,14 @@ MODULE Transition_spectrum_m
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
-    ELSE; Verbose_local = 20; END IF 
+    ELSE; Verbose_local = 6; END IF 
     IF (PRESENT(Debug))   THEN; Debug_local   = Debug
     ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Debug_local) WRITE(out_unit,*) 
-    IF (Debug_local) WRITE(out_unit,*) "-------------------------------------------------INITIALIZING THE TRANSITION SPECTRUM OBJ&
-                                              &ECT-------------------------------------------------"; FLUSH(out_unit)
-
-    IF (Debug_local) THEN
+    IF (Verbose_local > 6) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- Arguments of MolecCav_Allocate_transition_matrix_0K :"
+      WRITE(out_unit,*) "o o o o Arguments of MolecCav_Initialize_transition_matrix_0K :"
       WRITE(out_unit,*) "The <<TranSpec>> argument :" 
       CALL Write(TranSpec)
       WRITE(out_unit,*) "The <<REigvec>> argument :" 
@@ -118,7 +118,6 @@ MODULE Transition_spectrum_m
       CALL Write_vec(REigval, out_unit, SIZE(REigval, dim=1), info="REigval")
       IF (PRESENT(E_threshold)) WRITE(out_unit,*) "The <<E_threshold>> argument : "//TO_string(E_threshold)
       IF (PRESENT(Nb_states)) WRITE(out_unit,*) "The <<Nb_states>> argument : "//TO_string(Nb_states)
-      WRITE(out_unit,*) "--- End arguments of MolecCav_Allocate_transition_matrix_0K"
       FLUSH(out_unit)
     END IF
     
@@ -151,7 +150,6 @@ MODULE Transition_spectrum_m
       &g(I)//" = "//TO_string(TranSpec%tab_ints(I-1))
     END DO 
     
-    IF (Debug_local) WRITE(out_unit,*)
     IF (Debug_local) CALL Write_Vec(TranSpec%tab_energies, out_unit, Size(TranSpec%tab_energies), info="Transition energies")
     IF (Debug_local) CALL Write_Vec(TranSpec%tab_ints, out_unit, Size(TranSpec%tab_ints), info="Transition Intensities")
     
@@ -175,29 +173,24 @@ MODULE Transition_spectrum_m
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
-    ELSE; Verbose_local = 20; END IF 
+    ELSE; Verbose_local = 6; END IF 
     IF (PRESENT(Debug))   THEN; Debug_local   = Debug
     ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Debug_local) WRITE(out_unit,*) 
-    IF (Debug_local) WRITE(out_unit,*) "-------------------------------------------------ALLOCATING THE TRANSITION SPECTRUM OBJ&
-                                              &ECT-------------------------------------------------"; FLUSH(out_unit)
-
-    IF (Debug_local) THEN
+    IF (Verbose_local > 6) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- Arguments of MolecCav_Allocate_transition_matrix_0K :"
+      WRITE(out_unit,*) "o o o o Arguments of MolecCav_Allocate_transition_matrix_0K :"
       WRITE(out_unit,*) "The <<TranSpec>> argument :"
       CALL Write(TranSpec)
       IF (PRESENT(Energy_threshold)) WRITE(out_unit,*) "The <<Energy_threshold>> argument : "//TO_string(Energy_threshold)
       IF (PRESENT(REigval)) WRITE(out_unit,*) "The <<REigval>> argument : "
       IF (PRESENT(REigval)) CALL Write_Vec(REigval, out_unit, 1, info="REigval")
       IF (PRESENT(Nb_states)) WRITE(out_unit,*) "The <<Nb_states>> argument : "//TO_string(Nb_states)
-      WRITE(out_unit,*) "--- End arguments of MolecCav_Allocate_transition_matrix_0K"
       FLUSH(out_unit)
     END IF
     
     IF (PRESENT(Energy_threshold) .AND. .NOT. PRESENT(REigval)) THEN
-      WRITE(out_unit,*)
       WRITE(out_unit,*) "### The list of the total Hamiltonian Eigenenergies (REigval) is expected when the selection criterion i&
                         &s energy-based (Energy_threshold provided). Please check the arguments."
       STOP "### Missing REigval argument in MolecCav_Allocate_transition_matrix_0K"
@@ -239,43 +232,43 @@ MODULE Transition_spectrum_m
     IF (Debug_local) CALL Write(TranSpec)
     FLUSH(out_unit)
 
-    IF (Debug_local) WRITE(out_unit,*) 
-    IF (Debug_local) WRITE(out_unit,*) "-------------------------------------------------TRANSITION SPECTRUM OBJECT ALLOCATED----&
-                                              &---------------------------------------------"; FLUSH(out_unit)
-
   END SUBROUTINE MolecCav_Allocate_transition_matrix_0K
   
 
-  SUBROUTINE MolecCav_Write_transition_matrix_0K(TranSpec)
+  SUBROUTINE MolecCav_Write_transition_matrix_0K(TranSpec, Info, More)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m
     IMPLICIT NONE 
     
     TYPE(Transition_spectrum_t), intent(in) :: TranSpec
+    character(len=*), optional,  intent(in) :: Info
+    logical,          optional,  intent(in) :: More
 
+    integer                                 :: i_op
+    logical                                 :: More_local
 
-    WRITE(out_unit,*)
-    WRITE(out_unit,*) "_________________________________The Transition_spectrum object__________________________________"
-    WRITE(out_unit,*) "|The number of transitions considered (TranSpec%N_trstns)                      | "//TO_string(TranSpec%N_t&
-    &rstns)
-    WRITE(out_unit,*) "|______________________________________________________________________________|______________________"
+    IF (PRESENT(More)) THEN; More_local = More
+    ELSE; More_local = .FALSE.; END IF
+
+    IF (PRESENT(Info)) THEN
+      WRITE(out_unit,*) "--- Parameters associated to the object of derived type Transition_spectrum_t ("//Info//") :"
+    ELSE
+      WRITE(out_unit,*) "--- Parameters associated to the object of derived type Transition_spectrum_t :"
+    END IF
+
+    WRITE(out_unit,*) "N_trstns     = "//TO_string(TranSpec%N_trstns)
     FLUSH(out_unit)
     IF (ALLOCATED(TranSpec%tab_energies)) THEN
-      WRITE(out_unit,*) "|The energies associated to the transitions (TranSpec%tab_energies) :          |"
-      CALL Write_Vec(TranSpec%tab_energies, out_unit, SIZE(TranSpec%tab_energies), info="Transition_Energies")
+      CALL Write_Vec(TranSpec%tab_energies, out_unit, SIZE(TranSpec%tab_energies), info="tab_energies = ")
     ELSE 
-      WRITE(out_unit,*) "|The transition energies list is not allocated (TranSpec%tab_energies)         |"
+      WRITE(out_unit,*) "tab_energies is NOT allocated "
     END IF
-    WRITE(out_unit,*) "|______________________________________________________________________________|"
     FLUSH(out_unit)
     IF (ALLOCATED(TranSpec%tab_ints)) THEN
-      WRITE(out_unit,*) "|The associated list of intensities (TranSpec%tab_ints) :                      |"
-      CALL Write_Vec(TranSpec%tab_ints, out_unit, SIZE(TranSpec%tab_ints), info="TranSpec%tab_ints")
+      CALL Write_Vec(TranSpec%tab_ints, out_unit, SIZE(TranSpec%tab_ints), info="tab_ints     = ")
     ELSE 
-      WRITE(out_unit,*) "|The associated list of intensities is not allocated (TranSpec%tab_ints)       |"
+      WRITE(out_unit,*) "tab_ints is NOT allocated"
     END IF
-    FLUSH(out_unit)
-    WRITE(out_unit,*) "|_____________________________________End ND Operator object___________________|"
     FLUSH(out_unit)
 
   END SUBROUTINE MolecCav_Write_transition_matrix_0K
@@ -294,31 +287,25 @@ MODULE Transition_spectrum_m
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
-    ELSE; Verbose_local = 20; END IF 
+    ELSE; Verbose_local = 6; END IF 
     IF (PRESENT(Debug))   THEN; Debug_local   = Debug
     ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Debug_local) THEN
+    IF (Verbose_local > 6) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- The TranSpec to be deallocated :"
+      WRITE(out_unit,*) "o o o o Arguments of MolecCav_Deallocate_transition_matrix_0K :"
       CALL Write(TranSpec)
-      WRITE(out_unit,*) "--- End TranSpec to be deallocated"
     END IF 
 
-    !-----------------------------Deallocating the transition spectrum object----------------------------
-    IF (Debug_local) WRITE(out_unit,*)
-    IF (Debug_local) WRITE(out_unit,*) "-----------------------------------------------Deallocating the Transition_spectrum objec&
-    &t----------------------------------------------"
-  
+    !-----------------------------Deallocating the transition spectrum object----------------------------  
     TranSpec%N_trstns = 0
     IF (ALLOCATED(TranSpec%tab_energies)) DEALLOCATE(TranSpec%tab_energies) 
     IF (ALLOCATED(TranSpec%tab_ints)    ) DEALLOCATE(TranSpec%tab_ints) 
 
     IF (Debug_local) THEN
-      WRITE(out_unit,*)
       WRITE(out_unit,*) "--- The TranSpec object after having been deallocated :"
       CALL Write(TranSpec)
-      WRITE(out_unit,*) "--- End dellocating TranSpec"
     END IF
 
   END SUBROUTINE MolecCav_Deallocate_transition_matrix_0K

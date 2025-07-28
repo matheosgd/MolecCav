@@ -30,15 +30,10 @@
 !==================================================================================================
 !
 ! README :
-! The only module related to general HO that the others modules will need to call in a "USE".  
-! Initialize_quantum_HO1D : reads the namelist and initialize the type, then constructs the operat-
-! or using parameters of the HO1D_para object from the so called derived type.
-! Append_quantum_HO1D     : add an HO operator to a already initialized object of Cavity_mode_t type.
-! Write_quantum_HO1D      : display values of the type in the output
-! Deallocate_quantum_HO1D : deallocate all tables of the type
-! The module to initialize the HO by reading its parameters from the namelist.  
-! Read_HO1D_parameters  : reads the namelist and initialize the type.
-! Write_HO1D_parameters : displays values of the type in the output.
+! To be written soon.
+! This module is in the "-4" level. At this level, Verbose is ranging from 16 (degree 0) to 20 (de-
+! gree 4).
+!
 !==================================================================================================
 !==================================================================================================
 MODULE Cavity_mode_m
@@ -67,7 +62,7 @@ MODULE Cavity_mode_m
     MODULE PROCEDURE MolecCav_Get_CavMode_parameter_integer, MolecCav_Get_CavMOde_parameter_real
   END INTERFACE
   INTERFACE Write
-    MODULE PROCEDURE MolecCav_Write_Cavity_mode
+    MODULE PROCEDURE MolecCav_Write_cavity_mode
   END INTERFACE
   INTERFACE Dealloc
     MODULE PROCEDURE MolecCav_Deallocate_Cavity_mode
@@ -230,7 +225,6 @@ MODULE Cavity_mode_m
       WRITE(out_unit,*) "--- Resulting statevector from the action of the HO1D Elem_op on the Psi statevector operand, computed &
                         &by Action_HO1D_operator_R1 :"
       CALL Write_Vec(Op_psi, out_unit, 1, info="Op_Psi")
-      WRITE(out_unit,*) "--- End resulting statevector computed by Action_HO1D_operator_R1"
     END IF
     
   END SUBROUTINE MolecCav_Action_Cavity_mode_R1_real
@@ -283,7 +277,6 @@ MODULE Cavity_mode_m
       WRITE(out_unit,*) "--- Resulting statevector from the action of the HO1D Elem_op on the Psi statevector operand, computed &
                         &by Action_HO1D_operator_R1 :"
       CALL Write_Vec(Op_psi, out_unit, 1, info="Op_Psi")
-      WRITE(out_unit,*) "--- End resulting statevector computed by Action_HO1D_operator_R1"
     END IF
   
   END SUBROUTINE MolecCav_Action_Cavity_R1_complex
@@ -319,24 +312,37 @@ MODULE Cavity_mode_m
   END SUBROUTINE MolecCav_Get_CavMode_parameter_real
 
 
-  SUBROUTINE MolecCav_Write_Cavity_mode(CavMode)
+  SUBROUTINE MolecCav_Write_cavity_mode(CavMode, Info, More)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m
     IMPLICIT NONE 
     
-    TYPE(Cavity_mode_t), intent(in) :: CavMode
+    TYPE(Cavity_mode_t),        intent(in) :: CavMode
+    character(len=*), optional, intent(in) :: Info
+    logical,          optional, intent(in) :: More
 
-    integer                          :: i_op
+    integer                                :: i_op
+    logical                                :: More_local
 
-    WRITE(out_unit,*) "___________________________________The parameters of the Cavity mode___________"
-    WRITE(out_unit,*) "|The associated 1D Quantum HO (CavMode%Quantum_HO1D_t) :                       |"
-    CALL Write(CavMode%Quantum_HO1D_t)
-    WRITE(out_unit,*) "_______________________________The peculiar parameters to the Cavity mode_____________________________"
-    WRITE(out_unit,*) "|The strength parameter of its coupling with a cavity mode (CavMode%lambda)    | "//TO_string(CavMode%lambda)
-    WRITE(out_unit,*) "|_____________________________________End Cavity mode parameters_______________|"
+    IF (PRESENT(More)) THEN; More_local = More
+    ELSE; More_local = .FALSE.; END IF
+
+    IF (PRESENT(Info)) THEN
+      WRITE(out_unit,*) "--- Parameters associated to the object of derived type Cavity_mode_t ("//Info//") :"
+    ELSE
+      WRITE(out_unit,*) "--- Parameters associated to the object of derived type Cavity_mode_t :"
+    END IF
+
+    IF (More_local) THEN 
+      WRITE(out_unit,*) "--- Writing Quantum_HO1D_t..."
+      CALL Write(CavMode%Quantum_HO1D_t)
+      WRITE(out_unit,*) "    ...back to MolecCav_Write_cavity_mode"
+    END IF 
+
+    WRITE(out_unit,*) "lambda = "//TO_string(CavMode%lambda)
     FLUSH(out_unit)
 
-  END SUBROUTINE MolecCav_Write_Cavity_mode
+  END SUBROUTINE MolecCav_Write_cavity_mode
 
 
   SUBROUTINE MolecCav_Deallocate_Cavity_mode(CavMode, Verbose, Debug)

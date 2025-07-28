@@ -30,15 +30,10 @@
 !==================================================================================================
 !
 ! README :
-! The only module related to general HO that the others modules will need to call in a "USE".  
-! Initialize_operator_ND : reads the namelist and initialize the type, then constructs the operat-
-! or using parameters of the HO1D_para object from the so called derived type.
-! Append_operator_ND     : add an HO operator to a already initialized object of Operator_ND_t type.
-! Write_operator_ND      : display values of the type in the output
-! Deallocate_operator_ND : deallocate all tables of the type
-! The module to initialize the HO by reading its parameters from the namelist.  
-! Read_HO1D_parameters  : reads the namelist and initialize the type.
-! Write_HO1D_parameters : displays values of the type in the output.
+! To be written soon
+! This module is in the "-4" level. At this level, Verbose is ranging from 11 (degree 0) to 15 (de-
+! gree 4).
+!
 !==================================================================================================
 !==================================================================================================
 MODULE Sum_of_products_m
@@ -119,21 +114,17 @@ MODULE Sum_of_products_m
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
-    ELSE; Verbose_local = 20; END IF 
+    ELSE; Verbose_local = 11; END IF 
     IF (PRESENT(Debug))   THEN; Debug_local   = Debug
     ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Debug_local) WRITE(out_unit,*) 
-    IF (Debug_local) WRITE(out_unit,*) "-------------------------------------------------INITIALIZING THE TOTAL HAMILTONIA&
-                                              &N OBJECT-------------------------------------------------"; FLUSH(out_unit)
-
-    IF (Debug_local) THEN
+    IF (Verbose_local > 11) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- Arguments of MolecCav_Initialize_total_hamiltonian :"
+      WRITE(out_unit,*) "o o o o Arguments of MolecCav_Initialize_total_hamiltonian :"
       WRITE(out_unit,*) "The <<TotH>> argument :"
       CALL Write(TotH)
       IF (PRESENT(Dense)) WRITE(out_unit,*) "The <<Dense>> argument : "//TO_string(Dense)
-      WRITE(out_unit,*) "--- End arguments of MolecCav_Initialize_total_hamiltonian"
       FLUSH(out_unit)
     END IF
     
@@ -141,19 +132,13 @@ MODULE Sum_of_products_m
     N_mat = 0
     N_cav = 0
 
-    !------------------------------Reading of the nml--------------------------
-    WRITE(out_unit,*) 
-    WRITE(out_unit,*) '********************************************************************************'
-    WRITE(out_unit,*) '************************** READING THE NUMBER OF MODES *************************'
-    WRITE(out_unit,*) '********************************************************************************'
-    
+    !------------------------------Reading of the nml--------------------------    
     READ(nio, nml = TOTAL_HAMILTONIAN, iostat = err_io)                                     ! assign the values read in the nml to the declared list of parameters
 
     IF (Debug) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "-----------------------The namelist parameters are read as----------------------"
+      WRITE(out_unit,*) "--- The namelist parameters are read as :"
       WRITE(out_unit, nml = TOTAL_HAMILTONIAN)
-      WRITE(out_unit,*) "-------------------------End of the namelist parameters-------------------------"
     END IF
     
       !------------------------------Check reading error-------------------------
@@ -180,7 +165,6 @@ MODULE Sum_of_products_m
 
     ALLOCATE(TotH%tab_opnd(TotH%N_products))
     ALLOCATE(TotH%tab_coeffs(TotH%N_products))
-    IF (Debug_local) WRITE(out_unit,*) 
     IF (Debug_local) WRITE(out_unit,*) "TotH%N_products : "//TO_string(TotH%N_products)
     TotH%tab_coeffs = ONE
 
@@ -239,7 +223,6 @@ MODULE Sum_of_products_m
         CALL Get(Matlambda, "lambda", "Matter", i_mat)
 
         IF (Debug_local) THEN
-          WRITE(out_unit,*)
           WRITE(out_unit,*) "--- System parameters for the coupling term between the "//TO_string(i_mat)//"^{th} matter mode and &
           &the "//TO_string(i_cav)//"^{th} cavity mode :"
           WRITE(out_unit,*) "Cavw          = "//TO_string(Cavw)
@@ -259,15 +242,10 @@ MODULE Sum_of_products_m
 
     IF (Debug) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--------------Sum of products constructed by MolecCav_Initialize_total_hamiltonian--------------"
+      WRITE(out_unit,*) "--- Sum of products constructed by MolecCav_Initialize_total_hamiltonian :"
       CALL Write(TotH)
-      WRITE(out_unit,*) "------------End Sum of products constructed by MolecCav_Initialize_total_hamiltonian------------"
     END IF
     
-    IF (Debug_local) WRITE(out_unit,*) 
-    IF (Debug_local) WRITE(out_unit,*) "--------------------------------------------------TOTAL HAMILTONIAN OPERATOR INITIALIZED-&
-    &------------------------------------------------"; FLUSH(out_unit)
-
   END SUBROUTINE MolecCav_Initialize_total_hamiltonian
 
 
@@ -297,21 +275,17 @@ MODULE Sum_of_products_m
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
-    ELSE; Verbose_local = 20; END IF 
+    ELSE; Verbose_local = 11; END IF 
     IF (PRESENT(Debug))   THEN; Debug_local   = Debug
     ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Debug_local) WRITE(out_unit,*) 
-    IF (Debug_local) WRITE(out_unit,*) "-------------------------------------------------INITIALIZING THE DIPOLE MOMENT OBJECT---&
-                                              &----------------------------------------------"; FLUSH(out_unit)
-
-    IF (Debug_local) THEN
+    IF (Verbose_local > 11) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- Arguments of MolecCav_Initialize_dipole_moment :"
+      WRITE(out_unit,*) "o o o o Arguments of MolecCav_Initialize_dipole_moment :"
       WRITE(out_unit,*) "The <<DipMomt>> argument :"
       CALL Write(DipMomt)
       IF (PRESENT(Dense)) WRITE(out_unit,*) "The <<Dense>> argument : "//TO_string(Dense)
-      WRITE(out_unit,*) "--- End arguments of MolecCav_Initialize_dipole_moment"
       FLUSH(out_unit)
     END IF
     
@@ -319,19 +293,13 @@ MODULE Sum_of_products_m
     N_mat = 0
     N_cav = 0
 
-    !------------------------------Reading of the nml--------------------------
-    WRITE(out_unit,*) 
-    WRITE(out_unit,*) '********************************************************************************'
-    WRITE(out_unit,*) '************************** READING THE NUMBER OF MODES *************************'
-    WRITE(out_unit,*) '********************************************************************************'
-    
+    !------------------------------Reading of the nml--------------------------    
     READ(nio, nml = DIPOLE_MOMENT, iostat = err_io)                                     ! assign the values read in the nml to the declared list of parameters
 
     IF (Debug) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "-----------------------The namelist parameters are read as----------------------"
+      WRITE(out_unit,*) "--- The namelist parameters are read as :"
       WRITE(out_unit, nml = DIPOLE_MOMENT)
-      WRITE(out_unit,*) "-------------------------End of the namelist parameters-------------------------"
     END IF
     
       !------------------------------Check reading error-------------------------
@@ -380,16 +348,10 @@ MODULE Sum_of_products_m
     DEALLOCATE(Mat_operators); DEALLOCATE(Cav_operators)
 
     IF (Debug) THEN
-      WRITE(out_unit,*)
-      WRITE(out_unit,*) "--------------Sum of products constructed by MolecCav_Initialize_dipole_moment--------------"
+      WRITE(out_unit,*) "--- Sum of products constructed by MolecCav_Initialize_dipole_moment :"
       CALL Write(DipMomt)
-      WRITE(out_unit,*) "------------End Sum of products constructed by MolecCav_Initialize_dipole_moment------------"
     END IF
     
-    IF (Debug_local) WRITE(out_unit,*) 
-    IF (Debug_local) WRITE(out_unit,*) "--------------------------------------------------DIPOLE MOMENT OPERATOR INITIALIZED-&
-    &------------------------------------------------"; FLUSH(out_unit)
-
   END SUBROUTINE MolecCav_Initialize_dipole_moment
 
 
@@ -419,21 +381,17 @@ MODULE Sum_of_products_m
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
-    ELSE; Verbose_local = 20; END IF 
+    ELSE; Verbose_local = 11; END IF 
     IF (PRESENT(Debug))   THEN; Debug_local   = Debug
     ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Debug_local) WRITE(out_unit,*) 
-    IF (Debug_local) WRITE(out_unit,*) "-------------------------------------------------INITIALIZING THE NB PHOTONS OBJECT---&
-                                              &----------------------------------------------"; FLUSH(out_unit)
-
-    IF (Debug_local) THEN
+    IF (Verbose_local > 11) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- Arguments of MolecCav_Initialize_nbphotons :"
+      WRITE(out_unit,*) "o o o o Arguments of MolecCav_Initialize_nbphotons :"
       WRITE(out_unit,*) "The <<NbPh>> argument :"
       CALL Write(NbPh)
       IF (PRESENT(Dense)) WRITE(out_unit,*) "The <<Dense>> argument : "//TO_string(Dense)
-      WRITE(out_unit,*) "--- End arguments of MolecCav_Initialize_nbphotons"
       FLUSH(out_unit)
     END IF
     
@@ -441,19 +399,12 @@ MODULE Sum_of_products_m
     N_mat = 0
     N_cav = 0
 
-    !------------------------------Reading of the nml--------------------------
-    WRITE(out_unit,*) 
-    WRITE(out_unit,*) '********************************************************************************'
-    WRITE(out_unit,*) '************************** READING THE NUMBER OF MODES *************************'
-    WRITE(out_unit,*) '********************************************************************************'
-    
+    !------------------------------Reading of the nml--------------------------    
     READ(nio, nml = NB_PHOTONS, iostat = err_io)                                     ! assign the values read in the nml to the declared list of parameters
 
     IF (Debug) THEN
-      WRITE(out_unit,*)
-      WRITE(out_unit,*) "-----------------------The namelist parameters are read as----------------------"
+      WRITE(out_unit,*) "--- The namelist parameters are read as :"
       WRITE(out_unit, nml = NB_PHOTONS)
-      WRITE(out_unit,*) "-------------------------End of the namelist parameters-------------------------"
     END IF
     
       !------------------------------Check reading error-------------------------
@@ -502,16 +453,10 @@ MODULE Sum_of_products_m
     DEALLOCATE(Mat_operators); DEALLOCATE(Cav_operators)
 
     IF (Debug) THEN
-      WRITE(out_unit,*)
-      WRITE(out_unit,*) "--------------Sum of products constructed by MolecCav_Initialize_nbphotons--------------"
+      WRITE(out_unit,*) "--- Sum of products constructed by MolecCav_Initialize_nbphotons :"
       CALL Write(NbPh)
-      WRITE(out_unit,*) "------------End Sum of products constructed by MolecCav_Initialize_nbphotons------------"
     END IF
     
-    IF (Debug_local) WRITE(out_unit,*) 
-    IF (Debug_local) WRITE(out_unit,*) "--------------------------------------------------NUMER OF PHOTONS OPERATOR INITIALIZED-&
-    &------------------------------------------------"; FLUSH(out_unit)
-
   END SUBROUTINE MolecCav_Initialize_nbphotons
 
 
@@ -541,40 +486,29 @@ MODULE Sum_of_products_m
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
-    ELSE; Verbose_local = 20; END IF 
+    ELSE; Verbose_local = 11; END IF 
     IF (PRESENT(Debug))   THEN; Debug_local   = Debug
     ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Debug_local) WRITE(out_unit,*) 
-    IF (Debug_local) WRITE(out_unit,*) "-------------------------------------------------INITIALIZING THE SUM OF PRODUCTS OPERATOR&
-                                              & OBJECT-------------------------------------------------"; FLUSH(out_unit)
-
-    IF (Debug_local) THEN
+    IF (Verbose_local > 11) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- Arguments of MolecCav_Initialize_sum_of_products :"
+      WRITE(out_unit,*) "o o o o Arguments of MolecCav_Initialize_sum_of_products :"
       WRITE(out_unit,*) "The <<SumProduct>> argument :"
       CALL Write(SumProduct)
       IF (PRESENT(Dense)) WRITE(out_unit,*) "The <<Dense>> argument : "//TO_string(Dense)
-      WRITE(out_unit,*) "--- End arguments of MolecCav_Initialize_sum_of_products"
       FLUSH(out_unit)
     END IF
     
     !----------------------Initialization to default values--------------------
     N_products = 0
 
-    !------------------------------Reading of the nml--------------------------
-    WRITE(out_unit,*) 
-    WRITE(out_unit,*) '********************************************************************************'
-    WRITE(out_unit,*) '************************** READING THE NUMBER OF OPND **************************'
-    WRITE(out_unit,*) '********************************************************************************'
-    
+    !------------------------------Reading of the nml--------------------------    
     READ(nio, nml = NUMBER_OF_PRODUCTS, iostat = err_io_1)                                     ! assign the values read in the nml to the declared list of parameters
 
     IF (Debug) THEN
-      WRITE(out_unit,*)
-      WRITE(out_unit,*) "-----------------------The namelist parameters are read as----------------------"
+      WRITE(out_unit,*) "--- The namelist parameters are read as :"
       WRITE(out_unit, nml = NUMBER_OF_PRODUCTS)
-      WRITE(out_unit,*) "-------------------------End of the namelist parameters-------------------------"
     END IF
     
       !------------------------------Check reading error-------------------------
@@ -601,18 +535,11 @@ MODULE Sum_of_products_m
     tab_coeffs = 0
 
     !------------------------------Reading of the nml--------------------------
-    WRITE(out_unit,*) 
-    WRITE(out_unit,*) '********************************************************************************'
-    WRITE(out_unit,*) '********************** READING THE COEFFICIENTS OF THE SUM *********************'
-    WRITE(out_unit,*) '********************************************************************************'
-    
     READ(nio, nml = COEFFS_SUM_OF_PRODUCTS, iostat = err_io_2)                                     ! assign the values read in the nml to the declared list of parameters
 
     IF (Debug) THEN
-      WRITE(out_unit,*)
-      WRITE(out_unit,*) "-----------------------The namelist parameters are read as----------------------"
+      WRITE(out_unit,*) "--- The namelist parameters are read as :"
       WRITE(out_unit, nml = COEFFS_SUM_OF_PRODUCTS)
-      WRITE(out_unit,*) "-------------------------End of the namelist parameters-------------------------"
     END IF
     
       !------------------------------Check reading error-------------------------
@@ -645,16 +572,10 @@ MODULE Sum_of_products_m
     WRITE(out_unit,*) '********************************************************************************'
 
     IF (Debug) THEN
-      WRITE(out_unit,*)
-      WRITE(out_unit,*) "--------------Sum of products constructed by MolecCav_Initialize_sum_of_products--------------"
+      WRITE(out_unit,*) "--- Sum of products constructed by MolecCav_Initialize_sum_of_products :"
       CALL Write(SumProduct)
-      WRITE(out_unit,*) "------------End Sum of products constructed by MolecCav_Initialize_sum_of_products------------"
     END IF
     
-    IF (Debug_local) WRITE(out_unit,*) 
-    IF (Debug_local) WRITE(out_unit,*) "--------------------------------------------------SUM OF PRODUCTS OPERATOR INITIAL&
-    &IZED-------------------------------------------------"; FLUSH(out_unit)
-
   END SUBROUTINE MolecCav_Initialize_sum_of_products
 
 
@@ -680,20 +601,16 @@ MODULE Sum_of_products_m
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
-    ELSE; Verbose_local = 20; END IF 
+    ELSE; Verbose_local = 11; END IF 
     IF (PRESENT(Debug))   THEN; Debug_local   = Debug
     ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Debug_local) WRITE(out_unit,*) 
-    IF (Debug_local) WRITE(out_unit,*) "-------------------------------------------------READING ONE PRODUCTS OF THE SUM OF&
-                                              & PRODUCTS OPERATOR-------------------------------------------------"; FLUSH(out_unit)
-
-    IF (Debug_local) THEN
+    IF (Verbose_local > 11) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- Arguments of MolecCav_Read_products :"
+      WRITE(out_unit,*) "o o o o Arguments of MolecCav_Read_products :"
       WRITE(out_unit,*) "Is the <<Mat_operators>> argument already allocated ?"//TO_string(ALLOCATED(Mat_operators))
       WRITE(out_unit,*) "Is the <<Cav_operators>> argument already allocated ?"//TO_string(ALLOCATED(Cav_operators))
-      WRITE(out_unit,*) "--- End arguments of MolecCav_Read_products"
       FLUSH(out_unit)
     END IF
     
@@ -708,18 +625,11 @@ MODULE Sum_of_products_m
     Cav_operators_local = ""
 
     !------------------------------Reading of the nml--------------------------
-    WRITE(out_unit,*) 
-    WRITE(out_unit,*) '********************************************************************************'
-    WRITE(out_unit,*) '************************** READING THE PRODUCTS_OF_OP1D *************************'
-    WRITE(out_unit,*) '********************************************************************************'
-    
     READ(nio, nml = PRODUCTS_OF_OP1D, iostat = err_io)                                     ! assign the values read in the nml to the declared list of parameters
 
     IF (Debug) THEN
-      WRITE(out_unit,*)
-      WRITE(out_unit,*) "-----------------------The namelist parameters are read as----------------------"
+      WRITE(out_unit,*) "--- The namelist parameters are read as :"
       WRITE(out_unit, nml = PRODUCTS_OF_OP1D)
-      WRITE(out_unit,*) "-------------------------End of the namelist parameters-------------------------"
     END IF
     
     !------------------------------Check reading error-------------------------
@@ -739,17 +649,10 @@ MODULE Sum_of_products_m
     Mat_operators = TO_lowercase(TRIM(Mat_operators_local))
     Cav_operators = TO_lowercase(TRIM(Cav_operators_local))
 
-    WRITE(out_unit,*) 
-    WRITE(out_unit,*) '********************************************************************************'
-    WRITE(out_unit,*) '********************************** PRODUCTS READ ********************************'
-    WRITE(out_unit,*) '********************************************************************************'
-
     IF (Debug) THEN
-      WRITE(out_unit,*)
-      WRITE(out_unit,*) "--------------Op1D products read by MolecCav_MolecCav_Read_products--------------"
+      WRITE(out_unit,*) "--- Op1D products read by MolecCav_MolecCav_Read_products :"
       WRITE(out_unit,*) "Mat_operator : "//Mat_operators
       WRITE(out_unit,*) "Cav_operator : "//Cav_operators
-      WRITE(out_unit,*) "------------End Op1D products read by MolecCav_MolecCav_Read_products------------"
     END IF
 
   END SUBROUTINE MolecCav_Read_products
@@ -774,23 +677,19 @@ MODULE Sum_of_products_m
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
-    ELSE; Verbose_local = 20; END IF 
+    ELSE; Verbose_local = 11; END IF 
     IF (PRESENT(Debug))   THEN; Debug_local   = Debug
     ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Debug_local) WRITE(out_unit,*) 
-    IF (Debug_local) WRITE(out_unit,*) "---------------------------------------COMPUTING ACTION OF THE SOP OVER &
-                                              &THE R1 ND WF---------------------------------------"; FLUSH(out_unit)
-
-    IF (Debug_local) THEN
+    IF (Verbose_local > 11) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- Arguments of MolecCav_Action_SOP_R1_real :"
+      WRITE(out_unit,*) "o o o o Arguments of MolecCav_Action_SOP_R1_real :"
       WRITE(out_unit,*) "The <<SumProduct>> argument :"
       CALL Write(SumProduct)
       WRITE(out_unit,*) "The <<Psi>> argument : "
       CALL Write_Vec(Psi, out_unit, 1, info="Psi")
       WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
-      WRITE(out_unit,*) "--- End arguments of MolecCav_Action_SOP_R1_real"
       FLUSH(out_unit)
     END IF
     
@@ -816,16 +715,10 @@ MODULE Sum_of_products_m
 
     !--------------Conclusion----------------
     IF (Debug_local) THEN
-      WRITE(out_unit,*)
       WRITE(out_unit,*) "--- Resulting statevector from the action of the ND Operator on the Psi statevector operand, computed &
                         &by MolecCav_Action_SOP_R1_real :"
       CALL Write_Vec(Op_psi, out_unit, 1, info="Op_Psi")
-      WRITE(out_unit,*) "--- End resulting statevector computed by MolecCav_Action_SOP_R1_real"
     END IF
-  
-    IF (Debug_local) WRITE(out_unit,*) 
-    IF (Debug_local) WRITE(out_unit,*) "----------------------------------------ACTION OF THE ND OPERATOR OVER THE R1 WF&
-                                              & COMPUTED---------------------------------------"; FLUSH(out_unit)
   
   END SUBROUTINE MolecCav_Action_SOP_R1_real
 
@@ -849,23 +742,19 @@ MODULE Sum_of_products_m
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
-    ELSE; Verbose_local = 20; END IF 
+    ELSE; Verbose_local = 11; END IF 
     IF (PRESENT(Debug))   THEN; Debug_local   = Debug
     ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Debug_local) WRITE(out_unit,*) 
-    IF (Debug_local) WRITE(out_unit,*) "---------------------------------------COMPUTING ACTION OF THE SOP OVER &
-                                              &THE R1 ND WF---------------------------------------"; FLUSH(out_unit)
-
-    IF (Debug_local) THEN
+    IF (Verbose_local > 11) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- Arguments of MolecCav_Action_SOP_R1_complex :"
+      WRITE(out_unit,*) "o o o o Arguments of MolecCav_Action_SOP_R1_complex :"
       WRITE(out_unit,*) "The <<SumProduct>> argument :"
       CALL Write(SumProduct)
       WRITE(out_unit,*) "The <<Psi>> argument : "
       CALL Write_Vec(Psi, out_unit, 1, info="Psi")
       WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
-      WRITE(out_unit,*) "--- End arguments of MolecCav_Action_SOP_R1_complex"
       FLUSH(out_unit)
     END IF
     
@@ -895,12 +784,7 @@ MODULE Sum_of_products_m
       WRITE(out_unit,*) "--- Resulting statevector from the action of the Sum of products operator on the Psi statevector operand&
                         &, computed by MolecCav_Action_SOP_R1_complex :"
       CALL Write_Vec(Op_psi, out_unit, 1, info="Op_Psi")
-      WRITE(out_unit,*) "--- End resulting statevector computed by MolecCav_Action_SOP_R1_complex"
     END IF
-  
-    IF (Debug_local) WRITE(out_unit,*) 
-    IF (Debug_local) WRITE(out_unit,*) "----------------------------------------ACTION OF THE ND OPERATOR OVER THE R1 WF&
-                                              & COMPUTED---------------------------------------"; FLUSH(out_unit)
   
   END SUBROUTINE MolecCav_Action_SOP_R1_complex
 
@@ -917,48 +801,56 @@ MODULE Sum_of_products_m
     IF (TO_lowercase(TRIM(Parameter_name)) == "n_product") THEN
       Parameter_value = SumProduct%N_products
     ELSE 
-      WRITE(out_unit,*) "Parameter_name not recognized at MolecCav_Get_SOP_parameter_integer."
-      STOP "Parameter_name not recognized at MolecCav_Get_SOP_parameter_integer"
+      WRITE(out_unit,*) "### Parameter_name not recognized at MolecCav_Get_SOP_parameter_integer."
+      STOP "### Parameter_name not recognized at MolecCav_Get_SOP_parameter_integer"
     END IF
 
   END SUBROUTINE MolecCav_Get_SOP_parameter_integer
 
 
-  SUBROUTINE MolecCav_Write_sum_of_products(SumProduct)
+  SUBROUTINE MolecCav_Write_sum_of_products(SumProduct, Info, More)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m
     USE Operator_ND_m
     IMPLICIT NONE 
     
-    TYPE(Sum_of_products_t), intent(in) :: SumProduct
+    TYPE(Sum_of_products_t),    intent(in) :: SumProduct
+    character(len=*), optional, intent(in) :: Info
+    logical,          optional, intent(in) :: More
 
-    integer                             :: i_product
+    integer                                :: i_product
+    logical                                :: More_local
 
-    WRITE(out_unit,*) "_________________________________The Sum of products Operator object__________________________________"
-    WRITE(out_unit,*) "|The number of products in the sum (SumProduct%N_products)                     | "//TO_string(SumProduct&
-    &%N_products)
-    WRITE(out_unit,*) "|______________________________________________________________________________|______________________"
-    FLUSH(out_unit)
+    IF (PRESENT(More)) THEN; More_local = More
+    ELSE; More_local = .FALSE.; END IF
+
+    IF (PRESENT(Info)) THEN
+      WRITE(out_unit,*) "--- Parameters associated to the object of derived type Sum_of_products_t ("//Info//") :"
+    ELSE
+      WRITE(out_unit,*) "--- Parameters associated to the object of derived type Sum_of_products_t :"
+    END IF
+
+    WRITE(out_unit,*) "N_products = "//TO_string(SumProduct%N_products)
+
     IF (ALLOCATED(SumProduct%tab_opnd)) THEN
-      WRITE(out_unit,*) "|The list of products (ND_operators_t) in the sum (SumProduct%tab_opnd) :      |"
-      DO i_product = 1, SIZE(SumProduct%tab_opnd)
-        WRITE(out_unit,*) "|"//TO_string(i_product)//"^{th} TERM OF THE SUM :"
-        CALL Write(SumProduct%tab_opnd(i_product))
-      END DO
+      IF (More_local) THEN 
+        DO i_product = 1, SIZE(SumProduct%tab_opnd)
+          WRITE(out_unit,*) "--- Writing tab_opnd("//TO_string(i_product)//")..."
+          CALL Write(SumProduct%tab_opnd(i_product))
+          WRITE(out_unit,*) "    ...back to MolecCav_Write_sum_of_products"
+        END DO
+      ELSE 
+        WRITE(out_unit,*) "tab_opnd is allocated"
+      END IF
     ELSE 
-      WRITE(out_unit,*) "| The sum of products is not allocated (SumProduct%tab_opnd)                   |"
+      WRITE(out_unit,*) "tab_opnd is NOT allocated"
     END IF
-    WRITE(out_unit,*) "|______________________________________________________________________________|______________________"
-    FLUSH(out_unit)
+
     IF (ALLOCATED(SumProduct%tab_coeffs)) THEN
-      WRITE(out_unit,*) "|The associated list of coefficients (SumProduct%tab_coeffs) :                 |"
-      CALL Write_Vec(SumProduct%tab_coeffs, out_unit, SIZE(SumProduct%tab_coeffs), info="SumProduct%tab_coeffs")
+      CALL Write_Vec(SumProduct%tab_coeffs, out_unit, SIZE(SumProduct%tab_coeffs), info="tab_coeffs = ")
     ELSE 
-      WRITE(out_unit,*) "| The associated list of coefficients is not allocated (SumProduct%tab_coeffs) |"
+      WRITE(out_unit,*) "tab_coeffs is NOT allocated"
     END IF
-    WRITE(out_unit,*) "|______________________________________________________________________________|______________________"
-    FLUSH(out_unit)
-    WRITE(out_unit,*) "|_____________________________________End ND Operator object___________________|"
     FLUSH(out_unit)
 
   END SUBROUTINE MolecCav_Write_sum_of_products
@@ -982,22 +874,19 @@ MODULE Sum_of_products_m
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Dealloc_all)) THEN; Dealloc_all_local = Dealloc_all
     ELSE; Dealloc_all_local = .FALSE.; END IF 
-    IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
-    ELSE; Verbose_local = 20; END IF 
+      IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
+    ELSE; Verbose_local = 11; END IF 
     IF (PRESENT(Debug))   THEN; Debug_local   = Debug
     ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Debug_local) THEN
-      WRITE(out_unit,*) "--- The SumProduct to be deallocated :"
+    IF (Verbose_local > 11) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "o o o o Arguments of MolecCav_Deallocate_sum_of_products :"
       CALL Write(SumProduct)
-      WRITE(out_unit,*) "--- End SumProduct to be deallocated"
     END IF 
 
     !-----------------------------Deallocating the HO1D operator object----------------------------
-    IF (Debug_local) WRITE(out_unit,*)
-    IF (Debug_local) WRITE(out_unit,*) "-----------------------------------------------Deallocating the SumProduct obje&
-    &----------------------------------------------"
-  
     SumProduct%N_products = 0
     IF (ALLOCATED(SumProduct%tab_opnd)) THEN 
       DO i_product = 1, SIZE(SumProduct%tab_opnd)
@@ -1008,10 +897,8 @@ MODULE Sum_of_products_m
     IF (ALLOCATED(SumProduct%tab_coeffs)) DEALLOCATE(SumProduct%tab_coeffs)
 
     IF (Debug_local) THEN
-      WRITE(out_unit,*)
       WRITE(out_unit,*) "--- The SumProduct object after having been deallocated :"
       CALL Write(SumProduct)
-      WRITE(out_unit,*) "--- End dellocating SumProduct"
     END IF
 
   END SUBROUTINE MolecCav_Deallocate_sum_of_products

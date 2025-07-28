@@ -31,8 +31,9 @@
 !
 ! README :
 ! To be written soon.
-! Write_operator_ND      : display values of the type in the output
-! Deallocate_operator_ND : deallocate all tables of the type
+! This module is in the "-4" level. At this level, Verbose is ranging from 11 (degree 0) to 15 (de-
+! gree 4).
+!
 !==================================================================================================
 !==================================================================================================
 MODULE Operator_ND_m
@@ -113,7 +114,7 @@ MODULE Operator_ND_m
 
     IF (Verbose_local > 11) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "o o o o Arguments of MolecCav_Action_quantum_HO1D :"
+      WRITE(out_unit,*) "o o o o Arguments of MolecCav_Initialize_operator_ND :"
       WRITE(out_unit,*) "The <<OpND>> argument :"
       CALL Write(OpND)
       WRITE(out_unit,*) "The <<Mat_operators>>  argument :"//Mat_operators
@@ -208,10 +209,6 @@ MODULE Operator_ND_m
       END DO
     END DO
 
-    IF (Verbose_local > 20) WRITE(out_unit,*) 
-    IF (Verbose_local > 20) WRITE(out_unit,*) "--------------------------------------------------OPERATOR_ND OBJECT INITIALIZED--&
-    &-----------------------------------------------"; FLUSH(out_unit)
-
   END SUBROUTINE MolecCav_Initialize_operator_ND
 
 
@@ -236,23 +233,19 @@ MODULE Operator_ND_m
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
-    ELSE; Verbose_local = 20; END IF 
+    ELSE; Verbose_local = 11; END IF 
     IF (PRESENT(Debug))   THEN; Debug_local   = Debug
     ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Verbose_local > 25) WRITE(out_unit,*) 
-    IF (Verbose_local > 25) WRITE(out_unit,*) "--------------------------------------------------INITIALIZING THE OPERATORS' TABL&
-    &ES--------------------------------------------------"; FLUSH(out_unit)
-
-    IF (Debug_local) THEN
+    IF (Verbose_local > 11) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- Arguments of MolecCav_Initialize_HO1D_operator :"
+      WRITE(out_unit,*) "o o o o Arguments of MolecCav_Initialize_tabs_operators :"
       WRITE(out_unit,*) "The module's <<tab_mat_ops>> allocated ? "//TO_string(ALLOCATED(tab_mat_ops))
       WRITE(out_unit,*) "The module's <<tab_cav_ops>> allocated ? "//TO_string(ALLOCATED(tab_cav_ops))
       WRITE(out_unit,*) "The <<N_mat>> argument : "//TO_string(N_mat)
       WRITE(out_unit,*) "The <<N_cav>> argument : "//TO_string(N_cav)
       IF (PRESENT(Dense)) WRITE(out_unit,*) "The <<Dense>> argument : "//TO_string(Dense)
-      WRITE(out_unit,*) "--- End arguments of MolecCav_Construct_Operator_1D"
       FLUSH(out_unit)
     END IF
     
@@ -272,8 +265,7 @@ MODULE Operator_ND_m
       CALL Initialize(CavMode=tab_cav_ops(i), nio=in_unit, Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local)
     END DO 
 
-    IF (Verbose_local > 26) THEN
-      IF (Verbose_local < 28) WRITE(out_unit,*)
+    IF (Verbose_local > 12) THEN
       WRITE(out_unit,*) "--- tabs_ops constructed by MolecCav_Initialize_tabs_operators :"
       DO i = 1, N_mat
         WRITE(out_unit,*); WRITE(out_unit,*) "--- tabs_mat_ops"//TO_string(i)//" :"
@@ -283,12 +275,7 @@ MODULE Operator_ND_m
         WRITE(out_unit,*); WRITE(out_unit,*) "--- tabs_cav_ops"//TO_string(i)//" :"
         CALL Write(tab_cav_ops(i))
       END DO 
-      WRITE(out_unit,*) "--- End tabs_ops constructed by MolecCav_Initialize_tabs_operators"
     END IF
-
-    IF (Verbose_local > 25) WRITE(out_unit,*) 
-    IF (Verbose_local > 25) WRITE(out_unit,*) "-----------------------------------------------------OPERATOR'S TABLES INITIALIZED&
-    &----------------------------------------------------"; FLUSH(out_unit)
 
   END SUBROUTINE MolecCav_Initialize_tabs_operators
 
@@ -314,17 +301,14 @@ MODULE Operator_ND_m
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
-    ELSE; Verbose_local = 20; END IF 
+    ELSE; Verbose_local = 11; END IF 
     IF (PRESENT(Debug))   THEN; Debug_local   = Debug
     ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Verbose_local > 25) WRITE(out_unit,*) 
-    IF (Verbose_local > 25) WRITE(out_unit,*) "---------------------------------------COMPUTING ACTION OF THE OpND OVER &
-                                              &THE R1 ND WF---------------------------------------"; FLUSH(out_unit)
-
-    IF (Debug_local) THEN
+    IF (Verbose_local > 11) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- Arguments of MolecCav_Action_operator_ND :"
+      WRITE(out_unit,*) "o o o o Arguments of MolecCav_Action_operator_ND_R1_real :"
       WRITE(out_unit,*) "The <<OpND>> argument :"
       !CALL Write(OpND)
       IF (SIZE(OpND%tab_indexes_mat_op)==0) WRITE(out_unit,*) "tab mat op : $\empty$"; FLUSH(out_unit)
@@ -334,7 +318,6 @@ MODULE Operator_ND_m
       WRITE(out_unit,*) "The <<Psi>> argument : "
       CALL Write_Vec(Psi, out_unit, 1, info="Psi")
       WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
-      WRITE(out_unit,*) "--- End arguments of MolecCav_Action_operator_ND"
       FLUSH(out_unit)
     END IF
     
@@ -354,7 +337,7 @@ MODULE Operator_ND_m
 
     IF (SIZE(Psi, dim=1) /= NB) THEN
       WRITE(out_unit,*) "### The dimension of the wavevector Psi does not match the dimension product of the operators to"
-      WRITE(out_unit,*) "   Size(Psi, dim=1) = "//TO_string(Size(Psi, dim=1))//"; PRODUCT(Dims) = "//TO_string(NB)
+      WRITE(out_unit,*) "    Size(Psi, dim=1) = "//TO_string(Size(Psi, dim=1))//"; PRODUCT(Dims) = "//TO_string(NB)
       STOP "### The dimension of Psi does not match the dimension product of the operators."
     END IF
 
@@ -424,17 +407,11 @@ MODULE Operator_ND_m
   
     !--------------Conclusion----------------
     IF (Debug_local) THEN
-      WRITE(out_unit,*)
       WRITE(out_unit,*) "--- Resulting statevector from the action of the ND Operator on the Psi statevector operand, computed &
-                        &by MolecCav_Action_operator_ND_R1_real :"
+      &by MolecCav_Action_operator_ND_R1_real :"
       CALL Write_Vec(Op_psi, out_unit, 1, info="Op_Psi")
-      WRITE(out_unit,*) "--- End resulting statevector computed by MolecCav_Action_operator_ND_R1_real"
     END IF
-  
-    IF (Verbose_local > 25) WRITE(out_unit,*) 
-    IF (Verbose_local > 25) WRITE(out_unit,*) "----------------------------------------ACTION OF THE ND OPERATOR OVER THE R1 WF&
-                                              & COMPUTED---------------------------------------"; FLUSH(out_unit)
-  
+    
   END SUBROUTINE MolecCav_Action_operator_ND_R1_real
 
   
@@ -459,17 +436,14 @@ MODULE Operator_ND_m
 
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
-    ELSE; Verbose_local = 20; END IF 
+    ELSE; Verbose_local = 11; END IF 
     IF (PRESENT(Debug))   THEN; Debug_local   = Debug
     ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Verbose_local > 25) WRITE(out_unit,*) 
-    IF (Verbose_local > 25) WRITE(out_unit,*) "---------------------------------------COMPUTING ACTION OF THE OpND OVER &
-                                              &THE R1 ND WF---------------------------------------"; FLUSH(out_unit)
-
-    IF (Debug_local) THEN
+    IF (Verbose_local > 11) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- Arguments of MolecCav_Action_operator_ND :"
+      WRITE(out_unit,*) "o o o o Arguments of MolecCav_Action_operator_ND_R1_complex :"
       WRITE(out_unit,*) "The <<OpND>> argument :"
       !CALL Write(OpND)
       IF (SIZE(OpND%tab_indexes_mat_op)==0) WRITE(out_unit,*) "tab mat op : $\empty$"
@@ -479,7 +453,6 @@ MODULE Operator_ND_m
       WRITE(out_unit,*) "The <<Psi>> argument : "
       CALL Write_Vec(Psi, out_unit, 1, info="Psi")
       WRITE(out_unit,*) "The size of its vector : "//TO_string(Size(Psi))
-      WRITE(out_unit,*) "--- End arguments of MolecCav_Action_operator_ND"
       FLUSH(out_unit)
     END IF
     
@@ -499,7 +472,7 @@ MODULE Operator_ND_m
 
     IF (SIZE(Psi, dim=1) /= NB) THEN
       WRITE(out_unit,*) "### The dimension of the wavevector Psi does not match the dimension product of the operators to"
-      WRITE(out_unit,*) "   Size(Psi, dim=1) = "//TO_string(Size(Psi, dim=1))//"; PRODUCT(Dims) = "//TO_string(NB)
+      WRITE(out_unit,*) "    Size(Psi, dim=1) = "//TO_string(Size(Psi, dim=1))//"; PRODUCT(Dims) = "//TO_string(NB)
       STOP "### The dimension of Psi does not match the dimension product of the operators."
     END IF
 
@@ -516,9 +489,7 @@ MODULE Operator_ND_m
 
 
     DO i_mode = 1, N_mat + N_cav
-      IF (Debug_local) WRITE(out_unit,*)
       IF (Debug_local) WRITE(out_unit,*) "--- i_mode = "//TO_string(i_mode)
-      IF (Debug_local) WRITE(out_unit,*)
       IF (Debug_local) WRITE(out_unit,*) "N1, N2, N3 = "//TO_string(N1)//", "//TO_string(N2)//", "//TO_string(N3)
 
       !-----------------------Action-----------------------------    
@@ -554,18 +525,12 @@ MODULE Operator_ND_m
     Op_psi = RESHAPE(Op_cube, [NB])
   
     !--------------Conclusion----------------
-    IF (Verbose_local > 0) THEN
-      WRITE(out_unit,*)
+    IF (Verbose_local > 12) THEN
       WRITE(out_unit,*) "--- Resulting statevector from the action of the ND Operator on the Psi statevector operand, computed &
                         &by MolecCav_Action_operator_ND_R1_complex :"
       CALL Write_Vec(Op_psi, out_unit, 1, info="Op_Psi")
-      WRITE(out_unit,*) "--- End resulting statevector computed by MolecCav_Action_operator_ND_R1_complex"
     END IF
-  
-    IF (Verbose_local > 25) WRITE(out_unit,*) 
-    IF (Verbose_local > 25) WRITE(out_unit,*) "----------------------------------------ACTION OF THE HO1D OPERATOR OVER THE R1 WF&
-                                              & COMPUTED---------------------------------------"; FLUSH(out_unit)
-  
+    
   END SUBROUTINE MolecCav_Action_operator_ND_R1_complex
 
   
@@ -626,56 +591,56 @@ MODULE Operator_ND_m
       CALL Get(Parameter_value, tab_cav_ops(i_mode), Parameter_name)
     
     ELSE 
-      WRITE(out_unit,*) "### No Subsystem name recognized, please verify the input of Get_OpND_parameter_integer subroutine"
+      WRITE(out_unit,*) "### No Subsystem name recognized, please verify the input of MolecCav_Get_OpND_parameter_real subroutine"
       WRITE(out_unit,*) "    Expected : Matter or Cavity ; Subsystem = "//Subsystem
-      STOP "### No Operator type recognized, please verify the input of Get_OpND_parameter_integer subroutine"
+      STOP "### No Operator type recognized, please verify the input of MolecCav_Get_OpND_parameter_real subroutine"
     
     END IF
 
   END SUBROUTINE MolecCav_Get_OpND_parameter_real
 
 
-  SUBROUTINE MolecCav_Write_operator_ND(OpND)
+  SUBROUTINE MolecCav_Write_operator_ND(OpND, Info, More)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m
     IMPLICIT NONE 
     
-    TYPE(Operator_ND_t), intent(in) :: OpND
+    TYPE(Operator_ND_t),        intent(in) :: OpND
+    character(len=*), optional, intent(in) :: Info
+    logical,          optional, intent(in) :: More
+
+    integer                                :: i_op
+    logical                                :: More_local
+
+    IF (PRESENT(More)) THEN; More_local = More
+    ELSE; More_local = .FALSE.; END IF
+
+    IF (PRESENT(Info)) THEN
+      WRITE(out_unit,*) "--- Parameters associated to the object of derived type Operator_ND_t ("//Info//") :"
+    ELSE
+      WRITE(out_unit,*) "--- Parameters associated to the object of derived type Operator_ND_t :"
+    END IF
 
     IF (ALLOCATED(OpND%tab_indexes_mat_op)) THEN
-      WRITE(out_unit,*) "_______________________________________The ND Operator object_______________________________________"
-      WRITE(out_unit,*) "|The number of matter modes (SIZE(OpND%tab_indexes_mat_op))                    | "//TO_string(SIZE(OpND%ta&
-      &b_indexes_mat_op))
-      WRITE(out_unit,*) "|______________________________________________________________________________|______________________"
-      FLUSH(out_unit)
+      WRITE(out_unit,*) "SIZE(tab_indexes_mat_op)) = "//TO_string(SIZE(OpND%tab_indexes_mat_op))
       IF (SIZE(OpND%tab_indexes_mat_op) /= 0) THEN
-        WRITE(out_unit,*) "|The operators taking action on the matter modes (OpND%tab_indexes_mat_op) :   | "
-        CALL Write_Vec(OpND%tab_indexes_mat_op, out_unit, SIZE(OpND%tab_indexes_mat_op), info="tab_indexes_mat_op")
+        CALL Write_Vec(OpND%tab_indexes_mat_op, out_unit, SIZE(OpND%tab_indexes_mat_op), info="tab_indexes_mat_op        = ")
       ELSE
-        WRITE(out_unit,*) "|No cavity mode, so no operators to write                                      | "
+        WRITE(out_unit,*) "No cavity mode, so no operators to write"
       END IF
-    WRITE(out_unit,*) "|______________________________________________________________________________|______________________"
     ELSE 
-      WRITE(out_unit,*) "|_____________________________The ND Operator object___________________________|"
-      WRITE(out_unit,*) "|The table of matter operators is NOT allocated (OpND%tab_indexes_mat_op)      |"
-      WRITE(out_unit,*) "|______________________________________________________________________________|"
+      WRITE(out_unit,*) "tab_indexes_mat_op is NOT allocated"
     END IF
-    FLUSH(out_unit)
+
     IF (ALLOCATED(OpND%tab_indexes_cav_op)) THEN
-      WRITE(out_unit,*) "|The number of cavity modes (SIZE(OpND%tab_indexes_cav_op))                    | "//TO_string(SIZE(OpND%ta&
-      &b_indexes_cav_op))
-      WRITE(out_unit,*) "|______________________________________________________________________________|______________________"
-      FLUSH(out_unit)
+      WRITE(out_unit,*) "SIZE(tab_indexes_cav_op)  = "//TO_string(SIZE(OpND%tab_indexes_cav_op))
       IF (SIZE(OpND%tab_indexes_cav_op) /= 0) THEN
-        WRITE(out_unit,*) "|The operators taking action on the cavity modes (OpND%tab_indexes_cav_op) :   | "
-        CALL Write_Vec(OpND%tab_indexes_cav_op, out_unit, SIZE(OpND%tab_indexes_cav_op), info="tab_indexes_cav_op")
+        CALL Write_Vec(OpND%tab_indexes_cav_op, out_unit, SIZE(OpND%tab_indexes_cav_op), info="tab_indexes_cav_op        = ")
       ELSE
-        WRITE(out_unit,*) "|No cavity mode, so no operators to write                                      | "
+        WRITE(out_unit,*) "No cavity mode, so no operators to write"
       END IF
-      WRITE(out_unit,*) "|_____________________________________End ND Operator object___________________|"
     ELSE 
-      WRITE(out_unit,*) "|The table of cavity operators is NOT allocated (OpND%tab_indexes_cav_op)      |"
-      WRITE(out_unit,*) "|_____________________________________End ND Operator object___________________|"
+      WRITE(out_unit,*) "tab_indexes_cav_op is NOT allocated"
     END IF
     FLUSH(out_unit)
 
@@ -701,22 +666,19 @@ MODULE Operator_ND_m
     !------------------------------------------------------Debugging options-----------------------------------------------------
     IF (PRESENT(Dealloc_all)) THEN; Dealloc_all_local = Dealloc_all
     ELSE; Dealloc_all_local = .FALSE.; END IF 
-    IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
-    ELSE; Verbose_local = 20; END IF 
+      IF (PRESENT(Verbose)) THEN; Verbose_local = Verbose
+    ELSE; Verbose_local = 11; END IF 
     IF (PRESENT(Debug))   THEN; Debug_local   = Debug
     ELSE; Debug_local = .FALSE.; END IF
+    IF (Debug_local) Verbose_local = 24
 
-    IF (Debug_local) THEN
-      WRITE(out_unit,*) "--- The OpND to be deallocated :"
+    IF (Verbose_local > 11) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "o o o o Arguments of MolecCav_Deallocate_operator_ND :"
       CALL Write(OpND)
-      WRITE(out_unit,*) "--- End OpND to be deallocated"
     END IF 
 
-    !-----------------------------Deallocating the HO1D operator object----------------------------
-    IF (Verbose_local > 27) WRITE(out_unit,*)
-    IF (Verbose_local > 27) WRITE(out_unit,*) "-----------------------------------------------Deallocating the OpND obje&
-                                              &ct----------------------------------------------"
-  
+    !-----------------------------Deallocating the HO1D operator object----------------------------  
     IF (ALLOCATED(OpND%tab_indexes_mat_op)) DEALLOCATE(OpND%tab_indexes_mat_op)
     IF (ALLOCATED(OpND%tab_indexes_cav_op)) DEALLOCATE(OpND%tab_indexes_cav_op)
 
@@ -735,10 +697,8 @@ MODULE Operator_ND_m
     END IF 
 
     IF (Debug_local) THEN
-      WRITE(out_unit,*)
       WRITE(out_unit,*) "--- The OpND object after having been deallocated :"
       CALL Write(OpND)
-      WRITE(out_unit,*) "--- End dellocating OpND"
     END IF
 
   END SUBROUTINE MolecCav_Deallocate_operator_ND

@@ -128,9 +128,9 @@ PROGRAM MolecCav
   ! &ug=Debug)
   CALL Initialize(TranSpec, REigvec, DipMomt, REigval, Nb_states=10, Verbose=Verbose, Debug=Debug)
 
-  WRITE(out_unit,*) "Spectrum information"
-  CALL Write_Vec(TranSpec%tab_energies, out_unit, SIZE(TranSpec%tab_energies), info="Transition Energies")
-  CALL Write_Vec(TranSpec%tab_ints,     out_unit, SIZE(TranSpec%tab_ints),     info="Transition Intensities")
+  WRITE(out_unit,*) "--- Spectrum information"
+  CALL Write_Vec(TranSpec%tab_energies, out_unit, SIZE(TranSpec%tab_energies), info="Transition Energies    = ")
+  CALL Write_Vec(TranSpec%tab_ints,     out_unit, SIZE(TranSpec%tab_ints),     info="Transition Intensities = ")
 
   OPEN(NEWUNIT = nioint,  FILE = 'OUT/TransInts_MolecCav.txt', FORM = 'formatted', ACTION = 'write', POSITION = 'rewind')
 
@@ -203,7 +203,6 @@ PROGRAM MolecCav
       WRITE(out_unit,*) "Matlambda = "//TO_string(Matlambda_l)
       WRITE(out_unit,*) "Cavlambda = "//TO_string(Cavlambda_l)
       WRITE(out_unit,*) "lambda    = "//TO_string(Matlambda_l*Cavlambda_l)
-      WRITE(out_unit,*) "--- End MWH parameters"
     END IF 
 
 
@@ -228,22 +227,22 @@ PROGRAM MolecCav
     END IF
 
     CALL diagonalization(MWH, Nmodes_l, Ncoos_l)
-    IF (Debug_local) CALL Write_Vec(Nmodes_l,       out_unit, Size(Nmodes_l),              info="Normal modes")
-    IF (Debug_local) CALL Write_Mat(Ncoos_l, out_unit, Size(Ncoos_l, dim=2), info="Normal coordniates")
+    IF (Debug_local) CALL Write_Vec(Nmodes_l, out_unit, Size(Nmodes_l),       info="Normal modes       = ")
+    IF (Debug_local) CALL Write_Mat(Ncoos_l,  out_unit, Size(Ncoos_l, dim=2), info="Normal coordniates : ")
 
     WRITE(out_unit,*)
     WRITE(out_unit,*) "--- Normal modes checking :"
     DO i = 1, Size(Nmodes_l)
       IF (Nmodes_l(i) >= 0) THEN
-        WRITE(out_unit,*) TO_string(i)//"^{th} Normal coordinate has positive squared frequency, lead&
-                         &ing to w_"//TO_string(i)//" = "//TO_string(SQRT(Nmodes_l(i)))
+        WRITE(out_unit,*) TO_string(i)//"^{th} Normal coordinate has positive squared frequency, leading to w_"//TO_string(i)//" &
+        &= "//TO_string(SQRT(Nmodes_l(i)))
       ELSE
-        WRITE(out_unit,*) TO_string(i)//"^{th} Normal coordinate has NEGATIVE squared frequency, lead&
-        &ing to w_"//TO_string(i)//" = "//TO_string(EYE*SQRT(-Nmodes_l(i)))
+        WRITE(out_unit,*) TO_string(i)//"^{th} Normal coordinate has NEGATIVE squared frequency, leading to w_"//TO_string(i)//" &
+        &= "//TO_string(EYE*SQRT(-Nmodes_l(i)))
       END IF
     END DO
-    WRITE(out_unit,*) "Expected ZPE by half-sum of the total system eigenpulsations (from MWH): "//TO&
-                    &_string( ( SQRT(Nmodes_l(1))+SQRT(Nmodes_l(2)) )/2 )
+    WRITE(out_unit,*) "Expected ZPE by half-sum of the total system eigenpulsations (from MWH): "//TO_string( ( SQRT(Nmodes_l(1))&
+    &+SQRT(Nmodes_l(2)) )/2 )
 
   END SUBROUTINE Compute_normal_modes
 
