@@ -296,7 +296,7 @@ MODULE Elem_op_m
     END IF 
 
     !--- Selection of the calculation method --------------
-    IF      (ALLOCATED(Elem_op%Diag_val))   THEN
+    IF (ALLOCATED(Elem_op%Diag_val)) THEN
       IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Diag_val is allocated. The diagonal operator action called."
       CALL Action_diag(Op_psi=Op_psi, Elem_op=Elem_op, Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
 
@@ -315,6 +315,7 @@ MODULE Elem_op_m
       STOP "### None of this operator's matrices are allocated. Please check its initalization."
     END IF
 
+    !--- Conclusion ---------------------------------------
     IF (Debug_local) THEN
       WRITE(out_unit,*) "--- Resulting statevector from the action of the HO1D Elem_op on the Psi statevector operand, computed &
                         &by Action_HO1D_operator_R1 :"
@@ -359,6 +360,11 @@ MODULE Elem_op_m
     !--- Computing the action -----------------------------
     Op_psi(:) = matmul(Elem_op%Dense_val, Psi)
 
+    !------------------------------------------------------
+    !--- No conclusion here beacause already in Action_ele-
+    ! -m_op 
+    !------------------------------------------------------
+
   END SUBROUTINE MolecCav_Action_dense_elem_op_R1_real
 
   
@@ -396,6 +402,11 @@ MODULE Elem_op_m
     
     !--- Computing the action -----------------------------
     Op_psi = Elem_op%Diag_val * Psi
+
+    !------------------------------------------------------
+    !--- No conclusion here beacause already in Action_ele-
+    ! -m_op 
+    !------------------------------------------------------
 
   END SUBROUTINE MolecCav_Action_diag_elem_op_R1_real
 
@@ -445,6 +456,11 @@ MODULE Elem_op_m
                 & Elem_op%Band_val(i-1,1) * Psi(i-1) + &
                 & Elem_op%Band_val(i+1,3) * Psi(i+1)
     END DO
+
+    !------------------------------------------------------
+    !--- No conclusion here beacause already in Action_ele-
+    ! -m_op 
+    !------------------------------------------------------
 
   END SUBROUTINE MolecCav_Action_band_elem_op_R1_real
 
@@ -529,6 +545,11 @@ MODULE Elem_op_m
       CALL Write_Vec(Op_psi, out_unit, 1, info="Op_Psi")
     END IF
     
+    !------------------------------------------------------
+    !--- No conclusion here beacause already in Action_ele-
+    ! -m_op 
+    !------------------------------------------------------
+
   END SUBROUTINE MolecCav_Action_elem_op_R1_complex
 
   
@@ -567,6 +588,11 @@ MODULE Elem_op_m
     !--- Computing the action -----------------------------
     Op_psi(:) = matmul(Elem_op%Dense_val, Psi)
 
+    !------------------------------------------------------
+    !--- No conclusion here beacause already in Action_ele-
+    ! -m_op 
+    !------------------------------------------------------
+
   END SUBROUTINE MolecCav_Action_dense_elem_op_R1_complex
 
   
@@ -604,6 +630,11 @@ MODULE Elem_op_m
     
     !--- Computing the action -----------------------------
     Op_psi = Elem_op%Diag_val * Psi
+
+    !------------------------------------------------------
+    !--- No conclusion here beacause already in Action_ele-
+    ! -m_op 
+    !------------------------------------------------------
 
   END SUBROUTINE MolecCav_Action_diag_elem_op_R1_complex
 
@@ -653,6 +684,11 @@ MODULE Elem_op_m
                 & Elem_op%Band_val(i-1,1) * Psi(i-1) + &
                 & Elem_op%Band_val(i+1,3) * Psi(i+1)
     END DO
+
+    !------------------------------------------------------
+    !--- No conclusion here beacause already in Action_ele-
+    ! -m_op 
+    !------------------------------------------------------
 
   END SUBROUTINE MolecCav_Action_band_elem_op_R1_complex
   
@@ -744,6 +780,7 @@ MODULE Elem_op_m
     IF (ALLOCATED(Elem_op%Diag_val))      DEALLOCATE(Elem_op%Diag_val)
     IF (ALLOCATED(Elem_op%Band_val))      DEALLOCATE(Elem_op%Band_val)
 
+    !--- Conclusion ---------------------------------------
     IF (Debug_local) THEN
       WRITE(out_unit,*) "--- The deallocated HO1D operator object :"
       CALL Write(Elem_op)

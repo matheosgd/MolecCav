@@ -115,7 +115,7 @@
 !==================================================================================================
 MODULE Quantum_HO1D_m
   !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT, real64
-  USE QDUtil_m                                                                 ! gives Rkind=real64; out_unit=OUTPUT_UNIT; INPUT_UNIT=in_unit; EYE=i and other numbers; TO_LOWERCASE; TO_UPPERCASE;... We thereby use ZERO instead of 0.0_real64
+  USE QDUtil_m                                                                                          ! gives Rkind=real64; out_unit=OUTPUT_UNIT; INPUT_UNIT=in_unit; EYE=i and other numbers; TO_LOWERCASE; TO_UPPERCASE;... We thereby use ZERO instead of 0.0_real64
   USE Elem_op_m
   IMPLICIT NONE
 
@@ -125,7 +125,7 @@ MODULE Quantum_HO1D_m
     real(kind=Rkind)             :: w       = ZERO
     real(kind=Rkind)             :: m       = ZERO
     integer                      :: Nb_op   = 0
-    TYPE(Elem_op_t), allocatable :: Tab_op(:)                                  ! 0 : \hat{Id} ; 1 : \hat{H} ; 2 : \hat{x} ; 3 : \hat{N} ; 4 : \hat{\mu_{mat}} ; 5 : \hat{who knows ?}
+    TYPE(Elem_op_t), allocatable :: Tab_op(:)                                                           ! 0 : \hat{Id} ; 1 : \hat{H} ; 2 : \hat{x} ; 3 : \hat{N} ; 4 : \hat{\mu_{mat}} ; 5 : \hat{who knows ?}
     integer                      :: Nq      = 0
     real(kind=Rkind)             :: Eq_pos  = -ONE
     real(kind=Rkind)             :: Scale_q = HUGE(ONE)
@@ -168,7 +168,7 @@ MODULE Quantum_HO1D_m
   CONTAINS
 
 
-  SUBROUTINE MolecCav_Initialize_quantum_HO1D(QHO1D, Nb, w, m, Nb_op, Dense, Verbose, Debug) ! here init on the 1D QHO basis : don't need Nq etc. will write later Init_grid or Init_other_basis, maybe called by this one, in this case, the "call" will be determined by the optional arg (Nb, Nq etc.)
+  SUBROUTINE MolecCav_Initialize_quantum_HO1D(QHO1D, Nb, w, m, Nb_op, Dense, Verbose, Debug)            ! here init on the 1D QHO basis : don't need Nq etc. will write later Init_grid or Init_other_basis, maybe called by this one, in this case, the "call" will be determined by the optional arg (Nb, Nq etc.)
     !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m
     USE Elem_op_m
@@ -179,12 +179,12 @@ MODULE Quantum_HO1D_m
     real(kind=Rkind),     intent(in)    :: w 
     real(kind=Rkind),     intent(in)    :: m 
     integer, optional,    intent(in)    :: Nb_op
-    logical, optional,    intent(in)    :: Dense                                                                         ! cf. comments in HO1D_parameters_m
-    integer, optional,    intent(in)    :: Verbose                                                                         ! cf. comments in HO1D_parameters_m
-    logical, optional,    intent(in)    :: Debug                                                                           ! cf. comments in HO1D_parameters_m
+    logical, optional,    intent(in)    :: Dense                                                        ! cf. comments in HO1D_parameters_m
+    integer, optional,    intent(in)    :: Verbose                                                      ! cf. comments in HO1D_parameters_m
+    logical, optional,    intent(in)    :: Debug                                                        ! cf. comments in HO1D_parameters_m
 
-    logical                             :: Dense_local                                                              ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
-    integer                             :: Verbose_local
+    logical                             :: Dense_local
+    integer                             :: Verbose_local                                                ! goes from 20 (= 0 verbose) to 24 (= maximum verbose) at this layer
     logical                             :: Debug_local
 
     !--- Debugging options --------------------------------
@@ -206,7 +206,7 @@ MODULE Quantum_HO1D_m
       FLUSH(out_unit)
     END IF
     
-    !------------------------------------------Initializing the parameters of the 1D QHO------------------------------------------
+    !--- Initializing QHO1D parameters --------------------
     QHO1D%Nb = Nb
     QHO1D%w  = w
     QHO1D%m  = m
@@ -214,15 +214,16 @@ MODULE Quantum_HO1D_m
     ELSE; QHO1D%Nb_op  = 4; END IF 
     ALLOCATE(QHO1D%Tab_op(0:QHO1D%Nb_op-1))
     
-    !--------------------------------------Constructing the operators to build-------------------------------------
+    !--- Constructing the operators to build --------------
     IF (PRESENT(Dense)) THEN; Dense_local = Dense
     ELSE; Dense_local = .FALSE.; END IF
 
+    IF (Verbose_local > 17) WRITE(out_unit,*) "--- Computing norm of Psi..."
     CALL Initialize(QHO1D%Tab_op(0), "Identity",    Nb=Nb,           Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local)
     CALL Initialize(QHO1D%Tab_op(1), "Hamiltonian", Nb=Nb, w=w,      Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local)
     CALL Initialize(QHO1D%Tab_op(2), "Position",    Nb=Nb, w=w, m=m, Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local)
     CALL Initialize(QHO1D%Tab_op(3), "NbQuanta",    Nb=Nb,           Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local)
-    WRITE(out_unit,*) "    ...back to MolecCav_Normalize_R2_real"
+    IF (Verbose_local > 17) WRITE(out_unit,*) "    ...back to MolecCav_Normalize_R2_real"
 
   END SUBROUTINE MolecCav_Initialize_quantum_HO1D
 
