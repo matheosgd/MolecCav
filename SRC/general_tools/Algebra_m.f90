@@ -174,6 +174,7 @@ MODULE Algebra_m
       IF (Debug_local) CALL Write_Mat(OrthoBasis, out_unit, SIZE(OrthoBasis, dim=1), info="Orthobasis(:,"//TO_string(i)//") :")
     END DO
     
+    !--- Finishing initialisation -------------------------
     IF (Debug_local) THEN
       WRITE(out_unit,*) "--- The orthonormalised basis :"
       CALL Write_Mat(OrthoBasis, out_unit, SIZE(OrthoBasis, dim=2), info="OrthoBasis")
@@ -220,6 +221,7 @@ MODULE Algebra_m
       Psi(:,:) = Psi(:,:) / Norm
     END IF 
 
+    !--- Conclusion ---------------------------------------
     IF (Debug_local) THEN
       WRITE(out_unit,*) "--- The normalized Psi :"
       CALL Write_Mat(Psi, out_unit, SIZE(Psi, dim=2), info="Normalised Psi")
@@ -268,6 +270,7 @@ MODULE Algebra_m
       Psi(:,:) = Psi(:,:) / Norm
     END IF 
 
+    !--- Conclusion ---------------------------------------
     IF (Debug_local) THEN
       WRITE(out_unit,*) "--- The normalized Psi :"
       CALL Write_Mat(Psi, out_unit, SIZE(Psi, dim=2), info="Normalised Psi")
@@ -316,6 +319,7 @@ MODULE Algebra_m
       Psi(:) = Psi(:) / Norm
     END IF 
 
+    !--- Conclusion ---------------------------------------
     IF (Debug_local) THEN
       WRITE(out_unit,*) "--- The normalized Psi :"
       CALL Write_Vec(Psi, out_unit, 1, info="Normalised Psi")
@@ -364,6 +368,7 @@ MODULE Algebra_m
       Psi(:) = Psi(:) / Norm
     END IF 
 
+    !--- Conclusion ---------------------------------------
     IF (Debug_local) THEN
       WRITE(out_unit,*) "--- The normalized Psi :"
       CALL Write_Vec(Psi, out_unit, 1, info="Normalised Psi")
@@ -441,6 +446,7 @@ MODULE Algebra_m
 
     Norm = SQRT(REAL(ScaP, kind=Rkind))
   
+    !--- Conclusion ---------------------------------------
     IF (Debug_local) WRITE(out_unit,*) "--- The computed norm of Psi :"//TO_string(Norm)
 
   END SUBROUTINE MolecCav_Norm_R2_complex
@@ -476,6 +482,7 @@ MODULE Algebra_m
 
     Norm = SQRT(Norm)
   
+    !--- Conclusion ---------------------------------------
     IF (Debug_local) WRITE(out_unit,*) "--- The computed norm of Psi :"//TO_string(Norm)
 
   END SUBROUTINE MolecCav_Norm_R1_real
@@ -512,6 +519,7 @@ MODULE Algebra_m
 
     Norm = SQRT(REAL(ScaP, kind=Rkind))
   
+    !--- Conclusion ---------------------------------------
     IF (Debug_local) WRITE(out_unit,*) "--- The computed norm of Psi :"//TO_string(Norm)
 
   END SUBROUTINE MolecCav_Norm_R1_complex
@@ -561,6 +569,7 @@ MODULE Algebra_m
       ScaP = ScaP + DOT_PRODUCT(Psi_1(:,i_2), Psi_2(:,i_2))
     END DO
 
+    !--- Conclusion ---------------------------------------
     IF (Debug_local) WRITE(out_unit,*) "--- The computed scalar product < Psi_1 | Psi_2 >  ="//TO_string(ScaP)
 
   END SUBROUTINE MolecCav_Scalar_product_R2_real
@@ -610,6 +619,7 @@ MODULE Algebra_m
       ScaP = ScaP + DOT_PRODUCT(Psi_1(:,i_2), Psi_2(:,i_2))
     END DO
 
+    !--- Conclusion ---------------------------------------
     IF (Debug_local) WRITE(out_unit,*) "--- The computed scalar product < Psi_1 | Psi_2 >  ="//TO_string(ScaP)
 
   END SUBROUTINE MolecCav_Scalar_product_R2_complex
@@ -651,6 +661,7 @@ MODULE Algebra_m
     !--- Scalar product computation -----------------------
     ScaP = DOT_PRODUCT(Psi_1, Psi_2)
 
+    !--- Conclusion ---------------------------------------
     IF (Debug_local) WRITE(out_unit,*) "--- The computed scalar product < Psi_1 | Psi_2 >  ="//TO_string(ScaP)
 
   END SUBROUTINE MolecCav_Scalar_product_R1_real
@@ -692,6 +703,7 @@ MODULE Algebra_m
     !--- Scalar product computation -----------------------
     ScaP = DOT_PRODUCT(Psi_1, Psi_2)
 
+    !--- Conclusion ---------------------------------------
     IF (Debug_local) WRITE(out_unit,*) "--- The computed scalar product < Psi_1 | Psi_2 >  ="//TO_string(ScaP)
 
   END SUBROUTINE MolecCav_Scalar_product_R1_complex

@@ -71,7 +71,7 @@ PROGRAM test_ND_indexes
   Starting_indexes = 1
   IF (Debug) WRITE(out_unit,*) "Starting_indexes", Starting_indexes
 
-  CALL Initialize_ND_indexes(ND_indexes, Ranks_sizes, Starting_indexes=Starting_indexes, Begin_right=Begin_right, Debug=Debug)
+  CALL Initialize(ND_indexes, Ranks_sizes, Starting_indexes=Starting_indexes, Begin_right=Begin_right, Debug=Debug)
 
   I_loop = 0
   List_indexes = Initialize_List_indexes(ND_indexes)
@@ -195,7 +195,7 @@ PROGRAM test_ND_indexes
       CALL Write_Vec(ND_indexes%Ranks_sizes, out_unit, Size(ND_indexes%Ranks_sizes), info="Ranks_sizes")
     END IF
 
-    CALL Increment_indexes(Continue_loop, List_indexes, ND_indexes, Debug=Debug)
+    CALL Increment(Continue_loop, List_indexes, ND_indexes, Debug=Debug)
     IF (Debug) WRITE(out_unit,*) " -> Continue_loop : "//TO_string(Continue_loop)
 
     IF (Continue_loop) THEN
@@ -244,7 +244,7 @@ PROGRAM test_ND_indexes
       CALL Write_Vec(ND_indexes%Ranks_sizes, out_unit, Size(ND_indexes%Ranks_sizes), info="Ranks_sizes")
     END IF
 
-    CALL Increment_indexes(Continue_loop, List_indexes, ND_indexes, Debug=Debug)
+    CALL Increment(Continue_loop, List_indexes, ND_indexes, Debug=Debug)
     IF (Debug) WRITE(out_unit,*) " -> Continue_loop : "//TO_string(Continue_loop)
 
     IF (Continue_loop) THEN
@@ -293,7 +293,7 @@ PROGRAM test_ND_indexes
       CALL Write_Vec(ND_indexes%Ranks_sizes, out_unit, Size(ND_indexes%Ranks_sizes), info="Ranks_sizes")
     END IF
 
-    CALL Increment_indexes(Continue_loop, List_indexes, ND_indexes, Debug=Debug)
+    CALL Increment(Continue_loop, List_indexes, ND_indexes, Debug=Debug)
     IF (Debug) WRITE(out_unit,*) " -> Continue_loop : "//TO_string(Continue_loop)
 
     IF (Continue_loop) THEN
@@ -342,7 +342,7 @@ PROGRAM test_ND_indexes
       CALL Write_Vec(ND_indexes%Ranks_sizes, out_unit, Size(ND_indexes%Ranks_sizes), info="Ranks_sizes")
     END IF
 
-    CALL Increment_indexes(Continue_loop, List_indexes, ND_indexes, Debug=Debug)
+    CALL Increment(Continue_loop, List_indexes, ND_indexes, Debug=Debug)
     IF (Debug) WRITE(out_unit,*) " -> Continue_loop : "//TO_string(Continue_loop)
 
     IF (Continue_loop) THEN
@@ -370,8 +370,8 @@ PROGRAM test_ND_indexes
 
 
   !----------------------------------The ND_indexes deallocation---------------------------------
-  CALL Deallocate_ND_indexes(ND_indexes)
-  IF (Debug) CALL Write_ND_indexes(ND_indexes)
+  CALL Deallocate(ND_indexes)
+  IF (Debug) CALL Write(ND_indexes)
 
   CALL Logical_Test(test_ND_ind, ALLOCATED(ND_indexes%Starting_indexes),test2=.FALSE.,info="ND_ind%Starting_indexes deallocated ?")
   CALL Logical_Test(test_ND_ind, ALLOCATED(ND_indexes%Ranks_sizes),     test2=.FALSE.,info="ND_ind%Ranks_sizes      deallocated ?")

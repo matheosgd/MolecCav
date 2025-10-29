@@ -53,21 +53,21 @@ MODULE ND_indexes_m
 
   PRIVATE
 
-  PUBLIC ND_indexes_t, Initialize_ND_indexes, Initialize_List_indexes, Increment_indexes, Deallocate_ND_indexes, Write_ND_indexes
+  PUBLIC ND_indexes_t, Initialize, Initialize_List_indexes, Increment, Deallocate, Write
 
-  INTERFACE Initialize_ND_indexes
+  INTERFACE Initialize
     MODULE PROCEDURE MolecCav_Initialize_ND_indexes
   END INTERFACE
   INTERFACE Initialize_List_indexes
     MODULE PROCEDURE MolecCav_Initialize_List_indexes
   END INTERFACE
-  INTERFACE Increment_indexes
+  INTERFACE Increment
     MODULE PROCEDURE MolecCav_Increment_indexes
   END INTERFACE
-  INTERFACE Deallocate_ND_indexes
+  INTERFACE Deallocate
     MODULE PROCEDURE MolecCav_Deallocate_ND_indexes
   END INTERFACE
-  INTERFACE Write_ND_indexes
+  INTERFACE Write
     MODULE PROCEDURE MolecCav_Write_ND_indexes
   END INTERFACE
     
@@ -76,6 +76,7 @@ MODULE ND_indexes_m
 
   
   SUBROUTINE MolecCav_Initialize_ND_indexes(ND_indexes, Ranks_sizes, Starting_indexes, Begin_right, Debug)
+    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m
     IMPLICIT NONE 
 
@@ -85,20 +86,32 @@ MODULE ND_indexes_m
     integer, optional,  intent(in)    :: Begin_right
     logical, optional,  intent(in)    :: Debug
 
-    logical                           :: Debug_local = .FALSE.
+    logical                           :: Debug_local
     integer                           :: NB
     
-    IF (PRESENT(Debug)) Debug_local = Debug
+    !--- Debugging options --------------------------------
+    IF (PRESENT(Debug)) THEN; Debug_local = Debug
+    ELSE; Debug_local = .FALSE.; END IF
 
     IF (Debug_local) THEN
-      WRITE(out_unit,*) 
-      WRITE(out_unit,*) '********************************************************************************'
-      WRITE(out_unit,*) '********************** INITIALIZING ND_INDEXES PARAMETERS **********************'
-    END IF 
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "o Arguments of MolecCav_Initialize_ND_indexes :"
+      WRITE(out_unit,*) "The <<ND_indexes>> argument       :" 
+      CALL Write(ND_indexes)
+      WRITE(out_unit,*) "The <<Ranks_sizes>> argument      :" 
+      CALL Write_Vec(Ranks_sizes, out_unit, SIZE(Ranks_sizes, dim=1), info="Ranks_sizes")
+      WRITE(out_unit,*) "The <<Starting_indexes>> argument :" 
+      CALL Write_Vec(Starting_indexes, out_unit, SIZE(Starting_indexes, dim=1), info="Starting_indexes")
+      WRITE(out_unit,*) "The <<Begin_right>> argument      : "//TO_string(Begin_right)
+      FLUSH(out_unit)
+    END IF
 
+    !--- Checking dimensions and Allocating ND_indexes%Starting_Indexes
     IF (PRESENT(Starting_indexes) .AND. Size(Starting_indexes) /= Size(Ranks_sizes)) THEN
-      WRITE(out_unit,*) "The sizes of the optional argument Starting_index ("//TO_string(Size(Starting_indexes))//") and of the D&
-                        &im_sizes argument ("//TO_string(Size(Ranks_sizes))//") do not match. Please check the arguments."
+      WRITE(out_unit,*) "### The sizes of the optional argument Starting_index and of the Ranks_sizes argument do not match."
+      WRITE(out_unit,*) "    SIZE(Starting_indexes) = "//TO_string(SIZE(Starting_indexes))//"; SIZE(Ranks_sizes) = "//TO_string(S&
+      &IZE(Ranks_sizes))
+      WRITE(out_unit,*) "    Please check the arguments."
       STOP "### The sizes of the Starting_index and the Ranks_sizes arguments do not match. cf. output file for more information."
     ELSE IF (PRESENT(Starting_indexes) .AND. Size(Starting_indexes) == Size(Ranks_sizes)) THEN
       ALLOCATE(ND_indexes%Starting_indexes(Size(Ranks_sizes)))
@@ -108,26 +121,24 @@ MODULE ND_indexes_m
       ND_indexes%Starting_indexes = 1                                                                                            ! as a default arbitrary choice, the labelling of the basis vectors starts as the Fortran convention i.e. from 1
     END IF
 
+    !--- Finishing initialisation -------------------------
     IF (PRESENT(Begin_right)) ND_indexes%Begin_right = Begin_right
-    ND_indexes%N_dim       = Size(Ranks_sizes)
+    ND_indexes%N_dim       = SIZE(Ranks_sizes)
     ALLOCATE(ND_indexes%Ranks_sizes(ND_indexes%N_dim))
     ND_indexes%Ranks_sizes = Ranks_sizes
     ND_indexes%NB          = PRODUCT(ND_indexes%Ranks_sizes)
 
+    !--- Conclusion ---------------------------------------
     IF (Debug_local) THEN
-      WRITE(out_unit,*)
-      WRITE(out_unit,*) "------------ND_indexes constructed by MolecCav_Initialize_ND_indexes------------"
-      CALL Write_ND_indexes(ND_indexes)
-      WRITE(out_unit,*) "----------End ND_indexes constructed by MolecCav_Initialize_ND_indexes----------"
-      WRITE(out_unit,*) 
-      WRITE(out_unit,*) '*********************** ND_INDEXES PARAMETERS INITIALIZED **********************'
-      WRITE(out_unit,*) '********************************************************************************'      
-    END IF
-      
+      WRITE(out_unit,*) "--- The initialised ND_indexes :"
+      CALL Write(ND_indexes)
+    END IF 
+          
   END SUBROUTINE MolecCav_Initialize_ND_indexes
 
 
   FUNCTION MolecCav_Initialize_List_indexes(ND_indexes) RESULT(List_indexes)
+    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m
     IMPLICIT NONE 
 
@@ -145,6 +156,7 @@ MODULE ND_indexes_m
 
 
   SUBROUTINE MolecCav_Increment_indexes(Continue_loop, List_indexes, ND_indexes, Debug)
+    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m
     IMPLICIT NONE 
 
@@ -153,16 +165,30 @@ MODULE ND_indexes_m
     TYPE(ND_indexes_t), intent(inout) :: ND_indexes
     logical, optional,  intent(in)    :: Debug 
 
-    logical                           :: Debug_local = .FALSE.
+    logical                           :: Debug_local
     integer                           :: N, i
 
-    IF (PRESENT(Debug)) Debug_local = Debug
-    IF (Debug_local) WRITE(out_unit,*)
+    !--- Debugging options --------------------------------
+    IF (PRESENT(Debug)) THEN; Debug_local = Debug
+    ELSE; Debug_local = .FALSE.; END IF
 
+    IF (Debug_local) THEN
+      WRITE(out_unit,*)
+      WRITE(out_unit,*) "o Arguments of MolecCav_Increment_indexes :"
+      WRITE(out_unit,*) "The <<Continue_loop>> argument :"//TO_string(Continue_loop)
+      WRITE(out_unit,*) "The <<List_indexes>> argument  :" 
+      CALL Write_Vec(List_indexes, out_unit, SIZE(List_indexes, dim=1), info="List_indexes")
+      WRITE(out_unit,*) "The <<ND_indexes>> argument    :" 
+      CALL Write(ND_indexes)
+      FLUSH(out_unit)
+    END IF
+
+    !--- Initialization -----------------------------------
     N = ND_indexes%N_dim
     Continue_loop = .TRUE.
     i = 1 + ND_indexes%Begin_right*(N-1)                                                                                         ! we chose first i from 0 to N using the index N-i in the loop and the final test i==N (so looping on dim=N then N-1 ... up to 1), but we are forced to loop in the other sens since the construct TotH has to loop on i_M first then i_C, and so does mappping 2DTO1D
 
+    !--- Incrementation -----------------------------------
     DO WHILE (Continue_loop)
       List_indexes(i) = List_indexes(i) + 1
       IF (Debug_local) CALL Write_Vec(List_indexes, out_unit, N, info="-> incremented List_indexes")
@@ -181,79 +207,90 @@ MODULE ND_indexes_m
       END IF
     END DO
 
+    !--- Conclusion ---------------------------------------
+    IF (Debug_local) THEN
+      WRITE(out_unit,*) "The final Continue_loop      : "//TO_string(Continue_loop)
+      WRITE(out_unit,*) "The incremented List_indexes :" 
+      CALL Write_Vec(List_indexes, out_unit, SIZE(List_indexes, dim=1), info="List_indexes")
+      WRITE(out_unit,*) "The final ND_indexes         :" 
+      CALL Write(ND_indexes)
+    END IF 
+
   END SUBROUTINE MolecCav_Increment_indexes
 
 
-  SUBROUTINE MolecCav_Write_ND_indexes(ND_indexes)
+  SUBROUTINE MolecCav_Write_ND_indexes(ND_indexes, Info)
+    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m
     IMPLICIT NONE
 
-    TYPE(ND_indexes_t), intent(in) :: ND_indexes
+    TYPE(ND_indexes_t), intent(in)         :: ND_indexes
+    character(len=*), optional, intent(in) :: Info
 
-    WRITE(out_unit,*) "___________________________________The associated ND_indexes object_________________________________"
-    WRITE(out_unit,*) "|Number of dimension of the tensor to map (ND_indexes%N_dim)                 | ", ND_indexes%N_dim
-    WRITE(out_unit,*) "|____________________________________________________________________________|_____________________|"
-    FLUSH(out_unit)
+    IF (PRESENT(Info)) THEN
+      WRITE(out_unit,*) "--- Parameters associated to the object of derived type ND_indexes ("//Info//") :"
+    ELSE
+      WRITE(out_unit,*) "--- Parameters associated to the object of derived type ND_indexes :"
+    END IF
+
+    WRITE(out_unit,*) "N_dim = "//TO_string(ND_indexes%N_dim)
+
     IF (ALLOCATED(ND_indexes%Starting_indexes)) THEN
-      WRITE(out_unit,*) "|The labelling of the basis vectors information do is allocated, and ...     | "
-      WRITE(out_unit,*) "|... this labelling shall start from (ND_indexes%Starting_indexes)           | "
-      WRITE(out_unit,*) "|____________________________________________________________________________| "
-      CALL Write_Vec(ND_indexes%Starting_indexes, out_unit, Size(ND_indexes%Starting_indexes), info="ND_indexes%Starting_indexes")
-      FLUSH(out_unit)
-      WRITE(out_unit,*) "|____________________________________________________________________________|"
+      WRITE(out_unit,*) "Starting_indexes IS allocated, and SIZE(Starting_indexes, dim=1) = "//TO_string(SIZE(ND_indexes%Starting&
+      &_indexes))
+      CALL Write_Vec(ND_indexes%Starting_indexes, out_unit, Size(ND_indexes%Starting_indexes), info="Starting_indexes")
     ELSE 
-      WRITE(out_unit,*) "|The labelling of the basis vectors information is NOT allocated.            | "
-      WRITE(out_unit,*) "|____________________________________________________________________________| "
+      WRITE(out_unit,*) "Starting_indexes is NOT allocated"
     END IF
-    FLUSH(out_unit)
-    WRITE(out_unit,*) "|Shall the incrementation start from the rightmost index ?                   | ", ND_indexes%Begin_right
-    WRITE(out_unit,*) "|N.B. 0 = .FALSE.; 1 = .TRUE. (ND_indexes%Begin_right)                       |                     |"
-    WRITE(out_unit,*) "|____________________________________________________________________________|_____________________|"
+
+    WRITE(out_unit,*) "Begin_right = "//TO_string(ND_indexes%Begin_right)
+
     IF (ALLOCATED(ND_indexes%Ranks_sizes)) THEN
-      WRITE(out_unit,*) "|The list of the basis set size of each of these dimensions do is allocated..| "
-      WRITE(out_unit,*) "|... and is initialized as (ND_indexes%Ranks_sizes)                          | "
-      WRITE(out_unit,*) "|____________________________________________________________________________| "
-      CALL Write_Vec(ND_indexes%Ranks_sizes, out_unit, Size(ND_indexes%Ranks_sizes), info="ND_indexes%Ranks_sizes")
-      FLUSH(out_unit)
-      WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
+      WRITE(out_unit,*) "Ranks_sizes IS allocated, and SIZE(Ranks_sizes, dim=1) = "//TO_string(SIZE(ND_indexes%Ranks_sizes))
+      CALL Write_Vec(ND_indexes%Ranks_sizes, out_unit, Size(ND_indexes%Ranks_sizes), info="Ranks_sizes")
     ELSE 
-      WRITE(out_unit,*) "|The list of the basis set size of each of these dimensions is NOT allocated.| "
-      WRITE(out_unit,*) "|____________________________________________________________________________|______________________"
+      WRITE(out_unit,*) "Ranks_sizes is NOT allocated"
     END IF
-    FLUSH(out_unit)
-    WRITE(out_unit,*) "|The dimension of the tensor producted vector (ND_indexes%NB)                | ", ND_indexes%NB
-    WRITE(out_unit,*) "|____________________________________________________________________________|_____________________|"
+
+    WRITE(out_unit,*) "NB = "//TO_string(ND_indexes%NB)
     FLUSH(out_unit)
   
   END SUBROUTINE MolecCav_Write_ND_indexes
 
 
-  SUBROUTINE MolecCav_Deallocate_ND_indexes(ND_indexes)
+  SUBROUTINE MolecCav_Deallocate_ND_indexes(ND_indexes, Debug)
+    !USE, intrinsic :: ISO_FORTRAN_ENV, ONLY : INPUT_UNIT,OUTPUT_UNIT,real64
     USE QDUtil_m
     IMPLICIT NONE 
 
     TYPE(ND_indexes_t), intent(inout) :: ND_indexes
+    logical, optional,     intent(in) :: Debug                                                       ! cf. comments in HO1D_parameters_m
 
-    logical, parameter                :: Debug_local = .FALSE.
+    logical                           :: Debug_local
+
+    !--- Debugging options --------------------------------
+    IF (PRESENT(Debug)) THEN; Debug_local = Debug
+    ELSE; Debug_local = .FALSE.; END IF
 
     IF (Debug_local) THEN
       WRITE(out_unit,*)
-      WRITE(out_unit,*) "-------------------------------------------Deallocating the following ND_indexes object-----------------&
-                        &--------------------------"
-      CALL Write_ND_indexes(ND_indexes)
+      WRITE(out_unit,*) "o Arguments of MolecCav_Deallocate_ND_indexes :"
+      WRITE(out_unit,*) "The <<ND_indexes>> argument    :" 
+      CALL Write(ND_indexes)
+      FLUSH(out_unit)
     END IF
 
+    !--- Deallocation -------------------------------------
+    ND_indexes%N_dim       = 0
     IF (ALLOCATED(ND_indexes%Ranks_sizes))      DEALLOCATE(ND_indexes%Ranks_sizes)
+    ND_indexes%Begin_right = 0
     IF (ALLOCATED(ND_indexes%Starting_indexes)) DEALLOCATE(ND_indexes%Starting_indexes)
+    ND_indexes%NB          = 0
 
+    !--- Conclusion ---------------------------------------
     IF (Debug_local) THEN
-      WRITE(out_unit,*)
-      WRITE(out_unit,*) "-------------------------------------------------The deallocated ND_indexes object----------------------&
-                        &--------------------------"
-      CALL Write_ND_indexes(ND_indexes)
-      WRITE(out_unit,*) "------------------------------------------End Deallocating the previous ND_indexes object---------------&
-                        &--------------------------"
-    END IF
+      CALL Write(ND_indexes)
+    END IF 
 
   END SUBROUTINE MolecCav_Deallocate_ND_indexes
 

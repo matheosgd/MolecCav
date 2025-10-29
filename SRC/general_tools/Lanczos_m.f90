@@ -179,6 +179,7 @@ MODULE Lanczos_m
       WRITE(out_unit,*) "################### WARNING ################## WARNING ################## WARNING ##################"
     END IF
     
+    !--- Conclusion ---------------------------------------
     IF (Debug_local) WRITE(out_unit,*) "--- The constructed KBasis :"
     IF (Debug_local) CALL Write_Mat(KBasis, out_unit, SIZE(KBasis, dim=2), info="KBasis")
 
@@ -213,7 +214,7 @@ MODULE Lanczos_m
       WRITE(out_unit,*) "The <<KBasis>> argument :" 
       IF (ALLOCATED(KBasis)) THEN; CALL Write_Mat(KBasis, out_unit, SIZE(KBasis, dim=2), info="KBasis")
       ELSE; WRITE(out_unit,*) "is NOT allocated !"; END IF ! but why do we need to keep it allocatable ?
-      WRITE(out_unit,*) "The <<TotH>> argument :" 
+      WRITE(out_unit,*) "The <<TotH>> argument   :" 
       CALL Write(TotH)
       FLUSH(out_unit)
     END IF
@@ -257,6 +258,7 @@ MODULE Lanczos_m
       WRITE(out_unit,*) "################### WARNING ################## WARNING ################## WARNING ##################"
     END IF
   
+    !--- Conclusion ---------------------------------------
     IF (Debug_local) WRITE(out_unit,*) "--- The augmented KBasis :"
     IF (Debug_local) CALL Write_Mat(KBasis, out_unit, SIZE(KBasis, dim=2), info="KBasis")
 
@@ -287,7 +289,7 @@ MODULE Lanczos_m
       CALL Write_Mat(TribandH, out_unit, SIZE(TribandH, dim=2), info="TribandH")
       WRITE(out_unit,*) "The <<KBasis>> argument :" 
       CALL Write_Mat(KBasis, out_unit, SIZE(KBasis, dim=2), info="KBasis")
-      WRITE(out_unit,*) "The <<TotH>> argument :" 
+      WRITE(out_unit,*) "The <<TotH>> argument   :" 
       CALL Write(TotH)
       FLUSH(out_unit)
     END IF
@@ -328,6 +330,7 @@ MODULE Lanczos_m
       CALL Action(TribandH(:,i), TotH, KBasis(:,i), Debug=Debug_local)
     END DO 
 
+    !--- Conclusion ---------------------------------------
     IF (Debug_local) WRITE(out_unit,*) "--- The constructed TribandH :"
     IF (Debug_local) CALL Write_Mat(TribandH, out_unit, SIZE(TribandH, dim=2), info="TribandH")
 
@@ -405,6 +408,7 @@ MODULE Lanczos_m
     Psi_1(:,:) = ZERO
     Psi_1 = MATMUL(ChangeM_1TO2, Psi_2)
 
+    !--- Conclusion ---------------------------------------
     IF (Debug_local) WRITE(out_unit,*) "--- The constructed Psi_1 :"
     IF (Debug_local) CALL Write_Mat(Psi_1, out_unit, SIZE(Psi_1, dim=2), info="Psi_1")
 

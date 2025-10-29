@@ -129,14 +129,15 @@ MODULE Tests_m
     !--- The test -----------------------------------------
     IF (ABS(Real_1 - Real_2) > Threshold) THEN
       Error = .TRUE.
-      IF (Debug_local) WRITE(out_unit,*) "--- The two numbers are not close enough to be considered equal : Re_1 =", Real_1, "Re_2 &
-      &=", Real_2, "|Re_1-Re_2| = ", ABS(Real_1 - Real_2)
+      IF (Debug_local) WRITE(out_unit,*) "--- The two numbers are not close enough to be considered equal : Re_1 =", Real_1, "Re_&
+      &2 =", Real_2, "|Re_1-Re_2| = ", ABS(Real_1 - Real_2)
     ELSE 
       Error = .FALSE.
-      IF (Debug_local) WRITE(out_unit,*) "--- The two numbers are close enough to be considered equal : Re_1 =", Real_1, "Re_2 =", &
-      &Real_2, "|Re_1-Re_2| = ", ABS(Real_1 - Real_2)
+      IF (Debug_local) WRITE(out_unit,*) "--- The two numbers are close enough to be considered equal : Re_1 =", Real_1, "Re_2 ="&
+      &, Real_2, "|Re_1-Re_2| = ", ABS(Real_1 - Real_2)
     END IF
 
+    !--- Conclusion ---------------------------------------
     IF (Debug_local) WRITE(out_unit,*) "--- The final value of Error = "//TO_string(Error)
 
   END SUBROUTINE MolecCav_Equal_R_R_tensor_R0
@@ -192,6 +193,7 @@ MODULE Tests_m
       &, AIMAG(Cmplx_1), "Im_2 =", AIMAG(Cmplx_2), "|Im_1-Im_2| = ", ABS(AIMAG(Difference))
     END IF
 
+    !--- Conclusion ---------------------------------------
     IF (Debug_local) WRITE(out_unit,*) "--- The final value of Error = "//TO_string(Error)
 
   END SUBROUTINE MolecCav_Equal_C_C_tensor_R0
@@ -254,6 +256,7 @@ MODULE Tests_m
       END IF
     END IF 
 
+    !--- Conclusion ---------------------------------------
     IF (Debug_local) WRITE(out_unit,*) "--- The final value of Error = "//TO_string(Error)
 
   END SUBROUTINE MolecCav_Equal_R_R_tensor_R1
@@ -338,6 +341,9 @@ MODULE Tests_m
       END IF 
     END IF
 
+    !--- Conclusion ---------------------------------------
+    IF (Debug_local) WRITE(out_unit,*) "--- The final value of Error = "//TO_string(Error)
+
   END SUBROUTINE MolecCav_Equal_C_C_tensor_R1
     
   
@@ -402,6 +408,7 @@ MODULE Tests_m
       END IF
     END IF 
 
+    !--- Conclusion ---------------------------------------
     IF (Debug_local) WRITE(out_unit,*) "--- The final value of Error = "//TO_string(Error)
 
   END SUBROUTINE MolecCav_Equal_R_R_tensor_R2
@@ -490,6 +497,7 @@ MODULE Tests_m
       END IF 
     END IF
 
+    !--- Conclusion ---------------------------------------
     IF (Debug_local) WRITE(out_unit,*) "--- The final value of Error = "//TO_string(Error)
 
   END SUBROUTINE MolecCav_Equal_C_C_tensor_R2

@@ -131,6 +131,27 @@ EXTMod     = -I$(QDMOD_DIR)# the directory where the external libraries are to f
 #-------------------------
 #--- Summary of the things
 #-------------------------
+$(info ****************************************************************************************************)
+$(info ****************************************************************************************************)
+$(info **                             ......                                                             **)
+$(info **    ..       ..              :####:                             .###.                           **)
+$(info **    ##.     .##                 ##:                           /######:                          **)
+$(info **    ###     ###       _         ##:                           ###"""\:                          **)
+$(info **    ###\   /###    .#####.      ##:     .####.     .#####\  /##         _.####.   ###     ###   **)
+$(info **    ##\#\ /#/##   .#######.     ##:    /######\   .#######  ##/         #######\  '##.   .##'   **)
+$(info **    ## ##v## ##  /##'   '##\    ##:    ##/  \##   ###'  ''  ##          "    ###   ###   ###    **)
+$(info **    ## \###/ ##  ##'     '##    ##:   .##    ##  /##'      :##               :##   \##   ##/    **)
+$(info **    ##  ###  ## :##       ##:   ##:   :########  :##       :##           .######    ##\ /##     **)
+$(info **    ##  \#/  ## :##       ##:   ##:   ###""""""  :##       :##          ###""###    ### ###     **)
+$(info **    ##   ¨   ##  ##.     .##    ##:   :##        :##        ##\        /##'  :##    '## ##'     **)
+$(info **    ##       ##  \##.   .##/    ##:   '##\       \##\   ..  \##\   /:  :##   ###     ##v##      **)
+$(info **    ##       ##   '#######'  ########: \######:   \#######   #######:  \#####n##     \###/      **)
+$(info **    ##       ##    '#####'   ########:  \####/     '#####/    \#####"   \###/ ##      ###       **)
+$(info **                                                                                                **)
+$(info ****************************************************************************************************)
+$(info ****************************************************************************************************)
+$(info )
+$(info )
 $(info xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx)
 $(info xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx)
 $(info )
@@ -154,7 +175,7 @@ $(info )
 # here is defined the UT command that EXECUTE (and compile if necessary) all the programs testing the library as planned in the TESTS/ directory 
 .PHONY: ut UT
 # the ".PHONY <string1> <string2> <...>" make command indicates to make that the provided string are neither files nor directories and allows to use them as key-words, ex: as command-line commands
-UT ut: $(addprefix $(EXE_DIR)/, $(TESTS_EXE))
+UT ut: $(addprefix $(EXE_DIR)/, $(TESTS_EXE)) #/!\ not used yet, here we execute them one by one bcause take different input
 	./$(EXE_DIR)/test_algebra.exe                                                 > $(OUTPUT_DIR)/tests/test_algebra.log
 	./$(EXE_DIR)/test_ND_indexes.exe                                              > $(OUTPUT_DIR)/tests/test_ND_indexes.log
 	./$(EXE_DIR)/test_elem_op.exe                                                 > $(OUTPUT_DIR)/tests/test_elem_op.log
