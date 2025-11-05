@@ -62,7 +62,12 @@
 ! gth the parameter Tab_op is expected to be allocated to. 
 !   - Tab_op : The table in which the QHO1D's operators are actually constructed and stored. It is 
 ! a rank-1 table of length Nb_op and of elements' type Elem_op. Here is an crucial key of the code 
-! framework : in aim to be able to access easily to the operator an order had been defined in which they are ALWAYS put in Tab_op, such as the same index will ALWAYS correspond to the same Operators's type EVRYWHERE in the code. We give here the correspondance of the nomenclature : "0" : \hat{Identity} ; "1" : \hat{Hamiltonian} ; "2" : \hat{Position} ; "3" : \hat{Number of quanta excitation} ; 4 : \hat{Dipole moment} (only if the QHO1D is associated with a matter mode of the system) ; 5 : \hat{To be implemented ?}.
+! framework : in aim to be able to access easily to the operator an order had been defined in whic-
+! h they are ALWAYS put in Tab_op, such as the same index will ALWAYS correspond to the same Opera-
+! tors's type EVRYWHERE in the code. We give here the correspondance of the nomenclature : "0" : \-
+! hat{Identity} ; "1" : \hat{Hamiltonian} ; "2" : \hat{Position} ; "3" : \hat{Number of quanta exc-
+! itation} ; 4 : \hat{Dipole moment} (only if the QHO1D is associated with a matter mode of the sy-
+! stem) ; 5 : \hat{To be implemented ?}.
 !   - Nq : The number (integer) of grid points associated to the discretisation of the spatial coo-
 ! rdinate of this QHO1D (<=> \hat{Position}).
 !   - Eq_pos : The real number corresponding to the equilibrium spatial position of this QHO1D's p-
@@ -218,12 +223,18 @@ MODULE Quantum_HO1D_m
     IF (PRESENT(Dense)) THEN; Dense_local = Dense
     ELSE; Dense_local = .FALSE.; END IF
 
-    IF (Verbose_local > 17) WRITE(out_unit,*) "--- Computing norm of Psi..."
+    IF (Verbose_local > 18) WRITE(out_unit,*) "--- Initialising the Elem_op objects associated to the QHO1D's operators..."
     CALL Initialize(QHO1D%Tab_op(0), "Identity",    Nb=Nb,           Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local)
     CALL Initialize(QHO1D%Tab_op(1), "Hamiltonian", Nb=Nb, w=w,      Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local)
     CALL Initialize(QHO1D%Tab_op(2), "Position",    Nb=Nb, w=w, m=m, Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local)
     CALL Initialize(QHO1D%Tab_op(3), "NbQuanta",    Nb=Nb,           Dense=Dense_local, Verbose=Verbose_local, Debug=Debug_local)
-    IF (Verbose_local > 17) WRITE(out_unit,*) "    ...back to MolecCav_Normalize_R2_real"
+    IF (Verbose_local > 17) WRITE(out_unit,*) "    ...back to MolecCav_Initialize_quantum_HO1D"
+
+    !--- Conclusion ---------------------------------------
+    IF (Verbose_local > 17) THEN
+      WRITE(out_unit,*) "--- Initialised QHO1D object :"
+      CALL Write(QHO1D, More=.TRUE.)
+    END IF
 
   END SUBROUTINE MolecCav_Initialize_quantum_HO1D
 
@@ -267,50 +278,56 @@ MODULE Quantum_HO1D_m
     END IF
 
     IF (.NOT. PRESENT(w) .AND. TRIM(TO_lowercase(Operator_type)) == "hamiltonian") THEN
-      WRITE(out_unit,*) "### Missing w for the H"
+      WRITE(out_unit,*) "### Missing w for the H at MolecCav_Initialize_QHO1D_Elem_op"
+      WRITE(out_unit,*) "    Please check arguments"
       STOP "### Missing w for the H"
     END IF 
     IF ((.NOT. PRESENT(w) .OR. .NOT. PRESENT(m)) .AND. TRIM(TO_lowercase(Operator_type)) == "position") THEN
-      WRITE(out_unit,*) "### Missing w or m for the x"
+      WRITE(out_unit,*) "### Missing w or m for the x at MolecCav_Initialize_QHO1D_Elem_op"
+      WRITE(out_unit,*) "    Please check arguments"
       STOP "### Missing w or m for the x"
     END IF 
     
-    !---------------------------------------First steps of the construction of the Operator--------------------------------------
+    !--- First steps of the construction of the Operator --
     ALLOCATE(character(len=LEN_TRIM(Operator_type)) :: Elem_op%Operator_type)                                                   ! /!\ strings cannot be allocated the exact same way as tables ! /!\
     Elem_op%Operator_type = TO_lowercase(TRIM(Operator_type))                                                                   ! allocation on assignement (not anymore : supposed to work but caused dynamic allocation random errors at execution). Elem_op_type has the right lengths (no spatials added) thanks to len=* at declaration and it will fit the Op%op_type thanks to len=:, allocatable at declaration of the derived type. 
 
     IF (PRESENT(Dense)) Elem_op%Dense = Dense
 
-    !---------------------------------------------Construction of the matrix Operator--------------------------------------------
+    !--- Construction of the matrix Operator --------------
     IF (Debug_local) THEN
-      WRITE(out_unit,*); WRITE(out_unit,*) "--- The Elem_op_t object just before construction of its matrix representation"
+      WRITE(out_unit,*); WRITE(out_unit,*) "--- The Elem_op_t object before constructing its matrix representation :"
       CALL Write(Elem_op)
     END IF 
 
     SELECT CASE (Elem_op%Operator_type)                                                                                         ! TO_lowercase avoid case sensitivity issues
       CASE ("identity")
+        IF (Verbose_local > 18) WRITE(out_unit,*) "--- Initialising the Identity Elem_op inside QHO1D%Tab_op..."
         CALL Initialize_I(Identity=Elem_op,    Nb=Nb,           Verbose=Verbose_local, Debug=Debug_local)
-        WRITE(out_unit,*) "    ...back to MolecCav_Normalize_R2_real"
+        IF (Verbose_local > 18) WRITE(out_unit,*) "    ...back to MolecCav_Initialize_HO1D_operator"
     
       CASE ("hamiltonian")
+        IF (Verbose_local > 18) WRITE(out_unit,*) "--- Initialising the Hamiltonian Elem_op inside QHO1D%Tab_op..."
         CALL Initialize_H(Hamiltonian=Elem_op, Nb=Nb, w=w,      Verbose=Verbose_local, Debug=Debug_local)
-        WRITE(out_unit,*) "    ...back to MolecCav_Normalize_R2_real"
+        IF (Verbose_local > 18) WRITE(out_unit,*) "    ...back to MolecCav_Initialize_HO1D_operator"
     
       CASE ("position")
+        IF (Verbose_local > 18) WRITE(out_unit,*) "--- Initialising the Position Elem_op inside QHO1D%Tab_op..."
         CALL Initialize_x(Position=Elem_op,  Nb=Nb, w=w, m=m, Verbose=Verbose_local, Debug=Debug_local)
-        WRITE(out_unit,*) "    ...back to MolecCav_Normalize_R2_real"
+        IF (Verbose_local > 18) WRITE(out_unit,*) "    ...back to MolecCav_Initialize_HO1D_operator"
       
       CASE ("nbquanta")
+        IF (Verbose_local > 18) WRITE(out_unit,*) "--- Initialising the Number of excitation quanta Elem_op inside QHO1D%Tab_op..."
         CALL Initialize_N(NbQuanta=Elem_op,    Nb=Nb,           Verbose=Verbose_local, Debug=Debug_local)
-        WRITE(out_unit,*) "    ...back to MolecCav_Normalize_R2_real"
+        IF (Verbose_local > 18) WRITE(out_unit,*) "    ...back to MolecCav_Initialize_HO1D_operator"
 
       CASE DEFAULT
         WRITE(out_unit,*) "### No Operator type recognized, please check the input of Initialize_HO1D_operator subroutine"
         STOP "### No Operator type recognized, please verify the input of Initialize_HO1D_operator subroutine"
     END SELECT
 
-    IF (Verbose_local > 26) THEN
-      WRITE(out_unit,*) "--- The constructed HO1D operator by MolecCav_Initialize_HO1D_operator :"
+    IF (Verbose_local > 17) THEN
+      WRITE(out_unit,*) "--- The initialised Elem_op of the QHO1D :"
       CALL Write(Elem_op)
     END IF
 
@@ -343,27 +360,26 @@ MODULE Quantum_HO1D_m
       WRITE(out_unit,*)
       WRITE(out_unit,*) "o o o Arguments of MolecCav_Initialize_I_QHO1D :"
       WRITE(out_unit,*) "The <<Identity>> argument      :"
-      CALL Write(Identity, Info="Identity")
+      CALL Write(Identity, Info="QHO1D%Tab(0)")
       WRITE(out_unit,*) "The <<Nb>> argument            : "//TO_string(Nb)
 
     END IF 
 
-    !---------------------------------------------Construction of the matrix Operator--------------------------------------------
+    !--- Construction of the operator's matrix ------------
     IF (.NOT. Identity%Dense) THEN
-      IF (Verbose_local > 28) WRITE(out_unit,*) "--- The Dense parameter of the Identity is .FALSE., so the 1D HO Identity'&
-                                               &s matrix representation will be a rank-0 tensor of ONE"
-      !---------------------------------------------Initialization to default values---------------------------------------------
+      IF (Verbose_local > 18) WRITE(out_unit,*) "--- The Dense parameter is passed as .FALSE., the QHO1D Identity's matrix repres&
+      &entation will be a rank-0 tensor of value ONE"
+      !--- Initialization to default values ---------------
       ALLOCATE(Identity%Diag_val(1))
 
-      !------------------------------------------------Construction of the matrix------------------------------------------------
-      Identity%Diag_val = ONE                                                                 ! "-1" because the first Fortran vector is the fundamental eigenvector of the HO i.e. the 0^{th} ket 
+      !--- Construction of the matrix ---------------------
+      Identity%Diag_val = ONE                                                                           ! "-1" because the first Fortran vector is the fundamental eigenvector of the HO i.e. the 0^{th} ket 
 
       IF (Debug_local) CALL Write_Vec(Identity%Diag_val, out_unit, 1, info="QHO1DIdentity")
 
     ELSE
-      IF (Verbose_local > 28) WRITE(out_unit,*) "--- The Dense parameter of the Identity is .TRUE., so the full 1D HO Identity&
-                                                &'s matrix will be constructed (in Eigenbasis) for the representation, as if t&
-                                                &he analytical matrix was a dense one"
+      IF (Verbose_local > 18) WRITE(out_unit,*) "--- The Dense parameter is passed as .TRUE., the full QHO1D Identity's matrix wi&
+      &ll be constructed for the representation, regardless of the sparce character of the analytical matrix."
       !---------------------------------------------Initialization to default values---------------------------------------------
       ALLOCATE(Identity%Dense_val(Nb, Nb))
       Identity%Dense_val = ZERO

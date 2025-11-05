@@ -41,7 +41,7 @@
 ! he hereiafter action procedure, the wavefunctions are assumed to be expressed in the same basis 
 ! set used to expressed the elementary operator.
 ! This module is in the "-5" level. At this level, Verbose is ranging from 21 (degree 0) to 24 (de-
-! gree 4).
+! gree 3).
 !
 ! Elem_op_t : The derived typed used to represent a mono-dimensional operator of quantum mechanics.
 ! It contains only informations about its nature and about the way the values of its tensor repres-
@@ -297,18 +297,22 @@ MODULE Elem_op_m
 
     !--- Selection of the calculation method --------------
     IF (ALLOCATED(Elem_op%Diag_val)) THEN
-      IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Diag_val is allocated. The diagonal operator action called."
+      IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Diag_val is allocated"
+      IF (Verbose_local > 23) WRITE(out_unit,*) "--- Computing action of diagonal Elem_op upon Psi..."
       CALL Action_diag(Op_psi=Op_psi, Elem_op=Elem_op, Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
+      IF (Verbose_local > 23) WRITE(out_unit,*) "    ...back to MolecCav_Action_elem_op_R1_real"
 
     ELSE IF (ALLOCATED(Elem_op%Band_val))   THEN
-      IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Diag_val is not allocated."
-      IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Band_val is allocated. The band operator action called."
+      IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Diag_val is not allocated, Elem_op%Band_val is allocated."
+      IF (Verbose_local > 23) WRITE(out_unit,*) "--- Computing action of band Elem_op upon Psi..."
       CALL Action_band(Op_psi=Op_psi, Elem_op=Elem_op, Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
+      IF (Verbose_local > 23) WRITE(out_unit,*) "    ...back to MolecCav_Action_elem_op_R1_real"
 
     ELSE IF (ALLOCATED(Elem_op%Dense_val)) THEN
-      IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Diag_val and Elem_op%Band_val are not allocated."
-      IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Dense_val is allocated. The dense operator action called."
+      IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Diag_val and Elem_op%Band_val are not allocated, Elem_op%Dense_val is allocated"
+      IF (Verbose_local > 23) WRITE(out_unit,*) "--- Computing action of dense Elem_op upon Psi..."
       CALL Action_dense(Op_psi=Op_psi, Elem_op=Elem_op, Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
+      IF (Verbose_local > 23) WRITE(out_unit,*) "    ...back to MolecCav_Action_elem_op_R1_real"
 
     ELSE
       WRITE(out_unit,*) "### None of this operator's matrices are allocated. Please check its initalization."
@@ -316,9 +320,8 @@ MODULE Elem_op_m
     END IF
 
     !--- Conclusion ---------------------------------------
-    IF (Debug_local) THEN
-      WRITE(out_unit,*) "--- Resulting statevector from the action of the HO1D Elem_op on the Psi statevector operand, computed &
-                        &by Action_HO1D_operator_R1 :"
+    IF (Verbose_local > 22) THEN
+      WRITE(out_unit,*) "--- Resulting statevector Op_psi :"
       CALL Write_Vec(Op_psi, out_unit, 1, info="Op_Psi")
     END IF
     
@@ -521,27 +524,30 @@ MODULE Elem_op_m
 
     !--- Selection of the calculation method --------------
     IF      (ALLOCATED(Elem_op%Diag_val))   THEN
-      IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Diag_val is allocated. The diagonal operator action called."
+      IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Diag_val is allocated"
+      IF (Verbose_local > 23) WRITE(out_unit,*) "--- Computing action of diagonal Elem_op upon Psi..."
       CALL Action_diag(Op_psi=Op_psi, Elem_op=Elem_op, Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
+      IF (Verbose_local > 23) WRITE(out_unit,*) "    ...back to MolecCav_Action_elem_op_R1_complex"
 
     ELSE IF (ALLOCATED(Elem_op%Band_val))   THEN
-      IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Diag_val is not allocated."
-      IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Band_val is allocated. The band operator action called."
+      IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Diag_val is not allocated, Elem_op%Band_val is allocated"
+      IF (Verbose_local > 23) WRITE(out_unit,*) "--- Computing action of band Elem_op upon Psi..."
       CALL Action_band(Op_psi=Op_psi, Elem_op=Elem_op, Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
+      IF (Verbose_local > 23) WRITE(out_unit,*) "    ...back to MolecCav_Action_elem_op_R1_complex"
 
     ELSE IF (ALLOCATED(Elem_op%Dense_val)) THEN
-      IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Diag_val and Elem_op%Band_val are not allocated."
-      IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Dense_val is allocated. The dense operator action called."
+      IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Diag_val and Elem_op%Band_val are not allocated, Elem_op%Dense_val is allocated"
+      IF (Verbose_local > 23) WRITE(out_unit,*) "--- Computing action of dense Elem_op upon Psi..."
       CALL Action_dense(Op_psi=Op_psi, Elem_op=Elem_op, Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
+      IF (Verbose_local > 23) WRITE(out_unit,*) "    ...back to MolecCav_Action_elem_op_R1_complex"
 
     ELSE
       WRITE(out_unit,*) "### None of this operator's matrices are allocated. Please check its initalization."
       STOP "### None of this operator's matrices are allocated. Please check its initalization."
     END IF
 
-    IF (Debug_local) THEN
-      WRITE(out_unit,*) "--- Resulting statevector from the action of the HO1D Elem_op on the Psi statevector operand, computed &
-                        &by Action_HO1D_operator_R1 :"
+    IF (Verbose_local > 22) THEN
+      WRITE(out_unit,*) "--- Resulting statevector Op_psi :"
       CALL Write_Vec(Op_psi, out_unit, 1, info="Op_Psi")
     END IF
     
@@ -781,8 +787,8 @@ MODULE Elem_op_m
     IF (ALLOCATED(Elem_op%Band_val))      DEALLOCATE(Elem_op%Band_val)
 
     !--- Conclusion ---------------------------------------
-    IF (Debug_local) THEN
-      WRITE(out_unit,*) "--- The deallocated HO1D operator object :"
+    IF (Verbose_local > 22) THEN
+      WRITE(out_unit,*) "--- The deallocated Elem_op operator object :"
       CALL Write(Elem_op)
     END IF
 
