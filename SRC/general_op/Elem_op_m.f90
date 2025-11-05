@@ -303,13 +303,13 @@ MODULE Elem_op_m
       IF (Verbose_local > 23) WRITE(out_unit,*) "    ...back to MolecCav_Action_elem_op_R1_real"
 
     ELSE IF (ALLOCATED(Elem_op%Band_val))   THEN
-      IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Diag_val is not allocated, Elem_op%Band_val is allocated."
+      IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Diag_val is not allocated, Elem_op%Band_val is."
       IF (Verbose_local > 23) WRITE(out_unit,*) "--- Computing action of band Elem_op upon Psi..."
       CALL Action_band(Op_psi=Op_psi, Elem_op=Elem_op, Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
       IF (Verbose_local > 23) WRITE(out_unit,*) "    ...back to MolecCav_Action_elem_op_R1_real"
 
     ELSE IF (ALLOCATED(Elem_op%Dense_val)) THEN
-      IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Diag_val and Elem_op%Band_val are not allocated, Elem_op%Dense_val is allocated"
+      IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Diag_val and Elem_op%Band_val are not allocated, Elem_op%Dense_val is"
       IF (Verbose_local > 23) WRITE(out_unit,*) "--- Computing action of dense Elem_op upon Psi..."
       CALL Action_dense(Op_psi=Op_psi, Elem_op=Elem_op, Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
       IF (Verbose_local > 23) WRITE(out_unit,*) "    ...back to MolecCav_Action_elem_op_R1_real"
@@ -530,13 +530,13 @@ MODULE Elem_op_m
       IF (Verbose_local > 23) WRITE(out_unit,*) "    ...back to MolecCav_Action_elem_op_R1_complex"
 
     ELSE IF (ALLOCATED(Elem_op%Band_val))   THEN
-      IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Diag_val is not allocated, Elem_op%Band_val is allocated"
+      IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Diag_val is not allocated, Elem_op%Band_val is"
       IF (Verbose_local > 23) WRITE(out_unit,*) "--- Computing action of band Elem_op upon Psi..."
       CALL Action_band(Op_psi=Op_psi, Elem_op=Elem_op, Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
       IF (Verbose_local > 23) WRITE(out_unit,*) "    ...back to MolecCav_Action_elem_op_R1_complex"
 
     ELSE IF (ALLOCATED(Elem_op%Dense_val)) THEN
-      IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Diag_val and Elem_op%Band_val are not allocated, Elem_op%Dense_val is allocated"
+      IF (Debug_local) WRITE(out_unit,*) "--- Elem_op%Diag_val and Elem_op%Band_val are not allocated, Elem_op%Dense_val is"
       IF (Verbose_local > 23) WRITE(out_unit,*) "--- Computing action of dense Elem_op upon Psi..."
       CALL Action_dense(Op_psi=Op_psi, Elem_op=Elem_op, Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
       IF (Verbose_local > 23) WRITE(out_unit,*) "    ...back to MolecCav_Action_elem_op_R1_complex"

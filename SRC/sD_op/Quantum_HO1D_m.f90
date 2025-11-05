@@ -233,7 +233,7 @@ MODULE Quantum_HO1D_m
     !--- Conclusion ---------------------------------------
     IF (Verbose_local > 17) THEN
       WRITE(out_unit,*) "--- Initialised QHO1D object :"
-      CALL Write(QHO1D, More=.TRUE.)
+      CALL Write(QHO1D, More=Debug_local)
     END IF
 
   END SUBROUTINE MolecCav_Initialize_quantum_HO1D
@@ -617,7 +617,7 @@ MODULE Quantum_HO1D_m
       ALLOCATE(NbQuanta%Diag_val(Nb))
 
       !--- Construction of the matrix ---------------------
-      DO i = 1, Nb                                                                                                     ! /!\ Fortran counts from 1 to Nb !!! /!\
+      DO i = 1, Nb                                                                                      ! /!\ Fortran counts from 1 to Nb !!! /!\
         NbQuanta%Diag_val(i) = i - 1
       END DO
   
@@ -628,19 +628,22 @@ MODULE Quantum_HO1D_m
       END IF
 
     ELSE
-      IF (Verbose_local > 18) WRITE(out_unit,*) "--- The Dense parameter of the NbQuanta is .TRUE., so the full 1D HO NbQuanta's &
-                                                &matrix will be constructed (in Eigenbasis) for the representation, as if the ana&
-                                                &lytical matrix was a dense one"
+      IF (Verbose_local > 18) WRITE(out_unit,*) "--- The Dense parameter is passed as .TRUE., the full QHO1D Number of excitation&
+      & quanta's matrix will be constructed for the representation, regardless of the sparce character of the analytical matrix"
       !--- Initialization to default values ---------------
       ALLOCATE(NbQuanta%Dense_val(Nb, Nb))
       NbQuanta%Dense_val = ZERO
 
       !--- Construction of the matrix ---------------------
-      DO i = 1, Nb                                                                            ! /!\ Fortran counts from 1 to Nb !!! /!\
+      DO i = 1, Nb                                                                                      ! /!\ Fortran counts from 1 to Nb !!! /!\
         NbQuanta%Dense_val(i,i) = i - 1
       END DO
 
-      IF (Debug_local) CALL Write_Mat(NbQuanta%Dense_val, out_unit, SIZE(NbQuanta%Dense_val), info="HO1DNbQuanta")
+      !--- Conclusion ---------------------------------------                                           ! The conclusion here is only about the matrix of the Elem_op because only this is its only part initialised in the subroutine, the <<global conclusion>> is in the <<above layer subroutine>> = MolecCav_Initialize_QHO1D_Elem_op that manages the initialisation in general
+      IF (Verbose_local > 17) THEN
+        WRITE(out_unit,*) "--- The initialised NbQuanta Elem_op matrix :"
+        CALL Write_Mat(NbQuanta%Dense_val, out_unit, SIZE(NbQuanta%Dense_val, dim=2), info="QHO1D%Tab_op(3)")
+      END IF
     END IF
       
   END SUBROUTINE MolecCav_Initialize_N_QHO1D
@@ -682,20 +685,21 @@ MODULE Quantum_HO1D_m
       FLUSH(out_unit)
     END IF
     
-    !-----------------------------------------------------Checking dimensions----------------------------------------------------
+    !--- Checking dimensions ------------------------------
     ! ALREADY CHECKED IN THE ACTIONS CODED IN ELEM_OP_M ! (fortunately btw, otherwise the \hat{I}d case should have test above)
 
-    !---------------------------------------------Selection of the calculation method--------------------------------------------
+    !--- Selection of the calculation method --------------
     IF (QHO1D%Tab_op(i_op)%Operator_type == "identity") THEN ! N.B. we should have tested i_op == 0, easier and consistent with the algorithmic choices made so far
       Op_psi = Psi
     ELSE
+      IF (Verbose_local > 18) WRITE(out_unit,*) "--- Computing action of QHO1D%Tab_op("//TO_string(i_op)//") upon Psi..."
       CALL Action(Op_psi=Op_psi, Elem_op=QHO1D%Tab_op(i_op), Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
-      WRITE(out_unit,*) "    ...back to MolecCav_Action_quantum_HO1D"
+      IF (Verbose_local > 18) WRITE(out_unit,*) "    ...back to MolecCav_Action_quantum_HO1D_real"
     END IF
 
-    IF (Debug_local) THEN
-      WRITE(out_unit,*) "--- Resulting statevector from the action of the HO1D Elem_op on the Psi statevector operand, computed &
-                        &by Action_HO1D_operator_R1 :"
+    !--- Conclusion ---------------------------------------
+    IF (Verbose_local > 17) THEN
+      WRITE(out_unit,*) "--- Resulting statevector Op_psi :"
       CALL Write_Vec(Op_psi, out_unit, 1, info="Op_Psi")
     END IF
     
@@ -738,21 +742,21 @@ MODULE Quantum_HO1D_m
       FLUSH(out_unit)
     END IF
     
-    !-----------------------------------------------------Checking dimensions----------------------------------------------------
+    !--- Checking dimensions ------------------------------
     ! ALREADY CHECKED IN THE ACTIONS CODED IN ELEM_OP_M !
 
-    !---------------------------------------------Selection of the calculation method--------------------------------------------
+    !--- Selection of the calculation method --------------
     IF (QHO1D%Tab_op(i_op)%Operator_type == "identity") THEN 
       Op_psi = Psi
     ELSE
+      IF (Verbose_local > 18) WRITE(out_unit,*) "--- Computing action of QHO1D%Tab_op("//TO_string(i_op)//") upon Psi..."
       CALL Action(Op_psi=Op_psi, Elem_op=QHO1D%Tab_op(i_op), Psi=Psi, Verbose=Verbose_local, Debug=Debug_local)
-      WRITE(out_unit,*) "    ...back to MolecCav_Action_quantum_HO1D_R1_complex"
+      IF (Verbose_local > 18) WRITE(out_unit,*) "    ...back to MolecCav_Action_quantum_HO1D_R1_complex"
     END IF
 
-    IF (Debug_local) THEN
-      WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- Resulting statevector from the action of the HO1D Elem_op on the Psi statevector operand, computed &
-                        &by Action_HO1D_operator_R1 :"
+    !--- Conclusion ---------------------------------------
+    IF (Verbose_local > 17) THEN
+      WRITE(out_unit,*) "--- Resulting statevector Op_psi :"
       CALL Write_Vec(Op_psi, out_unit, 1, info="Op_Psi")
     END IF
     
@@ -778,7 +782,7 @@ MODULE Quantum_HO1D_m
         Parameter_value = QHO1D%Nq
 
       CASE DEFAULT
-        WRITE(out_unit,*) "No Parameter name recognized, please verify the input of Get_QHO1D_parameter_integer subroutine"
+        WRITE(out_unit,*) "### No Parameter name recognized, please verify the arguments of Get_QHO1D_parameter_integer subroutine"
         STOP "### No Operator type recognized, please verify the input of Get_QHO1D_parameter_integer subroutine"
 
     END SELECT
@@ -808,8 +812,8 @@ MODULE Quantum_HO1D_m
         Parameter_value = QHO1D%Scale_q
 
       CASE DEFAULT
-        WRITE(out_unit,*) "No Parameter name recognized, please verify the input of Get_QHO1D_parameter_integer subroutine"
-        STOP "### No Operator type recognized, please verify the input of Get_QHO1D_parameter_integer subroutine"
+        WRITE(out_unit,*) "### No Parameter name recognized, please verify the input of Get_QHO1D_parameter_real subroutine"
+        STOP "### No Operator type recognized, please verify the input of Get_QHO1D_parameter_real subroutine"
 
     END SELECT
 
@@ -890,7 +894,7 @@ MODULE Quantum_HO1D_m
       CALL Write(QHO1D, More=Debug_local)
     END IF 
 
-    !-----------------------------Deallocating the HO1D operator object----------------------------  
+    !--- Deallocating the HO1D operator object ------------  
     QHO1D%Nb = 0
     QHO1D%w  = ZERO
     QHO1D%m  = ZERO
@@ -903,8 +907,8 @@ MODULE Quantum_HO1D_m
     QHO1D%Eq_pos  = -ONE
     QHO1D%Scale_q = HUGE(ONE)
 
-    IF (Debug_local) THEN
-      WRITE(out_unit,*)
+    !--- Conclusion ---------------------------------------
+    IF (Verbose_local > 17) THEN
       WRITE(out_unit,*) "--- The deallocated QHO1D object :"
       CALL Write(QHO1D, More=Debug_local)
     END IF
