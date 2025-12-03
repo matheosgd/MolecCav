@@ -405,7 +405,7 @@ MODULE Matter_mode_m
 
     IF (More_local) THEN 
       WRITE(out_unit,*) "--- Writing Quantum_HO1D_t..."
-      CALL Write(MatMode%Quantum_HO1D_t)
+      CALL Write(MatMode%Quantum_HO1D_t,more=.TRUE.)
       WRITE(out_unit,*) "    ...back to MolecCav_Write_matter_mode"
     END IF 
 

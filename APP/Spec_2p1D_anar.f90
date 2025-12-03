@@ -109,7 +109,7 @@ PROGRAM Spec_2p1D_anar
   WRITE(out_unit,*) "Mat2Nb    = "//TO_string(Nb_2)
   WRITE(out_unit,*) "CavNb     = "//TO_string(Nb_3)
 
-  OPEN(NEWUNIT = nioHanar, FILE = '/home/segaud/MolecCav/DATA/H30x30', FORM = 'formatted', ACTION = 'read', POSITION = 'rewind', &
+  OPEN(NEWUNIT = nioHanar, FILE = 'MolecCav/DATA/H30x30', FORM = 'formatted', ACTION = 'read', POSITION = 'rewind', &
   &IOSTAT=err_io)
   WRITE(out_unit,*) "### err_io = "//TO_string(err_io)
 

@@ -63,13 +63,16 @@ LIBA           = $(LIB).a# the name (/!\ WITH the extension) of the library (the
 # in make the variables values are treated and accessed the same way as in shell/bash : between "$(<name_of_the_variable>)"
 
 DATA_DIR       = DATA# the name of the directory where to find the data files of the library
+
 OBJ_DIR        = OBJ/obj# the name of the directory where to store the objects .o and .mod files (/obj because we might want to create different sub libraries with different parameters => different obj/ directories)
 MOD_DIR        = $(OBJ_DIR)# the name of the directory where to store the .mod files (here same as OBJ but can be different)
 EXE_DIR        = EXE# the name of the directory where to store the objects .o and .mod files (/obj because we might want to create different sub libraries with different parameters => different obj/ directories)
 OUTPUT_DIR     = OUT# the name of the directory where to store the log files of the library's programs
 
 MAIN_DIR       = APP# the name of the directory where to find the source file(s) of the application/exemple program
-MAIN           = MolecCav# the name of the application file without the extension
+#MAIN           = MolecCav# the name of the application file without the extension
+MAIN           = Spec_1p1D_anarDML
+#MAIN           = Spec_1p1D_anar
 MAIN_SRC       = $(MAIN).f90
 MAIN_OBJ       = $(MAIN).o
 MAIN_EXE       = $(MAIN).exe
@@ -77,6 +80,8 @@ MAIN_OUT       = $(MAIN)
 MAIN_OUT_FULL  = $(MAIN_OUT).log
 MAIN_DATA      = data_$(MAIN)
 MAIN_DATA_FULL = $(MAIN_DATA).nml
+$(info MAIN:   $(MAIN))
+
 
 MODULES_DIR    = SRC# the name of the directory where to find the source files of the library's modules
 MODULES_SRC_1  = Tests_m.f90 Algebra_m.f90 ND_indexes_m.f90 Lanczos_m.f90#(FIRST SUBDIRECTORY) the list of all the .f90 source files OF THE LIBRARY (only the modules, not the test/app programs) to be compiled
@@ -265,6 +270,7 @@ cleanall : clean
 #-------------------------------------------------
 $(EXE_DIR)/$(MAIN_EXE) : $(OBJ_DIR)/$(MAIN_OBJ) $(LIBA)
 	$(FFC) -o $(EXE_DIR)/$(MAIN_EXE) $(FFLAGS) $(OBJ_DIR)/$(MAIN_OBJ) $(LIBA) $(EXTLib)
+	@echo Main $(MAIN_EXE) done
 # this syntax define a file in Make : it shows its dependancies and then the compilation instructions
 # the first line "<the file defined here> : <list of the files it depends on>" provides the dependancies. If Make has to treat this file, it will compare its date of creation with the one of the files it depends on. If it has been created after them all nothing is done. Otherwise or if the file doesn't exist, Make will create it using the instruc-
 # tions that follows

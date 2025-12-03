@@ -37,8 +37,8 @@ PROGRAM Spec_1p1D_anar
   IMPLICIT NONE
 
 
-  integer                       :: Verbose = 40
-  logical                       :: Debug   = .TRUE.
+  integer                       :: Verbose = 20!40
+  logical                       :: Debug   = .FALSE.
   integer                       :: nioint, niospec, nioHanar, err_io
 
   logical                       :: Dense   = .TRUE.
@@ -49,6 +49,8 @@ PROGRAM Spec_1p1D_anar
   integer                       :: Nb_1, Nb_2, NB, J
 
   real(kind=Rkind), allocatable :: H_anar_in(:,:), H_anar(:,:)
+  real(kind=Rkind), allocatable :: Mu_anar_in(:,:), Mu_anar(:,:)
+
   real(kind=Rkind), allocatable :: AnarREigvec(:,:)
   real(kind=Rkind), allocatable :: AnarREigval(:)
 
@@ -105,13 +107,15 @@ PROGRAM Spec_1p1D_anar
   WRITE(out_unit,*) "MatNb     = "//TO_string(Nb_1)
   WRITE(out_unit,*) "CavNb     = "//TO_string(Nb_2)
 
-  OPEN(NEWUNIT = nioHanar, FILE = 'DATA/H30x30', FORM = 'formatted', ACTION = 'read', POSITION = 'rewind', &
-  &IOSTAT=err_io)
+  !============================================================================
+  !!!! read anaharmonic Hamiltonian matrix + diagonalization (test)
+  OPEN(NEWUNIT = nioHanar, FILE = 'DATA/H30x30', FORM = 'formatted', ACTION = 'read', IOSTAT=err_io)
   WRITE(out_unit,*) "### err_io = "//TO_string(err_io)
 
   ALLOCATE(H_anar_in(30,30))
   CALL Read_Mat(H_anar_in, nioHanar, 5, err_io)
   WRITE(out_unit,*) "### err_io = "//TO_string(err_io)
+  CLOSE(nioHanar)
 
   ALLOCATE(H_anar(Nb_1,Nb_1))
   H_anar = H_anar_in(1:Nb_1, 1:Nb_1)
@@ -122,18 +126,34 @@ PROGRAM Spec_1p1D_anar
   CALL diagonalization(H_anar, AnarREigval, AnarREigvec)
   WRITE(out_unit,*)
   CALL Write_Vec(AnarREigval, out_unit, 1, info="MatH_anar EigenEnergies [Ha]")
+  !============================================================================
+  !============================================================================
+  !!!! read anaharmonic Dipole moment (1 component) matrix
+  OPEN(NEWUNIT = nioHanar, FILE = 'DATA/Mu30x30', FORM = 'formatted', ACTION = 'read', IOSTAT=err_io)
+  WRITE(out_unit,*) "### err_io = "//TO_string(err_io)
 
-  WRITE(out_unit,*)
+  ALLOCATE(Mu_anar_in(30,30))
+  CALL Read_Mat(Mu_anar_in, nioHanar, 5, err_io)
+  WRITE(out_unit,*) "### err_io = "//TO_string(err_io)
+  CLOSE(nioHanar)
+
+  ALLOCATE(Mu_anar(Nb_1,Nb_1))
+  Mu_anar = Mu_anar_in(1:Nb_1, 1:Nb_1)
+  CALL Write_Mat(Mu_anar, out_unit, SIZE(Mu_anar, dim=2), info="Mu_anar")
+  !============================================================================
+
+  !============================================================================
   WRITE(out_unit,*) "--- HARMONIC tab_mat_ops"
   DO I=1, SIZE(tab_mat_ops)
     CALL Write(tab_mat_ops(I))
   END DO
-  tab_mat_ops(1)%Tab_op(1)%Dense_val = H_anar
+  tab_mat_ops(1)%Tab_op(1)%Dense_val = H_anar !Hamiltonian
+  tab_mat_ops(1)%Tab_op(4)%Dense_val = Mu_anar ! dipmomt (1 component)
   WRITE(out_unit,*) "--- ANARHARMONIC tab_mat_ops"
   DO I=1, SIZE(tab_mat_ops)
-    CALL Write(tab_mat_ops(I))
+    CALL Write(tab_mat_ops(I),More=.TRUE.)
   END DO
-
+  !============================================================================
   ALLOCATE(TotH_matrix(NB, NB))
   ALLOCATE(Phi(NB))
   TotH_matrix = ZERO
@@ -141,7 +161,7 @@ PROGRAM Spec_1p1D_anar
   DO J = 1, NB
     Phi = ZERO
     Phi(J) = ONE
-    CALL Action(TotH_matrix(:,J), TotH, Phi, Verbose=Verbose, Debug=.FALSE.)
+    CALL Action(TotH_matrix(:,J), TotH, Phi, Verbose=0, Debug=.FALSE.)
   END DO
 
   WRITE(out_unit,*)
@@ -161,7 +181,7 @@ PROGRAM Spec_1p1D_anar
   ! &ug=Debug)
   ! CALL Initialize(TranSpec, REigvec, DipMomt, E_threshold=E_threshold, REigval=REigval, Nb_states=N_states, Verbose=Verbose, Deb&
   ! &ug=Debug)
-  CALL Initialize(TranSpec, TotREigvec, DipMomt, TotREigval, Nb_states=10, Verbose=Verbose, Debug=Debug)
+  CALL Initialize(TranSpec, TotREigvec, DipMomt, TotREigval, Nb_states=10, Verbose=0, Debug=Debug)
 
   WRITE(out_unit,*) "Spectrum information"
   CALL Write_Vec(TranSpec%tab_energies, out_unit, SIZE(TranSpec%tab_energies), info="Transition Energies")
@@ -196,112 +216,14 @@ PROGRAM Spec_1p1D_anar
   WRITE(niospec, *) "Energy -------- Transition intensity"
   DO I = 1, 9000
     Energy    = (Start_plot + I*Step_plot)*Conversion
-!######### stretching #############
-    ! Intensity = TranSpec%tab_ints(1)*1E4*Lorentzian(Energy, TranSpec%tab_energies(1)*Conversion, Gamma) &
-    ! &         + TranSpec%tab_ints(4)*1E0*Lorentzian(Energy, TranSpec%tab_energies(4)*Conversion, Gamma) &
-    ! &         + TranSpec%tab_ints(6)*1E5*Lorentzian(Energy, TranSpec%tab_energies(6)*Conversion, Gamma) &
-    ! &         + TranSpec%tab_ints(8)*1E2*Lorentzian(Energy, TranSpec%tab_energies(8)*Conversion, Gamma)
-!##################################
-    Intensity = TranSpec%tab_ints(1)*Lorentzian(Energy, TranSpec%tab_energies(1)*Conversion, Gamma) &
-    &         + TranSpec%tab_ints(2)*Lorentzian(Energy, TranSpec%tab_energies(2)*Conversion, Gamma) &
-    &         + TranSpec%tab_ints(3)*Lorentzian(Energy, TranSpec%tab_energies(3)*Conversion, Gamma) &
-    &         + TranSpec%tab_ints(4)*Lorentzian(Energy, TranSpec%tab_energies(4)*Conversion, Gamma) &
-    &         + TranSpec%tab_ints(5)*Lorentzian(Energy, TranSpec%tab_energies(5)*Conversion, Gamma) &
-    &         + TranSpec%tab_ints(6)*Lorentzian(Energy, TranSpec%tab_energies(6)*Conversion, Gamma) &
-    &         + TranSpec%tab_ints(7)*Lorentzian(Energy, TranSpec%tab_energies(7)*Conversion, Gamma) &
-    &         + TranSpec%tab_ints(8)*Lorentzian(Energy, TranSpec%tab_energies(8)*Conversion, Gamma) &
-    &         + TranSpec%tab_ints(9)*Lorentzian(Energy, TranSpec%tab_energies(9)*Conversion, Gamma)
-    !======================================================
-    !
-    ! For the 2 photons experiment (just remove 2 first tr-
-    ! ansitions) : if you try you are not supposed to see 
-    ! anything on the spectra, transition intensities are
-    ! really null.
-    !
-    !======================================================
-    ! Intensity = TranSpec%tab_ints(4)*Lorentzian(Energy, TranSpec%tab_energies(4)*Conversion, Gamma) &
-    ! &         + TranSpec%tab_ints(5)*Lorentzian(Energy, TranSpec%tab_energies(5)*Conversion, Gamma) &
-    ! &         + TranSpec%tab_ints(6)*Lorentzian(Energy, TranSpec%tab_energies(6)*Conversion, Gamma) &
-    ! &         + TranSpec%tab_ints(7)*Lorentzian(Energy, TranSpec%tab_energies(7)*Conversion, Gamma) &
-    ! &         + TranSpec%tab_ints(8)*Lorentzian(Energy, TranSpec%tab_energies(8)*Conversion, Gamma) &
-    ! &         + TranSpec%tab_ints(9)*Lorentzian(Energy, TranSpec%tab_energies(9)*Conversion, Gamma)
+    Intensity = ZERO
+    DO J = 1, TranSpec%N_trstns
+      IF (TranSpec%tab_ints(J) > ONETENTH**10) THEN
+        Intensity = Intensity + TranSpec%tab_ints(J)*Lorentzian(Energy, TranSpec%tab_energies(J)*Conversion, Gamma)
+      END IF
+    END DO  
     WRITE(niospec, *) Energy, Intensity
   END DO
-
-  !----------------------------computing the Nmodes---------------------------
-  CALL Compute_normal_modes(Nmodes, Ncoos, Matm, Matw, Cavw, Matlambda, Cavlambda, ONE, .TRUE.)
-
-  
-  CONTAINS
-
-
-  SUBROUTINE Compute_normal_modes(Nmodes_l, Ncoos_l, Matm_l, Matw_l, Cavw_l, Matlambda_l, Cavlambda_l, CoeffDipMomt_l, Debug_l)
-    USE QDUtil_m
-    IMPLICIT NONE 
-
-    real(kind=Rkind),  intent(inout) :: Nmodes_l(2)                             ! VP of the MWH
-    real(kind=Rkind),  intent(inout) :: Ncoos_l(2,2)                     ! \overrightarrow{VP} of the MWH
-    real(kind=Rkind),  intent(in)    :: Matm_l
-    real(kind=Rkind),  intent(in)    :: Matw_l
-    real(kind=Rkind),  intent(in)    :: Cavw_l
-    real(kind=Rkind),  intent(in)    :: Matlambda_l 
-    real(kind=Rkind),  intent(in)    :: Cavlambda_l
-    real(kind=Rkind),  intent(in)    :: CoeffDipMomt_l
-    logical, optional, intent(in)    :: Debug_l
-
-    real(kind=Rkind)                 :: Cross
-    real(kind=Rkind)                 :: MWH(2,2)
-    logical                          :: Debug_local = .TRUE.
-
-
-    !------------------------------------------------------Debugging options-----------------------------------------------------
-    IF (PRESENT(Debug_l))   THEN; Debug_local = Debug_l
-    ELSE; Debug_local = .FALSE.; END IF
-
-    IF (Debug_local) THEN
-      WRITE(out_unit,*)
-      WRITE(out_unit,*) "--- Parameters for the mass-weightened Hessian :"
-      WRITE(out_unit,*) "Matm      = "//TO_string(Matm_l)
-      WRITE(out_unit,*) "Matw      = "//TO_string(Matw_l)
-      WRITE(out_unit,*) "Cavw      = "//TO_string(Cavw_l)
-      WRITE(out_unit,*) "Matlambda = "//TO_string(Matlambda_l)
-      WRITE(out_unit,*) "Cavlambda = "//TO_string(Cavlambda_l)
-      WRITE(out_unit,*) "lambda    = "//TO_string(Matlambda_l*Cavlambda_l)
-      WRITE(out_unit,*) "--- End MWH parameters"
-    END IF 
-
-
-    !------------------------------------------------------Computing-----------------------------------------------------
-    Cross    = Cavlambda_l*Matlambda_l*Cavw_l*CoeffDipMomt_l / SQRT(Matm_l)
-    MWH      = ZERO
-    MWH(1,1) = Matw**2
-    MWH(2,2) = Cavw**2
-    MWH(1,2) = Cross
-    MWH(2,1) = MWH(1,2)
-
-    IF (Debug_local) THEN
-      CALL Write_Mat(MWH, out_unit, Size(MWH, dim=2), info="MWH")
-    END IF
-
-    CALL diagonalization(MWH, Nmodes_l, Ncoos_l)
-    IF (Debug_local) CALL Write_Vec(Nmodes_l,       out_unit, Size(Nmodes_l),              info="Normal modes")
-    IF (Debug_local) CALL Write_Mat(Ncoos_l, out_unit, Size(Ncoos_l, dim=2), info="Normal coordniates")
-
-    WRITE(out_unit,*)
-    WRITE(out_unit,*) "--- Normal modes checking :"
-    DO i = 1, Size(Nmodes_l)
-      IF (Nmodes_l(i) >= 0) THEN
-        WRITE(out_unit,*) TO_string(i)//"^{th} Normal coordinate has positive squared frequency, lead&
-                         &ing to w_"//TO_string(i)//" = "//TO_string(SQRT(Nmodes_l(i)))
-      ELSE
-        WRITE(out_unit,*) TO_string(i)//"^{th} Normal coordinate has NEGATIVE squared frequency, lead&
-        &ing to w_"//TO_string(i)//" = "//TO_string(EYE*SQRT(-Nmodes_l(i)))
-      END IF
-    END DO
-    WRITE(out_unit,*) "Expected ZPE by half-sum of the total system eigenpulsations (from MWH): "//TO&
-                    &_string( ( SQRT(Nmodes_l(1))+SQRT(Nmodes_l(2)) )/2 )
-
-  END SUBROUTINE Compute_normal_modes
 
 
 END PROGRAM
